@@ -17,11 +17,12 @@
 #include "BasicAlignmentResult2.hpp"
 #include "ISequence.hpp"
 
-#include "LinuxThread.hpp"
+#include "DefaultOsFactory.hpp"
 
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include "macros.hpp"
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -30,8 +31,6 @@ using namespace std;
 using namespace dp;
 using namespace os;
 using namespace database;
-
-#define MIN(a,b)  ((a)<(b) ? (a) : (b))
 
 /********************************************************************************/
 namespace algo  {
@@ -48,7 +47,7 @@ namespace algo  {
 BasicAlignmentResult2::BasicAlignmentResult2 (size_t nbQuerySequences)
     : _synchro (0), _nbAlignments(0)
 {
-    _synchro = new LinuxSynchronizer ();
+    _synchro = DefaultFactory::singleton().getThreadFactory().newSynchronizer();
 }
 
 /*********************************************************************
@@ -62,7 +61,7 @@ BasicAlignmentResult2::BasicAlignmentResult2 (size_t nbQuerySequences)
 BasicAlignmentResult2::BasicAlignmentResult2 (vector<string>& subjectComments,  vector<string>& queryComments)
     : _synchro(0), _nbAlignments(0), _subjectComments(subjectComments), _queryComments(queryComments)
 {
-    _synchro = new LinuxSynchronizer ();
+    _synchro = DefaultFactory::singleton().getThreadFactory().newSynchronizer();
 }
 
 /*********************************************************************
@@ -295,9 +294,8 @@ void BasicAlignmentResult2::shrink (void)
         if (s < imin) { imin = s; }
     }
 
-
-    printf ("BasicAlignmentResult2::shrink  nbAlignments=%ld  count=%ld  diff=%ld  min=%ld max=%ld\n",
-        _nbAlignments, count, (_nbAlignments-count), imin, imax);
+//    printf ("BasicAlignmentResult2::shrink  nbAlignments=%ld  count=%ld  diff=%ld  min=%ld max=%ld\n",
+//        _nbAlignments, count, (_nbAlignments-count), imin, imax);
 }
 
 /*********************************************************************

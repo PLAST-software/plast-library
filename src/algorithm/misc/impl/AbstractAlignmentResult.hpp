@@ -41,7 +41,6 @@ public:
     );
 
     bool doesExist (const Alignment& align) { return false; }
-
 };
 
 /********************************************************************************/

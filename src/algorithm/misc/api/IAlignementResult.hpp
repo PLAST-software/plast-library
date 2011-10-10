@@ -29,10 +29,9 @@
 #include <sstream>
 #include <set>
 #include <string>
-
 #include <stdio.h>
 
-#define MAX(a,b)  ((a)>(b) ? (a) : (b))
+#include "macros.hpp"
 
 /********************************************************************************/
 namespace algo  {
@@ -116,10 +115,6 @@ private:
         u_int32_t rightOffsetInSubject
     )
     {
-        /** Shortcuts. */
-        u_int32_t size1 = occur1->sequence.data.letters.size;
-        u_int32_t size2 = occur2->sequence.data.letters.size;
-
         /** Shortcuts. */
         int32_t offInSeq1 = occur1->offsetInSequence;
         int32_t offInSeq2 = occur2->offsetInSequence;

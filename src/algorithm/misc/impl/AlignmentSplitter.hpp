@@ -14,45 +14,64 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-
-#ifndef _ALGO_UNGAP_ALIGNMENT_HPP_
-#define _ALGO_UNGAP_ALIGNMENT_HPP_
+#ifndef _ALIGNMENT_SPLITTER_HPP_
+#define _ALIGNMENT_SPLITTER_HPP_
 
 /********************************************************************************/
 
-#include "IAlgoUngapAlignment.hpp"
-#include "ISeedModel.hpp"
-#include "IScoreMatrix.hpp"
+#include "IAlignmentSplitter.hpp"
 
 /********************************************************************************/
 namespace algo  {
 /********************************************************************************/
 
-/** Define an interface of what ungap alignment algorithm is: something that provides
- *  a way for iterating Hit instances.
- *  The idea is to get as input some HitIterator that is transformed into another one,
- *  possibly after filtering out some hits.
- */
-class AlgoUngapAlignment : public IAlgoUngapAlignment
+class AlignmentSplitter : public IAlignmentSplitter
 {
 public:
+    AlignmentSplitter (IScoreMatrix* scoreMatrix, int openGapCost, int extendGapCost);
+    virtual ~AlignmentSplitter ();
 
-    /** */
-    AlgoUngapAlignment ();
-
-    virtual ~AlgoUngapAlignment ();
-
-    /** Creates a hits iterator that loops over ungap alignement hits. */
-    indexation::IHitIterator* createHitIterator (
-        indexation::IHitIterator*   inputIterator,
-        seed::ISeedModel*           model,
-        algo::IScoreMatrix*         scoreMatrix,
-        algo::IParameters*      parameters
+    size_t splitAlign (
+        const database::LETTER* subjectSeq,
+        const database::LETTER* querySeq,
+        u_int32_t subjectStartInSeq,
+        u_int32_t subjectEndInSeq,
+        u_int32_t queryStartInSeq,
+        u_int32_t queryEndInSeq,
+        int* splittab,
+        size_t& identity,
+        size_t& nbGap,
+        size_t& nbMis,
+        size_t& alignSize,
+        database::LETTER* subjectAlign = 0,
+        database::LETTER* queryAlign   = 0
     );
+
+    size_t splitAlign (Alignment& align,  int* splittab);
+
+    void computeInfo (Alignment& align);
+
+private:
+
+    IScoreMatrix* _scoreMatrix;
+    void setScoreMatrix (IScoreMatrix* scoreMatrix)  { SP_SETATTR (scoreMatrix); }
+
+    int _openGapCost;
+    int _extendGapCost;
+
+    short** _matrix_H;
+    short** _matrix_E;
+    short** _matrix_F;
+
+    int _DefaultAlignSize;
+    int _MaxAlignSize;
+
+    short** newMatrix  (int nrows, int ncols);
+    void    freeMatrix (short*** mat);
 };
 
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* _ALGO_UNGAP_ALIGNMENT_HPP_ */
+#endif /* _ALIGNMENT_SPLITTER_HPP_ */

@@ -21,7 +21,6 @@
 
 #include "IStatistics.hpp"
 #include "ISequenceDatabase.hpp"
-#include "IAlgoFactories.hpp"
 #include "IAlgoParameters.hpp"
 
 #include <vector>
@@ -78,7 +77,7 @@ public:
 
         if (i>=_seqInfo.size())
         {
-            printf ("getSeqInfoByIndex wanted %d  max %d\n", i, _seqInfo.size());
+            // TBD launch an exception ?
         }
         return _seqInfo[i];
     }

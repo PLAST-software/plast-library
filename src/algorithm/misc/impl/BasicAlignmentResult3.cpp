@@ -16,11 +16,12 @@
 
 #include "BasicAlignmentResult3.hpp"
 
-#include "LinuxThread.hpp"
+#include "DefaultOsFactory.hpp"
 
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include "macros.hpp"
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -28,8 +29,6 @@
 using namespace std;
 using namespace dp;
 using namespace os;
-
-#define MIN(a,b)  ((a)<(b) ? (a) : (b))
 
 /********************************************************************************/
 namespace algo  {
@@ -46,7 +45,7 @@ namespace algo  {
 BasicAlignmentResult3::BasicAlignmentResult3 (size_t nbQuerySequences)
     : _synchro (0), _nbAlignments(0)
 {
-    _synchro = new LinuxSynchronizer ();
+    _synchro = DefaultFactory::singleton().getThreadFactory().newSynchronizer();
 }
 
 /*********************************************************************
@@ -136,21 +135,6 @@ bool BasicAlignmentResult3::insert (Alignment& align, void* context)
 
     /** We return the result. */
     return result;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-static bool mysortfunction (const Alignment& i, const Alignment& j)
-{
-    //return i._score < j._score;
-    return (i._queryStartInDb< j._queryStartInDb) ||
-           (i._queryStartInDb==j._queryStartInDb  &&  i._queryEndInDb<j._queryEndInDb);
 }
 
 /*********************************************************************
@@ -287,9 +271,8 @@ void BasicAlignmentResult3::shrink (void)
         if (s < imin) { imin = s; }
     }
 
-
-    printf ("BasicAlignmentResult3::shrink  nbAlignments=%ld  count=%ld  diff=%ld  min=%ld max=%ld\n",
-        _nbAlignments, count, (_nbAlignments-count), imin, imax);
+//    printf ("BasicAlignmentResult3::shrink  nbAlignments=%ld  count=%ld  diff=%ld  min=%ld max=%ld\n",
+//        _nbAlignments, count, (_nbAlignments-count), imin, imax);
 }
 
 /*********************************************************************

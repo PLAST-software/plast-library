@@ -46,19 +46,20 @@ ReadingFrame_e AbstractAlgorithm::topframes[]    = {FRAME_1, FRAME_2, FRAME_3};
 ReadingFrame_e AbstractAlgorithm::bottomframes[] = {FRAME_4, FRAME_5, FRAME_6};
 
 /********************************************************************************/
+
+/** Command that launch 'iterate' method on a IHitIterator instance. Using a Command allows to
+ *  launch this iteration in a specific thread.*/
 class HitIterationCommand : public ICommand
 {
 public:
     HitIterationCommand (IHitIterator* it, void* client, Iterator<Hit*>::Method method)
-        :  _it(it), _client(client), _method(method), _nbHits(0)  {  if (_it)  { _it->use(); }  }
+        :  _it(it), _client(client), _method(method) {  if (_it)  { _it->use(); }  }
     virtual ~HitIterationCommand ()  {  if (_it)  { _it->forget(); } }
     void execute ()  {  _it->iterate (_client, _method);  }
-    u_int64_t getNbHits  () { return _nbHits; }
 private:
-    IHitIterator* _it;
-    void*                        _client;
+    IHitIterator*          _it;
+    void*                  _client;
     Iterator<Hit*>::Method _method;
-    size_t _nbHits;
 };
 
 /*********************************************************************
@@ -134,11 +135,31 @@ AbstractAlgorithm::~AbstractAlgorithm (void)
 *********************************************************************/
 void AbstractAlgorithm::execute (void)
 {
-    /** We want to have some time statistics. */
+    /** Here is the heart of the plast algorithm. We create all needed objects, configure
+     *  them and launch the algorithm which consists in iterating over hits through different
+     *  steps, each step filtering out hits.
+     *
+     *  The result of the algorithm is a IAlignmentResult instance that is visited by some Visitor
+     *  (usually for dumping alingments into a file).
+     *
+     *  The algorithm is named 'abstract' because it provides a skeleton of the algorithm, some
+     *  parts of the algorithm can be refined in sub classes. Therefore, this 'execute' method
+     *  can be seedn as a Template Method (template primitives are for instance 'createHitIterator'
+     *  and 'createDatabaseIterator')
+     *
+     *  Note also that many instances are created through the IConfiguration instance, so the behaviour
+     *  of the algorithm may change according to the kind of configuration is used.
+     */
+
+    /** We want to have some time statistics so we create a TimeInfo instance. Note that we create
+     *  specific TimeInfo instances here that are 1) retrieve time information for statistics and
+     *  2) send some information notification for telling to potential listeners that we begin some
+     *  particular part of the algorithm.
+     *  */
     TimeInfo* timeStats = createTimeInfo ();
     LOCAL (timeStats);
 
-    /** We create a command dispatcher. */
+    /** We create a command dispatcher used for dispatching Hit iteration commands. */
     ICommandDispatcher* dispatcher = getConfig()->createDispatcher ();
     LOCAL (dispatcher);
 
@@ -160,8 +181,20 @@ void AbstractAlgorithm::execute (void)
         getQueryFrames()
     );
 
-    /** We create an object for indexing subject and query databases. */
+    /** We create an object for indexing subject and query databases. This object will be in
+     * charge to feed the algorithm with the source Hit Iterator, ie the one that provides for
+     * a given seed all the occurrences in subject and query databases.
+     */
     setIndexator (getConfig()->createIndexator (getSeedsModel(), getParams()));
+
+    /** Now, we have two loops that loop on 1) query databases and 2) subject databases.
+     *  The reason why we can have more than query database for instance is that the algorithm works
+     *  only on protein/protein comparison. So an protein/ADN comparison request is understood as
+     *  a comparison between a protein database and 6 possible protein databases, which means that
+     *  the used provided query nucleotid database is transformed into 6 amino acids databases which
+     *  explains that we can have more than one database for query (cf plastx) and more than one
+     *  datase for subject (tplastn).
+     */
 
     /********************************************************************************/
     /**********                     FIRST LOOP ON QUERY PARTS              **********/
@@ -176,7 +209,8 @@ void AbstractAlgorithm::execute (void)
          */
         getIndexator()->setQueryDatabase (queryDb);
 
-        /** We can compute query statistics information. */
+        /** We can compute query statistics information. Note that we use the reader (holding information
+         *  about subject database) for providing subject database size and its number of sequences. */
         setQueryInfo (getConfig()->createQueryInformation (
             getGlobalStatistics (),
             getParams(),
@@ -205,7 +239,7 @@ void AbstractAlgorithm::execute (void)
              */
             getIndexator()->setSubjectDatabase (subjectDb);
 
-            /** We want to have indexation execution time. */
+            /** We want to have indexation execution time statistics. */
             timeStats->addEntry ("indexation");
 
             /** We build the indexes (if needed). */
@@ -213,27 +247,41 @@ void AbstractAlgorithm::execute (void)
 
             timeStats->stopEntry ("indexation");
 
-            /** We create an ungap alignment result. */
+            /** We create an ungap alignment result. This ungap alignment will be shared betweed different Hit
+             * iterators, in particular for filtering out already processed hits.
+             * Warning! This instance will have concurrent accesses both for reading and writing, so the implementation
+             * must be protected by some operating system synchronization procedure (mutex for instance). */
             IAlignmentResult* ungapAlignmentResult = getConfig()->createUnapAlignmentResult (queryDb->getSize());
             LOCAL (ungapAlignmentResult);
             setUngapAlignmentResult (ungapAlignmentResult);
 
-            /** We create an alignment result. */
+            /** We create an alignment result. This is the actual artefact generated by the algorithm and of interest for
+             *  the end user. Like its ungap brother, it will be concurently accessed and therefore must be protected
+             *  specifically. */
             IAlignmentResult* alignmentResult  = getConfig()->createGapAlignmentResult (subjectDb, queryDb);
             LOCAL (alignmentResult);
             setGapAlignmentResult (alignmentResult);
 
-            /** We create the Hit iterator to be used by the algorithm. */
+            /** We create the Hit iterator to be used by the algorithm, a Hit being an occurrence of a kmer in both subject
+             *  and query databases.
+             *  See the 'createHitIterator' to see how the different created iterators are connected (seed, ungap, small gap...)  */
             setHitIterator (createHitIterator (getConfig(), getIndexator()->createHitIterator(), ungapAlignmentResult, alignmentResult) );
 
-            /** We split the iterator in several iterators. */
+            /** We split the iterator in several iterators.
+              * This split reflects the parallelization scheme of the algorithm, ie several thread will execute their own iterator.
+              * In our case, a split iterator will iterate a subset of the whole possible seeds set (given a seeds model). For
+              * instance, a thread will deal with seeds 'PQR' 'PQS' 'PQT'..., another one with 'AFG' 'AFH' 'AFI'...
+              * Note that the number of splits relies on the number of execution units of the command dispatcher. In particular,
+              * this will likely be the number of CPU cores available on the used computer (note however that it could also be
+              * the number of nodes of a network dedicated for some grid computing network).
+              */
             std::vector<IHitIterator*> its = getHitIterator()->split (dispatcher->getExecutionUnitsNumber());
 
             /** We create a list of commands for iterating the hits. */
             list<ICommand*> commands;
             for (size_t i=0; i<its.size(); i++)
             {
-                /** We create a new command. */
+                /** We create a new command, each command having a specific Hit iterator (so a specific subset of seeds) */
                 commands.push_back (new HitIterationCommand (
                     its[i],
                     this,
@@ -244,15 +292,23 @@ void AbstractAlgorithm::execute (void)
             /** We want to have iteration execution time. */
             timeStats->addEntry ("iteration");
 
-            /** We run the commands through a dispatcher. */
+            /** We run the commands through a dispatcher. Here is the big picture where most of the work will be done.
+             *  This is also a synchronization point; if the dispatcher creates many threads for job parallelization (or
+             *  if the job has been sent on a network for using remote computers), this 'dispatchCommands' message ensures
+             *  that all commands must be finished before we can go to the next instruction.
+             */
             dispatcher->dispatchCommands (commands, 0);
 
-            /** We may have to post process the alignments result. */
+            /** Now, our alignment result instance should hold found alignments, with possible redundancies, so we try to
+             * remove redundant alignments now. */
             alignmentResult->shrink();
 
             timeStats->stopEntry ("iteration");
 
-            /** We create a visitor for dumping the alignments. */
+            /** We create a visitor for dumping the resulting alignments. The used visitor has been provided from a higher layer
+             *  but it is likely a 'file dump' visitor that will dump all the alignments into a file. Note by the way that
+             *  the actual format of the output file has not to be known here (it could be tabulated columns or xml) and relies
+             *  on the actual type of the getResultVisitor. */
             timeStats->addEntry ("output");
             alignmentResult->accept (getResultVisitor());
             timeStats->stopEntry ("output");
@@ -272,8 +328,6 @@ void AbstractAlgorithm::execute (void)
         }  /* end of for (subjectDbIt.first(); ... */
 
     }  /* end of for (queryDbIt.first(); ... */
-
-    /** Now, gapped alignments should have been computed. */
 }
 
 /*********************************************************************
@@ -336,7 +390,9 @@ IHitIterator* AbstractAlgorithm::createHitIterator (
 {
     DEBUG (("AbstractAlgorithm::createHitIterator: config=%p  source=%p\n", config, hitSource));
 
-    /** We create Hit iterators for each algorithm step and link them. */
+    /** We create Hit iterators for each algorithm step and link them. Note that different kinds of iterators
+     *  may need different information for their construction. */
+
     IHitIterator* ungapHitIterator = getConfig()->createUngapHitIterator (
         hitSource, getSeedsModel(), getScoreMatrix(), getParams(), ungapAlignResult
     );
@@ -369,11 +425,12 @@ IHitIterator* AbstractAlgorithm::createHitIterator (
         alignResult
     );
 
-    /** We subscribe to the seeds hit iteration events. */
+    /** We subscribe to the seeds hit iteration events. Therefore, we will get as many number
+     * of seeds as the seeds model is able to generate (not too many in the end (about 5000),
+     * so we won't be notified too often due to this subscription). The event kind we should
+     * receive is 'IterationStatusEvent'
+     */
     hitSource->addObserver (this);
-
-    /** We should link some builder to the final iterator for gathering useful information about gap alignments. */
-
 
     /** We return the result. */
     return compositionHitIterator;
@@ -389,15 +446,17 @@ IHitIterator* AbstractAlgorithm::createHitIterator (
 *********************************************************************/
 void AbstractAlgorithm::update (dp::EventInfo* evt, dp::ISubject* subject)
 {
-    /** We just forward event. */
+    /** Note this important check: a class can be both Subject and Observer, so if it
+     *  notifies an event, it must be sure not to re-send it on the update method, otherwise
+     *  and endless recursion begins. */
     if (this != subject)
     {
-        /** We decorate an event with other information. */
         IterationStatusEvent* e1 = dynamic_cast<IterationStatusEvent*> (evt);
         if (e1 != 0)
         {
             if (e1->getStatus() == ITER_ON_GOING)
             {
+                /** We decorate the event with additional information. */
                notify (new AlignmentProgressionEvent (e1, _ungapAlignmentResult, _gapAlignmentResult));
             }
         }

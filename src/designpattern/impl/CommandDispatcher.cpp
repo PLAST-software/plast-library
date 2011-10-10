@@ -15,8 +15,7 @@
  *****************************************************************************/
 
 #include "CommandDispatcher.hpp"
-#include "LinuxThread.hpp"
-#include "LinuxTime.hpp"
+#include "DefaultOsFactory.hpp"
 
 #include "macros.hpp"
 
@@ -38,7 +37,7 @@ namespace dp {
 DefaultCommandInvoker::DefaultCommandInvoker (IThreadFactory* threadFactory)
     : _threadFactory(threadFactory), _thread(0), _synchro(0), _command(0)
 {
-    _synchro = new LinuxSynchronizer ();
+    _synchro = os::DefaultFactory::singleton().getThreadFactory().newSynchronizer();
 }
 
 /*********************************************************************
@@ -167,7 +166,7 @@ ICommandInvokerFactory& DefaultCommandInvokerFactory::singleton()
 *********************************************************************/
 ICommandInvoker* DefaultCommandInvokerFactory::newCommandInvoker (const char* name, ...)
 {
-    return new DefaultCommandInvoker (& LinuxThreadFactory::singleton());
+    return new DefaultCommandInvoker (& DefaultFactory::singleton().getThreadFactory());
 }
 
 /*********************************************************************
@@ -182,7 +181,7 @@ ParallelCommandDispatcher::ParallelCommandDispatcher (ICommandInvokerFactory& fa
     : _factory (factory), _nbUnits(nbUnits)
 {
     /** If the default value was provided, we try to guess the number of cores. */
-    if (_nbUnits == 0)  {  _nbUnits = LinuxThreadFactory::singleton().getNbCores();  }
+    if (_nbUnits == 0)  {  _nbUnits = DefaultFactory::singleton().getThreadFactory().getNbCores();  }
 }
 
 /*********************************************************************
@@ -195,7 +194,7 @@ ParallelCommandDispatcher::ParallelCommandDispatcher (ICommandInvokerFactory& fa
 *********************************************************************/
 u_int32_t  ParallelCommandDispatcher::dispatchCommands (list<ICommand*> commands, ICommand* postTreatment)
 {
-    u_int32_t startTime = LinuxTime::singleton().gettime();
+    u_int32_t startTime = DefaultFactory::singleton().getTimeFactory().gettime();
 
     DEBUG (("ParallelCommandDispatcher::dispatchCommands  START (%d)\n", startTime));
 
@@ -240,7 +239,7 @@ u_int32_t  ParallelCommandDispatcher::dispatchCommands (list<ICommand*> commands
     DEBUG (("ParallelCommandDispatcher::dispatchCommands  FINISHED\n"));
 
     /** We return the elapsed time. */
-    return  LinuxTime::singleton().gettime() - startTime;
+    return  DefaultFactory::singleton().getTimeFactory().gettime() - startTime;
 }
 
 /*********************************************************************
@@ -253,7 +252,7 @@ u_int32_t  ParallelCommandDispatcher::dispatchCommands (list<ICommand*> commands
 *********************************************************************/
 u_int32_t SerialCommandDispatcher::dispatchCommands (std::list<ICommand*> commands, ICommand* postTreatment)
 {
-    u_int32_t startTime = LinuxTime::singleton().gettime();
+    u_int32_t startTime = DefaultFactory::singleton().getTimeFactory().gettime();
 
     DefaultCommandInvoker invoker;
 
@@ -266,7 +265,7 @@ u_int32_t SerialCommandDispatcher::dispatchCommands (std::list<ICommand*> comman
     invoker.executeCommand (postTreatment);
 
     /** We return the elapsed time. */
-    return  LinuxTime::singleton().gettime() - startTime;
+    return  DefaultFactory::singleton().getTimeFactory().gettime() - startTime;
 }
 
 /********************************************************************************/

@@ -35,12 +35,13 @@ namespace algo  {
 /** */
 typedef std::pair<u_int64_t,u_int64_t>  Range;
 
-/** */
+/** Define several piece of information used for parameterizing the algorithm.
+ */
 class IParameters : public dp::SmartPointer
 {
 public:
 
-    AlgoKind_e                algoKind;
+    AlgoKind_e  algoKind;
 
     SeedModelKind_e           seedModelKind;
     size_t                    seedSpan;

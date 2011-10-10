@@ -93,7 +93,6 @@ void genwininit (void)
 struct Sequence* openwin (struct Sequence *parent,  int start, int length)
 {
     struct Sequence* win;
-    int i;
 
     if (start<0 || length<0 || start+length>parent->length)
     {

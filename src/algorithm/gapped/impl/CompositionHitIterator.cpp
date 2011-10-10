@@ -18,6 +18,8 @@
 #include "IStatistics.hpp"
 #include "BasicAlignmentResult.hpp"
 #include "UngapAlignmentResult.hpp"
+#include "AlignmentSplitter.hpp"
+#include "macros.hpp"
 
 #include <math.h>
 
@@ -31,9 +33,6 @@ using namespace statistics;
 #include <stdio.h>
 #define DEBUG(a)  //printf a
 
-#define MIN(a,b)  ((a) < (b) ? (a) : (b))
-#define MAX(a,b)  ((a) < (b) ? (b) : (a))
-
 // Define a macro for optimized score retrieval through the vector-matrix.
 #define getScore(i,j)  (_matrixAsVector [(i)+((j)<<5)])
 
@@ -44,8 +43,6 @@ using namespace statistics;
 
 /** Lower bound for scores. Divide by two to prevent underflows. */
 #define MININT INT4_MIN/2
-
-#include "LinuxThread.hpp"
 
 /********************************************************************************/
 namespace algo  {

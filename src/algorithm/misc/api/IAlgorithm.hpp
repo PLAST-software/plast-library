@@ -45,6 +45,14 @@
 namespace algo  {
 /********************************************************************************/
 
+/** We define here what a plast algorithm is: a mere command (due to dp::ICommand
+ * inheritance) supposed to provided the end user service, which consists in finding
+ * alignments between a subject and a query databases.
+ *
+ * Note the several getter/setters that manage the instances used for providing the
+ * service.
+ */
+
 class IAlgorithm : public dp::ICommand, public dp::Subject, public dp::IObserver
 {
 public:
@@ -69,6 +77,9 @@ public:
 
 protected:
 
+    /** Provides the list of databases to be used as source databases for the algorithm.
+     *  It should be called twice, one for the subject databases configuration, and once
+     *  for the query. */
     virtual dp::ListIterator<database::ISequenceDatabase*> createDatabaseIterator (
         IConfiguration*     config,
         const std::string&  uri,
@@ -77,15 +88,22 @@ protected:
         const std::vector<database::ReadingFrame_e>& frames
     ) = 0;
 
-    virtual const std::vector<database::ReadingFrame_e>&  getSubjectFrames () = 0;
-    virtual const std::vector<database::ReadingFrame_e>&  getQueryFrames   () = 0;
-
+    /** Define the Hit iterator that will be used for building the alignments. */
     virtual indexation::IHitIterator* createHitIterator (
         IConfiguration* config,
         indexation::IHitIterator* sourceHits,
         algo::IAlignmentResult*   ungapAlignResult,
         algo::IAlignmentResult*   alignResult
     ) = 0;
+
+    /** Define (for subject and query) the list of reading frames to be used. This is the way
+     *  for differentiating the algorithm 'plastp', 'tplastn' and 'plastx'. For instance,
+     *      'plastp' will return empty lists as result for the both method.
+     *      'tplastn' should return a 6 frames list for getSubjectFrames and empty for the other
+     *      'plastx'  should return a 6 frames list for getQueryFrames and empty for the other
+     */
+    virtual const std::vector<database::ReadingFrame_e>&  getSubjectFrames () = 0;
+    virtual const std::vector<database::ReadingFrame_e>&  getQueryFrames   () = 0;
 };
 
 /********************************************************************************/

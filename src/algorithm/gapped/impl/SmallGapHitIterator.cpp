@@ -15,6 +15,7 @@
  *****************************************************************************/
 
 #include "SmallGapHitIterator.hpp"
+#include "macros.hpp"
 
 using namespace std;
 using namespace os;
@@ -24,9 +25,6 @@ using namespace indexation;
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
-
-#define MIN(a,b)  ((a) < (b) ? (a) : (b))
-#define MAX(a,b)  ((a) < (b) ? (b) : (a))
 
 // Define a macro for optimized score retrieval through the vector-matrix.
 #define getScore(i,j)  (_matrixAsVector [(i)+((j)<<5)])
@@ -168,7 +166,7 @@ int16_t SmallGapHitIterator::computeScore (const database::LETTER* a, const data
     best_arr    [0] = 0;
     best_gap_arr[0] = -gap_open_extend;
 
-    for (size_t i=1; i<_parameters->smallGapBandWidth; i++)
+    for (int i=1; i<_parameters->smallGapBandWidth; i++)
     {
         best_arr[i]     = score;
         best_gap_arr[i] = score - _parameters->openGapCost;
@@ -179,7 +177,7 @@ int16_t SmallGapHitIterator::computeScore (const database::LETTER* a, const data
     size_t first_b    = 0;
     size_t last_b     = _parameters->smallGapBandWidth / 2;
 
-    for (size_t i=0; i<_parameters->smallGapBandLength; i++)
+    for (int i=0; i<_parameters->smallGapBandLength; i++)
     {
         score_gap_row = score_min;
         score         = score_min;
@@ -189,7 +187,7 @@ int16_t SmallGapHitIterator::computeScore (const database::LETTER* a, const data
             score_gap_col = best_gap_arr[j];
 
             //next_score = best_arr[j] + getScore (a[i], b[j]);
-            next_score = best_arr[j] + _matrix [a[i]] [b[j]];
+            next_score = best_arr[j] + _matrix [(int)a[i]] [(int)b[j]];
 
             if (score < score_gap_col)  score = score_gap_col;
             if (score < score_gap_row)  score = score_gap_row;

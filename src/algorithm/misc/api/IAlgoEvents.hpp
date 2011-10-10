@@ -14,11 +14,13 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-
 #ifndef _IALGO_EVENTS_HPP_
 #define _IALGO_EVENTS_HPP_
 
-/********************************************************************************/
+/********************************************************************************
+    Definition of some dp::EventInfo classes used by the IAlgorithm for sending
+    some information (about the algorithm itself) to potential listeners.
+********************************************************************************/
 
 #include "Observer.hpp"
 #include "IAlgorithm.hpp"

@@ -24,6 +24,8 @@
 
 #include "FastaDatabaseQuickReader.hpp"
 
+#include "PlastStrings.hpp"
+
 using namespace std;
 using namespace dp;
 using namespace database;
@@ -64,7 +66,7 @@ IConfiguration* DefaultEnvironment::createConfiguration (dp::IProperties* proper
 void DefaultEnvironment::run (dp::IProperties* properties)
 {
     /** We create a configuration object for the provided program name (plastp, tplasn...) */
-    IConfiguration* config = DefaultEnvironment::singleton().createConfiguration (properties);
+    IConfiguration* config = createConfiguration (properties);
     LOCAL (config);
 
     /** We create a visitor for visiting the resulting alignments. Note that we use only one visitor even if
@@ -73,7 +75,7 @@ void DefaultEnvironment::run (dp::IProperties* properties)
     LOCAL (resultVisitor);
 
     u_int64_t  maxblocksize = 20*1000*1000;
-    IProperty* maxBlockProp = properties->getProperty("-max-database-size");
+    IProperty* maxBlockProp = properties->getProperty(STR_OPTION_MAX_DATABASE_SIZE);
     if (maxBlockProp != 0)
     {
         maxblocksize = atol (maxBlockProp->value.c_str());
@@ -82,7 +84,7 @@ void DefaultEnvironment::run (dp::IProperties* properties)
     /** We need to read the subject database to get its data size and the number of sequences.
      *  This information will be used for computing cutoffs for the query sequences. */
     IDatabaseQuickReader* quickSubjectDbReader = 0;
-    IProperty* subjectProp = properties->getProperty("-d");
+    IProperty* subjectProp = properties->getProperty (STR_OPTION_SUBJECT_URI);
     if (subjectProp != 0)
     {
         quickSubjectDbReader = new FastaDatabaseQuickReader (subjectProp->value);
@@ -92,7 +94,7 @@ void DefaultEnvironment::run (dp::IProperties* properties)
 
     /** We need to read the subject database to get its data size and the number of sequences. */
     IDatabaseQuickReader* quickQueryDbReader = 0;
-    IProperty* queryProp = properties->getProperty("-i");
+    IProperty* queryProp = properties->getProperty (STR_OPTION_QUERY_URI);
     if (queryProp != 0)
     {
         quickQueryDbReader = new FastaDatabaseQuickReader (queryProp->value);
@@ -236,7 +238,7 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
     vector<IParameters*> result;
 
     /** We look for the program type property. */
-    IProperty* progType = properties->getProperty ("-p");
+    IProperty* progType = properties->getProperty (STR_OPTION_ALGO_TYPE);
 
     if (progType != 0)
     {
@@ -247,19 +249,21 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
             /** We create default parameters. */
             IParameters* params = config->createDefaultParameters (progType->value);
 
-            if ( (prop = properties->getProperty ("-d")) != 0)   {  params->subjectUri           = prop->value; }
-            if ( (prop = properties->getProperty ("-i")) != 0)   {  params->queryUri             = prop->value; }
+            if ( (prop = properties->getProperty (STR_OPTION_SUBJECT_URI)) != 0)            {  params->subjectUri           = prop->value; }
+            if ( (prop = properties->getProperty (STR_OPTION_QUERY_URI)) != 0)              {  params->queryUri             = prop->value; }
 
-            if ( (prop = properties->getProperty ("-o")) != 0)   {  params->outputfile           = prop->value; }
-            if ( (prop = properties->getProperty ("-F")) != 0)   {  params->filterQuery          = prop->value.compare ("T") == 0;  }
+            if ( (prop = properties->getProperty (STR_OPTION_OUTPUT_FILE)) != 0)            {  params->outputfile           = prop->value; }
+            if ( (prop = properties->getProperty (STR_OPTION_FILTER_QUERY)) != 0)           {  params->filterQuery          = prop->value.compare ("T") == 0;  }
 
-            if ( (prop = properties->getProperty ("-n")) != 0)   {  params->ungapNeighbourLength = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty ("-s")) != 0)   {  params->ungapScoreThreshold  = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty ("-b")) != 0)   {  params->smallGapBandWidth    = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty ("-g")) != 0)   {  params->smallGapThreshold    = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty ("-G")) != 0)   {  params->openGapCost          = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty ("-E")) != 0)   {  params->extendGapCost        = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty ("-e")) != 0)   {  params->evalue               = atof (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_UNGAP_NEIGHBOUR_LENGTH)) != 0) {  params->ungapNeighbourLength = atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_UNGAP_SCORE_THRESHOLD)) != 0)  {  params->ungapScoreThreshold  = atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_SMALLGAP_BAND_WITH)) != 0)     {  params->smallGapBandWidth    = atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_SMALLGAP_THRESHOLD)) != 0)     {  params->smallGapThreshold    = atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_OPEN_GAP_COST)) != 0)          {  params->openGapCost          = atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_EXTEND_GAP_COST)) != 0)        {  params->extendGapCost        = atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_EVALUE)) != 0)                 {  params->evalue               = atof (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_GAPPED)) != 0)       {  params->XdroppofGap          = atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_FINAL)) != 0)        {  params->finalXdroppofGap     = atoi (prop->value.c_str()); }
 
             /** We set databases ranges. */
             params->subjectRange = uri[i].first;

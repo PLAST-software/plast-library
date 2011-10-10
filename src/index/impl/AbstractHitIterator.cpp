@@ -18,6 +18,7 @@
 #include "macros.hpp"
 #include "Property.hpp"
 #include <queue>
+#include "macros.hpp"
 
 using namespace std;
 using namespace dp;
@@ -26,8 +27,6 @@ using namespace seed;
 
 #include <stdio.h>
 #define DEBUG(a) // printf a
-
-#define MIN(a,b)  ((a) < (b) ? (a) : (b))
 
 /********************************************************************************/
 namespace indexation {

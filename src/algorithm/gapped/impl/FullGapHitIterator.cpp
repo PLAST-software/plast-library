@@ -18,6 +18,8 @@
 #include "IStatistics.hpp"
 #include "BasicAlignmentResult.hpp"
 #include "UngapAlignmentResult.hpp"
+#include "AlignmentSplitter.hpp"
+#include "macros.hpp"
 
 #include <math.h>
 
@@ -31,9 +33,6 @@ using namespace statistics;
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
-
-#define MIN(a,b)  ((a) < (b) ? (a) : (b))
-#define MAX(a,b)  ((a) < (b) ? (b) : (a))
 
 /** Maximal subject length after which the offsets are adjusted to a subsequence. */
 #define MAX_SUBJECT_OFFSET 90000
@@ -52,8 +51,6 @@ using namespace statistics;
 
 /** Lower bound for scores. Divide by two to prevent underflows. */
 #define MININT INT4_MIN/2
-
-#include "LinuxThread.hpp"
 
 /********************************************************************************/
 namespace algo  {
@@ -130,8 +127,6 @@ void FullGapHitIterator::iterate (void* client, Method method)
 *********************************************************************/
 void FullGapHitIterator::iterateMethod  (indexation::Hit* hit)
 {
-    double ln2 = 0.69314718055994530941;
-
     /** Shortcuts. */
     const Vector<const ISeedOccurrence*>& occur1Vector = hit->occur1;
     const Vector<const ISeedOccurrence*>& occur2Vector = hit->occur2;
@@ -176,7 +171,6 @@ void FullGapHitIterator::iterateMethod  (indexation::Hit* hit)
         /** By default, we don't want to keep this current hit. */
         shouldKeep = false;
 
-#if 1
         /** We compute the left part of the score. */
         score1 = SemiGappedAlign (
             seqData2,
@@ -187,9 +181,7 @@ void FullGapHitIterator::iterateMethod  (indexation::Hit* hit)
             & leftOffsetInSubject,
             1
         );
-#endif
 
-#if 1
         /** We compute the right part of the score. */
         score2 = SemiGappedAlign (
             seqData2 + occur2->offsetInSequence,
@@ -200,7 +192,6 @@ void FullGapHitIterator::iterateMethod  (indexation::Hit* hit)
             & rightOffsetInSubject,
             0
         );
-#endif
 
         int score = score1 + score2;
 
@@ -229,20 +220,10 @@ void FullGapHitIterator::iterateMethod  (indexation::Hit* hit)
                 score
             );
 
-#if 1
             /** We add this alignment as ungap alignments (ie the gapped alignment will be split in ungap ones). */
             if (_ungapResult)  { _ungapResult->insert (align, _splitter);  }
-#endif
 
-//            align._evalue   = (double) info.eff_searchsp * exp((-_globalStats->lambda * (double) score) + _globalStats->logK);
-//            align._bitscore = (_globalStats->lambda * (double)score - _globalStats->logK) / ln2;
-
-#if 1
-            //shouldKeep = _alignmentResult->insert (align, 0);
             shouldKeep = _alignmentResult->doesExist (align) == false;
-#else
-            shouldKeep = true;
-#endif
         }
 
         if (shouldKeep == true)

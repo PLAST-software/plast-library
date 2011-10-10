@@ -23,7 +23,6 @@
 
 #include "AbstractAlignmentResult.hpp"
 #include "IScoreMatrix.hpp"
-#include "IAlgoParameters.hpp"
 #include "IThread.hpp"
 
 #include <set>
@@ -82,55 +81,6 @@ private:
     size_t    _listGaplessAlignSize;
 
     bool addDiag (int q_start, int q_stop, int s_start, int s_stop, int seqIdx);
-
-    friend class BasicAlignmentIterator;
-};
-
-/********************************************************************************/
-
-class AlignmentSplitter : public dp::SmartPointer
-{
-public:
-    AlignmentSplitter (IScoreMatrix* scoreMatrix, int openGapCost, int extendGapCost);
-    virtual ~AlignmentSplitter ();
-
-    size_t splitAlign (
-        const database::LETTER* subjectSeq,
-        const database::LETTER* querySeq,
-        u_int32_t subjectStartInSeq,
-        u_int32_t subjectEndInSeq,
-        u_int32_t queryStartInSeq,
-        u_int32_t queryEndInSeq,
-        int* splittab,
-        size_t& identity,
-        size_t& nbGap,
-        size_t& nbMis,
-        size_t& alignSize,
-        database::LETTER* subjectAlign = 0,
-        database::LETTER* queryAlign   = 0
-    );
-
-    size_t splitAlign (Alignment& align,  int* splittab);
-
-    void computeInfo (Alignment& align);
-
-private:
-
-    IScoreMatrix* _scoreMatrix;
-    void setScoreMatrix (IScoreMatrix* scoreMatrix)  { SP_SETATTR (scoreMatrix); }
-
-    int _openGapCost;
-    int _extendGapCost;
-
-    short** _matrix_H;
-    short** _matrix_E;
-    short** _matrix_F;
-
-    int _DefaultAlignSize;
-    int _MaxAlignSize;
-
-    short** newMatrix  (int nrows, int ncols);
-    void    freeMatrix (short*** mat);
 };
 
 /********************************************************************************/

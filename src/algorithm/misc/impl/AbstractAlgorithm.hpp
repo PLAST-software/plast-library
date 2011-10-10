@@ -32,6 +32,18 @@
 namespace algo  {
 /********************************************************************************/
 
+/** The 'execute' method (from dp::ICommand) is also a Template method, since it uses
+ * several primitives for creating databases and iterators for instance.
+ *
+ * Ideally, the 'execute' method should be generic enough for being not changed. All
+ * the variant parts should be:
+ *      - the different instances used for providing the service (see getters/setters)
+ *      - the primitive of the Template Method.
+ *
+ * In particular, this 'execute' method should work for 'plastp', 'tplastn', 'plastx' and
+ * maybe some other in the future.
+ */
+
 class AbstractAlgorithm : public IAlgorithm
 {
 public:

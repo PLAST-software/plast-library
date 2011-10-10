@@ -30,6 +30,9 @@
 namespace algo  {
 /********************************************************************************/
 
+/** Interface that takes care about subject and query databases, indexes them and
+ *  then can create IHitIterator instances.
+ */
 class IIndexator : public dp::SmartPointer
 {
 public:
@@ -54,7 +57,6 @@ public:
 
     /** Return properties about the instance. */
     virtual dp::IProperties* getProperties () = 0;
-
 };
 
 /********************************************************************************/

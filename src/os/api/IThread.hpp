@@ -45,6 +45,17 @@ public:
 
 /********************************************************************************/
 
+/** Define a synchronization class (like mutex) */
+class ISynchronizer
+{
+public:
+
+    virtual void   lock () = 0;
+    virtual void unlock () = 0;
+};
+
+/********************************************************************************/
+
 /** Factory that creates IThread instances.
  *  Thread creation needs merely the main loop function that will be called.
  */
@@ -53,18 +64,9 @@ class IThreadFactory
 public:
     virtual IThread* newThread (void* (mainloop) (void*), void* data) = 0;
 
+    virtual ISynchronizer* newSynchronizer (void) = 0;
+
     virtual size_t getNbCores () = 0;
-};
-
-/********************************************************************************/
-
-/** Define a synchronization class (like mutex) */
-class ISynchronizer
-{
-public:
-
-    virtual void   lock () = 0;
-    virtual void unlock () = 0;
 };
 
 /********************************************************************************/

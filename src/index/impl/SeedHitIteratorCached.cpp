@@ -220,7 +220,6 @@ void SeedHitIteratorCached::iterate (void* aClient, Iterator::Method method)
     if (!client ||  !method)  { return; }
 
     size_t nbSeeds       = 0;
-    size_t nbActualSeeds = 0;
 
     /** We reset the number of iterations. */
     _outputHitsNumber = 0;
@@ -307,8 +306,8 @@ void SeedHitIteratorCached::iterate (void* aClient, Iterator::Method method)
 
     } /* end of for (_seedIterator... */
 
-    DEBUG (("SeedHitIteratorCached::iterate (%p): END SEEDS ITERATION (found %ld seeds and %ld actual seeds, %ld hits)\n",
-        this, nbSeeds, nbActualSeeds, _outputHitsNumber
+    DEBUG (("SeedHitIteratorCached::iterate (%p): END SEEDS ITERATION (found %ld seeds, %ld hits)\n",
+        this, nbSeeds, _outputHitsNumber
     ));
 }
 

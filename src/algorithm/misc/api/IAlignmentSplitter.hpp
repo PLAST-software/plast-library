@@ -14,54 +14,54 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "AlgoExecutorPlastp.hpp"
+#ifndef _IALIGNMENT_SPLITTER_HPP_
+#define _IALIGNMENT_SPLITTER_HPP_
 
-#include <stdio.h>
-#define DEBUG(a)  //printf a
+/********************************************************************************/
+
+#include "SmartPointer.hpp"
+
+#include "IScoreMatrix.hpp"
+#include "IAlignementResult.hpp"
 
 /********************************************************************************/
 namespace algo  {
 /********************************************************************************/
 
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-AlgoExecutorPlastp::AlgoExecutorPlastp (IAlgoConfigurator* config)
-    : AbstractAlgoExecutor (config)
+/** An alignment splitter is able to split a gap alignment into several ungap alignments
+ * (according to some specific score matrix).
+ *
+ * Implementations should use dynamic programming for providing the service.
+ */
+class IAlignmentSplitter : public dp::SmartPointer
 {
-}
+public:
 
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-AlgoExecutorPlastp::~AlgoExecutorPlastp()
-{
+    virtual size_t splitAlign (
+        const database::LETTER* subjectSeq,
+        const database::LETTER* querySeq,
+        u_int32_t subjectStartInSeq,
+        u_int32_t subjectEndInSeq,
+        u_int32_t queryStartInSeq,
+        u_int32_t queryEndInSeq,
+        int* splittab,
+        size_t& identity,
+        size_t& nbGap,
+        size_t& nbMis,
+        size_t& alignSize,
+        database::LETTER* subjectAlign = 0,
+        database::LETTER* queryAlign   = 0
+    ) = 0;
 
-}
+    /** Returns the split ungap parts from a (gap) alignment). */
+    virtual size_t splitAlign (Alignment& align,  int* splittab) = 0;
 
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-void AlgoExecutorPlastp::process (void)
-{
-
-}
+    /** Modify the provided alignment by computing some information (nb gap, identity...) */
+    virtual void computeInfo (Alignment& align) = 0;
+};
 
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
+
+#endif /* _IALIGNMENT_SPLITTER_HPP_ */

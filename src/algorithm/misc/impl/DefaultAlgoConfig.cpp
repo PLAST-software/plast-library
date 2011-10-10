@@ -24,8 +24,6 @@
 
 #include "ScoreMatrix.hpp"
 
-#include "AlgoInitializer.hpp"
-
 #include "UngapHitIterator.hpp"
 #include "UngapHitIteratorSSE8.hpp"
 #include "UngapHitIteratorSSE16.hpp"
@@ -52,6 +50,10 @@
 
 #include "AlignmentResultVisitors.hpp"
 
+#include "PlastStrings.hpp"
+
+#include "Property.hpp"
+
 using namespace std;
 using namespace os;
 using namespace dp;
@@ -62,13 +64,11 @@ using namespace statistics;
 
 #include <iostream>
 #include <sstream>
-
 #include <stdarg.h>
+#include "macros.hpp"
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
-
-#define MIN(a,b)  ((a) < (b) ? (a) : (b))
 
 /********************************************************************************/
 namespace algo  {
@@ -84,7 +84,7 @@ namespace algo  {
 *********************************************************************/
 DefaultConfiguration::DefaultConfiguration (dp::IProperties* properties) : _properties(0)
 {
-    setProperties (properties);
+    setProperties (properties ? properties : new Properties() );
 }
 
 /*********************************************************************
@@ -215,74 +215,16 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-#if 0
-vector<IParameters*>  DefaultConfiguration::createParametersList (dp::IProperties* properties, database::IDatabaseQuickReader* reader)
-{
-    vector<IParameters*>  theResult;
-
-    /** We look for the program type property. */
-    IProperty* progType = properties->getProperty ("-p");
-
-    /** We first find which are the databases to be used. Note that we can have more than one subject and
-     *  more than one query in case the user provided uri are too big to be processed in memory. In this
-     *  case, we split the databases in order to be sure not to run out of memory.
-     */
-    list<pair<string,string> > actualUri;
-    findDabasesUri (actualUri, reader);
-
-    for (list<pair<string,string> >::iterator it = actualUri.begin(); it != actualUri.end(); it++)
-    {
-        DEBUG (("DefaultConfiguration::createParametersList:  S:'%s'  Q:'%s'  \n", it->first.c_str(), it->second.c_str()));
-
-        if (progType != 0)
-        {
-            IProperty* prop = 0;
-
-            /** We create default parameters. */
-            IParameters* params = createDefaultParameters (progType->value);
-
-            if ( (prop = properties->getProperty ("-d")) != 0)   {  params->subjectUri           = it->first;   }
-            if ( (prop = properties->getProperty ("-i")) != 0)   {  params->queryUri             = it->second;  }
-
-            if ( (prop = properties->getProperty ("-o")) != 0)   {  params->outputfile           = prop->value; }
-            if ( (prop = properties->getProperty ("-F")) != 0)   {  params->filterQuery          = prop->value.compare ("T") == 0;  }
-
-            if ( (prop = properties->getProperty ("-n")) != 0)   {  params->ungapNeighbourLength = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty ("-s")) != 0)   {  params->ungapScoreThreshold  = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty ("-b")) != 0)   {  params->smallGapBandWidth    = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty ("-g")) != 0)   {  params->smallGapThreshold    = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty ("-G")) != 0)   {  params->openGapCost          = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty ("-E")) != 0)   {  params->extendGapCost        = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty ("-e")) != 0)   {  params->evalue               = atof (prop->value.c_str()); }
-
-            /** We add the parameter to the result list. */
-            theResult.push_back (params);
-        }
-    }
-
-    /** We return the result. */
-    return theResult;
-}
-#endif
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
 ICommandDispatcher* DefaultConfiguration::createDispatcher ()
 {
     ICommandDispatcher* result = 0;
 
     /** We try to get the property giving the number of wanted processors to be used. */
-    IProperty* propNbProcessors = _properties->getProperty ("-a");
+    IProperty* propNbProcessors = _properties->getProperty (STR_OPTION_NB_PROCESSORS);
     size_t nbProc = (propNbProcessors ? atoi(propNbProcessors->value.c_str()) : 0);
 
     /** We retrieve the property. */
-    IProperty* prop = _properties->getProperty ("-factory-dispatcher");
+    IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_DISPATCHER);
 
     if (prop && prop->value.compare("SerialCommandDispatcher")==0)
     {
@@ -396,7 +338,7 @@ IIndexator*  DefaultConfiguration::createIndexator (seed::ISeedModel* seedsModel
     IIndexator* result = 0;
 
     /** We retrieve the property. */
-    IProperty* prop = _properties->getProperty ("-factory-indexation");
+    IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_INDEXATION);
 
     if (prop && prop->value.compare("BasicIndexator")==0)
     {
@@ -465,7 +407,7 @@ IHitIterator* DefaultConfiguration::createUngapHitIterator (
     IHitIterator* result = 0;
 
     /** We retrieve the property. */
-    IProperty* prop = _properties->getProperty ("-factory-hit-ungap");
+    IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_HIT_UNGAP);
 
     if (prop && prop->value.compare("UngapHitIteratorNull")==0)
     {
@@ -506,7 +448,7 @@ IHitIterator* DefaultConfiguration::createSmallGapHitIterator (
     IHitIterator* result = 0;
 
     /** We retrieve the property. */
-    IProperty* prop = _properties->getProperty ("-factory-hit-smallgap");
+    IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_HIT_SMALLGAP);
 
     if (prop && prop->value.compare("SmallGapHitIteratorNull")==0)
     {
@@ -546,7 +488,7 @@ IHitIterator* DefaultConfiguration::createFullGapHitIterator (
     IHitIterator* result = 0;
 
     /** We retrieve the property. */
-    IProperty* prop = _properties->getProperty ("-factory-hit-fullgap");
+    IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_HIT_FULLGAP);
 
     if (prop && prop->value.compare("FullGapHitIterator")==0)
     {
@@ -600,7 +542,7 @@ indexation::IHitIterator* DefaultConfiguration::createCompositionHitIterator  (
     IHitIterator* result = 0;
 
     /** We retrieve the property. */
-    IProperty* prop = _properties->getProperty ("-factory-hit-composition");
+    IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_HIT_COMPOSITION);
 
     if (prop && prop->value.compare("CompositionHitIterator")==0)
     {
@@ -646,7 +588,7 @@ IAlignmentResult* DefaultConfiguration::createGapAlignmentResult  (ISequenceData
     IAlignmentResult* result = 0;
 
     /** We retrieve the property. */
-    IProperty* prop = _properties->getProperty ("-factory-gap-result");
+    IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_GAP_RESULT);
 
     if (prop && prop->value.compare("BasicAlignmentResult")==0)
     {
@@ -673,7 +615,7 @@ IAlignmentResult* DefaultConfiguration::createUnapAlignmentResult (size_t queryS
     IAlignmentResult* result = 0;
 
     /** We retrieve the property. */
-    IProperty* prop = _properties->getProperty ("-factory-ungap-result");
+    IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_UNGAP_RESULT);
 
     if (prop && prop->value.compare("UngapAlignmentResult")==0)
     {
@@ -703,9 +645,9 @@ AlignmentResultVisitor* DefaultConfiguration::createResultVisitor ()
 
     /** We need an uri. We take the one provided by the properties. */
     string uri ("out");
-    if ( (prop = _properties->getProperty ("-o")) != 0)   { uri = prop->value;  }
+    if ( (prop = _properties->getProperty (STR_OPTION_OUTPUT_FILE)) != 0)   { uri = prop->value;  }
 
-    if ( (prop = _properties->getProperty ("-outfmt")) != 0)
+    if ( (prop = _properties->getProperty (STR_OPTION_OUTPUT_FORMAT)) != 0)
     {
         switch (atoi (prop->value.c_str()))
         {
@@ -745,8 +687,8 @@ void DefaultConfiguration::findDabasesUri (list <pair <string,string> >& uri, da
     uri.clear();
 
     /** We look for the subject and query databases uri from the user properties. */
-    IProperty* subjectUri = _properties->getProperty ("-d");
-    IProperty* queryUri   = _properties->getProperty ("-i");
+    IProperty* subjectUri = _properties->getProperty (STR_OPTION_SUBJECT_URI);
+    IProperty* queryUri   = _properties->getProperty (STR_OPTION_QUERY_URI);
 
     if (subjectUri && queryUri)
     {

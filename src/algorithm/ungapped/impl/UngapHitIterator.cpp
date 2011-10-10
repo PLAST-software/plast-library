@@ -25,8 +25,6 @@ using namespace indexation;
 #include <stdio.h>
 #define DEBUG(a)  //printf a
 
-#define MIN(a,b,c)  ((a) < (b) && (a) < (c) ? (a) : ((b) < (c) ? (b) : (c)  ))
-
 // Define a macro for optimized score retrieval through the vector-matrix.
 #define getScore(i,j)  (_matrixAsVector [(i)+((j)<<5)])
 

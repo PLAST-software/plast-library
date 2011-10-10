@@ -17,11 +17,12 @@
 #include "BasicAlignmentResult.hpp"
 #include "ReadingFrameSequenceDatabase.hpp"
 
-#include "LinuxThread.hpp"
+#include "DefaultOsFactory.hpp"
 
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include "macros.hpp"
 
 #include <stdio.h>
 #define DEBUG(a) // printf a
@@ -30,9 +31,6 @@ using namespace std;
 using namespace dp;
 using namespace os;
 using namespace database;
-
-#define MIN(a,b)    ((a)<(b) ? (a) : (b))
-#define ABS(a)      ((a) > 0 ? (a) : -(a))
 
 /********************************************************************************/
 namespace algo  {
@@ -53,7 +51,7 @@ BasicAlignmentResult::BasicAlignmentResult (ISequenceDatabase* subjectDb, ISeque
     setSubjectDb (subjectDb);
     setQueryDb   (queryDb);
 
-    _synchro = new LinuxSynchronizer ();
+    _synchro = DefaultFactory::singleton().getThreadFactory().newSynchronizer();
 
     /** We resize the vector holding query entries. */
     if (_queryDb != 0)  {  _queryEntries.resize (_queryDb->getSequencesNumber());  }
@@ -156,9 +154,8 @@ bool BasicAlignmentResult::doesExist (
 
     for (AlignmentsContainer::iterator itAlign = l.begin(); itAlign != l.end(); itAlign++)
     {
-        Alignment& current = *itAlign;
-
 #if 0
+        Alignment& current = *itAlign;
         found =
             (align._subjectStartInSeq >= current._subjectStartInSeq  &&  align._subjectEndInSeq <= current._subjectEndInSeq)  &&
             (align._queryStartInSeq >= current._queryStartInSeq  &&  align._queryEndInSeq <= current._queryEndInSeq);

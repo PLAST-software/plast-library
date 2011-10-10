@@ -59,6 +59,19 @@ IThread* LinuxThreadFactory::newThread (void* (mainloop) (void*), void* data)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+ISynchronizer* LinuxThreadFactory::newSynchronizer (void)
+{
+    return new LinuxSynchronizer ();
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 size_t LinuxThreadFactory::getNbCores ()
 {
     size_t result = 0;

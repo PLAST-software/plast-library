@@ -15,6 +15,7 @@
  *****************************************************************************/
 
 #include "UngapHitIteratorSSE16.hpp"
+#include "macros.hpp"
 
 #if __SSE3__
     #include <pmmintrin.h>
@@ -34,9 +35,6 @@ using namespace indexation;
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
-
-#define MIN(a,b)  ((a) < (b) ? (a) : (b))
-#define MAX(a,b)  ((a) < (b) ? (b) : (a))
 
 /********************************************************************************/
 namespace algo  {

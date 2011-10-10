@@ -25,6 +25,7 @@
 #include "AbstractScoredHitIterator.hpp"
 #include "IStatistics.hpp"
 #include "IAlignementResult.hpp"
+#include "IAlignmentSplitter.hpp"
 
 #include "UngapAlignmentResult.hpp"
 
@@ -71,8 +72,8 @@ protected:
     algo::IAlignmentResult* _alignmentResult;
     void setAlignmentResult (algo::IAlignmentResult* alignmentResult)  { SP_SETATTR (alignmentResult); }
 
-    AlignmentSplitter* _splitter;
-    void setAlignmentSplitter (algo::AlignmentSplitter* splitter)  { SP_SETATTR (splitter); }
+    IAlignmentSplitter* _splitter;
+    void setAlignmentSplitter (algo::IAlignmentSplitter* splitter)  { SP_SETATTR (splitter); }
 
     /** We need a clone method. */
     virtual AbstractScoredHitIterator* clone (indexation::IHitIterator* realIterator)

@@ -41,11 +41,13 @@ public:
 
     IThread* newThread (void* (mainloop) (void*), void* data);
 
+    ISynchronizer* newSynchronizer (void);
+
     size_t getNbCores ();
 
 private:
 
-    /** */
+    /************************************************************/
     class LinuxThread : public IThread
     {
     public:
@@ -55,21 +57,20 @@ private:
     private:
         pthread_t  _thread;
     };
-};
 
-/********************************************************************************/
+    /************************************************************/
+    class LinuxSynchronizer : public ISynchronizer
+    {
+    public:
+        LinuxSynchronizer ()            {  pthread_mutex_init (&_mutex, NULL);  }
+        virtual ~LinuxSynchronizer()    {  pthread_mutex_destroy (&_mutex);     }
 
-class LinuxSynchronizer : public ISynchronizer
-{
-public:
-    LinuxSynchronizer ()            {  pthread_mutex_init (&_mutex, NULL);  }
-    virtual ~LinuxSynchronizer()    {  pthread_mutex_destroy (&_mutex);     }
+        void   lock ()  { pthread_mutex_lock   (&_mutex); }
+        void unlock ()  { pthread_mutex_unlock (&_mutex); }
 
-    void   lock ()  { pthread_mutex_lock   (&_mutex); }
-    void unlock ()  { pthread_mutex_unlock (&_mutex); }
-
-private:
-    pthread_mutex_t  _mutex;
+    private:
+        pthread_mutex_t  _mutex;
+    };
 };
 
 /********************************************************************************/
