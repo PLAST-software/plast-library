@@ -26,8 +26,11 @@
 
 #include "PlastStrings.hpp"
 
+#include "TokenizerIterator.hpp"
+
 using namespace std;
 using namespace dp;
+using namespace types;
 using namespace database;
 using namespace algo;
 
@@ -69,6 +72,10 @@ void DefaultEnvironment::run (dp::IProperties* properties)
     IConfiguration* config = createConfiguration (properties);
     LOCAL (config);
 
+    /** We retrieve the type of algorithm (may be not set). */
+    IProperty* algoProp = properties->getProperty (STR_OPTION_ALGO_TYPE);
+    bool inferType = (algoProp == 0);
+
     /** We create a visitor for visiting the resulting alignments. Note that we use only one visitor even if
      *  we have to run several algorithm; in such a case, the results are 'concatenated' by the same visitor. */
     AlignmentResultVisitor* resultVisitor = config->createResultVisitor ();
@@ -76,18 +83,16 @@ void DefaultEnvironment::run (dp::IProperties* properties)
 
     u_int64_t  maxblocksize = 20*1000*1000;
     IProperty* maxBlockProp = properties->getProperty(STR_OPTION_MAX_DATABASE_SIZE);
-    if (maxBlockProp != 0)
-    {
-        maxblocksize = atol (maxBlockProp->value.c_str());
-    }
+    if (maxBlockProp != 0)  {  maxblocksize = maxBlockProp->getInt();  }
 
     /** We need to read the subject database to get its data size and the number of sequences.
      *  This information will be used for computing cutoffs for the query sequences. */
     IDatabaseQuickReader* quickSubjectDbReader = 0;
     IProperty* subjectProp = properties->getProperty (STR_OPTION_SUBJECT_URI);
+    if (subjectProp == 0)  {  subjectProp = properties->add (0, STR_OPTION_SUBJECT_URI, "foo"); }
     if (subjectProp != 0)
     {
-        quickSubjectDbReader = new FastaDatabaseQuickReader (subjectProp->value);
+        quickSubjectDbReader = new FastaDatabaseQuickReader (subjectProp->value, inferType);
         quickSubjectDbReader->read (maxblocksize);
     }
     LOCAL (quickSubjectDbReader);
@@ -95,12 +100,38 @@ void DefaultEnvironment::run (dp::IProperties* properties)
     /** We need to read the subject database to get its data size and the number of sequences. */
     IDatabaseQuickReader* quickQueryDbReader = 0;
     IProperty* queryProp = properties->getProperty (STR_OPTION_QUERY_URI);
+    if (queryProp == 0)  {  queryProp = properties->add (0, STR_OPTION_QUERY_URI, "foo"); }
     if (queryProp != 0)
     {
-        quickQueryDbReader = new FastaDatabaseQuickReader (queryProp->value);
+        quickQueryDbReader = new FastaDatabaseQuickReader (queryProp->value, inferType);
         quickQueryDbReader->read (maxblocksize);
     }
     LOCAL (quickQueryDbReader);
+
+    /** We may have to infer the kind of algorithm (plastp, plastx...) if no one is provided. */
+    if (algoProp == 0)
+    {
+        /** Shortcuts. */
+        IDatabaseQuickReader::DatabaseKind_e subjectKind = quickSubjectDbReader->getKind();
+        IDatabaseQuickReader::DatabaseKind_e queryKind   = quickQueryDbReader->getKind();
+
+        if (subjectKind == IDatabaseQuickReader::ENUM_AMINO_ACID &&  queryKind == IDatabaseQuickReader::ENUM_AMINO_ACID)
+        {
+            properties->add (0, STR_OPTION_ALGO_TYPE, "plastp");
+        }
+        else if (subjectKind == IDatabaseQuickReader::ENUM_AMINO_ACID &&  queryKind == IDatabaseQuickReader::ENUM_NUCLOTID)
+        {
+            properties->add (0, STR_OPTION_ALGO_TYPE, "plastx");
+        }
+        else if (subjectKind == IDatabaseQuickReader::ENUM_NUCLOTID &&  queryKind == IDatabaseQuickReader::ENUM_AMINO_ACID)
+        {
+            properties->add (0, STR_OPTION_ALGO_TYPE, "tplastn");
+        }
+        else
+        {
+            /** We should not be there. Should throw an exception ?*/
+        }
+    }
 
     /** We build a list of uri for subject/query databases. */
     vector<pair<Range,Range> > uriList = buildUri (quickSubjectDbReader, quickQueryDbReader);
@@ -242,6 +273,8 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
 
     if (progType != 0)
     {
+        DEBUG (("DefaultEnvironment::createParametersList: algotype='%s'\n", progType->getString()));
+
         IProperty* prop = 0;
 
         for (size_t i=0; i<uri.size(); i++)
@@ -264,6 +297,16 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
             if ( (prop = properties->getProperty (STR_OPTION_EVALUE)) != 0)                 {  params->evalue               = atof (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_GAPPED)) != 0)       {  params->XdroppofGap          = atoi (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_FINAL)) != 0)        {  params->finalXdroppofGap     = atoi (prop->value.c_str()); }
+
+            if ( (prop = properties->getProperty (STR_OPTION_STRANDS_LIST)) != 0)
+            {
+                TokenizerIterator it (prop->getString(), ",");
+                for (it.first(); !it.isDone(); it.next())
+                {
+                    ReadingFrame_e val = (ReadingFrame_e) (atoi(it.currentItem()) - 1);
+                    params->strands.push_back (val);
+                }
+            }
 
             /** We set databases ranges. */
             params->subjectRange = uri[i].first;

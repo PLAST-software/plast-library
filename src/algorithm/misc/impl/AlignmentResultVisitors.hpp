@@ -27,6 +27,28 @@
 namespace algo  {
 /********************************************************************************/
 
+/** Proxy implementation that limits the number of visits. */
+class MaxHitsPerQueryAlignmentResultVisitor : public AlignmentResultVisitor
+{
+public:
+
+    MaxHitsPerQueryAlignmentResultVisitor (AlignmentResultVisitor* ref, size_t maxHitsPerQuery)
+        : _ref(0), _maxHitsPerQuery (maxHitsPerQuery), _currentHitsNb(0)  {  setRef (ref);  }
+    virtual ~MaxHitsPerQueryAlignmentResultVisitor()   { setRef (0); }
+
+    void visitQuerySequence   (const database::ISequence* seq);
+    void visitSubjectSequence (const database::ISequence* seq);
+    void visitAlignment       (const Alignment* align);
+
+protected:
+    AlignmentResultVisitor* _ref;
+    void setRef (AlignmentResultVisitor* ref)  { SP_SETATTR(ref); }
+
+    size_t _maxHitsPerQuery;
+    size_t _currentHitsNb;
+};
+
+/********************************************************************************/
 class AbstractAlignmentResultVisitor : public AlignmentResultVisitor
 {
 public:
@@ -70,6 +92,30 @@ public:
     void visitQuerySequence   (const database::ISequence* seq)  { safeprintf ("\nQUERY SEQUENCE %s\n", seq->comment);  }
     void visitSubjectSequence (const database::ISequence* seq)  { safeprintf ("   SUBJECT SEQUENCE %s\n", seq->comment);  }
     void visitAlignment       (const Alignment* align)          { safeprintf ("         ALIGNMENT %s\n", align->toString().c_str() ); }
+};
+
+/********************************************************************************/
+
+class AlignmentResultXmlDumpVisitor : public AbstractAlignmentResultVisitor
+{
+public:
+
+    AlignmentResultXmlDumpVisitor (const std::string& uri);
+    virtual ~AlignmentResultXmlDumpVisitor ();
+
+    void visitQuerySequence   (const database::ISequence* seq);
+    void visitSubjectSequence (const database::ISequence* seq);
+    void visitAlignment       (const Alignment* align);
+
+private:
+    void printline (size_t depth, const char* format, ...);
+
+    const database::ISequence* _currentQuery;
+    const database::ISequence* _currentSubject;
+
+    u_int32_t _nbQuery;
+    u_int32_t _nbSubject;
+    u_int32_t _nbAlign;
 };
 
 /********************************************************************************/

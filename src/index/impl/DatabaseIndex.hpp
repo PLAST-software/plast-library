@@ -58,9 +58,6 @@ public:
     /** Merge children indexes. */
     void merge (void);
 
-    /** */
-    void dump (void);
-
 private:
 
     typedef u_int32_t SequenceOffset;

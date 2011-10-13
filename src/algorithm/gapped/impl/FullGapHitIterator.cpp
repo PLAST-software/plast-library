@@ -76,7 +76,8 @@ FullGapHitIterator::FullGapHitIterator (
 )
     : AbstractScoredHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult),
       _queryInfo(0), _globalStats(0), _alignmentResult(0), _splitter(0),
-      _ungapKnownNumber(0), _gapKnownNumber(0)
+      _ungapKnownNumber(0), _gapKnownNumber(0),
+      _checkMemory (false)
 {
     setQueryInfo        (queryInfo);
     setGlobalStats      (globalStats);
@@ -147,7 +148,6 @@ void FullGapHitIterator::iterateMethod  (indexation::Hit* hit)
         const ISeedOccurrence* occur1 = occur1Vector.data [idx.first];
         const ISeedOccurrence* occur2 = occur2Vector.data [idx.second];
 
-#if 1
         /** We check that the hit we are going to process is not already known. */
         if (_ungapResult && _ungapResult->doesExist (occur1, occur2) == true)
         {
@@ -158,7 +158,6 @@ void FullGapHitIterator::iterateMethod  (indexation::Hit* hit)
 
             continue;
         }
-#endif
 
         /** Shortcuts. */
         const ISequence& seq1 = occur1->sequence;
@@ -333,7 +332,7 @@ int FullGapHitIterator::SemiGappedAlign (
         dp_mem_alloc = MAX(num_extra_cells + 100, 2 * dp_mem_alloc);
     }
 
-    score_array = (BlastGapDP *) malloc (dp_mem_alloc * sizeof(BlastGapDP));;
+    score_array = (BlastGapDP *) MemoryAllocator::singleton().malloc (dp_mem_alloc * sizeof(BlastGapDP));;
     score = -gap_open_extend;
     score_array[0].best = 0;
     score_array[0].best_gap = -gap_open_extend;
@@ -373,12 +372,14 @@ int FullGapHitIterator::SemiGappedAlign (
 
         for (b_index = first_b_index; b_index < b_size; b_index++)
         {
-#if 0
-            /** We add some guard conditions in order no to read in unwanted memory.
-             *  (otherwise valgrind won't be happy)  */
-            if (reverse_sequence) {  if (b_ptr<=B)   { break;  } }
-            else                  {  if (b_ptr>=B+N) { break;  } }
-#endif
+            if (_checkMemory == true)
+            {
+                /** We add some guard conditions in order no to read in unwanted memory.
+                 *  (otherwise valgrind won't be happy)  */
+                if (reverse_sequence) {  if (b_ptr<=B)   { break;  } }
+                else                  {  if (b_ptr>=B+N) { break;  } }
+            }
+
             b_ptr        += b_increment;
             score_gap_col = score_array[b_index].best_gap;
             next_score    = score_array[b_index].best + matrix_row[ (int)*b_ptr ];
@@ -436,7 +437,7 @@ int FullGapHitIterator::SemiGappedAlign (
         if (last_b_index + num_extra_cells + 3 >= dp_mem_alloc)
         {
             dp_mem_alloc = MAX(last_b_index + num_extra_cells + 100, 2 * dp_mem_alloc);
-            score_array = (BlastGapDP *)realloc(score_array, dp_mem_alloc * sizeof(BlastGapDP));
+            score_array = (BlastGapDP *) MemoryAllocator::singleton().realloc(score_array, dp_mem_alloc * sizeof(BlastGapDP));
         }
 
         if (last_b_index < b_size - 1)
@@ -471,7 +472,7 @@ int FullGapHitIterator::SemiGappedAlign (
         }
     }
 
-    free (score_array);
+    MemoryAllocator::singleton().free (score_array);
 
     return best_score;
 }

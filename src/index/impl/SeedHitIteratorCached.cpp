@@ -44,8 +44,7 @@ SeedHitIteratorCached::SeedHitIteratorCached (
     size_t          neighbourhoodSize,
     ISeedIterator*  seedIterator
 )
-    : SeedHitIterator (indexDb, indexQuery, neighbourhoodSize, seedIterator),
-      _currentIdx1(0), _currentIdx2(0)
+    : SeedHitIterator (indexDb, indexQuery, neighbourhoodSize, seedIterator)
 {
 }
 
@@ -59,149 +58,6 @@ SeedHitIteratorCached::SeedHitIteratorCached (
 *********************************************************************/
 SeedHitIteratorCached::~SeedHitIteratorCached ()
 {
-    /** We have to release the cached ISeedOccurrence instances. */
-    for (size_t i=0; i<_occurDb1.size(); i++)  {  delete _occurDb1[i];  }
-    for (size_t i=0; i<_occurDb2.size(); i++)  {  delete _occurDb2[i];  }
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-void SeedHitIteratorCached::first ()
-{
-    /** We go to the first seed of the seed model. */
-    _seedIterator->first();
-
-    /** We retrieve the first key matched by the two indexes. */
-    if (nextSeed (true) == true)
-    {
-        _isLocalDone  = false;
-        _isGlobalDone = false;
-    }
-    else
-    {
-        _isLocalDone  = true;
-        _isGlobalDone = true;
-    }
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-bool SeedHitIteratorCached::nextSeed (bool first)
-{
-    bool found = false;
-
-    if (!first)  {  _seedIterator->next(); }
-
-    /** We look for the next seed that has occurrences in both databases. */
-    for ( ; !found  &&  !_seedIterator->isDone(); _seedIterator->next())
-    {
-        found = _indexDb1->getOccurrenceNumber(_seedIterator->currentItem()) > 0  &&
-                _indexDb2->getOccurrenceNumber(_seedIterator->currentItem()) > 0;
-
-        if (found)  { break; }
-    }
-
-    /** We may have to configure the occurrences iterators. */
-    if (found == true)
-    {
-        /** Little shortcut. */
-        const ISeed* seed = _seedIterator->currentItem();
-
-        /** We have to release the cached ISeedOccurrence instances. */
-        for (size_t i=0; i<_occurDb1.size(); i++)  {  delete _occurDb1[i];  }
-        for (size_t i=0; i<_occurDb2.size(); i++)  {  delete _occurDb2[i];  }
-
-        _occurDb1.clear();
-        _occurDb2.clear();
-
-        /** We build (for each database) an array of ISeedOccurrence instances. */
-        IOccurrenceIterator* itOccurDb1 = _indexDb1->createOccurrenceIterator (seed);
-        LOCAL (itOccurDb1);
-        for (itOccurDb1->first(); !itOccurDb1->isDone(); itOccurDb1->next())
-        {
-            _occurDb1.push_back (itOccurDb1->currentItem()->clone());
-        }
-
-        IOccurrenceIterator* itOccurDb2 = _indexDb2->createOccurrenceIterator (seed);
-        LOCAL (itOccurDb2);
-        for (itOccurDb2->first(); !itOccurDb2->isDone(); itOccurDb2->next())
-        {
-            _occurDb2.push_back (itOccurDb2->currentItem()->clone());
-        }
-
-        /** We reset the current indexes on these two arrays. */
-        _currentIdx1 = _currentIdx2 = 0;
-
-        _hit.occur1.data[0] = (_occurDb1[_currentIdx1]);
-        _hit.occur2.data[0] = (_occurDb2[_currentIdx2]);
-
-        _isLocalDone = false;
-    }
-    else
-    {
-        /** We update the global isDone attribute. */
-        _isGlobalDone = true;
-    }
-
-    /** We return true if we found a correct seed. */
-    return found;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-dp::IteratorStatus SeedHitIteratorCached::next()
-{
-    _currentIdx2++;
-
-    /** We check that it is not done. */
-    if (_currentIdx2 >= _occurDb2.size())
-    {
-        /** We go to the next item of the first iterator. */
-        _currentIdx1++;
-
-        if (_currentIdx1 < _occurDb1.size() )
-        {
-            /** The first iterator is not done, we can reset the second to its beginning. */
-            _currentIdx2 = 0;
-
-            _hit.occur1.data[0] = (_occurDb1[_currentIdx1]);
-        }
-        else
-        {
-            /** The first iterator is also done, the global iterator is therefore done. */
-            _isLocalDone = true;
-        }
-    }
-    else
-    {
-        _hit.occur2.data[0] = (_occurDb2[_currentIdx2]);
-    }
-
-    /** We may have to check whether another seed has to be iterated. */
-    if (_isLocalDone == true)
-    {
-        _isGlobalDone = ! nextSeed (false);
-    }
-
-    return dp::ITER_UNKNOWN;
 }
 
 /*********************************************************************
@@ -219,7 +75,7 @@ void SeedHitIteratorCached::iterate (void* aClient, Iterator::Method method)
     /** Some checks. */
     if (!client ||  !method)  { return; }
 
-    size_t nbSeeds       = 0;
+    size_t nbSeeds = 0;
 
     /** We reset the number of iterations. */
     _outputHitsNumber = 0;
@@ -231,15 +87,13 @@ void SeedHitIteratorCached::iterate (void* aClient, Iterator::Method method)
 
     size_t splitSize = 1;
 
-    /** We loop over the possible seeds. */
+    /** We notify potential clients that we start the iteration. */
+    this->notify (new IterationStatusEvent (ITER_STARTING, nbRetrieved, nbTotal, "starting iterating seeds..."));
+
+    /** We loop over the possible seeds. Note that we use the 'retrieve' method that is protected from
+     *  concurrent access by different threads. */
     for (ISeed seed; _seedIterator->retrieve (seed, nbRetrieved);  nbSeeds++)
     {
-        /** We notify potential clients that we start the iteration. */
-        if (nbRetrieved==1)
-        {
-            this->notify (new IterationStatusEvent (ITER_STARTING, nbRetrieved, nbTotal, "starting iterating seeds..."));
-        }
-
         /** We notify potential clients that we have made some progress in the iteration. */
         this->notify (new IterationStatusEvent (
             ITER_ON_GOING,
@@ -265,6 +119,10 @@ void SeedHitIteratorCached::iterate (void* aClient, Iterator::Method method)
 
         /** We use a statements block for locally allocate our iterators. */
         {
+            /** For the currenly iterated seed, We retrieve the occurrences that seed in the subject database.
+             *  The information is retrieved as a an iterator that loops over ISeedOccurrence instance (holding
+             *  sequence, offset of the seed in the sequence, ...)
+             */
             IOccurrenceBlockIterator* itOccurBlockDb1 = _indexDb1->createOccurrenceBlockIterator (
                 &seed,
                 _neighbourhoodSize,
@@ -273,6 +131,10 @@ void SeedHitIteratorCached::iterate (void* aClient, Iterator::Method method)
             if (itOccurBlockDb1 == 0)    { continue; }
             LOCAL (itOccurBlockDb1);
 
+            /** For the currenly iterated seed, We retrieve the occurrences that seed in the query database.
+             *  The information is retrieved as a an iterator that loops over ISeedOccurrence instance (holding
+             *  sequence, offset of the seed in the sequence, ...)
+             */
             IOccurrenceBlockIterator* itOccurBlockDb2 = _indexDb2->createOccurrenceBlockIterator (
                 &seed,
                 _neighbourhoodSize,
@@ -281,7 +143,7 @@ void SeedHitIteratorCached::iterate (void* aClient, Iterator::Method method)
             if (itOccurBlockDb2 == 0)    { continue; }
             LOCAL (itOccurBlockDb2);
 
-            /** We loop over ISeedOccurrence instances. */
+            /** We loop over ISeedOccurrence instances (both from subject and query db). */
             for (itOccurBlockDb1->first(); !itOccurBlockDb1->isDone(); itOccurBlockDb1->next())
             {
                 Vector<const ISeedOccurrence*>& table1 = itOccurBlockDb1->currentItem ();
@@ -290,21 +152,21 @@ void SeedHitIteratorCached::iterate (void* aClient, Iterator::Method method)
                 {
                     Vector<const ISeedOccurrence*>& table2 = itOccurBlockDb2->currentItem ();
 
+                    /** We have now two containers holding occurrences of the current seed in both
+                     *  subject and query databases. We set them as reference to the Hit instance. */
                     _hit.setOccurrencesRef (table1, table2);
 
-                    /** We call the callback. */
+                    /** We call the callback of a potential client; this is likely another IHitIterator,
+                     *  used for filtering out all possible hits (ie. table1 x table2) for the current seed. */
                     (client->*method) (&_hit);
                 }
             }
         }
 
-        /** We notify potential clients that we finish the iteration. */
-        if (nbRetrieved==nbTotal)
-        {
-            this->notify (new IterationStatusEvent (ITER_DONE, nbRetrieved, nbTotal, "finishing iterating seeds..."));
-        }
-
     } /* end of for (_seedIterator... */
+
+    /** We notify potential clients that we finish the iteration. */
+    this->notify (new IterationStatusEvent (ITER_DONE, nbRetrieved, nbTotal, "finishing iterating seeds..."));
 
     DEBUG (("SeedHitIteratorCached::iterate (%p): END SEEDS ITERATION (found %ld seeds, %ld hits)\n",
         this, nbSeeds, _outputHitsNumber

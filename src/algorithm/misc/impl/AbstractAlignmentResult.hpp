@@ -20,6 +20,7 @@
 /********************************************************************************/
 
 #include "IAlignementResult.hpp"
+#include "IThread.hpp"
 
 /********************************************************************************/
 namespace algo  {
@@ -29,7 +30,9 @@ class AbstractAlignmentResult : public IAlignmentResult
 {
 public:
 
-    virtual ~AbstractAlignmentResult () {}
+    AbstractAlignmentResult ();
+
+    virtual ~AbstractAlignmentResult ();
 
     /** Return properties about the instance. */
     dp::IProperties* getProperties (const std::string& root, size_t nbDump);
@@ -41,6 +44,9 @@ public:
     );
 
     bool doesExist (const Alignment& align) { return false; }
+
+protected:
+    os::ISynchronizer* _synchro;
 };
 
 /********************************************************************************/

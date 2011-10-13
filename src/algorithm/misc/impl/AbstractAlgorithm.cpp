@@ -26,16 +26,17 @@
 #include "DefaultOsFactory.hpp"
 
 #include "FastaDatabaseQuickReader.hpp"
+#include "CommandDispatcher.hpp"
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
 
 using namespace std;
 using namespace os;
+using namespace types;
 using namespace database;
 using namespace dp;
 using namespace indexation;
-
 
 /********************************************************************************/
 namespace algo  {
@@ -343,7 +344,7 @@ ListIterator<ISequenceDatabase*> AbstractAlgorithm::createDatabaseIterator (
     const std::string&  uri,
     const Range&        range,
     bool                filtering,
-    const std::vector<database::ReadingFrame_e>& frames
+    const std::vector<ReadingFrame_e>& frames
 )
 {
     list<ISequenceDatabase*> dbList;
@@ -426,7 +427,7 @@ IHitIterator* AbstractAlgorithm::createHitIterator (
     );
 
     /** We subscribe to the seeds hit iteration events. Therefore, we will get as many number
-     * of seeds as the seeds model is able to generate (not too many in the end (about 5000),
+     * of seeds as the seeds model is able to generate (not too many in the end (a few thousands),
      * so we won't be notified too often due to this subscription). The event kind we should
      * receive is 'IterationStatusEvent'
      */

@@ -22,6 +22,7 @@
 #include "IStatistics.hpp"
 #include "ISequenceDatabase.hpp"
 #include "IAlgoParameters.hpp"
+#include "IThread.hpp"
 
 #include <vector>
 
@@ -73,7 +74,10 @@ public:
 
     size_t getNbSequences()  { return (_queryDb ? _queryDb->getSequencesNumber() : 0);  }
 
-    IQueryInformation::SequenceInfo& getSeqInfoByIndex (size_t i)  {
+    IQueryInformation::SequenceInfo& getSeqInfoByIndex (size_t i)
+    {
+        /** We may have to build the information if not already done. */
+        build ();
 
         if (i>=_seqInfo.size())
         {
@@ -101,6 +105,9 @@ private:
 
     /** We need a vector for holding information for each sequence. */
     std::vector<IQueryInformation::SequenceInfo> _seqInfo;
+
+    bool _isBuilt;
+    os::ISynchronizer* _synchro;
 
     /** Ref. NCBI Blast. */
     bool computeLengthAdjustment (

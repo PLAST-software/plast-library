@@ -68,7 +68,8 @@ CompositionHitIterator::CompositionHitIterator (
 )
     : AbstractScoredHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult),
       _queryInfo(0), _globalStats(0), _alignmentResult(0), _splitter(0),
-      _ungapKnownNumber(0), _gapKnownNumber(0)
+      _ungapKnownNumber(0), _gapKnownNumber(0),
+      _checkMemory(false)
 {
     setQueryInfo        (queryInfo);
     setGlobalStats      (globalStats);
@@ -209,17 +210,23 @@ void CompositionHitIterator::iterateMethod  (indexation::Hit* hit)
 
                 /** We add the alignment into the global alignment container. */
                 _alignmentResult->insert (align, 0);
+
+                /** We just go to the next item. */
+                it++;
+            }
+            else
+            {
+                /** Statistics information. */
+                HIT_STATS (_gapKnownNumber++;)
+
+                /** We remove the current index couple. */
+                it = hit->indexes.erase(it);
             }
 
-            /** We just go to the next item. */
-            it++;
-        }
+        } /* end of if (score >= info.cut_offs) */
 
         else
         {
-            /** Statistics information. */
-            HIT_STATS (_gapKnownNumber++;)
-
             /** We remove the current index couple. */
             it = hit->indexes.erase(it);
         }
@@ -315,7 +322,7 @@ int CompositionHitIterator::ALIGN_EX (
 
     //printf("%d %d %d %d\n",gap_open_extend,comp_gap_open,comp_gap_extend,comp_x_dropoff);
 
-    score_array = (BlastGapDP *) malloc(dp_mem_alloc * sizeof(BlastGapDP));
+    score_array = (BlastGapDP *) MemoryAllocator::singleton().malloc (dp_mem_alloc * sizeof(BlastGapDP));
 
     score = -gap_open_extend;
     score_array[0].best = 0;
@@ -365,12 +372,13 @@ int CompositionHitIterator::ALIGN_EX (
 
         for (b_index = first_b_index; b_index < b_size; b_index++)
         {
-#if 0
-            /** We add some guard conditions in order no to read in unwanted memory.
-             *  (otherwise valgrind won't be happy)  */
-            if (reverse_sequence) {  if (b_ptr<=B)   { break;  } }
-            else                  {  if (b_ptr>=B+N) { break;  } }
-#endif
+            if (_checkMemory == true)
+            {
+                /** We add some guard conditions in order no to read in unwanted memory.
+                 *  (otherwise valgrind won't be happy)  */
+                if (reverse_sequence) {  if (b_ptr<=B)   { break;  } }
+                else                  {  if (b_ptr>=B+N) { break;  } }
+            }
 
             b_ptr += b_increment;
             score_gap_col = score_array[b_index].best_gap;
@@ -432,11 +440,11 @@ int CompositionHitIterator::ALIGN_EX (
 
         if (last_b_index + num_extra_cells + 3 >= dp_mem_alloc) {
 
-           dp_mem_alloc = MAX(last_b_index + num_extra_cells + 100,
-                                          2 * dp_mem_alloc);
-            score_array = (BlastGapDP *)realloc(score_array,
-                                               dp_mem_alloc *
-                                               sizeof(BlastGapDP));
+           dp_mem_alloc = MAX(last_b_index + num_extra_cells + 100, 2 * dp_mem_alloc);
+            score_array = (BlastGapDP *) MemoryAllocator::singleton().realloc (
+                score_array,
+                dp_mem_alloc *sizeof(BlastGapDP)
+            );
         }
 
         if (last_b_index < b_size - 1) {
@@ -466,7 +474,7 @@ int CompositionHitIterator::ALIGN_EX (
             b_size++;
         }
     }
-    free(score_array);
+    MemoryAllocator::singleton().free (score_array);
     return best_score;
 }
 
@@ -496,7 +504,6 @@ dp::IProperties* CompositionHitIterator::getProperties ()
     }
 
     result->add (1, "details");
-    result->add (2, "known_ungap", "%ld",  ungapKnownNumber);
     result->add (2, "known_gap",   "%ld",  gapKnownNumber);
 
     /** We call the parent method in case we have split instances. */

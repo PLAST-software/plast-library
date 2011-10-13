@@ -45,10 +45,6 @@ public:
     /** */
     const char* getName ()  { return "SeedHitIterator"; }
 
-    void first();
-
-    dp::IteratorStatus next();
-
     /** Optimize the iteration. */
     void iterate (void* aClient, Iterator::Method method);
 
@@ -60,16 +56,6 @@ protected:
     virtual void sortSeeds (void) { /* does nothing by default. */  }
 
 private:
-
-    /** */
-    std::vector<const ISeedOccurrence*> _occurDb1;
-    std::vector<const ISeedOccurrence*> _occurDb2;
-
-    /** */
-    size_t _currentIdx1;
-    size_t _currentIdx2;
-
-    bool nextSeed (bool first);
 
     /** Clone the instance with a specific seeds iterator. */
     SeedHitIterator* clone (seed::ISeedIterator* seedIterator)

@@ -15,12 +15,14 @@
  *****************************************************************************/
 
 #include "AbstractAlignmentResult.hpp"
+#include "DefaultOsFactory.hpp"
 #include "Property.hpp"
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
 
 using namespace std;
+using namespace os;
 using namespace dp;
 using namespace database;
 using namespace indexation;
@@ -29,6 +31,33 @@ using namespace seed;
 /********************************************************************************/
 namespace algo  {
 /********************************************************************************/
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+AbstractAlignmentResult::AbstractAlignmentResult ()
+    : _synchro(0)
+{
+    _synchro = DefaultFactory::singleton().getThreadFactory().newSynchronizer();
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+AbstractAlignmentResult::~AbstractAlignmentResult ()
+{
+    if (_synchro)  { delete _synchro; }
+}
 
 /*********************************************************************
 ** METHOD  :

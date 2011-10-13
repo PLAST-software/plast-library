@@ -20,8 +20,6 @@
 /********************************************************************************/
 
 #include "AbstractAlignmentResult.hpp"
-#include "UngapAlignmentResult.hpp"
-#include "IThread.hpp"
 
 #include <set>
 #include <list>
@@ -60,8 +58,6 @@ public:
     Entries& getEntries () { return  _entries;  }
 
 private:
-
-    os::ISynchronizer* _synchro;
 
     u_int32_t _nbAlignments;
 

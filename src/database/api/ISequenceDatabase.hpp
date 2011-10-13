@@ -61,16 +61,17 @@ public:
      *  Also returns the offset in the returned sequence.*/
     virtual bool getSequenceByOffset (u_int64_t offsetInDatabase, ISequence& sequence, u_int32_t& offsetInSequence) = 0;
 
+    /** Returns actual information (database and offset) from a given offset. May be used for implementation
+     *  that references serveral ISequenceDatabase instances (the given offset allows to compute the ISequenceDatabase*
+     *  instance of interest). */
+    virtual void getActualInfoFromOffset (u_int64_t offset, ISequenceDatabase*& actualDb, u_int64_t& actualOffset) = 0;
+
     /** Creates a Sequence iterator. */
     virtual ISequenceIterator* createSequenceIterator () = 0;
 
     /** Split the current database in several database. All the returned
      *  databases should represent the same set of ISequence instances than the source database. */
     virtual std::vector<ISequenceDatabase*> split (size_t nbSplit) = 0;
-
-    /** Design pattern Composite. */
-    virtual void addChild    (ISequenceDatabase* child) = 0;
-    virtual void removeChild (ISequenceDatabase* child) = 0;
 
     /** Return properties about the instance. */
     virtual dp::IProperties* getProperties (const std::string& root) = 0;

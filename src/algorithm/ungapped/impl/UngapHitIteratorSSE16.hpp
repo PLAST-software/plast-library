@@ -37,7 +37,8 @@ public:
         seed::ISeedModel*           model,
         algo::IScoreMatrix*         scoreMatrix,
         algo::IParameters*          parameters,
-        IAlignmentResult*           ungapResult
+        IAlignmentResult*           ungapResult,
+        u_int32_t                   maxHitsPerIteration
     );
 
     ~UngapHitIteratorSSE16 ();
@@ -53,7 +54,7 @@ protected:
     /** We need a clone method. */
     virtual UngapHitIterator* clone (indexation::IHitIterator* realIterator)
     {
-        return new UngapHitIteratorSSE16 (realIterator, _model, _scoreMatrix, _parameters, _ungapResult);
+        return new UngapHitIteratorSSE16 (realIterator, _model, _scoreMatrix, _parameters, _ungapResult, _maxHitsPerIteration);
     }
 
     /** */

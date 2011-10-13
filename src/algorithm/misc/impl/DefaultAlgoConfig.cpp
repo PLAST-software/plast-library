@@ -55,6 +55,7 @@
 #include "Property.hpp"
 
 using namespace std;
+using namespace types;
 using namespace os;
 using namespace dp;
 using namespace database;
@@ -123,9 +124,9 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->subseedStrings.push_back ("H,FY,W,IV,LM,C,R,K,Q,E,N,D,A,S,T,G,P");
 
         params->matrixKind           = ENUM_BLOSUM62;
-        params->subjectUri           = string ("tursiops.fa");
+        params->subjectUri           = string ("foo");
         params->subjectRange         = Range(0,0);
-        params->queryUri             = string ("query.fa");
+        params->queryUri             = string ("bar");
         params->queryRange           = Range(0,0);
         params->filterQuery          = true;
         params->ungapNeighbourLength = 22;
@@ -138,7 +139,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->evalue               = 10.0;
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
-        params->outputfile           = "/tmp/plast.out";
+        params->outputfile           = "out";
     }
 
     else if (algoName.compare ("tplastn")==0)
@@ -152,9 +153,9 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->subseedStrings.push_back ("A,C,D,E,F,G,H,I,K,L,M,N,P,Q,R,S,T,V,W,Y");
 
         params->matrixKind           = ENUM_BLOSUM62;
-        params->subjectUri           = string ("sapiens_1Mo.fa");
+        params->subjectUri           = string ("foo");
         params->subjectRange         = Range(0,0);
-        params->queryUri             = string ("tursiops.fa");
+        params->queryUri             = string ("bar");
         params->queryRange           = Range(0,0);
         params->filterQuery          = true;
         params->ungapNeighbourLength = 22;
@@ -167,7 +168,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->evalue               = 10.0;
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
-        params->outputfile           = "/tmp/plast.out";
+        params->outputfile           = "out";
     }
 
     else if (algoName.compare ("plastx")==0)
@@ -181,9 +182,9 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->subseedStrings.push_back ("H,FY,W,I,V,L,M,C,R,K,Q,E,N,D,A,S,T,G,P");
 
         params->matrixKind           = ENUM_BLOSUM62;
-        params->subjectUri           = string ("tursiops.fa");
+        params->subjectUri           = string ("foo");
         params->subjectRange         = Range(0,0);
-        params->queryUri             = string ("sapiens_1Mo.fa");
+        params->queryUri             = string ("bar");
         params->queryRange           = Range(0,0);
         params->filterQuery          = true;
         params->ungapNeighbourLength = 22;
@@ -196,7 +197,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->evalue               = 10.0;
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
-        params->outputfile           = "/tmp/plast.out";
+        params->outputfile           = "out";
     }
 
     else if (algoName.compare ("tplastx")==0)
@@ -406,24 +407,32 @@ IHitIterator* DefaultConfiguration::createUngapHitIterator (
 {
     IHitIterator* result = 0;
 
+    IAlignmentResult* actualUngapResult = ungapResult;
+
+    IProperty* optimProp = _properties->getProperty (STR_OPTION_OPTIM_FILTER_UNGAP);
+    if (optimProp && optimProp->value.compare("F")==0)  { actualUngapResult = 0; }
+
+    IProperty* maxhitsPerIterProp = _properties->getProperty (STR_OPTION_MAX_HIT_PER_ITERATION);
+    u_int32_t maxHitsPerIter = maxhitsPerIterProp ? maxhitsPerIterProp->getInt() : 0;
+
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_HIT_UNGAP);
 
     if (prop && prop->value.compare("UngapHitIteratorNull")==0)
     {
-        result = new UngapHitIteratorNull (source, model, matrix, params, ungapResult);
+        result = new UngapHitIteratorNull (source, model, matrix, params, actualUngapResult);
     }
     else if (prop && prop->value.compare("UngapHitIterator")==0)
     {
-        result = new UngapHitIterator (source, model, matrix, params, ungapResult);
+        result = new UngapHitIterator (source, model, matrix, params, actualUngapResult);
     }
     else if (prop && prop->value.compare("UngapHitIteratorSSE16")==0)
     {
-        result = new UngapHitIteratorSSE16 (source, model, matrix, params, ungapResult);
+        result = new UngapHitIteratorSSE16 (source, model, matrix, params, actualUngapResult, maxHitsPerIter);
     }
     else
     {
-        result = new UngapHitIteratorSSE16 (source, model, matrix, params, ungapResult);
+        result = new UngapHitIteratorSSE16 (source, model, matrix, params, actualUngapResult, maxHitsPerIter);
     }
 
     return result;
@@ -659,6 +668,10 @@ AlignmentResultVisitor* DefaultConfiguration::createResultVisitor ()
             result = new  AlignmentResultRawDumpVisitor (uri);
             break;
 
+        case 3:
+            result = new  AlignmentResultXmlDumpVisitor (uri);
+            break;
+
         default:
             result = new  AlignmentResultOutputTabulatedVisitor (uri);
             break;
@@ -669,96 +682,21 @@ AlignmentResultVisitor* DefaultConfiguration::createResultVisitor ()
         result = new  AlignmentResultOutputTabulatedVisitor (uri);
     }
 
+    /** We may want to restrict the number of dumped alingments. We use a Proxy (see [GOF94]) for
+     *  controlling this aspect.
+     */
+    IProperty* maxHitsPerQueryProp = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY);
+    if (maxHitsPerQueryProp != 0)
+    {
+        size_t maxHitsPerQuery = atoi (maxHitsPerQueryProp->value.c_str());
+        if (maxHitsPerQuery > 0)
+        {
+            result = new MaxHitsPerQueryAlignmentResultVisitor (result, maxHitsPerQuery);
+        }
+    }
+
     /** We return the result. */
     return result;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-void DefaultConfiguration::findDabasesUri (list <pair <string,string> >& uri, database::IDatabaseQuickReader* reader)
-{
-    /** We first clear the provided list. */
-    uri.clear();
-
-    /** We look for the subject and query databases uri from the user properties. */
-    IProperty* subjectUri = _properties->getProperty (STR_OPTION_SUBJECT_URI);
-    IProperty* queryUri   = _properties->getProperty (STR_OPTION_QUERY_URI);
-
-    if (subjectUri && queryUri)
-    {
-        /** We have to retrieve the file size of the two uri. */
-        u_int64_t subjectSize = getFileSize (subjectUri->value);
-        u_int64_t querySize   = getFileSize (queryUri->value);
-
-        u_int64_t maxSize = 2*1000*1000;
-
-        for (size_t s=0; s+1<subjectSize; s+=maxSize)
-        {
-            u_int64_t s0 = s;
-            u_int64_t s1 = MIN (subjectSize-1, s+maxSize-1);
-
-            for (size_t q=0; q+1<querySize; q+=maxSize)
-            {
-                u_int64_t q0 = q;
-                u_int64_t q1 = MIN (querySize-1, q+maxSize-1);
-
-                uri.push_back (pair<string,string> (
-                    createUri (subjectUri->value, s0, s1),
-                    createUri (queryUri->value,   q0, q1)
-                ));
-            }
-        }
-
-#if 1
-      uri.clear ();
-      uri.push_back (pair<string,string>  (subjectUri->value, queryUri->value) );
-#endif
-    }
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-u_int64_t DefaultConfiguration::getFileSize (const std::string& uri)
-{
-    u_int64_t result = 0;
-
-    FILE* file = fopen (uri.c_str(), "r");
-    if (file)
-    {
-        fseek (file, 0, SEEK_END);
-
-        result = ftell (file);
-
-        fclose (file);
-    }
-    return result;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-std::string DefaultConfiguration::createUri (const std::string& uri, u_int64_t i0, u_int64_t i1)
-{
-    std::stringstream ss;
-    ss << "file://" << uri << ":" << i0 << ":" << i1;
-    return ss.str ();
 }
 
 /********************************************************************************/

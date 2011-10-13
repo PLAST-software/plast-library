@@ -45,10 +45,10 @@ public:
     virtual ~BufferedSequenceDatabase ();
 
     /** Returns the number of sequences in the database. */
-    size_t getSequencesNumber ()  { return _nbSequences; }
+    size_t getSequencesNumber ()  { return getCache()->nbSequences; }
 
     /** Retrieve the database size. Use offset table for computing. */
-    u_int64_t getSize ()  {  return (_cache->offsets.data)[_lastIdx+1] - (_cache->offsets.data)[_firstIdx];  }
+    u_int64_t getSize ()  {  return (getCache()->offsets.data)[_lastIdx+1] - (getCache()->offsets.data)[_firstIdx];  }
 
     /** Returns a sequence given its index. */
     bool getSequenceByIndex (size_t index, ISequence& sequence);
@@ -56,20 +56,23 @@ public:
     /** Retrieve a sequence given its offset in the database. */
     bool getSequenceByOffset (u_int64_t offsetInDatabase, ISequence& sequence, u_int32_t& offsetInSequence);
 
+    /** Default implementation. */
+    void getActualInfoFromOffset (u_int64_t offset, ISequenceDatabase*& actualDb, u_int64_t& actualOffset)
+    {
+        actualDb     = this;
+        actualOffset = offset;
+    }
+
     /** Creates a Sequence iterator. */
-    ISequenceIterator* createSequenceIterator () { return new BufferedSequenceIterator (_cache, _firstIdx, _lastIdx); }
+    ISequenceIterator* createSequenceIterator () { return new BufferedSequenceIterator (getCache(), _firstIdx, _lastIdx); }
 
     /** Split the database. */
     std::vector<ISequenceDatabase*> split (size_t nbSplit);
 
-    /** Design pattern Composite. */
-    void addChild    (ISequenceDatabase* child)  {}
-    void removeChild (ISequenceDatabase* child)  {}
-
     /** Return properties about the instance. */
     dp::IProperties* getProperties (const std::string& root);
 
-protected:
+private:
 
     /** Constructor that uses a provided cache and an index range for iterating the cache. */
     BufferedSequenceDatabase (ISequenceCache* cache, size_t firstIdx, size_t lastIdx);
@@ -80,13 +83,16 @@ protected:
     /** */
     bool isIndexValid (size_t idx)  { return idx < _nbSequences; }
 
+    ISequenceIterator* _refIterator;
+    void setRefSequenceIterator (ISequenceIterator* refIterator)  { SP_SETATTR (refIterator); }
+
     /** We need a sequences cache instance. */
     ISequenceCache* _cache;
-    ISequenceCache* getCache() { return _cache; }
-    void setCache (ISequenceCache* cache);
+    ISequenceCache* getCache();
+    void setCache (ISequenceCache* cache)  { SP_SETATTR(cache); }
 
     /** Method for building the cache. */
-    void buildCache (ISequenceIterator* refIterator);
+    ISequenceCache* buildCache (ISequenceIterator* refIterator);
 
     size_t _firstIdx;
     size_t _lastIdx;
@@ -134,12 +140,7 @@ protected:
     private:
 
         ISequenceCache* _cache;
-        void setCache (ISequenceCache* cache)
-        {
-            if (_cache)  { _cache->forget(); }
-            _cache = cache;
-            if (_cache)  { _cache->use(); }
-        }
+        void setCache (ISequenceCache* cache)  { SP_SETATTR(cache); }
 
         size_t _firstIdx;
         size_t _lastIdx;

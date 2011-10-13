@@ -98,7 +98,7 @@ void UngapHitIteratorSSE8::iterateMethod (indexation::Hit* hit)
     size_t sizeHalfNeighbour = _span + 1*_parameters->ungapNeighbourLength;
 
     /** We allocate the pseudo score matrix between alphabet and database 2. */
-    char* databk = (char *) calloc (sizeMatrix*sizeNeighbour + 64,  sizeof(__m128i));
+    char* databk = (char *) MemoryAllocator::singleton().calloc (sizeMatrix*sizeNeighbour + 64,  sizeof(__m128i));
     size_t aligned = ((size_t) (databk +15)) & ~(0x0f);
     pvb = (__m128i *) aligned;
 
@@ -216,7 +216,7 @@ void UngapHitIteratorSSE8::iterateMethod (indexation::Hit* hit)
     (_client->*_method) (hit);
 
     /** Some clean up. */
-    free (databk);
+    MemoryAllocator::singleton().free (databk);
 }
 
 /********************************************************************************/

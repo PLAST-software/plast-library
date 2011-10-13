@@ -14,16 +14,16 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "ReadingFrameSequenceDatabase.hpp"
+#include "TokenizerIterator.hpp"
+#include "MemoryAllocator.hpp"
+
+using namespace std;
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
 
-using namespace std;
-using namespace types;
-
 /********************************************************************************/
-namespace database {
+namespace dp {
 /********************************************************************************/
 
 /*********************************************************************
@@ -34,20 +34,12 @@ namespace database {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-ReadingFrameSequenceDatabase::ReadingFrameSequenceDatabase (
-    ReadingFrame_e      frame,
-    ISequenceDatabase*  nucleotidDatabase,
-    bool                filterLowComplexity
-)
-    : BufferedSequenceDatabase (
-            new ReadingFrameSequenceIterator (frame, nucleotidDatabase->createSequenceIterator()),
-            filterLowComplexity
-        ),
-      _nucleotidDatabase(0),
-      _frame (frame)
+TokenizerIterator::TokenizerIterator (const char* text, const char* seperator)
+    : _sep(seperator), _str(0), _loop(0)
 {
-    /** We set the nucleotid database. */
-    setNucleotidDatabase (nucleotidDatabase);
+    DEBUG (("TokenizerIterator::TokenizerIterator: text='%s'  sep='%s'\n", text, seperator));
+
+    if (text != 0)  { _str = os::MemoryAllocator::singleton().strdup (text); }
 }
 
 /*********************************************************************
@@ -58,13 +50,40 @@ ReadingFrameSequenceDatabase::ReadingFrameSequenceDatabase (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-ReadingFrameSequenceDatabase::~ReadingFrameSequenceDatabase ()
+TokenizerIterator::~TokenizerIterator ()
 {
-    /** We unset the nucleotid database. */
-    setNucleotidDatabase (0);
+    os::MemoryAllocator::singleton().free (_str);
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void TokenizerIterator::first()
+{
+    DEBUG (("TokenizerIterator::first\n"));
+
+    if (_str)  {  _loop = strtok (_str, _sep.c_str());  }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+dp::IteratorStatus TokenizerIterator::next()
+{
+    _loop = strtok (NULL, _sep.c_str());
+    return ITER_UNKNOWN;
 }
 
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
-

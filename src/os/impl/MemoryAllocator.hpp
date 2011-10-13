@@ -111,6 +111,15 @@ public:
     }
 
     /** */
+    char* strdup (const char* s)
+    {
+        char* res = ::strdup (s);
+        if (!res)  {  throw MemoryFailure ("no memory for strdup"); }
+        return res;
+    }
+
+
+    /** */
     void  resetStats ()
     {
         _nbMalloc       = 0;

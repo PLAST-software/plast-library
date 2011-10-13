@@ -17,8 +17,6 @@
 #include "BasicAlignmentResult.hpp"
 #include "ReadingFrameSequenceDatabase.hpp"
 
-#include "DefaultOsFactory.hpp"
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -45,13 +43,11 @@ namespace algo  {
 ** REMARKS :
 *********************************************************************/
 BasicAlignmentResult::BasicAlignmentResult (ISequenceDatabase* subjectDb, ISequenceDatabase* queryDb)
-    : _subjectDb(0), _queryDb(0), _synchro (0), _nbAlignments(0),
+    : _subjectDb(0), _queryDb(0), _nbAlignments(0),
       _shiftDivisor (20)
 {
     setSubjectDb (subjectDb);
     setQueryDb   (queryDb);
-
-    _synchro = DefaultFactory::singleton().getThreadFactory().newSynchronizer();
 
     /** We resize the vector holding query entries. */
     if (_queryDb != 0)  {  _queryEntries.resize (_queryDb->getSequencesNumber());  }
@@ -69,8 +65,6 @@ BasicAlignmentResult::~BasicAlignmentResult ()
 {
     setSubjectDb (0);
     setQueryDb   (0);
-
-    if (_synchro)  { delete _synchro; }
 }
 
 /*********************************************************************
@@ -329,7 +323,7 @@ void BasicAlignmentResult::shrink (void)
 
             char* removeTable = 0;
 
-            removeTable = (char*) malloc (container.size());
+            removeTable = (char*) MemoryAllocator::singleton().malloc (container.size());
             memset (removeTable, 0, container.size());
 
             for (size_t k=0; k<container.size(); k++)
@@ -400,7 +394,7 @@ void BasicAlignmentResult::shrink (void)
 #endif
             for (size_t k=0; k<container.size(); k++)  {  if (removeTable[k] == 1)  { count++; }  }
 
-            free (removeTable);
+            MemoryAllocator::singleton().free (removeTable);
         }
 
 

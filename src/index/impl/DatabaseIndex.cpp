@@ -62,7 +62,6 @@ DatabaseIndex::DatabaseIndex (ISequenceDatabase* database, ISeedModel* model)
 *********************************************************************/
 DatabaseIndex::~DatabaseIndex ()
 {
-    //printf ("DatabaseIndex::~DatabaseIndex:  this=%p \n", this);
 }
 
 /*********************************************************************
@@ -160,8 +159,6 @@ void DatabaseIndex::build ()
 
     DEBUG (("DatabaseIndex::build : END SEQUENCES LOOP\n"));
 
-    // dump ();
-
     DEBUG (("DatabaseIndex::build : found %ld seeds occurrences. %ld sequences\n", nbOccurrences, nbSequences));
 }
 
@@ -217,11 +214,6 @@ IOccurrenceIterator* DatabaseIndex::createOccurrenceIterator (const ISeed* seed,
 
     /** A little shortcut. */
     std::vector<SequenceOffset>& offsets = _index[code];
-
-//    DEBUG (("DatabaseIndex::createOccurrenceIterator: this=%p  seed='%s'  nbOccurs=%ld\n", this,
-//        seed->kmer.toString().c_str(),
-//        offsets.size()
-//    ));
 
     return (offsets.size() > 0 ? new DatabaseOccurrenceIterator (getDatabase(), _span, &offsets, neighbourhoodSize) : 0);
 }
@@ -379,41 +371,6 @@ void DatabaseIndex::merge (void)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void DatabaseIndex::dump (void)
-{
-    printf ("------------------------ DUMP ------------------------\n");
-
-    /** We create an iterator that loops all seeds of the model. */
-    ISeedIterator* itSeed = _model->createAllSeedsIterator();
-    LOCAL (itSeed);
-
-    /** We loop over all possible seeds for the given model. */
-    for (itSeed->first(); !itSeed->isDone(); itSeed->next())
-    {
-        /** */
-        const ISeed* seed = itSeed->currentItem();
-
-        IOccurrenceIterator* it = createOccurrenceIterator (seed, 0);
-        if (it != 0)
-        {
-            LOCAL (it);
-
-            for (it->first(); ! it->isDone(); it->next())
-            {
-                printf ("SEED '%s' => offset=%ld\n", seed->kmer.toString().c_str(), it->currentItem()->offsetInDatabase);
-            }
-        }
-    }
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
 void DatabaseIndex::DatabaseOccurrenceIterator::updateItem ()
 {
     /** We get the offset of the occurrence in the database. */
@@ -456,12 +413,6 @@ void DatabaseIndex::DatabaseOccurrenceIterator::updateItem ()
         }
 #else
         memcpy (bufOut, bufIn - imin2, imin2);
-
-//        if ((imin1 + imin2)  != (_span + 2*_neighbourSize))
-//            printf ("m1=%ld  m2=%ld  t=%ld  offset=%ld  length=%ld  span=%ld  size=%ld\n",
-//                imin1, imin2, (imin1+imin2), _item.offsetInSequence,
-//                _item.sequence.data.letters.size, _span, _neighbourSize
-//            );
 #endif
     }
 }
@@ -514,16 +465,34 @@ DatabaseIndex::DatabaseOccurrenceBlockIterator::DatabaseOccurrenceBlockIterator 
             /** We set it to current vector entry. */
             _occurrences.data[currentIdx] = occur;
 
-            /** We complete the information. */
+            /** We complete the information of the ISeedOccurrence instance.
+             *  Note: in case the database is a composed database, we should be able now
+             *  to retrieve the actual database and actual offset from the global offset
+             *  we memorized during index building. Therefore, the ISeedOccurrence instance
+             *  will reference information of the actual database. For instance, this may
+             *  be useful when we have a single database composed of 6 ReadingFrame databases
+             *  (when dealing with nucleotid databases transcripted in 6 reading frames); the
+             *  index has been built with the composed database but here we want to know which
+             *  sub database is actually the wanted one (ie one of the 6 reading frame database).
+             */
+#if 1
+            _database->getActualInfoFromOffset (
+                (*_offsets)[currentIdx],
+                occur->database,
+                occur->offsetInDatabase
+            );
+            if (occur->database == 0)  { /* should throw some exception */ }
+
+            /** We retrieve other information: sequence and offset in sequence. */
+            (occur->database)->getSequenceByOffset (occur->offsetInDatabase, occur->sequence, occur->offsetInSequence);
+#else
             occur->database          = _database;
             occur->offsetInDatabase  = (*_offsets)[currentIdx];
 
             /** We retrieve other information: sequence and offset in sequence. */
             _database->getSequenceByOffset (occur->offsetInDatabase, occur->sequence, occur->offsetInSequence);
-
-#if 0
-      printf ("+++ [%ld,%ld]  offset=%ld  seq '%s'\n", currentIdx, nb, occur->offsetInSequence, occur->sequence.toString().c_str() );
 #endif
+
             /** We may have to build the neighbourhood. */
             if (_neighbourSize > 0)
             {
@@ -550,10 +519,6 @@ DatabaseIndex::DatabaseOccurrenceBlockIterator::DatabaseOccurrenceBlockIterator 
             /** We set the current ISeedOccurrence neighbourhood referenced buffer. */
             occur->neighbourhood.letters.setReference (_neighbourTotalSize, cursor);
 
-#if 0
-    const LETTER* convert = EncodingManager::singleton().getEncodingConversion(SUBSEED, ASCII);
-    printf ("***> %ld: ", _neighbourTotalSize);  for (size_t k=0; k<_neighbourTotalSize; k++)  { printf ("%c", convert[cursor[k]]); }  printf("\n\n");
-#endif
             /** We move the cursor on the neighbourhoods buffer. */
             cursor += _neighbourTotalSize;
 

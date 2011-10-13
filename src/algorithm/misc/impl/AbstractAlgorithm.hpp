@@ -91,7 +91,7 @@ protected:
         const std::string&  uri,
         const Range&        range,
         bool                filtering,
-        const std::vector<database::ReadingFrame_e>& frames
+        const std::vector<types::ReadingFrame_e>& frames
     );
 
     indexation::IHitIterator* createHitIterator (
@@ -102,16 +102,16 @@ protected:
     );
 
     /** */
-    std::vector<database::ReadingFrame_e>  _subjectFrames;
-    const std::vector<database::ReadingFrame_e>&  getSubjectFrames ()  { return _subjectFrames; }
+    std::vector<types::ReadingFrame_e>  _subjectFrames;
+    const std::vector<types::ReadingFrame_e>&  getSubjectFrames ()  { return _subjectFrames; }
 
     /** */
-    std::vector<database::ReadingFrame_e>  _queryFrames;
-    const std::vector<database::ReadingFrame_e>&  getQueryFrames   ()  { return _queryFrames;   }
+    std::vector<types::ReadingFrame_e>  _queryFrames;
+    const std::vector<types::ReadingFrame_e>&  getQueryFrames   ()  { return _queryFrames;   }
 
-    static database::ReadingFrame_e allframes[];
-    static database::ReadingFrame_e topframes[];
-    static database::ReadingFrame_e bottomframes[];
+    static types::ReadingFrame_e allframes[];
+    static types::ReadingFrame_e topframes[];
+    static types::ReadingFrame_e bottomframes[];
 
     virtual void hitUpdate (const indexation::IHitIterator* hit) {}
 
@@ -177,7 +177,14 @@ public:
     )
     : AbstractAlgorithm (config, reader, params, resultVisitor)
     {
-        _queryFrames.assign (allframes, allframes + 6);
+        if (params->strands.empty() )
+        {
+            _queryFrames.assign (allframes, allframes + 6);
+        }
+        else
+        {
+            _queryFrames.assign (params->strands.begin(), params->strands.end());
+        }
     }
 };
 
@@ -194,7 +201,14 @@ public:
     )
     : AbstractAlgorithm (config, reader, params, resultVisitor)
     {
-        _subjectFrames.assign (allframes, allframes + 6);
+        if (params->strands.empty() )
+        {
+            _subjectFrames.assign (allframes, allframes + 6);
+        }
+        else
+        {
+            _subjectFrames.assign (params->strands.begin(), params->strands.end());
+        }
     }
 };
 

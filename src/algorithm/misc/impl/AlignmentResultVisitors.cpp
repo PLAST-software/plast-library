@@ -39,6 +39,49 @@ namespace algo  {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+void MaxHitsPerQueryAlignmentResultVisitor::visitQuerySequence   (const database::ISequence* seq)
+{
+    if (_ref)  { _ref->visitQuerySequence (seq); }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void MaxHitsPerQueryAlignmentResultVisitor::visitSubjectSequence (const database::ISequence* seq)
+{
+    _currentHitsNb = 0;
+
+    if (_ref)  { _ref->visitSubjectSequence (seq); }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void MaxHitsPerQueryAlignmentResultVisitor::visitAlignment (const Alignment* align)
+{
+    _currentHitsNb ++;
+
+    if (_currentHitsNb <= _maxHitsPerQuery  &&  _ref)  { _ref->visitAlignment (align); }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 AbstractAlignmentResultVisitor::AbstractAlignmentResultVisitor (const std::string& uri)
     : _uri(uri), _file(0)
 {
@@ -148,8 +191,152 @@ void AlignmentResultOutputTabulatedVisitor::visitAlignment (const Alignment* ali
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+AlignmentResultXmlDumpVisitor::AlignmentResultXmlDumpVisitor (const std::string& uri)
+    : AbstractAlignmentResultVisitor (uri),
+      _nbQuery (0), _nbSubject (0), _nbAlign(0)
 
+{
+    printline (0, "<?xml version=\"1.0\" ?>");
+    printline (0, "<BlastOutput>");
+    printline (1, "<BlastOutput_iterations>");
+}
 
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+AlignmentResultXmlDumpVisitor::~AlignmentResultXmlDumpVisitor ()
+{
+    if (_nbSubject > 0)
+    {
+        printline (5, "</Hit_hsps>");
+        printline (4, "</Hit>");
+    }
+
+    if (_nbQuery > 0)
+    {
+        printline (3, "</Iteration_hits>");
+        printline (2, "</Iteration>");
+    }
+
+    printline (1, "</BlastOutput_iterations>");
+    printline (0, "</BlastOutput>");
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AlignmentResultXmlDumpVisitor::visitQuerySequence (const database::ISequence* seq)
+{
+    if (_nbSubject > 0)
+    {
+        printline (5, "</Hit_hsps>");
+        printline (4, "</Hit>");
+    }
+
+    if (_nbQuery > 0)
+    {
+        printline (3, "</Iteration_hits>");
+        printline (2, "</Iteration>");
+    }
+
+    _currentQuery = seq;
+    _nbQuery++;
+    _nbSubject = 0;
+
+    printline (2, "<Iteration>");
+    printline (3, "<Iteration_iter-num>%d</Iteration_iter-num>", _nbQuery);
+    printline (3, "<Iteration_query-def>%s</Iteration_query-def>", _currentQuery->comment);
+    printline (3, "<Iteration_query-len>%d</Iteration_query-len>", _currentQuery->data.letters.size);
+    printline (3, "<Iteration_hits>");
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AlignmentResultXmlDumpVisitor::visitSubjectSequence (const database::ISequence* seq)
+{
+    if (_nbSubject > 0)
+    {
+        printline (5, "</Hit_hsps>");
+        printline (4, "</Hit>");
+    }
+    _currentSubject = seq;
+    _nbSubject++;
+    _nbAlign = 0;
+
+    printline (4, "<Hit>");
+    printline (5, "<Hit_num>%d</Hit_num>", _nbSubject);
+    printline (5, "<Hit_def>%s</Hit_def>", _currentSubject->comment);
+    printline (5, "<Hit_len>%d</Hit_len>", _currentSubject->data.letters.size);
+    printline (5, "<Hit_hsps>");
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AlignmentResultXmlDumpVisitor::visitAlignment (const Alignment* align)
+{
+    _nbAlign++;
+
+    printline (6, "<Hsp>");
+
+    printline (7, "<Hsp_num>%d</Hsp_num>",                  _nbAlign);
+    printline (7, "<Hsp_bit-score>%g</Hsp_bit-score>",      align->_bitscore);
+    printline (7, "<Hsp_evalue>%g</Hsp_evalue>",            align->_evalue);
+    printline (7, "<Hsp_query-from>%d</Hsp_query-from>",    align->_queryStartInSeq   + 1);
+    printline (7, "<Hsp_query-to>%d</Hsp_query-to>",        align->_queryEndInSeq     + 1);
+    printline (7, "<Hsp_hit-from>%d</Hsp_hit-from>",        align->_subjectStartInSeq + 1);
+    printline (7, "<Hsp_hit-to>%d</Hsp_hit-to>",            align->_subjectEndInSeq   + 1);
+    printline (7, "<Hsp_identity>%d</Hsp_identity>",        align->_identity);
+    printline (7, "<Hsp_gaps>%d</Hsp_gaps>",                align->_nbGap);
+    printline (7, "<Hsp_align-len>%d</Hsp_align-len>",      align->_length);
+    printline (7, "<Hsp_hseq/>");
+
+    printline (6, "</Hsp>");
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AlignmentResultXmlDumpVisitor::printline (size_t depth, const char* format, ...)
+{
+    if (_file != 0)
+    {
+        /** We dump the indentation. */
+        for (size_t i=0; i<depth; i++)   { fprintf (_file, "    ");  }
+
+        va_list va;
+        va_start (va, format);
+        vfprintf (_file, format, va);
+        fprintf  (_file, "\n");
+        va_end (va);
+    }
+}
 
 /********************************************************************************/
 } /* end of namespaces. */

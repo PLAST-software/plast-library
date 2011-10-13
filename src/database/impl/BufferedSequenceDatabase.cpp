@@ -42,33 +42,17 @@ namespace database {
 ** REMARKS :
 *********************************************************************/
 BufferedSequenceDatabase::BufferedSequenceDatabase (ISequenceIterator* refIterator, bool filterLowComplexity)
-    : _nbSequences(0), _cache(0), _firstIdx(0), _lastIdx(0), _filterLowComplexity (filterLowComplexity)
+    : _nbSequences(0),
+      _refIterator(0),
+      _cache(0),
+      _firstIdx(0), _lastIdx(0),
+      _filterLowComplexity (filterLowComplexity)
 {
     DEBUG (("BufferedSequenceDatabase::BufferedSequenceDatabase  this=%p  iter=%p\n", this, refIterator));
 
-    if (refIterator)
-    {
-        /** We use locally the provided iterator. */
-        LOCAL (refIterator);
-
-        /** We build the cache. */
-        buildCache (refIterator);
-
-        /** We can set the [first,last] indexes for iterators. */
-        if (_cache->nbSequences > 0)
-        {
-            _firstIdx = 0;
-            _lastIdx  = _cache->nbSequences - 1;
-        }
-        else
-        {
-            _firstIdx = 1;
-            _lastIdx  = 0;
-        }
-
-        /** We use a shortcut for time optimization. */
-        _nbSequences = _lastIdx - _firstIdx + 1;
-    }
+    /** We just keep a reference on the provided sequence iterator. The cache should be built on the first call
+     * to some public API method. */
+    setRefSequenceIterator (refIterator);
 }
 
 /*********************************************************************
@@ -80,7 +64,7 @@ BufferedSequenceDatabase::BufferedSequenceDatabase (ISequenceIterator* refIterat
 ** REMARKS :
 *********************************************************************/
 BufferedSequenceDatabase::BufferedSequenceDatabase (ISequenceCache* cache, size_t firstIdx, size_t lastIdx)
-    : _nbSequences(0), _cache(0), _firstIdx(firstIdx), _lastIdx(lastIdx)
+    : _nbSequences(0), _refIterator(0), _cache(0), _firstIdx(firstIdx), _lastIdx(lastIdx)
 {
     DEBUG (("BufferedSequenceDatabase::BufferedSequenceDatabase  this=%p  [%ld,%ld] \n", this, _firstIdx, _lastIdx));
 
@@ -103,8 +87,9 @@ BufferedSequenceDatabase::~BufferedSequenceDatabase ()
 {
     DEBUG (("BufferedSequenceDatabase::~BufferedSequenceDatabase  this=%p\n", this));
 
-    /** We release the current cache. */
+    /** We release instances. */
     setCache (0);
+    setRefSequenceIterator (0);
 }
 
 /*********************************************************************
@@ -115,11 +100,18 @@ BufferedSequenceDatabase::~BufferedSequenceDatabase ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void BufferedSequenceDatabase::setCache (ISequenceCache* cache)
+ISequenceCache* BufferedSequenceDatabase::getCache()
 {
-    if (_cache)  { _cache->forget(); }
-    _cache = cache;
-    if (_cache)  { _cache->use();    }
+    if (_cache == 0)
+    {
+        /** We build the cache. */
+        setCache (buildCache(_refIterator));
+
+        /** We can now release the referenced iterator. */
+        setRefSequenceIterator (0);
+    }
+
+    return _cache;
 }
 
 /*********************************************************************
@@ -130,17 +122,19 @@ void BufferedSequenceDatabase::setCache (ISequenceCache* cache)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void BufferedSequenceDatabase::buildCache (ISequenceIterator* refIterator)
+ISequenceCache* BufferedSequenceDatabase::buildCache (ISequenceIterator* refIterator)
 {
+    ISequenceCache* result = 0;
+
     DEBUG (("BufferedSequenceDatabase::buildCache BEGIN\n"));
 
     /** We create a new cache. */
-    setCache (new ISequenceCache (10*1024));
+    result = new ISequenceCache (10*1024);
 
     /** We change the sequence builder. We initialize it with the vectors of the cache to be filled during iteration. */
     ISequenceBuilder* builder = 0;
-    if (_filterLowComplexity == false)   { builder = new BufferedSequenceBuilder        (_cache);  }
-    else                                 { builder = new BufferedSegmentSequenceBuilder (_cache);  }
+    if (_filterLowComplexity == false)   { builder = new BufferedSequenceBuilder        (result);  }
+    else                                 { builder = new BufferedSegmentSequenceBuilder (result);  }
 
     refIterator->setBuilder (builder);
 
@@ -155,21 +149,21 @@ void BufferedSequenceDatabase::buildCache (ISequenceIterator* refIterator)
     ));
 
     /** We may have no result; just return. */
-    if (_cache->dataSize == 0)  { return; }
+    if (result->dataSize == 0)  { return result; }
 
     /** We can resize the containers with true sizes. */
-    _cache->database.resize (_cache->dataSize);
-    _cache->comments.resize (_cache->nbSequences);
-    _cache->offsets.resize  (_cache->nbSequences + 1);
+    result->database.resize (result->dataSize);
+    result->comments.resize (result->nbSequences);
+    result->offsets.resize  (result->nbSequences + 1);
 
     /** Note that we add an extra offset that matches the total size of the data.
      *  => useful for computing the last sequence size by difference of two offsets. */
-    (_cache->offsets.data) [_cache->nbSequences] = _cache->dataSize;
+    (result->offsets.data) [result->nbSequences] = result->dataSize;
 
     /** We compute the sequence average size. */
-    size_t sizeAverage = (_cache->nbSequences > 0 ? _cache->database.size / _cache->nbSequences : 1);
+    size_t sizeAverage = (result->nbSequences > 0 ? result->database.size / result->nbSequences : 1);
 
-    /** We increase this average by a factor (avoids too many interpolation fails in the getSequenceByOffset method). */
+    /** We increase this average by a factor (avoids too many interpolation failures in the getSequenceByOffset method). */
     sizeAverage = (sizeAverage*115) / 100;
 
     /** We compute coeffs [a,b] giving an estimate of this average as the number 2^b/a.
@@ -193,16 +187,32 @@ void BufferedSequenceDatabase::buildCache (ISequenceIterator* refIterator)
         }
     }
 
-    _cache->sequenceAverageA = a;
-    _cache->sequenceAverageB = b;
+    result->sequenceAverageA = a;
+    result->sequenceAverageB = b;
 
     /** We memorize the number of sequences found during iteration. */
-    _nbSequences = _cache->nbSequences;
+    _nbSequences = result->nbSequences;
 
-    DEBUG (("BufferedIterator::buildCache  dataSize=%lld  nbSeq=%ld  average=[%d,%d]\n",
-        _cache->dataSize, _cache->nbSequences,
-        _cache->sequenceAverageA, _cache->sequenceAverageB
+    /** We can set the [first,last] indexes for iterators. */
+    if (_nbSequences > 0)
+    {
+        _firstIdx = 0;
+        _lastIdx  = _nbSequences - 1;
+    }
+    else
+    {
+        _firstIdx = 1;
+        _lastIdx  = 0;
+    }
+
+    DEBUG (("BufferedSequenceDatabase::buildCache  dataSize=%lld  nbSeq=%ld  average=[%d,%d]  first=%ld  last=%ld \n",
+        result->dataSize, result->nbSequences,
+        result->sequenceAverageA, result->sequenceAverageB,
+        _firstIdx, _lastIdx
     ));
+
+    /** We return the result. */
+    return result;
 }
 
 /*********************************************************************
@@ -215,16 +225,21 @@ void BufferedSequenceDatabase::buildCache (ISequenceIterator* refIterator)
 *********************************************************************/
 void BufferedSequenceDatabase::updateSequence (size_t idx, ISequence& sequence)
 {
+    DEBUG (("BufferedSequenceDatabase::updateSequence  idx=%ld\n", idx));
+
+    /** Shortcut. */
+    ISequenceCache* cache = getCache ();
+
     /** A little shortcut (avoid two memory accesses). */
-    Offset currentOffset = _cache->offsets.data [idx];
+    Offset currentOffset = cache->offsets.data [idx];
 
     /** We get a pointer to the comment of the current sequence. */
-    sequence.comment  = _cache->comments[idx].c_str();
+    sequence.comment  = cache->comments[idx].c_str();
 
     /** We get a pointer to the data of the current sequence. */
     sequence.data.setReference (
-        _cache->offsets.data[idx+1] - currentOffset,
-        (LETTER*) (_cache->database.data + currentOffset)
+            cache->offsets.data[idx+1] - currentOffset,
+        (LETTER*) (cache->database.data + currentOffset)
     );
 }
 
@@ -238,6 +253,8 @@ void BufferedSequenceDatabase::updateSequence (size_t idx, ISequence& sequence)
 *********************************************************************/
 bool BufferedSequenceDatabase::getSequenceByIndex (size_t index, ISequence& sequence)
 {
+    DEBUG (("BufferedSequenceDatabase::getSequenceByIndex  index=%ld\n", index));
+
     bool result = false;
 
     if (isIndexValid(index) == true)
@@ -259,15 +276,18 @@ bool BufferedSequenceDatabase::getSequenceByIndex (size_t index, ISequence& sequ
 *********************************************************************/
 bool BufferedSequenceDatabase::getSequenceByOffset (u_int64_t offsetInDatabase, ISequence& sequence, u_int32_t& offsetInSequence)
 {
+    /** Shortcut. */
+    ISequenceCache* cache = getCache ();
+
     /** We reset the argument to be filled. */
     offsetInSequence = 0;
 
     /** Shortcut. */
-    Offset* offsets = _cache->offsets.data;
-    size_t  nb      = _cache->offsets.size;
+    Offset* offsets = cache->offsets.data;
+    size_t  nb      = cache->offsets.size;
 
-    u_int8_t A = _cache->sequenceAverageA;
-    u_int8_t B = _cache->sequenceAverageB;
+    u_int8_t A = cache->sequenceAverageA;
+    u_int8_t B = cache->sequenceAverageB;
 
     /** We first look for the sequence index from the provided offset (use dichotomy search) */
     size_t smin = 0;
@@ -288,9 +308,6 @@ bool BufferedSequenceDatabase::getSequenceByOffset (u_int64_t offsetInDatabase, 
      */
     int32_t delta = 0;
 
-//    static int nb=0;
-//    static int sum=0;
-
     while ( (b = offsets[idx] > offsetInDatabase)  ||  ((delta = offsetInDatabase-offsets[idx+1]) >= 0) )
     {
         if (b)  {  smax = idx - 1;  }
@@ -305,8 +322,6 @@ bool BufferedSequenceDatabase::getSequenceByOffset (u_int64_t offsetInDatabase, 
         /** If interpolation fails, we use classical dichotomy approach. */
         if (idx >= smax)  {  idx = (smin+smax) >> 1;  }
     }
-
-    //if ((++nb % 1000000) == 0)   printf ("[%d] found=%ld  mean=%.3f  (average [%d,%d]) \n", nb, idx, (float)sum/(float)nb, A,B);
 
     if (false)
     {
@@ -323,12 +338,12 @@ bool BufferedSequenceDatabase::getSequenceByOffset (u_int64_t offsetInDatabase, 
     offsetInSequence = offsetInDatabase - off0;
 
     /** We get a pointer to the comment of the current sequence. */
-    sequence.comment  = _cache->comments[idx].c_str();
+    sequence.comment  = cache->comments[idx].c_str();
 
     /** We get a pointer to the data of the current sequence. */
     sequence.data.setReference (
         offsets[idx+1] - off0,
-        (LETTER*) (_cache->database.data + off0)
+        (LETTER*) (cache->database.data + off0)
     );
 
     sequence.index = idx;
@@ -374,25 +389,28 @@ vector<ISequenceDatabase*> BufferedSequenceDatabase::split (size_t nbSplit)
 
     if (nbSplit > 0)
     {
+        /** Shortcut. */
+        ISequenceCache* cache = getCache ();
+
         /** We compute the average sequences number for each iterator. */
-        size_t averageNbSequences =  _cache->nbSequences / nbSplit;
+        size_t averageNbSequences =  cache->nbSequences / nbSplit;
 
         /** We may have to add one if the remainder is not null. */
-        if (_cache->nbSequences % nbSplit != 0)  {  averageNbSequences++; }
+        if (cache->nbSequences % nbSplit != 0)  {  averageNbSequences++; }
 
         DEBUG (("BufferedIterator::split  nbSplit=%ld  => average=%ld  (nbSeq=%ld) \n",
-            nbSplit, averageNbSequences, _cache->nbSequences
+            nbSplit, averageNbSequences, cache->nbSequences
         ));
 
         size_t first = 0;
         size_t last  = 0;
 
-        for (size_t i=0;  first<_cache->nbSequences  && i<nbSplit; i++)
+        for (size_t i=0;  first<cache->nbSequences  && i<nbSplit; i++)
         {
-            last = min (first + averageNbSequences - 1, _cache->nbSequences-1);
+            last = min (first + averageNbSequences - 1, cache->nbSequences-1);
 
             /** We create a new iterator. */
-            ISequenceDatabase* it = new BufferedSequenceDatabase (_cache, first, last);
+            ISequenceDatabase* it = new BufferedSequenceDatabase (cache, first, last);
 
             /** We add it into the list of split iterators. */
             result.push_back (it);

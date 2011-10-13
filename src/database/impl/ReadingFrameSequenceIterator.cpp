@@ -24,6 +24,7 @@
 
 using namespace std;
 using namespace os;
+using namespace types;
 
 /********************************************************************************/
 namespace database {
@@ -94,21 +95,6 @@ ReadingFrameSequenceIterator::ReadingFrameSequenceIterator (ReadingFrame_e frame
 ReadingFrameSequenceIterator::~ReadingFrameSequenceIterator ()
 {
     setNucleotidIterator (0);
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-void ReadingFrameSequenceIterator::setNucleotidIterator (ISequenceIterator* iter)
-{
-    if (_nucleotidIter != 0)  { _nucleotidIter->forget (); }
-    _nucleotidIter = iter;
-    if (_nucleotidIter != 0)  { _nucleotidIter->use (); }
 }
 
 /*********************************************************************

@@ -39,10 +39,10 @@ public:
     void accept (IPropertiesVisitor* visitor);
 
     /** */
-    void add (size_t depth, const std::string& aKey, const char* format=0, ...);
+    IProperty* add (size_t depth, const std::string& aKey, const char* format=0, ...);
 
     /** */
-    void add (size_t depth, const std::string& aKey, const std::string& aValue);
+    IProperty* add (size_t depth, const std::string& aKey, const std::string& aValue);
 
     /** */
     void add (size_t depth, IProperties* prop);

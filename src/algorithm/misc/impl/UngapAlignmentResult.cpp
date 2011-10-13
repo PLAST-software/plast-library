@@ -17,8 +17,6 @@
 #include "UngapAlignmentResult.hpp"
 #include "IAlignmentSplitter.hpp"
 
-#include "DefaultOsFactory.hpp"
-
 #include <iostream>
 #include "macros.hpp"
 
@@ -45,11 +43,9 @@ namespace algo  {
 ** REMARKS :
 *********************************************************************/
 UngapAlignmentResult::UngapAlignmentResult (size_t nbQuerySequences)
-    : _synchro (0), _nbAlignments(0), _diagGlobal(0),
+    : _nbAlignments(0), _diagGlobal(0),
       _listGaplessAlign(0), _listGaplessAlignSize(0)
 {
-    _synchro = DefaultFactory::singleton().getThreadFactory().newSynchronizer();
-
     /** We could set this parameter according to some maximum memory size for the list to be created. */
     _DIVDIAG = 10;
 
@@ -65,7 +61,7 @@ UngapAlignmentResult::UngapAlignmentResult (size_t nbQuerySequences)
 
     k = _diagGlobal/_DIVDIAG + 10;
 
-    _listGaplessAlign = (LISTGAP **) calloc (k, sizeof(LISTGAP*));
+    _listGaplessAlign = (LISTGAP **) MemoryAllocator::singleton().calloc (k, sizeof(LISTGAP*));
 
     _listGaplessAlignSize = 0;
 
@@ -86,8 +82,6 @@ UngapAlignmentResult::~UngapAlignmentResult ()
 {
     DEBUG (("UngapAlignmentResult::~UngapAlignmentResult: _listGaplessAlignSize=%ld\n", _listGaplessAlignSize));
 
-    if (_synchro)  { delete _synchro; }
-
     if (_listGaplessAlign)
     {
         size_t k = _diagGlobal/_DIVDIAG + 10;
@@ -99,13 +93,13 @@ UngapAlignmentResult::~UngapAlignmentResult ()
             for (LISTGAP* gl = _listGaplessAlign[i];  gl != NULL;  )
             {
                 gl_next = gl->next;
-                free (gl);
+                MemoryAllocator::singleton().free (gl);
                 gl = gl_next;
             }
             _listGaplessAlign[i] = NULL;
         }
 
-        free (_listGaplessAlign);
+        MemoryAllocator::singleton().free (_listGaplessAlign);
     }
 }
 
@@ -166,23 +160,22 @@ bool UngapAlignmentResult::doesExist (
     const indexation::ISeedOccurrence* queryOccur
 )
 {
-    bool result = true;
+    u_int32_t d = 0;
 
-    int d = 0;
+    /** We retrieve the list of interest (and its diagonal). */
+    LISTGAP* gl = getItem (
+        queryOccur->offsetInDatabase,
+        subjectOccur->offsetInDatabase,
+        queryOccur->sequence.index,
+        d
+    );
 
-    /** Shortcut (and optimization). */
-    u_int64_t diff = queryOccur->offsetInDatabase - subjectOccur->offsetInDatabase;
+    /** Note: for optimization concerns, we prefer to directly use 'return' instead of managing
+     *  a result variable until the end of the function (note perfect from coding rules point
+     *  of view because of multiple return statements in the same function). */
 
-    if (diff == 0)  {  d = (diff & _diagGlobal) + queryOccur->sequence.index % _DIVDIAG;  }
-    else            {  d = (diff & _diagGlobal);  }
+    if (gl==NULL)   {  return false; }
 
-    int dd = d/_DIVDIAG;
-
-    LISTGAP* gl = _listGaplessAlign[dd];
-
-    if (gl==NULL)   {  result = false;  }
-
-    if (result == true)
     {
 #if 0
         /** We may want to lock the iteration of the list. In doing so, we may avoid some cell creations,
@@ -191,23 +184,23 @@ bool UngapAlignmentResult::doesExist (
         LocalSynchronizer local (_synchro);
 #endif
 
-        while ( (gl!=NULL) &&  ( (d<gl->diag) || ( (gl->diag==d) && (queryOccur->offsetInDatabase > gl->stop)) ) )
+        /** Shortcut. */
+        u_int64_t qoffset = queryOccur->offsetInDatabase;
+
+        while ( (gl!=NULL) &&  ( (d<gl->diag) || ( (gl->diag==d) && (qoffset > gl->stop)) ) )
+        {
             gl = gl -> next;
+        }
 
-        if (gl==NULL)   { result = false;  }
+        if (gl==NULL)   { return false;  }
     }
 
-    if (result == true)
-    {
-        if (d>gl->diag)   { result = false; }
-    }
+    if (d>gl->diag)   { return false; }
 
-    if (result == true)
-    {
-        if ((gl->diag==d) && (queryOccur->offsetInDatabase<gl->start))    { result = false;  }
-    }
+    if ((gl->diag==d) && (queryOccur->offsetInDatabase<gl->start))    { return false;  }
 
-    return result;
+    /** Being here means that we found our item. */
+    return true;
 }
 
 /*********************************************************************
@@ -222,35 +215,41 @@ bool UngapAlignmentResult::addDiag (int q_start, int q_stop, int s_start, int s_
 {
     bool alreadyExist = false;
 
-    int d,k;
+    u_int32_t d = 0;
 
-    LISTGAP* gl      = 0;
-    LISTGAP* ngl     = 0;
+    /** We retrieve the list of interest (and its diagonal). */
+    LISTGAP* gl = getItem (q_start, s_start, seqIdx, d);
+
     LISTGAP* prev_gl = 0;
-
-    if (q_start == s_start)  {  d = ((q_start - s_start) & _diagGlobal)  + (seqIdx % _DIVDIAG);  }
-    else                     {  d =  (q_start - s_start) & _diagGlobal;  }
-
-    gl = _listGaplessAlign [d/_DIVDIAG];
-
-    k=0;
-
-    while ((gl!=NULL) && ( (d<gl->diag) || ((gl->diag==d)&&(q_start>=gl->stop))) )
+    size_t k = 0;
     {
-        prev_gl=gl;
-        gl = gl -> next;
-        k++;
+#if 0
+        /** We may want to lock the iteration of the list. In doing so, we may avoid some cell creations,
+         * but we may slow down concurrent thread that access the list.
+         */
+        LocalSynchronizer local (_synchro);
+#endif
+
+        /** We try to find in the list the item of interest. */
+        while ((gl!=NULL) && ( (d<gl->diag) || ((gl->diag==d) && (q_start>=gl->stop))) )
+        {
+            prev_gl=gl;
+            gl = gl -> next;
+            k++;
+        }
     }
 
     // we can add a new alignment to the list (ngl) if it's satisfied one of the following conditions
-    // gl = NULL  : no alignment identified
-    // d>gl->diag : as the diagonals are sorted in ascending order, we have not met d = gl->diag
-    // d=gl->diag et index1>gl->stop : a diagonal exists, but the index is outside the scope
+    //      gl = NULL  : no alignment identified
+    //      d>gl->diag : as the diagonals are sorted in ascending order, we have not met d = gl->diag
+    //      d=gl->diag and index1>gl->stop : a diagonal exists, but the index is outside the scope
     // k indicates the number of alignment on which stopped (k = 0 -> empty list)
 
     if ((gl==NULL) || (d>gl->diag) || ((gl->diag==d) && (q_start<gl->start)))
     {
-        if ((ngl = (LISTGAP *) malloc(sizeof(LISTGAP)))==NULL) fprintf(stderr,"ERROR MALLOC MEMORY!");
+        /** We create a new cell. */
+        LISTGAP* ngl = (LISTGAP*) MemoryAllocator::singleton().malloc (sizeof(LISTGAP));
+
         ngl->diag  = d;
         ngl->start = q_start;
         ngl->stop  = q_stop;
@@ -261,18 +260,16 @@ bool UngapAlignmentResult::addDiag (int q_start, int q_stop, int s_start, int s_
             if (k==0)
             {
                 // gl = NULL et k = 0  --> empty list : connection to ngl (first element)
-                ngl->next = (LISTGAP *) NULL;
-
                 _synchro->lock ();
+                ngl->next = (LISTGAP *) NULL;
                 _listGaplessAlign[d/_DIVDIAG] = ngl;
                 _synchro->unlock ();
             }
             else
             {
                 // gl = NULL et k = 1 --> insert ngl at the end of list
-                ngl->next =  (LISTGAP *) NULL;
-
                 _synchro->lock ();
+                ngl->next =  (LISTGAP *) NULL;
                 prev_gl->next = ngl;
                 _synchro->unlock ();
             }
@@ -282,18 +279,16 @@ bool UngapAlignmentResult::addDiag (int q_start, int q_stop, int s_start, int s_
             if (k==0)
             {
                 // gl <> NULL et k = 0 --> insert ngl at beginning of list
-                ngl->next = gl;
-
                 _synchro->lock ();
+                ngl->next = gl;
                 _listGaplessAlign[d/_DIVDIAG] = ngl;
                 _synchro->unlock ();
             }
             else
             {
                 // gl <> NULL et k > 0 --> insert ngl before gl
-                ngl->next = gl;
-
                 _synchro->lock ();
+                ngl->next = gl;
                 prev_gl->next = ngl;
                 _synchro->unlock ();
             }

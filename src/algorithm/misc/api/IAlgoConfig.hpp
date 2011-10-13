@@ -92,7 +92,7 @@ public:
 
     /** Create a seeds model used by the algorithm.
      */
-    virtual seed::ISeedModel* createSeedModel (SeedModelKind_e modelKind, const std::vector<std::string>& subseedStrings) = 0;
+    virtual seed::ISeedModel* createSeedModel (types::SeedModelKind_e modelKind, const std::vector<std::string>& subseedStrings) = 0;
 
     /** Create an indexator instance, ie. something that can index a database given some seeds model (and other params).
      *  Its main feature is to create a source Hit iterator from a seeds model and the subject and query databases. This source
@@ -101,7 +101,7 @@ public:
     virtual algo::IIndexator*  createIndexator (seed::ISeedModel* seedsModel, algo::IParameters* params) = 0;
 
     /** Create a score matrix (BLOSUM50, BLOSUM62...) */
-    virtual IScoreMatrix* createScoreMatrix (ScoreMatrixKind_e kind, database::Encoding encoding) = 0;
+    virtual IScoreMatrix* createScoreMatrix (types::ScoreMatrixKind_e kind, database::Encoding encoding) = 0;
 
     /** Create a Hit iterator used by the algorithm. */
     virtual indexation::IHitIterator* createUngapHitIterator (

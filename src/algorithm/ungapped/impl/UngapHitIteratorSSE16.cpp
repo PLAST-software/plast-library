@@ -53,7 +53,8 @@ UngapHitIteratorSSE16::UngapHitIteratorSSE16 (
     ISeedModel*         model,
     IScoreMatrix*       scoreMatrix,
     IParameters*        parameters,
-    IAlignmentResult*   ungapResult
+    IAlignmentResult*   ungapResult,
+    u_int32_t           maxHitsPerIteration
 )
     : UngapHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult),
       _ungapKnownNumber(0)
@@ -62,6 +63,9 @@ UngapHitIteratorSSE16::UngapHitIteratorSSE16 (
         _model->getSpan(),
         _neighbourLength
     ));
+
+    /** We overide the default value. */
+    if (maxHitsPerIteration > 0)  { _maxHitsPerIteration = maxHitsPerIteration; }
 }
 
 /*********************************************************************
@@ -252,22 +256,26 @@ void UngapHitIteratorSSE16::iterateMethod (indexation::Hit* hit)
                     }
                 }
 
+#if 0
+                (_client->*_method) (hit);
+                hit->resetIndexes();
+#endif
             }  /* end of for (size_t k=0; k<8; k++) */
 
 #if 0
-        /** We may want to go further in the algorithm with the currently decent hits. */
-        if (hit->indexes.size() >= 16)
-        {
-            (_client->*_method) (hit);
-            hit->resetIndexes();
-        }
+            /** We may want to go further in the algorithm with the currently decent hits. */
+            if (hit->indexes.size() >= 16)
+            {
+                (_client->*_method) (hit);
+                hit->resetIndexes();
+            }
 #endif
 
         }  /* end of for (size_t i=0; i<nb1; i++) */
 
-#if 0
+#if 1
         /** We may want to go further in the algorithm with the currently decent hits. */
-        if (hit->indexes.size() >= 100)
+        if (hit->indexes.size() >= _maxHitsPerIteration)
         {
             (_client->*_method) (hit);
             hit->resetIndexes();

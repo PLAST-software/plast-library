@@ -14,64 +14,45 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+#ifndef _TOKENIZER_ITERATOR_HPP_
+#define _TOKENIZER_ITERATOR_HPP_
 
-#ifndef _IALGO_TYPES_HPP_
-#define _IALGO_TYPES_HPP_
+#include "Iterator.hpp"
+#include <string>
+#include <stdio.h>
+#include <string.h>
 
 /********************************************************************************/
-namespace algo  {
+namespace dp {
 /********************************************************************************/
 
-/********************************************************************************/
-enum AlgoKind_e
+class TokenizerIterator : public Iterator<char*>
 {
-    ENUM_PLASTP,
-    ENUM_TPLASTN,
-    ENUM_PLASTX,
-    ENUM_TPLASTX
-};
+public:
 
-enum SeedModelKind_e
-{
-    ENUM_BasicSeedModel,
-    ENUM_SubSeedModel
-};
+    TokenizerIterator (const char* text, const char* seperator);
+    virtual ~TokenizerIterator ();
 
-enum ScoreMatrixKind_e
-{
-    ENUM_BLOSUM62,
-    ENUM_BLOSUM50
-};
+    /** */
+    void first();
 
-enum AlgoInitializerKind_e
-{
-    ENUM_AlgoInitializer,
-    ENUM_AlgoInitializerSortedSeeds
-};
+    /** */
+    dp::IteratorStatus next();
 
-enum UngapHitIteratorKind_e
-{
-    ENUM_UngapHitIterator,
-    ENUM_UngapHitIteratorSSE16,
-    ENUM_UngapHitIteratorSSE8,
-    ENUM_UngapHitIteratorNull
-};
+    /** */
+    bool isDone()  { return _loop == 0;  }
 
-enum SmallGapHitIteratorKind_e
-{
-    ENUM_SmallGapHitIterator,
-    ENUM_SmallGapHitIteratorSSE8,
-    ENUM_SmallGapHitIteratorNull
-};
+    /** */
+    char* currentItem()  {  return _loop;  }
 
-enum CommandDispatcherKind_e
-{
-    ENUM_DispatcherSerial,
-    ENUM_DispatcherParallel
+private:
+    std::string _sep;
+    char* _str;
+    char* _loop;
 };
 
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* _IALGO_TYPES_HPP_ */
+#endif /* _TOKENIZER_ITERATOR_HPP_ */

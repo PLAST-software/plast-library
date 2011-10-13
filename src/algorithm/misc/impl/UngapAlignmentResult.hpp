@@ -19,11 +19,7 @@
 
 /********************************************************************************/
 
-#include "SmartPointer.hpp"
-
 #include "AbstractAlignmentResult.hpp"
-#include "IScoreMatrix.hpp"
-#include "IThread.hpp"
 
 #include <set>
 #include <list>
@@ -61,8 +57,6 @@ private:
 
     std::vector <SubjectEntries>  _queryEntries;
 
-    os::ISynchronizer* _synchro;
-
     u_int32_t _nbAlignments;
 
     int _DIVDIAG;
@@ -71,9 +65,9 @@ private:
 
     // information about ungapped alignment list
     struct LISTGAP {  // *** ungapped alignments structure list
-      int diag;               // no de diag max ou est situ�  l'alignement
-      int start;              // start position of alignment in the bank
-      int stop;               // stop position of alignment in the bank
+      u_int32_t diag;               // no de diag max ou est situ�  l'alignement
+      u_int64_t start;              // start position of alignment in the bank
+      u_int64_t stop;               // stop position of alignment in the bank
       struct LISTGAP *next;   // pointer to a structure identical (to manage the list)
     };
 
@@ -81,6 +75,15 @@ private:
     size_t    _listGaplessAlignSize;
 
     bool addDiag (int q_start, int q_stop, int s_start, int s_stop, int seqIdx);
+
+    /** */
+    LISTGAP* getItem (int q_start, int s_start, int seqIdx, u_int32_t& d)
+    {
+        if (q_start == s_start)  {  d = ((q_start - s_start) & _diagGlobal)  + (seqIdx % _DIVDIAG);  }
+        else                     {  d = (q_start - s_start) & _diagGlobal;  }
+
+        return _listGaplessAlign [d/_DIVDIAG];
+    }
 };
 
 /********************************************************************************/

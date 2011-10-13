@@ -33,14 +33,14 @@ class ReadingFrameSequenceDatabase : public BufferedSequenceDatabase
 public:
 
     /** Constructor. */
-    ReadingFrameSequenceDatabase (ReadingFrame_e frame, ISequenceDatabase* nucleotidDatabase, bool filterLowComplexity);
+    ReadingFrameSequenceDatabase (types::ReadingFrame_e frame, ISequenceDatabase* nucleotidDatabase, bool filterLowComplexity);
 
     /** Destructor. */
     virtual ~ReadingFrameSequenceDatabase ();
 
-    ReadingFrame_e getFrame () { return _frame; }
+    types::ReadingFrame_e getFrame () { return _frame; }
 
-    bool isTopFrame ()  { return (_frame>= FRAME_1 && _frame <= FRAME_3); }
+    bool isTopFrame ()  { return (_frame>= types::FRAME_1 && _frame <= types::FRAME_3); }
 
     size_t getFrameShift ()  {  return isTopFrame() ? (_frame - 0) : (_frame -3);  }
 
@@ -48,10 +48,10 @@ public:
 
 protected:
 
-    ISequenceDatabase* _nucleotidDatabase;
-    ReadingFrame_e     _frame;
+    ISequenceDatabase*      _nucleotidDatabase;
+    types::ReadingFrame_e   _frame;
 
-    void setNucleotidDatabase (ISequenceDatabase* _nucleotidDatabase);
+    void setNucleotidDatabase (ISequenceDatabase* nucleotidDatabase)  { SP_SETATTR (nucleotidDatabase); }
 };
 
 /********************************************************************************/

@@ -34,7 +34,7 @@ class FastaDatabaseQuickReader : public IDatabaseQuickReader
 {
 public:
 
-    FastaDatabaseQuickReader (const std::string& uri);
+    FastaDatabaseQuickReader (const std::string& uri, bool shouldInferType);
     virtual ~FastaDatabaseQuickReader  ();
 
     /** */
@@ -47,6 +47,8 @@ public:
 
     std::vector<u_int64_t>& getOffsets ()  { return _offsets; }
 
+    DatabaseKind_e getKind ();
+
 private:
 
     dp::FileLineIterator _iterator;
@@ -57,6 +59,13 @@ private:
     u_int32_t   _nbSequences;
 
     std::vector<u_int64_t> _offsets;
+
+    int32_t _readThreshold;
+
+    u_int32_t _nbNucleotids;
+    u_int32_t _nbAminoAcids;
+
+    DatabaseKind_e _dbKind;
 };
 
 /********************************************************************************/

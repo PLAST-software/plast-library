@@ -34,7 +34,10 @@ class AbstractHitIterator : public IHitIterator
 public:
 
     AbstractHitIterator (size_t nbOccurs1, size_t nbOccurs2)
-        : _hit(nbOccurs1,nbOccurs2), _inputHitsNumber(0), _outputHitsNumber(0), _totalTime(0) {}
+        : _hit(nbOccurs1,nbOccurs2),
+          _inputHitsNumber(0), _outputHitsNumber(0),
+          _maxHitsPerIteration (1000*1000),
+          _totalTime(0) {}
 
     virtual ~AbstractHitIterator ()
     {
@@ -70,6 +73,9 @@ protected:
     void setSplitIterators (const std::vector<IHitIterator*>& split);
 
     std::vector<IHitIterator*> _splitIterators;
+
+    /** Threshold for controlling memory usage. */
+    u_int32_t _maxHitsPerIteration;
 
     /** Statistics. */
     u_int32_t _totalTime;

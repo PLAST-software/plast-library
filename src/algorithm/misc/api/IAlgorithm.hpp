@@ -85,7 +85,7 @@ protected:
         const std::string&  uri,
         const Range&        range,
         bool                filtering,
-        const std::vector<database::ReadingFrame_e>& frames
+        const std::vector<types::ReadingFrame_e>& frames
     ) = 0;
 
     /** Define the Hit iterator that will be used for building the alignments. */
@@ -102,8 +102,8 @@ protected:
      *      'tplastn' should return a 6 frames list for getSubjectFrames and empty for the other
      *      'plastx'  should return a 6 frames list for getQueryFrames and empty for the other
      */
-    virtual const std::vector<database::ReadingFrame_e>&  getSubjectFrames () = 0;
-    virtual const std::vector<database::ReadingFrame_e>&  getQueryFrames   () = 0;
+    virtual const std::vector<types::ReadingFrame_e>&  getSubjectFrames () = 0;
+    virtual const std::vector<types::ReadingFrame_e>&  getQueryFrames   () = 0;
 };
 
 /********************************************************************************/

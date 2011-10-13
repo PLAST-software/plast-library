@@ -22,6 +22,7 @@
 #include <list>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 
 /********************************************************************************/
@@ -37,6 +38,10 @@ struct IProperty
     size_t      depth;
     std::string key;
     std::string value;
+
+    const std::string&  getValue  ()  { return value;                }
+    long                getInt    ()  { return atol (value.c_str()); }
+    const char*         getString ()  { return value.c_str();        }
 };
 
 /********************************************************************************/
@@ -59,13 +64,13 @@ public:
     virtual void accept (IPropertiesVisitor* visitor) = 0;
 
     /** */
-    virtual void add (size_t depth, const std::string& aKey, const char* format=0, ...) = 0;
+    virtual IProperty* add (size_t depth, const std::string& aKey, const char* format=0, ...) = 0;
 
     /** */
-    virtual void add (size_t depth, const std::string& aKey, const std::string& aValue) = 0;
+    virtual IProperty* add (size_t depth, const std::string& aKey, const std::string& aValue) = 0;
 
     /** */
-    virtual void add (size_t depth, IProperties* prop) = 0;
+    virtual void       add (size_t depth, IProperties* prop) = 0;
 
     virtual IProperty* getProperty (const std::string& key) = 0;
 };

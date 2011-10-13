@@ -103,6 +103,8 @@ protected:
 
     u_int64_t _ungapKnownNumber;
     u_int64_t _gapKnownNumber;
+
+    bool _checkMemory;
 };
 
 /********************************************************************************/

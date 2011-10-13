@@ -40,6 +40,13 @@ class IDatabaseQuickReader : public dp::SmartPointer
 {
 public:
 
+    enum DatabaseKind_e
+    {
+        ENUM_NUCLOTID,
+        ENUM_AMINO_ACID,
+        ENUM_UNKNOWN
+    };
+
     /** */
     virtual void read (u_int64_t  maxblocksize = 0) = 0;
 
@@ -49,6 +56,8 @@ public:
     virtual u_int32_t    getNbSequences () = 0;
 
     virtual std::vector<u_int64_t>& getOffsets () = 0;
+
+    virtual DatabaseKind_e getKind () = 0;
 };
 
 /********************************************************************************/

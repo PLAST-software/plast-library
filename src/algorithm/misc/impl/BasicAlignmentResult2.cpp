@@ -17,8 +17,6 @@
 #include "BasicAlignmentResult2.hpp"
 #include "ISequence.hpp"
 
-#include "DefaultOsFactory.hpp"
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -45,9 +43,8 @@ namespace algo  {
 ** REMARKS :
 *********************************************************************/
 BasicAlignmentResult2::BasicAlignmentResult2 (size_t nbQuerySequences)
-    : _synchro (0), _nbAlignments(0)
+    : _nbAlignments(0)
 {
-    _synchro = DefaultFactory::singleton().getThreadFactory().newSynchronizer();
 }
 
 /*********************************************************************
@@ -59,9 +56,8 @@ BasicAlignmentResult2::BasicAlignmentResult2 (size_t nbQuerySequences)
 ** REMARKS :
 *********************************************************************/
 BasicAlignmentResult2::BasicAlignmentResult2 (vector<string>& subjectComments,  vector<string>& queryComments)
-    : _synchro(0), _nbAlignments(0), _subjectComments(subjectComments), _queryComments(queryComments)
+    : _nbAlignments(0), _subjectComments(subjectComments), _queryComments(queryComments)
 {
-    _synchro = DefaultFactory::singleton().getThreadFactory().newSynchronizer();
 }
 
 /*********************************************************************
@@ -74,7 +70,6 @@ BasicAlignmentResult2::BasicAlignmentResult2 (vector<string>& subjectComments,  
 *********************************************************************/
 BasicAlignmentResult2::~BasicAlignmentResult2 ()
 {
-    if (_synchro)  { delete _synchro; }
 }
 
 /*********************************************************************
@@ -161,9 +156,11 @@ bool BasicAlignmentResult2::insert (Alignment& align, void* context)
 *********************************************************************/
 static bool mysortfunction (const Alignment& i, const Alignment& j)
 {
-    //return i._score < j._score;
-    return (i._queryStartInDb< j._queryStartInDb) ||
-           (i._queryStartInDb==j._queryStartInDb  &&  i._queryEndInDb<j._queryEndInDb);
+    return (i._evalue <  j._evalue)  ||
+           (i._evalue == j._evalue  &&  i._bitscore < j._bitscore);
+
+//    return (i._queryStartInDb< j._queryStartInDb) ||
+//           (i._queryStartInDb==j._queryStartInDb  &&  i._queryEndInDb<j._queryEndInDb);
 }
 
 /*********************************************************************
@@ -188,7 +185,7 @@ void BasicAlignmentResult2::shrink (void)
 
         char* removeTable = 0;
 
-        removeTable = (char*) malloc (container.size());
+        removeTable = (char*) MemoryAllocator::singleton().malloc (container.size());
         memset (removeTable, 0, container.size());
 
         for (size_t k=0; k<container.size(); k++)
@@ -204,7 +201,6 @@ void BasicAlignmentResult2::shrink (void)
                 Alignment& a2 = container[l];
 
                 size_t shift = MIN (a1._length, a2._length) / 20;
-//shift = 0;
 
                 if ((a1._subjectEndInSeq   + shift >= a2._subjectEndInSeq   - shift) &&
                     (a1._subjectStartInSeq - shift <= a2._subjectStartInSeq + shift) &&
@@ -213,16 +209,10 @@ void BasicAlignmentResult2::shrink (void)
                 {
                     if (a1._length > a2._length)
                     {
-//                            printf ("1. BEST %s \n", a1.toString().c_str());
-//                            printf ("1. WEAK %s \n", a2.toString().c_str());
-//                            printf ("\n");
                         removeTable[l] = 1;
                     }
                     else
                     {
-//                            printf ("2. BEST %s \n", a2.toString().c_str());
-//                            printf ("2. WEAK %s \n", a1.toString().c_str());
-//                            printf ("\n");
                         removeTable[k] = 1;
                     }
                 }
@@ -234,16 +224,10 @@ void BasicAlignmentResult2::shrink (void)
                 {
                     if (a1._length > a2._length)
                     {
-//                            printf ("3. BEST %s \n", a1.toString().c_str());
-//                            printf ("3. WEAK %s \n", a2.toString().c_str());
-//                            printf ("\n");
                         removeTable[l] = 1;
                     }
                     else
                     {
-//                            printf ("4. BEST %s \n", a2.toString().c_str());
-//                            printf ("4. WEAK %s \n", a1.toString().c_str());
-//                            printf ("\n");
                         removeTable[k] = 1;
                     }
                 }
@@ -272,7 +256,7 @@ void BasicAlignmentResult2::shrink (void)
 #endif
         for (size_t k=0; k<container.size(); k++)  {  if (removeTable[k] == 1)  { count++; }  }
 
-        free (removeTable);
+        MemoryAllocator::singleton().free (removeTable);
     }
 
 

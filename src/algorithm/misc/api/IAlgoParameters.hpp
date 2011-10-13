@@ -20,8 +20,8 @@
 
 /********************************************************************************/
 
-#include "IAlgoTypes.hpp"
 #include "SmartPointer.hpp"
+#include "types.hpp"
 
 #include <string>
 #include <vector>
@@ -41,13 +41,13 @@ class IParameters : public dp::SmartPointer
 {
 public:
 
-    AlgoKind_e  algoKind;
+    types::AlgoKind_e         algoKind;
 
-    SeedModelKind_e           seedModelKind;
+    types::SeedModelKind_e    seedModelKind;
     size_t                    seedSpan;
     std::vector<std::string>  subseedStrings;
 
-    ScoreMatrixKind_e   matrixKind;
+    types::ScoreMatrixKind_e  matrixKind;
 
     std::string   subjectUri;
     Range         subjectRange;
@@ -72,6 +72,8 @@ public:
     int finalXdroppofGap;
 
     std::string outputfile;
+
+    std::vector<types::ReadingFrame_e> strands;
 };
 
 /********************************************************************************/

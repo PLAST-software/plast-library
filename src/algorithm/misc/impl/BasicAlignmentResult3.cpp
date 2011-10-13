@@ -16,8 +16,6 @@
 
 #include "BasicAlignmentResult3.hpp"
 
-#include "DefaultOsFactory.hpp"
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -43,9 +41,8 @@ namespace algo  {
 ** REMARKS :
 *********************************************************************/
 BasicAlignmentResult3::BasicAlignmentResult3 (size_t nbQuerySequences)
-    : _synchro (0), _nbAlignments(0)
+    : _nbAlignments(0)
 {
-    _synchro = DefaultFactory::singleton().getThreadFactory().newSynchronizer();
 }
 
 /*********************************************************************
@@ -58,7 +55,6 @@ BasicAlignmentResult3::BasicAlignmentResult3 (size_t nbQuerySequences)
 *********************************************************************/
 BasicAlignmentResult3::~BasicAlignmentResult3 ()
 {
-    if (_synchro)  { delete _synchro; }
 }
 
 /*********************************************************************
@@ -159,7 +155,7 @@ void BasicAlignmentResult3::shrink (void)
 
         char* removeTable = 0;
 
-        removeTable = (char*) malloc (container.size());
+        removeTable = (char*) MemoryAllocator::singleton().malloc (container.size());
         memset (removeTable, 0, container.size());
 
         size_t k=0;
@@ -251,13 +247,8 @@ void BasicAlignmentResult3::shrink (void)
 #endif
         for (size_t k=0; k<container.size(); k++)  {  if (removeTable[k] == 1)  { count++; }  }
 
-        free (removeTable);
+        MemoryAllocator::singleton().free (removeTable);
     }
-
-
-    /** WE CALL THE COMPOSITION PROCESS. */
-    this->composition ();
-
 
     size_t imin=100000, imax=0, sum=0;
 
@@ -283,25 +274,11 @@ void BasicAlignmentResult3::shrink (void)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void BasicAlignmentResult3::composition ()
-{
-
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
 void BasicAlignmentResult3::accept (AlignmentResultVisitor* visitor)
 {
     for (Entries::iterator it = _entries.begin(); it != _entries.end(); it++)
     {
         QuerySubjectIndexes idx = it->first;
-
     }
 }
 

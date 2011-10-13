@@ -357,17 +357,17 @@ short** AlignmentSplitter::newMatrix (int nrows, int ncols)
     int i;             /* iteration index */
     short ** mat;      /* the new matrix */
 
-    mat = (short **) calloc(nrows, sizeof(short *));
+    mat = (short **) MemoryAllocator::singleton().calloc(nrows, sizeof(short *));
     if (mat != NULL)
     {
-        mat[0] = (short *) malloc((size_t) nrows * (size_t) ncols * sizeof(short));
+        mat[0] = (short *) MemoryAllocator::singleton().malloc((size_t) nrows * (size_t) ncols * sizeof(short));
         if (mat[0] != NULL)
         {
             for (i = 1;  i < nrows;  i++) {  mat[i] = &mat[0][i * ncols];  }
         }
         else
         {
-            free(mat);
+            MemoryAllocator::singleton().free(mat);
             mat = NULL;
         }
     }
@@ -386,8 +386,8 @@ short** AlignmentSplitter::newMatrix (int nrows, int ncols)
 void AlignmentSplitter::freeMatrix (short *** mat)
 {
     if(*mat != NULL) {
-        free((*mat)[0]);
-        free(*mat);
+        MemoryAllocator::singleton().free((*mat)[0]);
+        MemoryAllocator::singleton().free(*mat);
     }
     *mat = NULL;
 }

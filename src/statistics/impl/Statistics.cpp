@@ -15,6 +15,8 @@
  *****************************************************************************/
 
 #include "Statistics.hpp"
+#include "types.hpp"
+#include "DefaultOsFactory.hpp"
 
 #include <math.h>
 
@@ -22,6 +24,7 @@
 #define DEBUG(a)  //printf a
 
 using namespace std;
+using namespace types;
 using namespace statistics;
 using namespace database;
 using namespace algo;
@@ -213,7 +216,8 @@ QueryInformation::QueryInformation (
       _parameters (parameters),
       _queryDb (0),
       _subjectDbSize(subjectDbSize),
-      _subjectNbSequences(subjectNbSequences)
+      _subjectNbSequences(subjectNbSequences),
+      _isBuilt (false), _synchro(0)
 {
     /** We remind the global parameters. */
     setGlobalParams (globalParams);
@@ -221,8 +225,8 @@ QueryInformation::QueryInformation (
     /** We remind the query database. */
     setQueryDb (queryDb);
 
-    /** We compute the parameters. */
-    build ();
+    /** We create a synchronizer for the building process. */
+    _synchro = os::DefaultFactory::singleton().getThreadFactory().newSynchronizer();
 }
 
 /*********************************************************************
@@ -237,6 +241,8 @@ QueryInformation::~QueryInformation ()
 {
     setGlobalParams (0);
     setQueryDb (0);
+
+    if (_synchro)  { delete _synchro; }
 }
 
 /*********************************************************************
@@ -249,6 +255,10 @@ QueryInformation::~QueryInformation ()
 *********************************************************************/
 void QueryInformation::build (void)
 {
+    os::LocalSynchronizer synch (_synchro);
+
+    if (_isBuilt == true)  { return; }
+
     ISequence   sequence;
     int         cutoffs             = 0;
     int         length_adjustment   = 0;
@@ -274,6 +284,8 @@ void QueryInformation::build (void)
     for (size_t i=0; i<nbSeq; i++)
     {
         bool found = _queryDb->getSequenceByIndex (i, sequence);
+
+        DEBUG (("QueryInformation::build:  getSequenceIndex(%d)=%d\n", i, found));
 
         if (!found)  { continue; }
 
@@ -323,6 +335,9 @@ void QueryInformation::build (void)
     {
         if  (_parameters->smallGapThreshold < 46)   {  _parameters->smallGapThreshold = 46;  }
     }
+
+    /** We memorize (for next call) that we have computed the needed information. */
+    _isBuilt = true;
 }
 
 /*********************************************************************

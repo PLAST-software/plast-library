@@ -20,6 +20,7 @@
 /********************************************************************************/
 
 #include "AbstractSequenceIterator.hpp"
+#include "types.hpp"
 #include <string>
 #include <vector>
 #include <stdio.h>
@@ -28,15 +29,11 @@
 namespace database {
 /********************************************************************************/
 
-enum ReadingFrame_e { FRAME_1, FRAME_2, FRAME_3, FRAME_4, FRAME_5, FRAME_6};
-
-/********************************************************************************/
-
 class ReadingFrameSequenceIterator : public AbstractSequenceIterator
 {
 public:
 
-    ReadingFrameSequenceIterator (ReadingFrame_e frame, ISequenceIterator* nucleotidIter);
+    ReadingFrameSequenceIterator (types::ReadingFrame_e frame, ISequenceIterator* nucleotidIter);
     virtual ~ReadingFrameSequenceIterator ();
 
     /** Implementation of Iterator interface. */
@@ -46,10 +43,10 @@ public:
     ISequence* currentItem()  { return &_sequence;  }
 
 private:
-    ReadingFrame_e _frame;
+    types::ReadingFrame_e _frame;
 
     ISequenceIterator* _nucleotidIter;
-    void setNucleotidIterator (ISequenceIterator* iter);
+    void setNucleotidIterator (ISequenceIterator* nucleotidIter)  { SP_SETATTR (nucleotidIter); }
 
     ISequence _sequence;
     void udpateItem ();
@@ -66,7 +63,7 @@ private:
     /** We need a data for storing the currently built protein from amino acids. */
     IWord _data;
 
-    char getDirection()  { return (_frame==FRAME_1 || _frame==FRAME_2 ||_frame==FRAME_3  ?  1 : -1); }
+    char getDirection()  { return (_frame==types::FRAME_1 || _frame==types::FRAME_2 ||_frame==types::FRAME_3  ?  1 : -1); }
 };
 
 /********************************************************************************/

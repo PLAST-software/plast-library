@@ -20,8 +20,6 @@
 /********************************************************************************/
 
 #include "AbstractAlignmentResult.hpp"
-#include "UngapAlignmentResult.hpp"
-#include "IThread.hpp"
 
 #include <set>
 #include <list>
@@ -68,8 +66,6 @@ private:
     std::vector <SubjectEntries>  _queryEntries;
 
     bool insertInContainer (Alignment& align, void* context, AlignmentsContainer& container);
-
-    os::ISynchronizer* _synchro;
 
     u_int32_t _nbAlignments;
 

@@ -87,8 +87,10 @@ void Properties::accept (IPropertiesVisitor* visitor)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void Properties::add (size_t depth, const std::string& aKey, const char* format, ...)
+IProperty* Properties::add (size_t depth, const std::string& aKey, const char* format, ...)
 {
+    IProperty* result = 0;
+
     if (format != 0)
     {
         char buffer[256];
@@ -96,12 +98,17 @@ void Properties::add (size_t depth, const std::string& aKey, const char* format,
         va_start (ap, format);
         vsnprintf (buffer, sizeof(buffer), format, ap);
         va_end (ap);
-        _properties.push_back (new IProperty (depth, aKey, buffer));
+
+        result = new IProperty (depth, aKey, buffer);
+        _properties.push_back (result);
     }
     else
     {
-        _properties.push_back (new IProperty (depth, aKey, ""));
+        result = new IProperty (depth, aKey, "");
+        _properties.push_back (result);
     }
+
+    return result;
 }
 
 /*********************************************************************
@@ -112,9 +119,11 @@ void Properties::add (size_t depth, const std::string& aKey, const char* format,
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void Properties::add (size_t depth, const std::string& aKey, const std::string& aValue)
+IProperty* Properties::add (size_t depth, const std::string& aKey, const std::string& aValue)
 {
-    _properties.push_back (new IProperty (depth, aKey, aValue));
+    IProperty* result = new IProperty (depth, aKey, aValue);
+    _properties.push_back (result);
+    return result;
 }
 
 /*********************************************************************

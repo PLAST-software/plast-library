@@ -49,11 +49,11 @@ public:
 
     statistics::IGlobalParameters*  createGlobalParameters (algo::IParameters* params);
 
-    seed::ISeedModel* createSeedModel (SeedModelKind_e modelKind, const std::vector<std::string>& subseedStrings);
+    seed::ISeedModel* createSeedModel (types::SeedModelKind_e modelKind, const std::vector<std::string>& subseedStrings);
 
     IIndexator*  createIndexator (seed::ISeedModel* seedsModel, algo::IParameters* params);
 
-    IScoreMatrix* createScoreMatrix (ScoreMatrixKind_e kind, database::Encoding encoding);
+    IScoreMatrix* createScoreMatrix (types::ScoreMatrixKind_e kind, database::Encoding encoding);
 
     indexation::IHitIterator* createUngapHitIterator (
         indexation::IHitIterator*   source,
@@ -103,12 +103,6 @@ private:
 
     dp::IProperties* _properties;
     void setProperties (dp::IProperties* properties)  { SP_SETATTR(properties);  }
-
-    void findDabasesUri (std::list <std::pair <std::string,std::string> >& uri, database::IDatabaseQuickReader* reader);
-
-    u_int64_t getFileSize (const std::string& uri);
-
-    std::string createUri (const std::string& uri, u_int64_t i0, u_int64_t i1);
 };
 
 /********************************************************************************/

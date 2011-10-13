@@ -20,8 +20,6 @@
 /********************************************************************************/
 
 #include "AbstractAlignmentResult.hpp"
-#include "UngapAlignmentResult.hpp"
-#include "IThread.hpp"
 
 #include <set>
 #include <list>
@@ -53,8 +51,6 @@ public:
 
 private:
 
-    os::ISynchronizer* _synchro;
-
     u_int32_t _nbAlignments;
 
     typedef std::pair <u_int32_t,u_int32_t> QuerySubjectIndexes;
@@ -64,8 +60,6 @@ private:
     typedef std::map <QuerySubjectIndexes, AlignmentsContainer> Entries;
 
     Entries _entries;
-
-    void composition ();
 };
 
 /********************************************************************************/

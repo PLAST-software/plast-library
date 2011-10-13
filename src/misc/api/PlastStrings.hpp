@@ -23,7 +23,6 @@
  *  (command line options, configuration file...)
  */
 
-
 #define STR_OPTION_ALGO_TYPE                "-p"
 #define STR_OPTION_SUBJECT_URI              "-d"
 #define STR_OPTION_QUERY_URI                "-i"
@@ -42,6 +41,10 @@
 
 #define STR_OPTION_OUTPUT_FORMAT            "-outfmt"
 #define STR_OPTION_MAX_DATABASE_SIZE        "-max-database-size"
+#define STR_OPTION_MAX_HIT_PER_QUERY        "-max-hit-per-query"
+#define STR_OPTION_MAX_HIT_PER_ITERATION    "-max-hit-per-iteration"
+
+#define STR_OPTION_STRANDS_LIST             "-strands-list"
 
 #define STR_OPTION_FACTORY_DISPATCHER       "-factory-dispatcher"
 #define STR_OPTION_FACTORY_INDEXATION       "-factory-indexation"
@@ -52,6 +55,7 @@
 #define STR_OPTION_FACTORY_GAP_RESULT       "-factory-gap-result"
 #define STR_OPTION_FACTORY_UNGAP_RESULT     "-factory-ungap-result"
 
+#define STR_OPTION_OPTIM_FILTER_UNGAP       "-optim-filter-ungap"
 
 #define STR_OPTION_INFO_BARGRAPH            "-bargraph"
 #define STR_OPTION_INFO_BARGRAPH_SIZE       "-bargraph-size"
