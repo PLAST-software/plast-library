@@ -78,7 +78,7 @@ public:
     const ISeed* currentItem()  { return &_currentItem;             }
 
     /** Method for iterating items through a method of a client. */
-    void iterate (void* aClient, Iterator::Method method);
+    void iterate (void* aClient, Method method);
 
     /** Default implementation doesn't kwow how many items can be iterated.
      *  In such a case, we return 0 by convention.  */

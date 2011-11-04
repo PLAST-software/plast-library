@@ -106,6 +106,40 @@ protected:
     bool _checkMemory;
 };
 
+
+/********************************************************************************/
+
+class FullGapHitIteratorNull : public FullGapHitIterator
+{
+public:
+    FullGapHitIteratorNull (
+        indexation::IHitIterator*       realIterator,
+        seed::ISeedModel*               model,
+        algo::IScoreMatrix*             scoreMatrix,
+        algo::IParameters*              parameters,
+        statistics::IQueryInformation*  queryInfo,
+        statistics::IGlobalParameters*  globalStats,
+        algo::IAlignmentResult*         ungapResult,
+        algo::IAlignmentResult*         alignmentResult
+    ) :  FullGapHitIterator (realIterator, model, scoreMatrix, parameters, queryInfo, globalStats, ungapResult, alignmentResult) {}
+
+    virtual ~FullGapHitIteratorNull () {}
+
+    /** */
+    const char* getName ()  { return "FullGapHitIteratorNull"; }
+
+protected:
+
+    /** We need a clone method. */
+    virtual AbstractScoredHitIterator* clone (indexation::IHitIterator* realIterator)
+    {
+        return new FullGapHitIteratorNull (realIterator, _model, _scoreMatrix, _parameters, _queryInfo, _globalStats, _ungapResult, _alignmentResult);
+    }
+
+    /** */
+    void iterateMethod (indexation::Hit* hit) {}
+};
+
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/

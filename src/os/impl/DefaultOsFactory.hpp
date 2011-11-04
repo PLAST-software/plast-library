@@ -40,6 +40,7 @@ public:
 
     IThreadFactory& getThreadFactory ();
     ITime&          getTimeFactory   ();
+    IFileFactory&   getFileFactory   ();
 };
 
 

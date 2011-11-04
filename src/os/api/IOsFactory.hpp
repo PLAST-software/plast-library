@@ -25,6 +25,7 @@
 
 #include "IThread.hpp"
 #include "ITime.hpp"
+#include "IFile.hpp"
 
 /********************************************************************************/
 namespace os {
@@ -37,8 +38,8 @@ public:
 
     virtual IThreadFactory& getThreadFactory () = 0;
     virtual ITime&          getTimeFactory   () = 0;
+    virtual IFileFactory&   getFileFactory   () = 0;
 };
-
 
 /********************************************************************************/
 } /* end of namespaces. */

@@ -30,6 +30,8 @@
 namespace database {
 /********************************************************************************/
 
+class ISequenceDatabase;
+
 /** This structure is just a container for 3 information.
  *
  * Note that:
@@ -39,11 +41,12 @@ namespace database {
  */
 struct ISequence
 {
-    ISequence () : comment(""), index(0) {}
+    ISequence () : database(0), comment(""), index(0) {}
 
-    const char* comment;
-    IWord       data;
-    size_t      index;
+    ISequenceDatabase*  database;
+    const char*         comment;
+    IWord               data;
+    size_t              index;
 
     /** */
     std::string toString () const

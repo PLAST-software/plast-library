@@ -46,7 +46,7 @@ public:
     const char* getName ()  { return "SeedHitIterator"; }
 
     /** Optimize the iteration. */
-    void iterate (void* aClient, Iterator::Method method);
+    void iterate (void* aClient, Method method);
 
     /** Split process. */
     std::vector<IHitIterator*> split (size_t nbSplit);

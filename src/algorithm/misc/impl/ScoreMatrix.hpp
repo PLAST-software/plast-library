@@ -33,14 +33,14 @@ public:
     virtual ~ScoreMatrix ();
 
     database::Encoding  getEncoding()       { return _encoding; }
-    size_t              getN ()             { return _N;        }
+    size_t              getN ()             { return _size;        }
     int8_t**            getMatrix()         { return _matrix;   }
     int8_t*             getMatrixAsVector() { return _matrixAsVector;   }
     int8_t              getDefaultScore()   { return _defaultScore; }
 
 private:
     database::Encoding  _encoding;
-    size_t              _N;
+    size_t              _size;
     int8_t**            _matrix;
     int8_t*             _matrixAsVector;
     int8_t              _defaultScore;

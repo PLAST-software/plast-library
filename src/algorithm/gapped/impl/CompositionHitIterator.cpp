@@ -180,7 +180,7 @@ void CompositionHitIterator::iterateMethod  (indexation::Hit* hit)
         int score = score1 + score2;
 
         /** We retrieve statistical information for the current query sequence. */
-        IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfoByIndex (seq2.index);
+        IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfo (seq2);
 
         if (score >= info.cut_offs)
         {

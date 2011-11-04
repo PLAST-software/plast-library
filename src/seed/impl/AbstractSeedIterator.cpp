@@ -107,7 +107,7 @@ void AbstractSeedIterator::setData (const database::IWord& data)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void AbstractSeedIterator::iterate (void* aClient, Iterator::Method method)
+void AbstractSeedIterator::iterate (void* aClient, Method method)
 {
     IteratorClient* client = (IteratorClient*) aClient;   // not very nice...
 

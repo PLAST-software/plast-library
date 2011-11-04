@@ -16,6 +16,7 @@
 
 #include "SeedHitIteratorCached.hpp"
 #include "MemoryAllocator.hpp"
+#include "DefaultOsFactory.hpp"
 
 using namespace std;
 using namespace os;
@@ -68,7 +69,7 @@ SeedHitIteratorCached::~SeedHitIteratorCached ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void SeedHitIteratorCached::iterate (void* aClient, Iterator::Method method)
+void SeedHitIteratorCached::iterate (void* aClient, Method method)
 {
     IteratorClient* client = (IteratorClient*) aClient;   // not very nice...
 
@@ -88,24 +89,26 @@ void SeedHitIteratorCached::iterate (void* aClient, Iterator::Method method)
     size_t splitSize = 1;
 
     /** We notify potential clients that we start the iteration. */
-    this->notify (new IterationStatusEvent (ITER_STARTING, nbRetrieved, nbTotal, "starting iterating seeds..."));
+    this->notify (new IterationStatusEvent (ITER_STARTING, nbRetrieved, nbTotal, 0, 0, "starting iterating seeds..."));
 
     /** We loop over the possible seeds. Note that we use the 'retrieve' method that is protected from
      *  concurrent access by different threads. */
     for (ISeed seed; _seedIterator->retrieve (seed, nbRetrieved);  nbSeeds++)
     {
+        /** we retrieve the number of occurrences for the current seed. */
+        size_t nbOccur1 = _indexDb1->getOccurrenceNumber (&seed);
+        size_t nbOccur2 = _indexDb2->getOccurrenceNumber (&seed);
+
         /** We notify potential clients that we have made some progress in the iteration. */
         this->notify (new IterationStatusEvent (
             ITER_ON_GOING,
             nbRetrieved,
             nbTotal,
+            nbOccur1,
+            nbOccur2,
             "iterating all possible seeds...  (%ld/%ld)",
             nbRetrieved, nbTotal
         ));
-
-        /** we retrieve the number of occurrences for the current seed. */
-        size_t nbOccur1 = _indexDb1->getOccurrenceNumber (&seed);
-        size_t nbOccur2 = _indexDb2->getOccurrenceNumber (&seed);
 
         DEBUG (("ITERATE SEED '%s' [%ld,%ld]  nb1=%ld  nb2=%ld (%ld) \n",
             seed.kmer.toString().c_str(), nbRetrieved, nbTotal, nbOccur1, nbOccur2, nbOccur1*nbOccur2
@@ -115,7 +118,7 @@ void SeedHitIteratorCached::iterate (void* aClient, Iterator::Method method)
         if ( ! (nbOccur1 > 0  &&  nbOccur2 > 0) )  { continue; }
 
         /** We increase the number of iterations. */
-        _outputHitsNumber += nbOccur1 * nbOccur2;
+        HIT_STATS (_outputHitsNumber += nbOccur1 * nbOccur2;)
 
         /** We use a statements block for locally allocate our iterators. */
         {
@@ -161,12 +164,14 @@ void SeedHitIteratorCached::iterate (void* aClient, Iterator::Method method)
                     (client->*method) (&_hit);
                 }
             }
+
+            /** Here we are done with hits iteration for the current seed. */
         }
 
     } /* end of for (_seedIterator... */
 
     /** We notify potential clients that we finish the iteration. */
-    this->notify (new IterationStatusEvent (ITER_DONE, nbRetrieved, nbTotal, "finishing iterating seeds..."));
+    this->notify (new IterationStatusEvent (ITER_DONE, nbRetrieved, nbTotal, 0, 0, "finishing iterating seeds..."));
 
     DEBUG (("SeedHitIteratorCached::iterate (%p): END SEEDS ITERATION (found %ld seeds, %ld hits)\n",
         this, nbSeeds, _outputHitsNumber

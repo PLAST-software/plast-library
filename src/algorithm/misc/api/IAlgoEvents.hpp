@@ -152,6 +152,22 @@ private:
 };
 
 /********************************************************************************/
+
+class AlgorithmReadingFrameEvent : public dp::EventInfo
+{
+public:
+    AlgorithmReadingFrameEvent (
+        algo::IAlgorithm* algo,
+        const std::vector<types::ReadingFrame_e>& subjectFrames,
+        const std::vector<types::ReadingFrame_e>& queryFrames
+    )
+    :  dp::EventInfo(0), _subjectFrames(subjectFrames), _queryFrames(queryFrames)  {}
+
+    const std::vector<types::ReadingFrame_e> _subjectFrames;
+    const std::vector<types::ReadingFrame_e> _queryFrames;
+};
+
+/********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
 

@@ -135,7 +135,11 @@ void UngapHitIteratorSSE16::iterateMethod (indexation::Hit* hit)
 
         char* pc = (char *) pvb;
 
-        int lmin = MIN (nb2-j, NB);
+        size_t dj = nb2 - j;
+        int  lmin = MIN (dj, NB);
+
+        /** */
+        bool isUsable = (lmin == NB);
 
         for (size_t i=0; i<sizeMatrix; i++)
         {
@@ -193,10 +197,11 @@ void UngapHitIteratorSSE16::iterateMethod (indexation::Hit* hit)
             {
                 int finalScore = 0;
                 bool isNotKnown = true;
+                int val = score_arr[k];
 
-                if (j+2*k+0 < nb2)
+                if (isUsable || (j+2*k + 0 < nb2))
                 {
-                    finalScore = ( (score_arr[k] >> 0)  & 0x00ff) ;
+                    finalScore = ( (val >> 0)  & 0x00ff) ;
                     if (finalScore >= actualThreshold)
                     {
                         HIT_STATS (_scoreOK ++;)
@@ -207,6 +212,7 @@ void UngapHitIteratorSSE16::iterateMethod (indexation::Hit* hit)
 #else
                         isNotKnown = true;
 #endif
+
                         if (isNotKnown)
                         {
                             /** We increase the number of iterations. */
@@ -225,9 +231,9 @@ void UngapHitIteratorSSE16::iterateMethod (indexation::Hit* hit)
                     }
                 }
 
-                if (j+2*k+1 < nb2)
+                if (isUsable || ( j+2*k + 1 < nb2))
                 {
-                    finalScore = ( (score_arr[k] >> 8)  & 0x00ff) ;
+                    finalScore = ( (val >> 8)  & 0x00ff) ;
                     if (finalScore >= actualThreshold)
                     {
                         HIT_STATS (_scoreOK ++;)
@@ -238,6 +244,7 @@ void UngapHitIteratorSSE16::iterateMethod (indexation::Hit* hit)
 #else
                         isNotKnown = true;
 #endif
+
                         if (isNotKnown)
                         {
                             HIT_STATS (_outputHitsNumber ++;)
@@ -256,31 +263,20 @@ void UngapHitIteratorSSE16::iterateMethod (indexation::Hit* hit)
                     }
                 }
 
-#if 0
-                (_client->*_method) (hit);
-                hit->resetIndexes();
-#endif
             }  /* end of for (size_t k=0; k<8; k++) */
-
-#if 0
-            /** We may want to go further in the algorithm with the currently decent hits. */
-            if (hit->indexes.size() >= 16)
-            {
-                (_client->*_method) (hit);
-                hit->resetIndexes();
-            }
-#endif
 
         }  /* end of for (size_t i=0; i<nb1; i++) */
 
-#if 1
-        /** We may want to go further in the algorithm with the currently decent hits. */
+        /** We may want to go further in the algorithm with the currently found hits.
+         *  The important consequence is that we can limit the number of hits processed by
+         *  further iterators. Without such a threshold, these iterators may have to deal with
+         *  thousands of hits, which can be prohibitive in terms of memory usage.
+         */
         if (hit->indexes.size() >= _maxHitsPerIteration)
         {
             (_client->*_method) (hit);
             hit->resetIndexes();
         }
-#endif
 
     }  /* end of for (size_t j=0; j<nb2; j+=NB) */
 

@@ -25,6 +25,7 @@
 #include "IThread.hpp"
 
 #include <vector>
+#include <map>
 
 #include <stdio.h>
 
@@ -72,19 +73,7 @@ public:
         long long   eff_searchsp;
     };
 
-    size_t getNbSequences()  { return (_queryDb ? _queryDb->getSequencesNumber() : 0);  }
-
-    IQueryInformation::SequenceInfo& getSeqInfoByIndex (size_t i)
-    {
-        /** We may have to build the information if not already done. */
-        build ();
-
-        if (i>=_seqInfo.size())
-        {
-            // TBD launch an exception ?
-        }
-        return _seqInfo[i];
-    }
+    IQueryInformation::SequenceInfo& getSeqInfo (const database::ISequence& seq);
 
 private:
 
@@ -103,8 +92,13 @@ private:
     u_int64_t _subjectDbSize;
     u_int32_t _subjectNbSequences;
 
+    typedef std::vector<IQueryInformation::SequenceInfo> Container;
+
     /** We need a vector for holding information for each sequence. */
-    std::vector<IQueryInformation::SequenceInfo> _seqInfo;
+//    std::vector<IQueryInformation::SequenceInfo> _seqInfo;
+
+    /** We need a map whose key is a database. */
+    std::map <database::ISequenceDatabase*, Container> _seqInfoMap;
 
     bool _isBuilt;
     os::ISynchronizer* _synchro;

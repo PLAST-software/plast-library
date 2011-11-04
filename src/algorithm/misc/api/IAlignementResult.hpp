@@ -66,6 +66,9 @@ public:
     const indexation::ISeedOccurrence* _occur1;
     const indexation::ISeedOccurrence* _occur2;
 
+    database::ISequenceDatabase* _subjectDb;
+    database::ISequenceDatabase* _queryDb;
+
     u_int32_t _subjectIdx;
     u_int32_t _queryIdx;
 
@@ -118,6 +121,9 @@ private:
         /** Shortcuts. */
         int32_t offInSeq1 = occur1->offsetInSequence;
         int32_t offInSeq2 = occur2->offsetInSequence;
+
+        _subjectDb = occur1->sequence.database;
+        _queryDb   = occur2->sequence.database;
 
         _subjectIdx = occur1->sequence.index;
         _queryIdx   = occur2->sequence.index;

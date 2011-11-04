@@ -253,44 +253,53 @@ QueryInformation::~QueryInformation ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+IQueryInformation::SequenceInfo& QueryInformation::getSeqInfo (const database::ISequence& seq)
+{
+    /** We may have to build the information if not already done. */
+    build ();
+
+    return _seqInfoMap [seq.database] [seq.index];
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 void QueryInformation::build (void)
 {
+    /** We need to protect this method since it can be accessed on the same instance by
+     *  different threads. */
     os::LocalSynchronizer synch (_synchro);
 
+    /** We just check that we have not already built the information. */
     if (_isBuilt == true)  { return; }
 
-    ISequence   sequence;
     int         cutoffs             = 0;
     int         length_adjustment   = 0;
     long long   eff_searchsp        = 0;
     double      evalue              = _globalParams->evalue;
-
-    /** Shortcut. */
-    size_t nbSeq = _queryDb->getSequencesNumber();
-
-    /** We resize the vector that will hold statistical data for each sequence. */
-    _seqInfo.resize (nbSeq);
-
-    DEBUG (("QueryInformation::build:  nbSeq=%ld  _subjectDbSize=%lld  _subjectNbSequences=%ld \n",
-        nbSeq, _subjectDbSize, _subjectNbSequences
-    ));
 
     DEBUG (("QueryInformation::build:  K=%f logK=%f alpha=%f lambda=%f beta=%f evalue=%f\n",
         _globalParams->K, _globalParams->logK, _globalParams->alpha,
         _globalParams->lambda, _globalParams->beta, _globalParams->evalue
     ));
 
-    /** We loop over each sequence. */
-    for (size_t i=0; i<nbSeq; i++)
+    DEBUG (("QueryInformation::build:  nbSeq=%ld\n", _queryDb->getSequencesNumber()));
+
+    /** We need to iterate each sequence of the database. */
+    ISequenceIterator* itSeq = _queryDb->createSequenceIterator();
+    LOCAL (itSeq);
+
+    for (itSeq->first(); ! itSeq->isDone(); itSeq->next())
     {
-        bool found = _queryDb->getSequenceByIndex (i, sequence);
-
-        DEBUG (("QueryInformation::build:  getSequenceIndex(%d)=%d\n", i, found));
-
-        if (!found)  { continue; }
+        const ISequence* seq = itSeq->currentItem();
 
         /** Shortcut. */
-        size_t seqLength = sequence.data.letters.size;
+        size_t seqLength = seq->data.letters.size;
 
         /** We compute length adjustment for the current sequence. */
         computeLengthAdjustment (
@@ -315,12 +324,17 @@ void QueryInformation::build (void)
         computeCutoffs (cutoffs, evalue, eff_searchsp, 0);
 
         /** We fill the current sequence info. */
-        IQueryInformation::SequenceInfo& info = _seqInfo[i];
+        IQueryInformation::SequenceInfo info;
 
         info.sequence_length = seqLength;
         info.length_adjust   = length_adjustment;
         info.cut_offs        = cutoffs;
         info.eff_searchsp    = eff_searchsp;
+
+        /** We add it to the container.  Note that we use 'seq->database' (instead of '_queryDb' directly)
+         *  because '_queryDb' may be a database composed of several databases, and the 'database' attribute
+         *  may reference a child database belonging to '_queryDb'. */
+        _seqInfoMap[seq->database].push_back (info);
 
         /** We update the minimum score. */
         if (cutoffs < _parameters->smallGapThreshold)     {  _parameters->smallGapThreshold = cutoffs;  }
@@ -434,10 +448,6 @@ bool QueryInformation::computeLengthAdjustment (
         /* Use the best value seen so far */
         length_adjustment = (int) ell_min;
     }
-
-//    printf ("BLAST_ComputeLengthAdjustment:  length_adjustment=%ld \n",
-//            length_adjustment
-//        );
 
     return converged;
 }

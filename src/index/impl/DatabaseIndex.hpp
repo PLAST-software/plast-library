@@ -89,7 +89,6 @@ private:
         DatabaseOccurrenceIterator (database::ISequenceDatabase* database, size_t span, IndexEntry* offsets, size_t neighbourSize)
             : _database(database), _span(span), _offsets(offsets), _neighbourSize(neighbourSize), _item(span+2*neighbourSize)
         {
-            _item.database = database;
             _lastIdx       = _offsets->size() - 1;
         }
 

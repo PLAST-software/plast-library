@@ -38,7 +38,7 @@ namespace algo  {
 ** REMARKS :
 *********************************************************************/
 ScoreMatrix::ScoreMatrix (database::Encoding encoding, size_t N, int8_t defaultScore)
-    : _encoding(encoding), _N(N), _matrix(0), _matrixAsVector(0), _defaultScore(defaultScore)
+    : _encoding(encoding), _size(N), _matrix(0), _matrixAsVector(0), _defaultScore(defaultScore)
 {
     /** We allocate the matrix. */
     int8_t* tmp = (int8_t*) MemoryAllocator::singleton().malloc (N*N*sizeof(int8_t));

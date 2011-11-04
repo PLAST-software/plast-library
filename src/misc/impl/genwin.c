@@ -16,6 +16,9 @@
 
 #include "genwin.h"
 
+void decrementsv (register int* sv, register int class);
+void incrementsv (register int* sv, int class);
+
 /********************************************************************************/
 
 #define STRSIZE 100

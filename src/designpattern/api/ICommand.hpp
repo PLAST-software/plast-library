@@ -24,9 +24,10 @@
 #ifndef ICOMMAND_HPP_
 #define ICOMMAND_HPP_
 
+#include <stddef.h>
 #include "SmartPointer.hpp"
 #include <list>
-#include <sys/types.h>
+#include "types.hpp"
 
 /********************************************************************************/
 namespace dp {

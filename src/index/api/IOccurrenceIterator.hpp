@@ -44,9 +44,6 @@ struct ISeedOccurrence
     /** Offset of the seed within the sequence. */
     u_int32_t   offsetInSequence;
 
-    /** A reference of the sequence database. */
-    database::ISequenceDatabase* database;
-
     /** Offset of the seed within the database. */
     u_int64_t   offsetInDatabase;
 
@@ -67,11 +64,11 @@ struct ISeedOccurrence
 
     /** */
     ISeedOccurrence ()
-        : offsetInSequence(0), database(0), offsetInDatabase(0), neighbourhood(0)  {}
+        : offsetInSequence(0), offsetInDatabase(0), neighbourhood(0)  {}
 
     /** */
     ISeedOccurrence (size_t neighbourhoodSize)
-        : offsetInSequence(0), database(0), offsetInDatabase(0), neighbourhood(neighbourhoodSize)
+        : offsetInSequence(0), offsetInDatabase(0), neighbourhood(neighbourhoodSize)
     {
     }
 
@@ -79,13 +76,11 @@ struct ISeedOccurrence
     ISeedOccurrence (
         const database::ISequence&      aSequence,
         u_int32_t                       aOffsetInSequence,
-        database::ISequenceDatabase*    aDatabase,
         u_int64_t                       aOffsetInDatabase,
         const database::IWord&          aNeighbourhood
     )
         : sequence          (aSequence),
           offsetInSequence  (aOffsetInSequence),
-          database          (aDatabase),
           offsetInDatabase  (aOffsetInDatabase),
           neighbourhood     (aNeighbourhood)
     {
@@ -94,7 +89,7 @@ struct ISeedOccurrence
     /** Clone of the instance. */
     ISeedOccurrence* clone () const
     {
-        return new ISeedOccurrence (sequence, offsetInSequence, database, offsetInDatabase, neighbourhood);
+        return new ISeedOccurrence (sequence, offsetInSequence, offsetInDatabase, neighbourhood);
     }
 };
 

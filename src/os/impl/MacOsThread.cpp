@@ -14,15 +14,15 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#ifdef __LINUX__
+#ifdef __DARWIN__
 
-#include "LinuxThread.hpp"
+#include "MacOsThread.hpp"
 #include "macros.hpp"
 #include <memory>
 #include <stdio.h>
 #include <string.h>
 
-#include <pthread.h>
+#define DEBUG(a)  //printf a
 
 /********************************************************************************/
 namespace os {
@@ -36,14 +36,23 @@ namespace os {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-class LinuxThread : public IThread
+class MacOsThread : public IThread
 {
 public:
-    LinuxThread (void* (mainloop) (void*), void* data)  { pthread_create (&_thread, NULL,  mainloop, data); }
-    ~LinuxThread ()  { pthread_detach (_thread);        }
-    void join ()     { pthread_join   (_thread, NULL);  }
+
+    MacOsThread (void* (mainloop) (void*), void* data)
+    {
+    }
+
+    ~MacOsThread ()
+    {
+    }
+
+    void join ()
+    {
+    }
+
 private:
-    pthread_t  _thread;
 };
 
 /*********************************************************************
@@ -54,17 +63,26 @@ private:
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-class LinuxSynchronizer : public ISynchronizer
+class MacOsSynchronizer : public ISynchronizer
 {
 public:
-    LinuxSynchronizer ()            {  pthread_mutex_init (&_mutex, NULL);  }
-    virtual ~LinuxSynchronizer()    {  pthread_mutex_destroy (&_mutex);     }
+    MacOsSynchronizer ()
+    {
+    }
 
-    void   lock ()  { pthread_mutex_lock   (&_mutex); }
-    void unlock ()  { pthread_mutex_unlock (&_mutex); }
+    virtual ~MacOsSynchronizer()
+    {
+    }
+
+    void lock ()
+    {
+    }
+
+    void unlock ()
+    {
+    }
 
 private:
-    pthread_mutex_t  _mutex;
 };
 
 /*********************************************************************
@@ -75,9 +93,9 @@ private:
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IThreadFactory& LinuxThreadFactory::singleton ()
+IThreadFactory& MacOsThreadFactory::singleton ()
 {
-    static LinuxThreadFactory instance;
+    static MacOsThreadFactory instance;
     return instance;
 }
 
@@ -89,9 +107,9 @@ IThreadFactory& LinuxThreadFactory::singleton ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IThread* LinuxThreadFactory::newThread (void* (mainloop) (void*), void* data)
+IThread* MacOsThreadFactory::newThread (void* (mainloop) (void*), void* data)
 {
-    return new LinuxThread (mainloop, data);
+    return new MacOsThread (mainloop, data);
 }
 
 /*********************************************************************
@@ -102,9 +120,9 @@ IThread* LinuxThreadFactory::newThread (void* (mainloop) (void*), void* data)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-ISynchronizer* LinuxThreadFactory::newSynchronizer (void)
+ISynchronizer* MacOsThreadFactory::newSynchronizer (void)
 {
-    return new LinuxSynchronizer ();
+    return new MacOsSynchronizer ();
 }
 
 /*********************************************************************
@@ -115,23 +133,9 @@ ISynchronizer* LinuxThreadFactory::newSynchronizer (void)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-size_t LinuxThreadFactory::getNbCores ()
+size_t MacOsThreadFactory::getNbCores ()
 {
     size_t result = 0;
-
-    /** We open the "/proc/cpuinfo" file. */
-    FILE* file = fopen ("/proc/cpuinfo", "r");
-    if (file)
-    {
-        char buffer[256];
-
-        while (fgets(buffer, sizeof(buffer), file))
-        {
-            if (strstr(buffer, "processor") != NULL)  { result ++;  }
-        }
-
-        fclose (file);
-    }
 
     if (result==0)  { result = 1; }
 
@@ -142,4 +146,4 @@ size_t LinuxThreadFactory::getNbCores ()
 } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* __LINUX__ */
+#endif /* __DARWIN__ */

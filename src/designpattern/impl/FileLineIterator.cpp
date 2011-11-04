@@ -47,7 +47,8 @@ FileLineIterator::FileLineIterator (
 {
     DEBUG (("FileLineIterator::FileLineIterator: filename='%s'\n", filename));
 
-    _file = fopen (_filename.c_str(), "r");
+    _file = os::DefaultFactory::singleton().getFileFactory().newFile (_filename.c_str(), "r");
+    if (_file != 0)  {  _file->use ();  }
 
 	_line = new char[_lineMaxSize];
 
@@ -67,8 +68,9 @@ FileLineIterator::FileLineIterator (
 *********************************************************************/
 FileLineIterator::~FileLineIterator ()
 {
-    if (_file)  { fclose (_file);  }
     if (_line)  { delete[] _line;  }
+
+    if (_file)  {  _file->forget ();  }
 }
 
 /*********************************************************************
@@ -87,7 +89,7 @@ void FileLineIterator::first()
 		_eof = false;
 
 		/** We go to the beginning of the file. */
-        fseeko64 (_file, _offset0, SEEK_SET);
+        if (_file)  {  _file->seeko (_offset0, SEEK_SET);  }
 
 		/** We force retrieval of the first line. */
 		next ();

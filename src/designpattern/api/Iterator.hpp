@@ -126,9 +126,18 @@ class IterationStatusEvent : public dp::EventInfo
 public:
 
     /** */
-    IterationStatusEvent (IteratorStatus status, u_int64_t currentIndex, u_int64_t totalNumber, const char* message, ...)
+    IterationStatusEvent (
+        IteratorStatus status,
+        u_int64_t currentIndex,
+        u_int64_t totalNumber,
+        u_int32_t nbOccur1,
+        u_int32_t nbOccur2,
+        const char* message,
+        ...
+    )
         : dp::EventInfo(ITERATION_NOTIF_ID),
-          _status(status), _currentIndex(currentIndex), _totalNumber(totalNumber)
+          _status(status), _currentIndex(currentIndex), _totalNumber(totalNumber),
+          _nbOccur1(nbOccur1), _nbOccur2(nbOccur2)
     {
         va_list ap;
         va_start (ap, message);
@@ -139,12 +148,16 @@ public:
     IteratorStatus  getStatus       () { return _status;        }
     u_int64_t       getCurrentIndex () { return _currentIndex;  }
     u_int64_t       getTotalNumber  () { return _totalNumber;   }
+    u_int32_t       getNbOccur1     () { return _nbOccur1;      }
+    u_int32_t       getNbOccur2     () { return _nbOccur2;      }
     const char*     getMessage      () { return _buffer;        }
 
 private:
     IteratorStatus  _status;
     u_int64_t       _currentIndex;
     u_int64_t       _totalNumber;
+    u_int32_t       _nbOccur1;
+    u_int32_t       _nbOccur2;
     char            _buffer[256];
 };
 

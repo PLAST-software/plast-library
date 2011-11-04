@@ -19,7 +19,34 @@
 
 /********************************************************************************/
 
-#include <sys/types.h>
+#if 0
+    #include <sys/types.h>
+#else
+
+# define __intN_t(N, MODE)      typedef int int##N##_t __attribute__ ((__mode__ (MODE)))
+# define __u_intN_t(N, MODE)    typedef unsigned int u_int##N##_t __attribute__ ((__mode__ (MODE)))
+
+__intN_t (8, __QI__);
+__intN_t (16, __HI__);
+__intN_t (32, __SI__);
+__intN_t (64, __DI__);
+
+__u_intN_t (8, __QI__);
+__u_intN_t (16, __HI__);
+__u_intN_t (32, __SI__);
+__u_intN_t (64, __DI__);
+
+
+//    typedef char                int8_t;
+//    typedef short int           int16_t;
+//    typedef int                 int32_t;
+//    typedef long int            int64_t;
+//
+//    typedef unsigned char       u_int8_t;
+//    typedef unsigned short int  u_int16_t;
+//    typedef unsigned int        u_int32_t;
+//    typedef unsigned long int   u_int64_t;
+#endif
 
 /********************************************************************************/
 

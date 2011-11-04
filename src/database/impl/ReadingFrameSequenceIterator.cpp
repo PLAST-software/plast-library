@@ -171,7 +171,7 @@ void ReadingFrameSequenceIterator::udpateItem ()
         offset = refData.letters.size - 1;
     }
 
-    size_t nbProteins = 0;
+    size_t nbAminoAcids = 0;
     size_t i = 0;
     for (i=i0; i<=i1; i += 3)
     {
@@ -193,12 +193,12 @@ void ReadingFrameSequenceIterator::udpateItem ()
 
             //DEBUG (("(%d %d %d => acid=%d  (direction=%d)) \n", c1,c2,c3, acid, direction));
 
-            if (_data.letters.size <= nbProteins)
+            if (_data.letters.size <= nbAminoAcids)
             {
                 _data.letters.resize (2*_data.letters.size);
             }
 
-            _data.letters.data [nbProteins++] = acid;
+            _data.letters.data [nbAminoAcids++] = acid;
         }
         else
         {
@@ -209,9 +209,9 @@ void ReadingFrameSequenceIterator::udpateItem ()
 
     /** We may have to add an extra 'any' letter because we had less than 3 nucleotids at the end of the loop. */
     // TO BE CONFIRMED...
-    if (i < refData.letters.size)  {  _data.letters.data [nbProteins++] = _alphabet->any;  }
+    if (i < refData.letters.size)  {  _data.letters.data [nbAminoAcids++] = _alphabet->any;  }
 
-    _sequence.data.letters.setReference (nbProteins, _data.letters.data);
+    _sequence.data.letters.setReference (nbAminoAcids, _data.letters.data);
 
     /** We retrieve the builder => shortcut and optimization (avoid method call) */
     ISequenceBuilder* builder = getBuilder();
@@ -222,7 +222,7 @@ void ReadingFrameSequenceIterator::udpateItem ()
         builder->resetData ();
         builder->addData (
             _data.letters.data,
-            nbProteins,
+            nbAminoAcids,
             getEncoding()
         );
     }

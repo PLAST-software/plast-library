@@ -23,6 +23,7 @@
 #include "ICommand.hpp"
 
 #include "FastaDatabaseQuickReader.hpp"
+#include "AminoAcidDatabaseQuickReader.hpp"
 
 #include "PlastStrings.hpp"
 
@@ -95,7 +96,6 @@ void DefaultEnvironment::run (dp::IProperties* properties)
         quickSubjectDbReader = new FastaDatabaseQuickReader (subjectProp->value, inferType);
         quickSubjectDbReader->read (maxblocksize);
     }
-    LOCAL (quickSubjectDbReader);
 
     /** We need to read the subject database to get its data size and the number of sequences. */
     IDatabaseQuickReader* quickQueryDbReader = 0;
@@ -106,7 +106,6 @@ void DefaultEnvironment::run (dp::IProperties* properties)
         quickQueryDbReader = new FastaDatabaseQuickReader (queryProp->value, inferType);
         quickQueryDbReader->read (maxblocksize);
     }
-    LOCAL (quickQueryDbReader);
 
     /** We may have to infer the kind of algorithm (plastp, plastx...) if no one is provided. */
     if (algoProp == 0)
@@ -132,6 +131,9 @@ void DefaultEnvironment::run (dp::IProperties* properties)
             /** We should not be there. Should throw an exception ?*/
         }
     }
+
+    LOCAL (quickSubjectDbReader);
+    LOCAL (quickQueryDbReader);
 
     /** We build a list of uri for subject/query databases. */
     vector<pair<Range,Range> > uriList = buildUri (quickSubjectDbReader, quickQueryDbReader);
@@ -186,15 +188,30 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
     switch (params->algoKind)
     {
         case ENUM_PLASTP:
-            result = new AlgorithmPlastp (config, reader, params, resultVisitor);
+            result = new AlgorithmPlastp (
+                config,
+                reader,
+                params,
+                resultVisitor
+            );
             break;
 
         case ENUM_TPLASTN:
-            result = new AlgorithmTplastn (config, reader, params, resultVisitor);
+            result = new AlgorithmTplastn (
+                config,
+                new AminoAcidDatabaseQuickReader (reader),
+                params,
+                resultVisitor
+            );
             break;
 
         case ENUM_PLASTX:
-            result = new AlgorithmPlastx (config, reader, params, resultVisitor);
+            result = new AlgorithmPlastx (
+                config,
+                reader,
+                params,
+                resultVisitor
+            );
             break;
 
         case ENUM_TPLASTX:

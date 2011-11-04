@@ -51,7 +51,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/statistics/api}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/statistics/impl}&quot;"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.debugging.gprof.1253556430" name="Generate gprof information (-pg)" superClass="gnu.cpp.compiler.option.debugging.gprof" value="false" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.debugging.gprof.1253556430" name="Generate gprof information (-pg)" superClass="gnu.cpp.compiler.option.debugging.gprof" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1755057582" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool command="gcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.1438255439" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug">
@@ -74,7 +74,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/api}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/impl}&quot;"/>
 								</option>
-								<option id="gnu.c.compiler.option.debugging.gprof.1515975876" name="Generate gprof information (-pg)" superClass="gnu.c.compiler.option.debugging.gprof" value="false" valueType="boolean"/>
+								<option id="gnu.c.compiler.option.debugging.gprof.1515975876" name="Generate gprof information (-pg)" superClass="gnu.c.compiler.option.debugging.gprof" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1016986933" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols"/>
 								<option id="gnu.c.compiler.option.debugging.prof.1155972314" name="Generate prof information (-p)" superClass="gnu.c.compiler.option.debugging.prof" value="false" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1466413571" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
@@ -138,7 +138,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.lib.release.184423442" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.lib.release">
 								<option id="gnu.cpp.compiler.lib.release.option.optimization.level.1342291968" name="Optimization Level" superClass="gnu.cpp.compiler.lib.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.lib.release.option.debugging.level.534390027" name="Debug Level" superClass="gnu.cpp.compiler.lib.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
-								<option id="gnu.cpp.compiler.option.include.paths.1267507508" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.cpp.compiler.option.include.paths.1267507508" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/api}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/impl}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/api}&quot;"/>
@@ -165,7 +165,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.release.1372791480" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.release">
 								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.lib.release.option.optimization.level.540591797" name="Optimization Level" superClass="gnu.c.compiler.lib.release.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.lib.release.option.debugging.level.1181036625" name="Debug Level" superClass="gnu.c.compiler.lib.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.include.paths.1047195631" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.c.compiler.option.include.paths.1047195631" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/api}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/impl}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/api}&quot;"/>
@@ -187,7 +187,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.584399322" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.898167454" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.lib.release.1728389962" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.lib.release">
-								<option id="gnu.both.asm.option.include.paths.1000836756" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+								<option id="gnu.both.asm.option.include.paths.1000836756" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/api}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/impl}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/api}&quot;"/>

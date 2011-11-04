@@ -14,58 +14,56 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#ifndef ISTATISTICS_HPP_
-#define ISTATISTICS_HPP_
+#ifdef __DARWIN__
+
+#include "MacOsFile.hpp"
+#include <stdio.h>
 
 /********************************************************************************/
-
-#include "SmartPointer.hpp"
-#include "ISequence.hpp"
-
-#include <stddef.h>
-
-/********************************************************************************/
-namespace statistics  {
+namespace os {
 /********************************************************************************/
 
-class IGlobalParameters : public dp::SmartPointer
+/** */
+class MacOsFile : public IFile
 {
 public:
 
-    double evalue;
-
-    int    frm_sub;
-    int    frm_qry;
-
-    double K;
-    double H;
-    double logK;
-    double ln2;
-    double alpha;
-    double lambda;
-    double beta;
-};
-
-/********************************************************************************/
-
-class IQueryInformation : public dp::SmartPointer
-{
-public:
-
-    /** */
-    struct SequenceInfo
+    MacOsFile (const char* path, const char* mode)
     {
-        int         sequence_length;
-        int         length_adjust;
-        int         cut_offs;
-        long long   eff_searchsp;
-    };
+        _handle = ::fopen (path, mode);
+    }
 
-    virtual SequenceInfo& getSeqInfo (const database::ISequence& seq) = 0;
+    virtual ~MacOsFile ()
+    {
+        if (_handle)  { ::fclose (_handle); }
+    }
+
+    bool isEOF () { return feof (_handle); }
+
+    int seeko (u_int64_t offset, int whence)  { return ::fseeko (_handle, offset, whence); }
+
+    char* gets (char *s, int size)  { return fgets (s, size, _handle); }
+
+protected:
+
+    FILE* _handle;
 };
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+IFile* MacOsFileFactory::newFile (const char* path, const char* mode)
+{
+    return new MacOsFile (path, mode);
+}
 
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* ISTATISTICS_HPP_ */
+#endif /*  __LINUX__  */

@@ -14,8 +14,8 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#ifndef _BUFFERED_ITERATOR_HPP_
-#define _BUFFERED_ITERATOR_HPP_
+#ifndef _BUFFERED_SEQUENCE_DATABASE_HPP_
+#define _BUFFERED_SEQUENCE_DATABASE_HPP_
 
 /********************************************************************************/
 
@@ -45,7 +45,7 @@ public:
     virtual ~BufferedSequenceDatabase ();
 
     /** Returns the number of sequences in the database. */
-    size_t getSequencesNumber ()  { return getCache()->nbSequences; }
+    size_t getSequencesNumber ()  { getCache();  return _nbSequences; }
 
     /** Retrieve the database size. Use offset table for computing. */
     u_int64_t getSize ()  {  return (getCache()->offsets.data)[_lastIdx+1] - (getCache()->offsets.data)[_firstIdx];  }
@@ -54,17 +54,15 @@ public:
     bool getSequenceByIndex (size_t index, ISequence& sequence);
 
     /** Retrieve a sequence given its offset in the database. */
-    bool getSequenceByOffset (u_int64_t offsetInDatabase, ISequence& sequence, u_int32_t& offsetInSequence);
-
-    /** Default implementation. */
-    void getActualInfoFromOffset (u_int64_t offset, ISequenceDatabase*& actualDb, u_int64_t& actualOffset)
-    {
-        actualDb     = this;
-        actualOffset = offset;
-    }
+    bool getSequenceByOffset (
+        u_int64_t  offset,
+        ISequence& sequence,
+        u_int32_t& offsetInSequence,
+        u_int64_t& offsetInDatabase
+    );
 
     /** Creates a Sequence iterator. */
-    ISequenceIterator* createSequenceIterator () { return new BufferedSequenceIterator (getCache(), _firstIdx, _lastIdx); }
+    ISequenceIterator* createSequenceIterator () { return new BufferedSequenceIterator (this, getCache(), _firstIdx, _lastIdx); }
 
     /** Split the database. */
     std::vector<ISequenceDatabase*> split (size_t nbSplit);
@@ -108,8 +106,8 @@ private:
     {
     public:
 
-        BufferedSequenceIterator (ISequenceCache* cache, size_t firstIdx, size_t lastIdx)
-            : _cache(0), _firstIdx(firstIdx), _lastIdx(lastIdx)
+        BufferedSequenceIterator (ISequenceDatabase* db, ISequenceCache* cache, size_t firstIdx, size_t lastIdx)
+            : _db(db), _cache(0), _firstIdx(firstIdx), _lastIdx(lastIdx)
         {
             setCache (cache);
         }
@@ -135,9 +133,12 @@ private:
         bool isDone()  { return _currentIdx > _lastIdx;            }
         const ISequence* currentItem ()  { return &_item;   }
 
-        ISequenceIterator* clone ()  {  return new BufferedSequenceIterator (_cache, _firstIdx, _lastIdx);  }
+        ISequenceIterator* clone ()  {  return new BufferedSequenceIterator (_db, _cache, _firstIdx, _lastIdx);  }
 
     private:
+
+        /** */
+        ISequenceDatabase* _db;
 
         ISequenceCache* _cache;
         void setCache (ISequenceCache* cache)  { SP_SETATTR(cache); }
@@ -221,4 +222,4 @@ public:
 } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* _BUFFERED_ITERATOR_HPP_ */
+#endif /* _BUFFERED_SEQUENCE_DATABASE_HPP_ */

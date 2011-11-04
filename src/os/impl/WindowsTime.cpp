@@ -14,58 +14,64 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#ifndef ISTATISTICS_HPP_
-#define ISTATISTICS_HPP_
+#ifdef __WINDOWS__
+
+#include "WindowsTime.hpp"
+#include <time.h>
+
+#define CLOCK_REALTIME 0
 
 /********************************************************************************/
-
-#include "SmartPointer.hpp"
-#include "ISequence.hpp"
-
-#include <stddef.h>
-
-/********************************************************************************/
-namespace statistics  {
+namespace os {
 /********************************************************************************/
 
-class IGlobalParameters : public dp::SmartPointer
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+ITime& WindowsTime::singleton ()
 {
-public:
+    static WindowsTime instance;
+    return instance;
+}
 
-    double evalue;
-
-    int    frm_sub;
-    int    frm_qry;
-
-    double K;
-    double H;
-    double logK;
-    double ln2;
-    double alpha;
-    double lambda;
-    double beta;
-};
-
-/********************************************************************************/
-
-class IQueryInformation : public dp::SmartPointer
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+u_int32_t WindowsTime::gettime ()
 {
-public:
+    u_int32_t result = 0;
 
-    /** */
-    struct SequenceInfo
-    {
-        int         sequence_length;
-        int         length_adjust;
-        int         cut_offs;
-        long long   eff_searchsp;
-    };
+    return result;
+}
 
-    virtual SequenceInfo& getSeqInfo (const database::ISequence& seq) = 0;
-};
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+u_int32_t WindowsTime::getclock()
+{
+    u_int32_t result = 0;
+
+
+    return result;
+}
 
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* ISTATISTICS_HPP_ */
+#endif /* __WINDOWS__ */

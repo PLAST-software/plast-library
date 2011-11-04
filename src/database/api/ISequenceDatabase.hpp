@@ -39,9 +39,6 @@ namespace database {
  *  It can also create ISequenceIterator instances, so it has both direct access to
  *  a specific sequence and also iterative access to sequences through a created
  *  iterator.
- *
- *  Implements also a Design Pattern Composite; a database can be structure as a
- *  tree of sub databases.
  */
 
 class ISequenceDatabase : public dp::SmartPointer
@@ -57,14 +54,14 @@ public:
     /** Returns a sequence given its index. */
     virtual bool getSequenceByIndex (size_t index, ISequence& sequence) = 0;
 
-    /** Returns a sequence given its offset in the database.
-     *  Also returns the offset in the returned sequence.*/
-    virtual bool getSequenceByOffset (u_int64_t offsetInDatabase, ISequence& sequence, u_int32_t& offsetInSequence) = 0;
-
-    /** Returns actual information (database and offset) from a given offset. May be used for implementation
-     *  that references serveral ISequenceDatabase instances (the given offset allows to compute the ISequenceDatabase*
-     *  instance of interest). */
-    virtual void getActualInfoFromOffset (u_int64_t offset, ISequenceDatabase*& actualDb, u_int64_t& actualOffset) = 0;
+    /** Returns a sequence given an offset (in the database).
+     *  Also returns the offset in the returned sequence and the actual offset in the database.*/
+    virtual bool getSequenceByOffset (
+        u_int64_t offset,
+        ISequence& sequence,
+        u_int32_t& offsetInSequence,
+        u_int64_t& offsetInDatabase
+    ) = 0;
 
     /** Creates a Sequence iterator. */
     virtual ISequenceIterator* createSequenceIterator () = 0;

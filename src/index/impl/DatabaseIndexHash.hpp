@@ -84,7 +84,6 @@ private:
         DatabaseOccurrenceIterator (database::ISequenceDatabase* database, IndexEntry* offsets, size_t deltaSequence)
             : _database(database), _offsets(offsets), _deltaSequence(deltaSequence)
         {
-            _item.database = database;
         }
 
         void first()
@@ -118,7 +117,6 @@ private:
         {
             _offsets       = offsets;
             _deltaSequence = deltaSequence;
-            _item.database = _database;
         }
 
         friend class DatabaseIndexHash;

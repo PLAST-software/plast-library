@@ -18,6 +18,15 @@
 
 #include "LinuxThread.hpp"
 #include "LinuxTime.hpp"
+#include "LinuxFile.hpp"
+
+#include "WindowsThread.hpp"
+#include "WindowsTime.hpp"
+#include "WindowsFile.hpp"
+
+#include "MacOsThread.hpp"
+#include "MacOsTime.hpp"
+#include "MacOsFile.hpp"
 
 /********************************************************************************/
 namespace os {
@@ -33,7 +42,17 @@ namespace os {
 *********************************************************************/
 IThreadFactory&  DefaultFactory::getThreadFactory ()
 {
+#ifdef __LINUX__
     return LinuxThreadFactory::singleton();
+#endif
+
+#ifdef __WINDOWS__
+    return WindowsThreadFactory::singleton();
+#endif
+
+#ifdef __DARWIN__
+    return MacOsThreadFactory::singleton();
+#endif
 }
 
 /*********************************************************************
@@ -46,7 +65,40 @@ IThreadFactory&  DefaultFactory::getThreadFactory ()
 *********************************************************************/
 ITime& DefaultFactory::getTimeFactory   ()
 {
+#ifdef __LINUX__
     return LinuxTime::singleton();
+#endif
+
+#ifdef __WINDOWS__
+    return WindowsTime::singleton();
+#endif
+
+#ifdef __DARWIN__
+    return MacOsTime::singleton();
+#endif
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+IFileFactory& DefaultFactory::getFileFactory   ()
+{
+#ifdef __LINUX__
+    return LinuxFileFactory::singleton();
+#endif
+
+#ifdef __WINDOWS__
+    return WindowsFileFactory::singleton();
+#endif
+
+#ifdef __DARWIN__
+    return MacOsFileFactory::singleton();
+#endif
 }
 
 /********************************************************************************/

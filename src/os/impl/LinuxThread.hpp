@@ -24,8 +24,6 @@
 /********************************************************************************/
 
 #include "IThread.hpp"
-#include <string>
-#include <pthread.h>
 
 /********************************************************************************/
 namespace os {
@@ -46,31 +44,6 @@ public:
     size_t getNbCores ();
 
 private:
-
-    /************************************************************/
-    class LinuxThread : public IThread
-    {
-    public:
-        LinuxThread (void* (mainloop) (void*), void* data);
-        ~LinuxThread ();
-        void join ();
-    private:
-        pthread_t  _thread;
-    };
-
-    /************************************************************/
-    class LinuxSynchronizer : public ISynchronizer
-    {
-    public:
-        LinuxSynchronizer ()            {  pthread_mutex_init (&_mutex, NULL);  }
-        virtual ~LinuxSynchronizer()    {  pthread_mutex_destroy (&_mutex);     }
-
-        void   lock ()  { pthread_mutex_lock   (&_mutex); }
-        void unlock ()  { pthread_mutex_unlock (&_mutex); }
-
-    private:
-        pthread_mutex_t  _mutex;
-    };
 };
 
 /********************************************************************************/

@@ -14,6 +14,8 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+#ifdef __LINUX__
+
 #include "LinuxTime.hpp"
 #include <time.h>
 
@@ -49,14 +51,14 @@ u_int32_t LinuxTime::gettime ()
 {
     u_int32_t result = 0;
 
-    struct timespec tp;
-
-    int err = clock_gettime (CLOCK_REALTIME, &tp);
-
-    if (err == 0)
-    {
-        result = tp.tv_sec * 1000  +  tp.tv_nsec / 1000000;
-    }
+//    struct timespec tp;
+//
+//    int err = clock_gettime (CLOCK_REALTIME, &tp);
+//
+//    if (err == 0)
+//    {
+//        result = tp.tv_sec * 1000  +  tp.tv_nsec / 1000000;
+//    }
 
     return result;
 }
@@ -73,14 +75,14 @@ u_int32_t LinuxTime::getclock()
 {
     u_int32_t result = 0;
 
-    struct timespec tp;
-
-    int err = clock_gettime (CLOCK_REALTIME, &tp);
-
-    if (err == 0)
-    {
-        result = tp.tv_sec * 1000000  +  tp.tv_nsec / 1000;
-    }
+//    struct timespec tp;
+//
+//    int err = clock_gettime (CLOCK_REALTIME, &tp);
+//
+//    if (err == 0)
+//    {
+//        result = tp.tv_sec * 1000000  +  tp.tv_nsec / 1000;
+//    }
 
     return result;
 }
@@ -88,3 +90,5 @@ u_int32_t LinuxTime::getclock()
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
+
+#endif /* __LINUX__ */

@@ -195,7 +195,7 @@ void FullGapHitIterator::iterateMethod  (indexation::Hit* hit)
         int score = score1 + score2;
 
         /** We retrieve statistical information for the current query sequence. */
-        IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfoByIndex (seq2.index);
+        IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfo (seq2);
 
 #if 0
         DEBUG (("cutoff=%d   score=%d \n", info.cut_offs, score));
@@ -509,7 +509,6 @@ dp::IProperties* FullGapHitIterator::getProperties ()
 
     /** We call the parent method in case we have split instances. */
     return result;
-
 }
 
 /********************************************************************************/

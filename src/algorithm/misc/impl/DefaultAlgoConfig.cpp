@@ -512,6 +512,19 @@ IHitIterator* DefaultConfiguration::createFullGapHitIterator (
             alignmentResult
         );
     }
+    if (prop && prop->value.compare("FullGapHitIteratorNull")==0)
+    {
+        result = new FullGapHitIteratorNull (
+            source,
+            model,
+            matrix,
+            params,
+            queryInfo,
+            globalStats,
+            ungapResult,
+            alignmentResult
+        );
+    }
     else
     {
         result = new FullGapHitIterator (
@@ -556,6 +569,19 @@ indexation::IHitIterator* DefaultConfiguration::createCompositionHitIterator  (
     if (prop && prop->value.compare("CompositionHitIterator")==0)
     {
         result = new CompositionHitIterator (
+            source,
+            model,
+            matrix,
+            params,
+            queryInfo,
+            globalStats,
+            ungapResult,
+            alignmentResult
+        );
+    }
+    if (prop && prop->value.compare("CompositionHitIteratorNull")==0)
+    {
+        result = new CompositionHitIteratorNull (
             source,
             model,
             matrix,

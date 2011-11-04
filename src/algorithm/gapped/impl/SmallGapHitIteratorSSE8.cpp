@@ -203,13 +203,6 @@ void SmallGapHitIteratorSSE8::iterateMethod  (indexation::Hit* hit)
 
         if (score >= _parameters->smallGapThreshold)
         {
-#if 0
-printf ("hit %ld  %ld  score=%ld\n",
-    occur1Vector.data[it->first]->offsetInSequence,
-    occur2Vector.data[it->second]->offsetInSequence,
-    score
-);
-#endif
             /** We increase the number of iterations. */
             _outputHitsNumber ++;
 

@@ -17,6 +17,7 @@
 #include "AbstractAlgorithm.hpp"
 
 #include "ReadingFrameSequenceDatabase.hpp"
+#include "CompositeSequenceDatabase.hpp"
 
 #include "ListIterator.hpp"
 #include "ProductIterator.hpp"
@@ -164,6 +165,8 @@ void AbstractAlgorithm::execute (void)
     ICommandDispatcher* dispatcher = getConfig()->createDispatcher ();
     LOCAL (dispatcher);
 
+    timeStats->addEntry ("reading");
+
     /** We create the subject database (more than one for tplastn) */
     ListIterator<ISequenceDatabase*> subjectDbIt = createDatabaseIterator (
         getConfig(),
@@ -181,6 +184,11 @@ void AbstractAlgorithm::execute (void)
         getParams()->filterQuery,
         getQueryFrames()
     );
+
+    /** We notify some report to potential listeners. */
+    this->notify (new AlgorithmReadingFrameEvent (this, getSubjectFrames(), getQueryFrames()));
+
+    timeStats->stopEntry ("reading");
 
     /** We create an object for indexing subject and query databases. This object will be in
      * charge to feed the algorithm with the source Hit Iterator, ie the one that provides for
@@ -356,10 +364,25 @@ ListIterator<ISequenceDatabase*> AbstractAlgorithm::createDatabaseIterator (
 
     if (frames.empty() == false)
     {
+#if 0
+        list<ISequenceDatabase*> framedList;
+
+        for (size_t i=0; i<frames.size(); i++)
+        {
+            framedList.push_back (new ReadingFrameSequenceDatabase (frames[i], db, filtering));
+        }
+
+        /** We could improve this by reading only once the nucleotid databases and generating 6 reading frames
+         *  from this single reading. */
+        dbList.push_back (new CompositeSequenceDatabase (framedList));
+
+#else
         for (size_t i=0; i<frames.size(); i++)
         {
             dbList.push_back (new ReadingFrameSequenceDatabase (frames[i], db, filtering));
         }
+
+#endif
     }
     else
     {

@@ -33,7 +33,7 @@
 
 #include <list>
 
-#define WITH_MEM_STATS 1
+//#define WITH_MEM_STATS 1
 
 /********************************************************************************/
 namespace os {

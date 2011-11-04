@@ -373,11 +373,13 @@ void DatabaseIndex::merge (void)
 *********************************************************************/
 void DatabaseIndex::DatabaseOccurrenceIterator::updateItem ()
 {
-    /** We get the offset of the occurrence in the database. */
-    _item.offsetInDatabase  = (*_offsets)[_currentIdx];
-
     /** We retrieve other information: sequence and offset in sequence. */
-    _database->getSequenceByOffset (_item.offsetInDatabase, _item.sequence, _item.offsetInSequence);
+    _database->getSequenceByOffset (
+        (*_offsets)[_currentIdx],
+        _item.sequence,
+        _item.offsetInSequence,
+        _item.offsetInDatabase
+    );
 
     DEBUG (("DatabaseIndex::DatabaseOccurrenceIterator::updateItem : seq='%s'\n",
         _item.sequence.data.toString().c_str()
@@ -475,7 +477,7 @@ DatabaseIndex::DatabaseOccurrenceBlockIterator::DatabaseOccurrenceBlockIterator 
              *  index has been built with the composed database but here we want to know which
              *  sub database is actually the wanted one (ie one of the 6 reading frame database).
              */
-#if 1
+#if 0
             _database->getActualInfoFromOffset (
                 (*_offsets)[currentIdx],
                 occur->database,
@@ -485,12 +487,15 @@ DatabaseIndex::DatabaseOccurrenceBlockIterator::DatabaseOccurrenceBlockIterator 
 
             /** We retrieve other information: sequence and offset in sequence. */
             (occur->database)->getSequenceByOffset (occur->offsetInDatabase, occur->sequence, occur->offsetInSequence);
-#else
-            occur->database          = _database;
-            occur->offsetInDatabase  = (*_offsets)[currentIdx];
 
-            /** We retrieve other information: sequence and offset in sequence. */
-            _database->getSequenceByOffset (occur->offsetInDatabase, occur->sequence, occur->offsetInSequence);
+#else
+            /** We retrieve other information: sequence and offsets in sequence and db. */
+            _database->getSequenceByOffset (
+                (*_offsets)[currentIdx],
+                occur->sequence,
+                occur->offsetInSequence,
+                occur->offsetInDatabase
+            );
 #endif
 
             /** We may have to build the neighbourhood. */

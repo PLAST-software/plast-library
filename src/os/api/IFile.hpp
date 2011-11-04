@@ -15,89 +15,45 @@
  *****************************************************************************/
 
 /*****************************************************************************
- *   Implementation of an Iterator that loops over the line of a file.
+ *   Operating System abstraction of file management.
  *****************************************************************************/
 
-#ifndef _FILE_ITERATOR_HPP_
-#define _FILE_ITERATOR_HPP_
-
-#include "Iterator.hpp"
-#include <string>
-#include <stdio.h>
-#include <string.h>
-#include "DefaultOsFactory.hpp"
+#ifndef IFILE_HPP_
+#define IFILE_HPP_
 
 /********************************************************************************/
-namespace dp {
+
+#include "SmartPointer.hpp"
+#include "types.hpp"
+
+/********************************************************************************/
+namespace os {
 /********************************************************************************/
 
-/** Iterator that loops over the line of a file.
- *  One must give the name of the file to be iterated and the maximum size of a read line.
- *
- *  Some inlined methods for optimization.
- *
- */
-class FileLineIterator : public Iterator<char*>
+/** */
+class IFile : public dp::SmartPointer
 {
 public:
 
-    FileLineIterator (const char* filename, size_t lineMaxSize, u_int64_t offset0=0, u_int64_t offset1=0);
+    virtual bool isEOF () = 0;
 
-    virtual ~FileLineIterator ();
+    virtual int seeko (u_int64_t offset, int whence) = 0;
 
-    /** */
-    void first();
+    virtual char* gets (char *s, int size) = 0;
+};
 
-    /** */
-    dp::IteratorStatus next()
-    {
-        if (_file)
-        {
-            if (_file->gets (_line, _lineMaxSize) == NULL)
-            {
-                _eof = true;
-            }
-            else
-            {
-                _readCurrentSize = strlen (_line);
-                _readTotalSize  += _readCurrentSize;
-                _eof = (_readTotalSize > _range);
+/********************************************************************************/
 
-                // don't take the ending '\n'
-                _line[--_readCurrentSize] = 0;
-            }
-        }
-        return ITER_UNKNOWN;
-    }
-
-    /** */
-    bool isDone()          { return _eof;  }
-
-    /** */
-    char* currentItem()  {  return _line;  }
-
-    /** */
-    u_int64_t getCurrentReadSize ()  { return _readCurrentSize; }
-
-private:
-    std::string _filename;
-    size_t      _lineMaxSize;
-
-    os::IFile* _file;
-    char*  _line;
-
-    u_int64_t _offset0;
-    u_int64_t _offset1;
-    u_int64_t _range;
-
-    u_int64_t _readTotalSize;
-    u_int64_t _readCurrentSize;
-
-    bool _eof;
+/** Factory that creates IFile instances.
+ */
+class IFileFactory
+{
+public:
+    virtual IFile* newFile (const char* path, const char* mode) = 0;
 };
 
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* _FILE_ITERATOR_HPP_ */
+#endif /* IFILE_HPP_ */

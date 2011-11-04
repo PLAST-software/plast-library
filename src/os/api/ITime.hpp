@@ -27,7 +27,7 @@
 #include "Property.hpp"
 
 #include <stdio.h>
-#include <sys/types.h>
+#include "types.hpp"
 #include <string>
 #include <list>
 #include <map>
@@ -95,7 +95,7 @@ private:
 };
 
 /** Define a macro for having the function name and the line. */
-#if 1
+#if 0
     #define TIME_TICK(t,msg)  t.tick (msg,__FILE__, __LINE__)
     #define TIME_DUMP(t)      t.dump ()
 #else
@@ -142,7 +142,7 @@ public:
         std::map <std::string, u_int32_t>::const_iterator  it;
         for (it = getEntries().begin(); it != getEntries().end();  it++)
         {
-            props->add (1, it->first.c_str(), "%ld msec", it->second);
+            props->add (1, it->first.c_str(), "%ld", it->second);
         }
 
         return props;
@@ -164,13 +164,11 @@ public:
     TimeSum (ITime& atime, u_int32_t& sum) : _time(atime), _sum(sum)
     {
         _t0 = _time.getclock();
-//printf ("TimeSum:  _t0=%d \n", _t0);
     }
 
     virtual ~TimeSum ()
     {
         _sum += _time.getclock() - _t0;
-//printf ("~TimeSum:  diff=%d\n", _time.getclock() - _t0);
     }
 
 private:

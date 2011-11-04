@@ -30,6 +30,7 @@ namespace os {
 *********************************************************************/
 u_int32_t MemoryUsage::getMemUsage ()
 {
+#if 0
    u_int32_t val = 0;
 
    FILE* file = fopen ("/proc/self/statm", "r");
@@ -45,7 +46,9 @@ u_int32_t MemoryUsage::getMemUsage ()
    u_int32_t tmp = (val*getPageSize()) / 1024;
 
    return tmp;
-   //return tmp > _init ? tmp - _init : 0;
+#else
+   return 0;
+#endif
 }
 
 /*********************************************************************
@@ -58,7 +61,7 @@ u_int32_t MemoryUsage::getMemUsage ()
 *********************************************************************/
 u_int32_t MemoryUsage::getPageSize()
 {
-    if (_page==0)  { _page = sysconf(_SC_PAGE_SIZE); }
+//    if (_page==0)  { _page = sysconf(_SC_PAGE_SIZE); }
     return _page;
 }
 

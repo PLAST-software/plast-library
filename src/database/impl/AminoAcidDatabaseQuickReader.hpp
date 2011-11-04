@@ -14,58 +14,45 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#ifndef ISTATISTICS_HPP_
-#define ISTATISTICS_HPP_
+#ifndef _AMINO_ACID_DATABASE_QUICK_READER_HPP_
+#define _AMINO_ACID_DATABASE_QUICK_READER_HPP_
 
 /********************************************************************************/
 
-#include "SmartPointer.hpp"
-#include "ISequence.hpp"
-
-#include <stddef.h>
+#include "IDatabaseQuickReader.hpp"
 
 /********************************************************************************/
-namespace statistics  {
+namespace database {
 /********************************************************************************/
 
-class IGlobalParameters : public dp::SmartPointer
+class AminoAcidDatabaseQuickReader : public IDatabaseQuickReader
 {
 public:
 
-    double evalue;
+    AminoAcidDatabaseQuickReader (IDatabaseQuickReader* ref)  : _ref(0)   {  setRef (ref);  }
 
-    int    frm_sub;
-    int    frm_qry;
-
-    double K;
-    double H;
-    double logK;
-    double ln2;
-    double alpha;
-    double lambda;
-    double beta;
-};
-
-/********************************************************************************/
-
-class IQueryInformation : public dp::SmartPointer
-{
-public:
+    virtual ~AminoAcidDatabaseQuickReader  ()  {  setRef (0);  }
 
     /** */
-    struct SequenceInfo
-    {
-        int         sequence_length;
-        int         length_adjust;
-        int         cut_offs;
-        long long   eff_searchsp;
-    };
+    void read (u_int64_t  maxblocksize)  { _ref->read (maxblocksize);  }
 
-    virtual SequenceInfo& getSeqInfo (const database::ISequence& seq) = 0;
+    std::string& getUri         () { return _ref->getUri();          }
+    u_int64_t    getTotalSize   () { return _ref->getTotalSize();    }
+    u_int64_t    getDataSize    () { return _ref->getDataSize() / 3; }
+    u_int32_t    getNbSequences () { return _ref->getNbSequences();  }
+
+    std::vector<u_int64_t>& getOffsets ()  { return _ref->getOffsets(); }
+
+    DatabaseKind_e getKind ()  { return ENUM_AMINO_ACID; }
+
+private:
+
+    IDatabaseQuickReader* _ref;
+    void setRef (IDatabaseQuickReader* ref)  { SP_SETATTR(ref); }
 };
 
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* ISTATISTICS_HPP_ */
+#endif /* _AMINO_ACID_DATABASE_QUICK_READER_HPP_  */

@@ -233,6 +233,9 @@ void BufferedSequenceDatabase::updateSequence (size_t idx, ISequence& sequence)
     /** A little shortcut (avoid two memory accesses). */
     Offset currentOffset = cache->offsets.data [idx];
 
+    /** We set 'database' attribute. */
+    sequence.database = this;
+
     /** We get a pointer to the comment of the current sequence. */
     sequence.comment  = cache->comments[idx].c_str();
 
@@ -274,7 +277,12 @@ bool BufferedSequenceDatabase::getSequenceByIndex (size_t index, ISequence& sequ
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-bool BufferedSequenceDatabase::getSequenceByOffset (u_int64_t offsetInDatabase, ISequence& sequence, u_int32_t& offsetInSequence)
+bool BufferedSequenceDatabase::getSequenceByOffset (
+    u_int64_t  offset,
+    ISequence& sequence,
+    u_int32_t& offsetInSequence,
+    u_int64_t& actualOffsetInDatabase
+)
 {
     /** Shortcut. */
     ISequenceCache* cache = getCache ();
@@ -295,7 +303,7 @@ bool BufferedSequenceDatabase::getSequenceByOffset (u_int64_t offsetInDatabase, 
 
     /** We initialize the first index for beginning the dichotomy process.
      *  A classical choice may be idx = (smax+smin)/2  but we can try better initial guess. */
-    size_t idx = (offsetInDatabase *A) >> B;
+    size_t idx = (offset *A) >> B;
     if (idx >= smax)  { idx = (smax+smin) >> 1;  }
 
     /** We use a temporary variable in order not to do a comparison twice. */
@@ -308,7 +316,7 @@ bool BufferedSequenceDatabase::getSequenceByOffset (u_int64_t offsetInDatabase, 
      */
     int32_t delta = 0;
 
-    while ( (b = offsets[idx] > offsetInDatabase)  ||  ((delta = offsetInDatabase-offsets[idx+1]) >= 0) )
+    while ( (b = offsets[idx] > offset)  ||  ((delta = offset-offsets[idx+1]) >= 0) )
     {
         if (b)  {  smax = idx - 1;  }
         else    {  smin = idx + 1;  }
@@ -325,7 +333,7 @@ bool BufferedSequenceDatabase::getSequenceByOffset (u_int64_t offsetInDatabase, 
 
     if (false)
     {
-        if (offsetInDatabase < offsets[idx]  ||  offsetInDatabase >= offsets[idx+1])
+        if (offset < offsets[idx]  ||  offset >= offsets[idx+1])
         {
             printf ("BufferedSequenceDatabase::getSequenceByOffset: ERROR IN SEQUENCE SEARCH...\n");
         }
@@ -335,7 +343,13 @@ bool BufferedSequenceDatabase::getSequenceByOffset (u_int64_t offsetInDatabase, 
     size_t off0 = offsets[idx];
 
     /** Now, 'idx' should contain the index of the wanted sequence. */
-    offsetInSequence = offsetInDatabase - off0;
+    offsetInSequence = offset - off0;
+
+    /** We set the actual offset in db. */
+    actualOffsetInDatabase = offset;
+
+    /** We set the database field. */
+    sequence.database = this;
 
     /** We get a pointer to the comment of the current sequence. */
     sequence.comment  = cache->comments[idx].c_str();
@@ -365,8 +379,14 @@ void BufferedSequenceDatabase::BufferedSequenceIterator::updateItem()
     /** A little shortcut (avoid two memory accesses). */
     Offset currentOffset = _cache->offsets.data[_currentIdx];
 
+    /** We set the database field. */
+    _item.database = _db;
+
     /** We get a pointer to the comment of the current sequence. */
     _item.comment  = _cache->comments[_currentIdx].c_str();
+
+    /** We set the index. */
+    _item.index = _currentIdx;
 
     /** We get a pointer to the data of the current sequence. */
     _item.data.setReference (

@@ -25,7 +25,7 @@
 
 #include <exception>
 #include <string>
-#include <sys/types.h>
+#include "types.hpp"
 
 /********************************************************************************/
 namespace os  {

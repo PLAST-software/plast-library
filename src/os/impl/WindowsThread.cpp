@@ -14,20 +14,24 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#ifdef __LINUX__
+#ifdef __WINDOWS__
 
-#include "LinuxThread.hpp"
+#include "WindowsThread.hpp"
 #include "macros.hpp"
 #include <memory>
 #include <stdio.h>
 #include <string.h>
 
-#include <pthread.h>
+#include <windows.h>
+
+#define DEBUG(a)  //printf a
 
 /********************************************************************************/
 namespace os {
 /********************************************************************************/
 
+typedef DWORD (WINAPI * THREADROUTINE)(void *);
+
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
@@ -36,14 +40,29 @@ namespace os {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-class LinuxThread : public IThread
+class WindowsThread : public IThread
 {
 public:
-    LinuxThread (void* (mainloop) (void*), void* data)  { pthread_create (&_thread, NULL,  mainloop, data); }
-    ~LinuxThread ()  { pthread_detach (_thread);        }
-    void join ()     { pthread_join   (_thread, NULL);  }
+
+    WindowsThread (THREADROUTINE mainloop, void* data)
+    {
+         _thread = CreateThread (NULL, 0, (THREADROUTINE) mainloop, data, 0, NULL);
+    }
+
+    ~WindowsThread ()
+    {
+        TerminateThread (_thread, 0);
+        CloseHandle (_thread);
+    }
+
+    void join ()
+    {
+        WaitForSingleObject (_thread, INFINITE);
+        CloseHandle (_thread);
+    }
+
 private:
-    pthread_t  _thread;
+    HANDLE  _thread;
 };
 
 /*********************************************************************
@@ -54,17 +73,31 @@ private:
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-class LinuxSynchronizer : public ISynchronizer
+class WindowsSynchronizer : public ISynchronizer
 {
 public:
-    LinuxSynchronizer ()            {  pthread_mutex_init (&_mutex, NULL);  }
-    virtual ~LinuxSynchronizer()    {  pthread_mutex_destroy (&_mutex);     }
+    WindowsSynchronizer ()
+    {
+        _mutex = CreateMutex (NULL, FALSE, NULL);
+    }
 
-    void   lock ()  { pthread_mutex_lock   (&_mutex); }
-    void unlock ()  { pthread_mutex_unlock (&_mutex); }
+    virtual ~WindowsSynchronizer()
+    {
+        CloseHandle (_mutex);
+    }
+
+    void lock ()
+    {
+        WaitForSingleObject (_mutex, INFINITE);
+    }
+
+    void unlock ()
+    {
+        ReleaseMutex (_mutex);
+    }
 
 private:
-    pthread_mutex_t  _mutex;
+    HANDLE  _mutex;
 };
 
 /*********************************************************************
@@ -75,9 +108,9 @@ private:
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IThreadFactory& LinuxThreadFactory::singleton ()
+IThreadFactory& WindowsThreadFactory::singleton ()
 {
-    static LinuxThreadFactory instance;
+    static WindowsThreadFactory instance;
     return instance;
 }
 
@@ -89,9 +122,9 @@ IThreadFactory& LinuxThreadFactory::singleton ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IThread* LinuxThreadFactory::newThread (void* (mainloop) (void*), void* data)
+IThread* WindowsThreadFactory::newThread (void* (mainloop) (void*), void* data)
 {
-    return new LinuxThread (mainloop, data);
+    return new WindowsThread ((THREADROUTINE)mainloop, data);
 }
 
 /*********************************************************************
@@ -102,9 +135,9 @@ IThread* LinuxThreadFactory::newThread (void* (mainloop) (void*), void* data)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-ISynchronizer* LinuxThreadFactory::newSynchronizer (void)
+ISynchronizer* WindowsThreadFactory::newSynchronizer (void)
 {
-    return new LinuxSynchronizer ();
+    return new WindowsSynchronizer ();
 }
 
 /*********************************************************************
@@ -115,23 +148,13 @@ ISynchronizer* LinuxThreadFactory::newSynchronizer (void)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-size_t LinuxThreadFactory::getNbCores ()
+size_t WindowsThreadFactory::getNbCores ()
 {
     size_t result = 0;
 
-    /** We open the "/proc/cpuinfo" file. */
-    FILE* file = fopen ("/proc/cpuinfo", "r");
-    if (file)
-    {
-        char buffer[256];
-
-        while (fgets(buffer, sizeof(buffer), file))
-        {
-            if (strstr(buffer, "processor") != NULL)  { result ++;  }
-        }
-
-        fclose (file);
-    }
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo (&sysinfo);
+    result = sysinfo.dwNumberOfProcessors;
 
     if (result==0)  { result = 1; }
 
@@ -142,4 +165,4 @@ size_t LinuxThreadFactory::getNbCores ()
 } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* __LINUX__ */
+#endif /* __WINDOWS__ */

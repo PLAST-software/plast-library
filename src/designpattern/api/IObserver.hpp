@@ -19,7 +19,7 @@
 
 #include "SmartPointer.hpp"
 #include <string>
-#include <sys/types.h>
+#include "types.hpp"
 
 /********************************************************************************/
 namespace dp {

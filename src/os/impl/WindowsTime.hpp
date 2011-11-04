@@ -15,89 +15,38 @@
  *****************************************************************************/
 
 /*****************************************************************************
- *   Implementation of an Iterator that loops over the line of a file.
+ *   Abstraction of time retrieval.
  *****************************************************************************/
 
-#ifndef _FILE_ITERATOR_HPP_
-#define _FILE_ITERATOR_HPP_
-
-#include "Iterator.hpp"
-#include <string>
-#include <stdio.h>
-#include <string.h>
-#include "DefaultOsFactory.hpp"
+#ifndef _WINDOWS_TIME_HPP_
+#define _WINDOWS_TIME_HPP_
 
 /********************************************************************************/
-namespace dp {
+
+#include "ITime.hpp"
+
+/********************************************************************************/
+namespace os {
 /********************************************************************************/
 
-/** Iterator that loops over the line of a file.
- *  One must give the name of the file to be iterated and the maximum size of a read line.
- *
- *  Some inlined methods for optimization.
- *
- */
-class FileLineIterator : public Iterator<char*>
+/** */
+class WindowsTime : public ITime
 {
 public:
 
-    FileLineIterator (const char* filename, size_t lineMaxSize, u_int64_t offset0=0, u_int64_t offset1=0);
+    static ITime& singleton ();
 
-    virtual ~FileLineIterator ();
+    virtual ~WindowsTime() {}
 
-    /** */
-    void first();
-
-    /** */
-    dp::IteratorStatus next()
-    {
-        if (_file)
-        {
-            if (_file->gets (_line, _lineMaxSize) == NULL)
-            {
-                _eof = true;
-            }
-            else
-            {
-                _readCurrentSize = strlen (_line);
-                _readTotalSize  += _readCurrentSize;
-                _eof = (_readTotalSize > _range);
-
-                // don't take the ending '\n'
-                _line[--_readCurrentSize] = 0;
-            }
-        }
-        return ITER_UNKNOWN;
-    }
+    /** Returns (in msec) the time. */
+    u_int32_t gettime ();
 
     /** */
-    bool isDone()          { return _eof;  }
-
-    /** */
-    char* currentItem()  {  return _line;  }
-
-    /** */
-    u_int64_t getCurrentReadSize ()  { return _readCurrentSize; }
-
-private:
-    std::string _filename;
-    size_t      _lineMaxSize;
-
-    os::IFile* _file;
-    char*  _line;
-
-    u_int64_t _offset0;
-    u_int64_t _offset1;
-    u_int64_t _range;
-
-    u_int64_t _readTotalSize;
-    u_int64_t _readCurrentSize;
-
-    bool _eof;
+    u_int32_t getclock();
 };
 
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* _FILE_ITERATOR_HPP_ */
+#endif /* _WINDOWS_TIME_HPP_ */
