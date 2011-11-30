@@ -14,22 +14,28 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/*****************************************************************************
- *   Implementation of an Iterator that cross products two iterators.
- *****************************************************************************/
+/** \file ProductIterator.hpp
+ *  \date 07/11/2011
+ *  \author edrezen
+ *  \brief Implementation of an Iterator that cross products two iterators.
+ */
 
 #ifndef _PRODUCT_ITERATOR_HPP_
 #define _PRODUCT_ITERATOR_HPP_
 
-#include "Iterator.hpp"
+#include <designpattern/api/Iterator.hpp>
 #include <utility>
 
 /********************************************************************************/
 namespace dp {
+/** \brief Implementation of Design Pattern tools (Observer, SmartPointer, Command...) */
+namespace impl {
 /********************************************************************************/
 
-/** We define a "product" iterator for two iterators, i.e. it will loop each possible
- *  couple of the two provided iterators.
+/** \brief Iterator over two iterators.
+ *
+ * We define a "product" iterator for two iterators, i.e. it will loop each possible
+ * couple of the two provided iterators.
  *
  *  It is useful for having only one loop instead of two loops.
  */
@@ -37,23 +43,20 @@ template <class T1, class T2> class ProductIterator : public Iterator<std::pair<
 {
 public:
 
+    /** Constructor.
+     * \param[in] it1 : first iterator.
+     * \param[in] it2 : second iterator.
+     */
     ProductIterator (Iterator<T1>* it1, Iterator<T2>* it2)  : _it1(it1), _it2(it2), _isDone(false)
     {
-//        if (_it1)  {  _it1->use (); }
-//        if (_it2)  {  _it2->use (); }
     }
 
+    /** Destructor. */
     virtual ~ProductIterator ()
     {
-//        if (_it1)  {  _it1->forget (); }
-//        if (_it2)  {  _it2->forget (); }
     }
 
-    void configure (Iterator<T1>* it1, Iterator<T2>* it2)
-    {
-    }
-
-    /** */
+    /** \copydoc Iterator::first */
     void first()
     {
         /** We go to the beginning of the two iterators. */
@@ -66,7 +69,7 @@ public:
         _isDone = false;
     }
 
-    /** */
+    /** \copydoc Iterator::next */
     dp::IteratorStatus next()
     {
         /** We go to the next item of the second iterator. */
@@ -92,10 +95,10 @@ public:
         return dp::ITER_UNKNOWN;
     }
 
-    /** */
+    /** \copydoc Iterator::isDone */
     bool isDone() { return _isDone; }
 
-    /** */
+    /** \copydoc Iterator::currentItem */
     std::pair<T1,T2>& currentItem()
     {
         _current.first  = _it1->currentItem();
@@ -106,16 +109,21 @@ public:
 
 private:
 
+    /** First iterator. */
     Iterator<T1>* _it1;
+
+    /** Second iterator. */
     Iterator<T2>* _it2;
 
+    /** Current item in the iteration. */
     std::pair<T1,T2> _current;
 
+    /** Tells whether the iteration is finished or not. */
     bool _isDone;
 };
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* _PRODUCT_ITERATOR_HPP_ */

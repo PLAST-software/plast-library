@@ -14,7 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "BasicSeedModel.hpp"
+#include <seed/impl/BasicSeedModel.hpp>
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -23,7 +23,7 @@ using namespace std;
 using namespace database;
 
 /********************************************************************************/
-namespace seed {
+namespace seed { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -80,6 +80,35 @@ ISeedIterator* BasicSeedModel::createSeedsIterator (const database::IWord& data)
 ISeedIterator* BasicSeedModel::createAllSeedsIterator ()
 {
     return new AllSeedsIterator (this);
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+bool BasicSeedModel::getSeedByString (const std::string& seedAscii, ISeed& seed)
+{
+    bool result = false;
+
+    ISeedIterator* it = createAllSeedsIterator ();
+    LOCAL(it);
+
+    for (it->first(); result==false && !it->isDone(); it->next())
+    {
+        const ISeed* current = it->currentItem();
+
+        if (current->kmer.toString().compare (seedAscii) == 0)
+        {
+            seed = *current;
+            result = true;
+        }
+    }
+
+    return result;
 }
 
 /*********************************************************************
@@ -244,5 +273,5 @@ void BasicSeedModel::AllSeedsIterator::updateItem (void)
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/

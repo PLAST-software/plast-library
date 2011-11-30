@@ -14,10 +14,9 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "CompositeSequenceDatabase.hpp"
-#include "MemoryAllocator.hpp"
-#include "Property.hpp"
-#include "macros.hpp"
+#include <database/impl/CompositeSequenceDatabase.hpp>
+#include <designpattern/impl/Property.hpp>
+#include <misc/api/macros.hpp>
 
 #include <stdlib.h>
 
@@ -25,10 +24,13 @@
 #define DEBUG(a)  //printf a
 
 using namespace std;
+using namespace dp;
+using namespace dp::impl;
 using namespace os;
+using namespace os::impl;
 
 /********************************************************************************/
-namespace database {
+namespace database { namespace impl  {
 /********************************************************************************/
 
 /*********************************************************************
@@ -208,9 +210,9 @@ std::vector<ISequenceDatabase*> CompositeSequenceDatabase::split (size_t nbSplit
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-dp::IProperties* CompositeSequenceDatabase::getProperties (const std::string& root)
+IProperties* CompositeSequenceDatabase::getProperties (const std::string& root)
 {
-    dp::IProperties* props = new dp::Properties();
+    IProperties* props = new Properties();
 
     props->add (0, root, "%lld bytes, %ld sequences", getSize(), getSequencesNumber());
 
@@ -237,6 +239,6 @@ void CompositeSequenceIterator::iterate (void* aClient, Method method)
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 

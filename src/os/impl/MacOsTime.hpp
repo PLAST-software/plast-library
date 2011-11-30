@@ -14,39 +14,43 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/*****************************************************************************
- *   Abstraction of time retrieval.
- *****************************************************************************/
+/** \file MacOsTime.hpp
+ *  \date 07/11/2011
+ *  \author edrezen
+ *  \brief MacOs abstraction of time management.
+ */
 
 #ifndef _MACOS_TIME_HPP_
 #define _MACOS_TIME_HPP_
 
 /********************************************************************************/
 
-#include "ITime.hpp"
+#include <os/api/ITime.hpp>
 
 /********************************************************************************/
 namespace os {
+/** \brief Implementation of Operating System abstraction layer */
+namespace impl {
 /********************************************************************************/
 
-/** */
+/** \brief MacOs implementation that provides methods returning time.
+ */
 class MacOsTime : public ITime
 {
 public:
 
-    static ITime& singleton ();
-
+    /** Destructor. */
     virtual ~MacOsTime() {}
 
-    /** Returns (in msec) the time. */
+    /** \copydoc ITime::gettime */
     u_int32_t gettime ();
 
-    /** */
+    /** \copydoc ITime::getclock */
     u_int32_t getclock();
 };
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* _MACOS_TIME_HPP_ */

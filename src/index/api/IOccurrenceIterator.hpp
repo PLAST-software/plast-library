@@ -14,31 +14,60 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+/** \file IOccurrenceIterator.hpp
+ *  \brief Definition of interfaces for genomic database indexation.
+ *  \date 07/11/2011
+ *  \author edrezen
+ */
+
 #ifndef _IOCCURRENCE_ITERATOR_HPP_
 #define _IOCCURRENCE_ITERATOR_HPP_
 
 /********************************************************************************/
 
-#include "Iterator.hpp"
-#include "ISequenceDatabase.hpp"
-#include "ISeed.hpp"
-
+#include <designpattern/api/Iterator.hpp>
+#include <database/api/ISequenceDatabase.hpp>
+#include <seed/api/ISeed.hpp>
+#include <misc/api/Vector.hpp>
 #include <stdio.h>
 
 /********************************************************************************/
+/** \brief Genomic database indexation concepts. */
 namespace indexation {
 /********************************************************************************/
 
-/** Definition of a seed occurrence. According to the algorithm that provides such objects,
- *  some attributes may not be filled.
+/** \brief Occurrence of a seed in a genomic sequence
+ *
+ *  We define here what we need to know about a seed occurrence:
+ *      - the sequence where the seed has been found,
+ *      - the offset in the sequence  where the seed has been found
+ *      - the offset in the database where the seed has been found
+ *      - left and right neighbourhoods of the seed in the sequence
+ *
+ *  Since we have the seed occurrence offset in the sequence, we could retrieve
+ *  these neighbourhoods from the sequence; the ISeedOccurrence interface directly
+ *  provides the neighbourhoods without needing to read the neighbourhoods from
+ *  the sequence.
+ *
+ *  This structure doesn't tell how the attributes are filled, which should be done
+ *  through the IOccurrenceIterator and IOccurrenceBlockIterator interfaces.
+ *
+ *  Note that some attributes of ISeedOccurrence instances may not be filled, according
+ *  to the implementation of the iterators that provide them.
+ *
  *  Actually, what is wanted is the Sequence instance and the offset in this sequence of the
  *  occurrence. For instance, only the couple [database,offsetInDatabase] may be provided. In
  *  such a case, this is up to the client to recover the couple [sequence,offsetInSequence]
  *  from this information.
+ *
+ *  Note that the ISeedOccurrence knows how to clone itself with the clone() method.
+ *
+ *  \see IOccurrenceIterator
+ *  \see IOccurrenceBlockIterator
  */
 struct ISeedOccurrence
 {
-    /** The sequence. */
+    /** The sequence where the seed occurrence occurs. */
     database::ISequence sequence;
 
     /** Offset of the seed within the sequence. */
@@ -48,12 +77,16 @@ struct ISeedOccurrence
     u_int64_t   offsetInDatabase;
 
     /** Global neighbourhood of the seed occurrence. Stored as IWord whose content is
-     *  seed + right neighbourhood + left neighbourhood
+     *  seed + right neighbourhood + left neighbourhood. Note that the left neighbourhood
+     *  is coded from right to left for easing scores computing by the PLAST algorithm.
+     *
      *  For instance, (seed of 3 letters, neighbourhoods of 5 letters):
+     *  \code
      *      NEKKQQMGREKIEAELQDICNDVLELLDKYLIPNA...
      *                 ^ seed start
+     *  \endcode
      *  In this sample, the global neighbourhood would be:
-     *      IEAELQDIKERGM  (ie 3+5+5=13 letters)
+     *      - IEAELQDIKERGM  (ie 3+5+5=13 letters)
      *
      *  If there is not enough letters for building a neighbourhood, we fill X letters instead.
      *
@@ -62,17 +95,20 @@ struct ISeedOccurrence
      */
     database::IWord neighbourhood;
 
-    /** */
+    /** Constructor. */
     ISeedOccurrence ()
         : offsetInSequence(0), offsetInDatabase(0), neighbourhood(0)  {}
 
-    /** */
+    /** Constructor.
+     * \param[in] neighbourhoodSize : size of the left and right neighbourhood
+     */
     ISeedOccurrence (size_t neighbourhoodSize)
         : offsetInSequence(0), offsetInDatabase(0), neighbourhood(neighbourhoodSize)
     {
     }
 
-    /** */
+    /** Constructor. Mainly here for clone() implementation.
+     */
     ISeedOccurrence (
         const database::ISequence&      aSequence,
         u_int32_t                       aOffsetInSequence,
@@ -86,7 +122,9 @@ struct ISeedOccurrence
     {
     }
 
-    /** Clone of the instance. */
+    /** Clone of the instance.
+     * \return the cloned instance.
+     */
     ISeedOccurrence* clone () const
     {
         return new ISeedOccurrence (sequence, offsetInSequence, offsetInDatabase, neighbourhood);
@@ -95,33 +133,30 @@ struct ISeedOccurrence
 
 /********************************************************************************/
 
-/** Iterates over seed occurrences for a given seed in a given sequence.
+/** \brief Iterates over seed occurrences for a given seed in a given sequence.
+ *
+ * Returned items are ISeedOccurrence instances.
+ *
+ * We define no interface here; it is just defined as a shorter name than the full template name.
+ *
+ * \see IOccurrenceBlockIterator
  */
 class IOccurrenceIterator : public dp::Iterator<const ISeedOccurrence*>
 {
-public:
-
-    /** Implementation of the Iterator interface. */
-    virtual void first() = 0;
-    virtual dp::IteratorStatus  next() = 0;
-    virtual bool isDone()  = 0;
-    virtual const ISeedOccurrence* currentItem() = 0;
 };
 
 /********************************************************************************/
 
-/** Iterates over seed occurrences for a given seed in a given sequence.
+/** \brief Iterates over seed occurrences for a given seed in a given sequence.
+ *
  *  Returned items are blocks (ie vectors) of ISeedOccurrence instances.
+ *
+ * We define no interface here; it is just defined as a shorter name than the full template name.
+ *
+ * \see IOccurrenceIterator
  */
-class IOccurrenceBlockIterator : public dp::Iterator<os::Vector<const ISeedOccurrence*>& >
+class IOccurrenceBlockIterator : public dp::Iterator<misc::Vector<const ISeedOccurrence*>& >
 {
-public:
-
-    /** Implementation of the Iterator interface. */
-    virtual void first() = 0;
-    virtual dp::IteratorStatus  next() = 0;
-    virtual bool isDone()  = 0;
-    virtual os::Vector<const ISeedOccurrence*>& currentItem() = 0;
 };
 
 /********************************************************************************/

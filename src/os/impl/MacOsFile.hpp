@@ -14,32 +14,42 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/*****************************************************************************
- *   Linux abstraction of file management.
- *****************************************************************************/
+/** \file MacOsFile.hpp
+ *  \date 07/11/2011
+ *  \author edrezen
+ *  \brief MacOs abstraction of file management.
+ */
 
 #ifndef _MACOS_FILE_HPP_
 #define _MACOS_FILE_HPP_
 
 /********************************************************************************/
 
-#include "IFile.hpp"
+#include <os/api/IFile.hpp>
 
 /********************************************************************************/
 namespace os {
+/** \brief Implementation of Operating System abstraction layer */
+namespace impl {
 /********************************************************************************/
 
+/** \brief factory that creates IFile instance for Mac OS.
+ *
+ *  Factory that creates IFile instances.
+ */
 class MacOsFileFactory : public IFileFactory
 {
 public:
 
-    static MacOsFileFactory& singleton() { static MacOsFileFactory instance;  return instance; }
+    /** Destructor. */
+    virtual ~MacOsFileFactory () {}
 
+    /** \copydoc IFileFactory::newFile */
     IFile* newFile (const char *path, const char *mode);
 };
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* _MACOS_FILE_HPP_ */

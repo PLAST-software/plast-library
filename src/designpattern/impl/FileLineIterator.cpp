@@ -14,16 +14,18 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "FileLineIterator.hpp"
+#include <designpattern/impl/FileLineIterator.hpp>
 #include <string.h>
 
 using namespace std;
+using namespace os;
+using namespace os::impl;
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
 
 /********************************************************************************/
-namespace dp {
+namespace dp { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -47,8 +49,7 @@ FileLineIterator::FileLineIterator (
 {
     DEBUG (("FileLineIterator::FileLineIterator: filename='%s'\n", filename));
 
-    _file = os::DefaultFactory::singleton().getFileFactory().newFile (_filename.c_str(), "r");
-    if (_file != 0)  {  _file->use ();  }
+    _file = DefaultFactory::file().newFile (_filename.c_str(), "r");
 
 	_line = new char[_lineMaxSize];
 
@@ -70,7 +71,7 @@ FileLineIterator::~FileLineIterator ()
 {
     if (_line)  { delete[] _line;  }
 
-    if (_file)  {  _file->forget ();  }
+    if (_file)  {  delete _file;  }
 }
 
 /*********************************************************************
@@ -97,5 +98,5 @@ void FileLineIterator::first()
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/

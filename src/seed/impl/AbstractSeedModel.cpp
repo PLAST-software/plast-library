@@ -14,17 +14,19 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "AbstractSeedModel.hpp"
-#include "Property.hpp"
+#include <seed/impl/AbstractSeedModel.hpp>
+#include <designpattern/impl/Property.hpp>
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
 
 using namespace std;
+using namespace dp;
+using namespace dp::impl;
 using namespace database;
 
 /********************************************************************************/
-namespace seed {
+namespace seed { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -106,9 +108,9 @@ SeedHashCode AbstractSeedModel::getHashCode (const IWord& word)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-dp::IProperties* AbstractSeedModel::getProperties ()
+IProperties* AbstractSeedModel::getProperties ()
 {
-    dp::IProperties* props = new dp::Properties();
+    IProperties* props = new Properties();
 
     props->add (0, "seeds_model");
     props->add (1, "span",          "%ld", getSpan());
@@ -118,5 +120,5 @@ dp::IProperties* AbstractSeedModel::getProperties ()
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/

@@ -14,17 +14,23 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+/** \file types.hpp
+ *  \brief types definition for PLAST.
+ *  \date 07/11/2011
+ *  \author edrezen
+ *
+ *   We define here some types.
+ */
+
 #ifndef _TYPES_HPP_
 #define _TYPES_HPP_
-
-/********************************************************************************/
 
 #if 0
     #include <sys/types.h>
 #else
 
-# define __intN_t(N, MODE)      typedef int int##N##_t __attribute__ ((__mode__ (MODE)))
-# define __u_intN_t(N, MODE)    typedef unsigned int u_int##N##_t __attribute__ ((__mode__ (MODE)))
+# define __intN_t(N, MODE)      typedef int int##N##_t              __attribute__ ((__mode__ (MODE)))
+# define __u_intN_t(N, MODE)    typedef unsigned int u_int##N##_t   __attribute__ ((__mode__ (MODE)))
 
 __intN_t (8, __QI__);
 __intN_t (16, __HI__);
@@ -35,7 +41,6 @@ __u_intN_t (8, __QI__);
 __u_intN_t (16, __HI__);
 __u_intN_t (32, __SI__);
 __u_intN_t (64, __DI__);
-
 
 //    typedef char                int8_t;
 //    typedef short int           int16_t;
@@ -48,14 +53,20 @@ __u_intN_t (64, __DI__);
 //    typedef unsigned long int   u_int64_t;
 #endif
 
-/********************************************************************************/
-
+/** */
 typedef unsigned long long Offset;
 
+typedef u_int32_t Size;
+
+/** \namespace misc
+ * \brief Miscellanous definitions
+ */
+
 /********************************************************************************/
-namespace types {
+namespace misc {
 /********************************************************************************/
 
+/** */
 enum ReadingFrame_e
 {
     FRAME_1,
@@ -66,6 +77,7 @@ enum ReadingFrame_e
     FRAME_6
 };
 
+/** */
 enum AlgoKind_e
 {
     ENUM_PLASTP,
@@ -74,24 +86,28 @@ enum AlgoKind_e
     ENUM_TPLASTX
 };
 
+/** */
 enum SeedModelKind_e
 {
     ENUM_BasicSeedModel,
     ENUM_SubSeedModel
 };
 
+/** */
 enum ScoreMatrixKind_e
 {
     ENUM_BLOSUM62,
     ENUM_BLOSUM50
 };
 
+/** */
 enum AlgoInitializerKind_e
 {
     ENUM_AlgoInitializer,
     ENUM_AlgoInitializerSortedSeeds
 };
 
+/** */
 enum UngapHitIteratorKind_e
 {
     ENUM_UngapHitIterator,
@@ -100,6 +116,7 @@ enum UngapHitIteratorKind_e
     ENUM_UngapHitIteratorNull
 };
 
+/** */
 enum SmallGapHitIteratorKind_e
 {
     ENUM_SmallGapHitIterator,
@@ -107,6 +124,7 @@ enum SmallGapHitIteratorKind_e
     ENUM_SmallGapHitIteratorNull
 };
 
+/** */
 enum CommandDispatcherKind_e
 {
     ENUM_DispatcherSerial,

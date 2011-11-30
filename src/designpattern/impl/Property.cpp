@@ -16,8 +16,8 @@
  *
  ******************************************************************************/
 
-#include "Property.hpp"
-#include "FileLineIterator.hpp"
+#include <designpattern/impl/Property.hpp>
+#include <designpattern/impl/FileLineIterator.hpp>
 #include <stdarg.h>
 
 #include <stdio.h>
@@ -27,7 +27,7 @@ using namespace std;
 using namespace dp;
 
 /********************************************************************************/
-namespace dp {
+namespace dp { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -370,5 +370,5 @@ void XmlDumpPropertiesVisitor::safeprintf (const char* format, ...)
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/

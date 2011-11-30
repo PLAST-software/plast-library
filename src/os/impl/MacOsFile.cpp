@@ -16,37 +16,25 @@
 
 #ifdef __DARWIN__
 
-#include "MacOsFile.hpp"
-#include <stdio.h>
+#include <os/impl/MacOsFile.hpp>
+#include <os/impl/CommonOsImpl.hpp>
 
 /********************************************************************************/
-namespace os {
+namespace os { namespace impl {
 /********************************************************************************/
 
 /** */
-class MacOsFile : public IFile
+class MacOsFile : public CommonFile
 {
 public:
 
-    MacOsFile (const char* path, const char* mode)
+    MacOsFile (const char* path, const char* mode) : CommonFile(path,mode)  {}
+
+    int seeko (u_int64_t offset, int whence)
     {
-        _handle = ::fopen (path, mode);
+        /* MacOs is supposed to handle 64 bits file system by default, so no need to use fseeko64  */
+        return (_handle==0 ? -1 : fseeko (_handle, offset, whence));
     }
-
-    virtual ~MacOsFile ()
-    {
-        if (_handle)  { ::fclose (_handle); }
-    }
-
-    bool isEOF () { return feof (_handle); }
-
-    int seeko (u_int64_t offset, int whence)  { return ::fseeko (_handle, offset, whence); }
-
-    char* gets (char *s, int size)  { return fgets (s, size, _handle); }
-
-protected:
-
-    FILE* _handle;
 };
 
 /*********************************************************************
@@ -63,7 +51,7 @@ IFile* MacOsFileFactory::newFile (const char* path, const char* mode)
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /*  __LINUX__  */

@@ -14,7 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "retrievall.h"
+#include <index/impl/retrievall.h>
 
 void alloc_queue(queue_t *  queuep,unsigned int nedges)
 {

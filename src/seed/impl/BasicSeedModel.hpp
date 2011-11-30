@@ -14,47 +14,78 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+/** \file BasicSeedModel.hpp
+ *  \brief Basic implementation of ISeedModel interface
+ *  \date 07/11/2011
+ *  \author edrezen
+ *
+ *  Implementation of a basic seed model where all possible seeds (of S characters
+ *  in an alphabet of N letter) are taken into account.
+ *
+ *  Such a model can lead to many seeds. As a matter of fact, the PLAST algorithm
+ *  relies on another kind of seed models (see SubSeedModel class).
+ */
+
 #ifndef _BASIC_SEED_MODEL_HPP_
 #define _BASIC_SEED_MODEL_HPP_
 
 /********************************************************************************/
 
-#include "AbstractSeedModel.hpp"
-#include "AbstractSeedIterator.hpp"
+#include <seed/impl/AbstractSeedModel.hpp>
+#include <seed/impl/AbstractSeedIterator.hpp>
 
 #include <string>
 
 /********************************************************************************/
 namespace seed {
+/** \brief Implementation of seed based concepts. */
+namespace impl {
 /********************************************************************************/
 
-/** Seed model that knows every combination of 'span' letters of the provided alphabet.
+/** \brief Basic implementation of ISeedModel interface
+ *
+ *  Seed model that knows every combination of 'span' letters of the provided alphabet.
  *  For instance, it can be a 3 span model of 20 amino acids => 20*20*20 possible seeds.
  */
 class BasicSeedModel : public AbstractSeedModel
 {
 public:
 
+    /** Constructor.
+     * \param[in] encoding : encoding scheme of the seeds
+     * \param[in] span : number of characters of one seed.
+     */
     BasicSeedModel (database::Encoding encoding, size_t span);
 
+    /** Destructor. */
     virtual ~BasicSeedModel ();
 
-    /** */
+    /** \copydoc AbstractSeedModel::getSeedsMaxNumber */
     size_t getSeedsMaxNumber ()  { return _seedsMaxNumber; }
 
-    /** Returns an iterator that loops over seeds in a word (a sequence for instance).  */
+    /** \copydoc AbstractSeedModel::createSeedsIterator */
     ISeedIterator* createSeedsIterator (const database::IWord& data);
 
-    /** Returns an iterator that loops over all possible seeds for the model.  */
+    /** \copydoc AbstractSeedModel::createAllSeedsIterator */
     ISeedIterator* createAllSeedsIterator ();
 
+    /** \copydoc AbstractSeedModel::getAllSeedsTable */
     const database::LETTER* getAllSeedsTable() { return 0; }
+
+    /** \copydoc AbstractSeedModel::getSeedByString
+     * WARNING ! implementation not optimized at all...
+     */
+    bool getSeedByString (const std::string& seedAscii, ISeed& seed);
 
 private:
 
+    /** Total number of seeds for this seed model. */
     size_t  _seedsMaxNumber;
 
     /************************************************************/
+
+    /** \brief Data seed iteration for the basic seed model.
+     */
     class DataSeedIterator  : public AbstractSeedIterator
     {
     public:
@@ -70,6 +101,9 @@ private:
     };
 
     /************************************************************/
+
+    /** \brief All seeds iteration for the basic seed model.
+     */
     class AllSeedsIterator : public AbstractSeedIterator
     {
     public:
@@ -91,7 +125,7 @@ private:
 };
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* _BASIC_SEED_MODEL_HPP_  */

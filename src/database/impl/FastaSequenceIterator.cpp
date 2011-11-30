@@ -14,8 +14,8 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "FastaSequenceIterator.hpp"
-#include "BasicSequenceBuilder.hpp"
+#include <database/impl/FastaSequenceIterator.hpp>
+#include <database/impl/BasicSequenceBuilder.hpp>
 
 #include <string.h>
 #include <stdlib.h>
@@ -24,7 +24,7 @@
 #define INFO(a)   printf a
 
 /********************************************************************************/
-namespace database {
+namespace database { namespace impl  {
 /********************************************************************************/
 
 /*********************************************************************
@@ -134,6 +134,6 @@ dp::IteratorStatus FastaSequenceIterator::next()
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 

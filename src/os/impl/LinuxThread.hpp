@@ -14,40 +14,48 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/*****************************************************************************
- *   Implementation of IThread interface for Linux OS.
- *****************************************************************************/
+/** \file LinuxThread.hpp
+ *  \date 07/11/2011
+ *  \author edrezen
+ *  \brief Linux abstraction of thread management.
+ */
 
 #ifndef LINUX_THREAD_HPP_
 #define LINUX_THREAD_HPP_
 
 /********************************************************************************/
 
-#include "IThread.hpp"
+#include <os/api/IThread.hpp>
 
 /********************************************************************************/
 namespace os {
+/** \brief Implementation of Operating System abstraction layer */
+namespace impl {
 /********************************************************************************/
 
+/** \brief Factory that creates IThread instances.
+ *
+ *  Thread creation needs merely the main loop function that will be called.
+ */
 class LinuxThreadFactory : public IThreadFactory
 {
 public:
 
-    static IThreadFactory& singleton ();
-
+    /** Destructor. */
     virtual ~LinuxThreadFactory() {}
 
-    IThread* newThread (void* (mainloop) (void*), void* data);
+    /** \copydoc IThreadFactory::newThread */
+    IThread* newThread (void* (*mainloop) (void*), void* data);
 
+    /** \copydoc IThreadFactory::newSynchronizer */
     ISynchronizer* newSynchronizer (void);
 
+    /** \copydoc IThreadFactory::getNbCores */
     size_t getNbCores ();
-
-private:
 };
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* LINUX_THREAD_HPP_ */

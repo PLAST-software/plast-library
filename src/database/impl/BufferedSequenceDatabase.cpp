@@ -14,10 +14,9 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "BufferedSequenceDatabase.hpp"
-#include "MemoryAllocator.hpp"
-#include "Property.hpp"
-#include "macros.hpp"
+#include <database/impl/BufferedSequenceDatabase.hpp>
+#include <designpattern/impl/Property.hpp>
+#include <misc/api/macros.hpp>
 
 #include <stdlib.h>
 
@@ -25,12 +24,15 @@
 #define DEBUG(a)  //printf a
 
 using namespace std;
+using namespace dp;
+using namespace dp::impl;
 using namespace os;
+using namespace os::impl;
 
 extern "C" void seg_segSequence (char* sequence, size_t length);
 
 /********************************************************************************/
-namespace database {
+namespace database { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -141,9 +143,6 @@ ISequenceCache* BufferedSequenceDatabase::buildCache (ISequenceIterator* refIter
     /** We just loop through the ref iterator => the builder will fill the cache vectors. */
     for (refIterator->first(); !refIterator->isDone(); refIterator->next())  {}
 
-    /** We may have to do some post treatment. */
-    if (builder != 0)  { builder->postTreamtment(); }
-
     DEBUG (("BufferedSequenceDatabase::buildCache  iteration done: dataSize=%d  nbSequences=%ld \n",
         result->dataSize, result->nbSequences
     ));
@@ -159,6 +158,9 @@ ISequenceCache* BufferedSequenceDatabase::buildCache (ISequenceIterator* refIter
     /** Note that we add an extra offset that matches the total size of the data.
      *  => useful for computing the last sequence size by difference of two offsets. */
     (result->offsets.data) [result->nbSequences] = result->dataSize;
+
+    /** We may have to do some post treatment. */
+    if (builder != 0)  { builder->postTreamtment(); }
 
     /** We compute the sequence average size. */
     size_t sizeAverage = (result->nbSequences > 0 ? result->database.size / result->nbSequences : 1);
@@ -452,9 +454,9 @@ vector<ISequenceDatabase*> BufferedSequenceDatabase::split (size_t nbSplit)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-dp::IProperties* BufferedSequenceDatabase::getProperties (const std::string& root)
+IProperties* BufferedSequenceDatabase::getProperties (const std::string& root)
 {
-    dp::IProperties* props = new dp::Properties();
+    IProperties* props = new Properties();
 
     props->add (0, root, "%lld bytes, %ld sequences", getSize(), getSequencesNumber());
 
@@ -564,8 +566,20 @@ void BufferedSegmentSequenceBuilder::postTreamtment (void)
     //printf ("BufferedSegmentSequenceBuilder::postTreamtment 1. : size=%ld\n", _cache->dataSize);
     //for (size_t i=0; i<_cache->dataSize; i++)  {  printf ("%c", data[i]); }  printf("\n");
 
+#if 0
     /** We launch low complexity removal. */
     seg_segSequence (data, _cache->dataSize);
+#else
+    /** We launch low complexity removal for each sequence.
+     *  Note that this post treatment could be parallelized in several threads. */
+    for (size_t i=0; i<_cache->nbSequences; i++)
+    {
+        seg_segSequence (
+            data + _cache->offsets.data[i],
+            _cache->offsets.data[i+1] - _cache->offsets.data[i]
+        );
+    }
+#endif
 
     //printf ("BufferedSegmentSequenceBuilder::postTreamtment 2. : size=%ld\n", _cache->dataSize);
     //for (size_t i=0; i<_cache->dataSize; i++)  {  printf ("%c", data[i]); }  printf("\n");
@@ -580,6 +594,6 @@ void BufferedSegmentSequenceBuilder::postTreamtment (void)
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 

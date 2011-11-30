@@ -14,41 +14,86 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/*****************************************************************************
- *   Operating System abstraction of file management.
- *****************************************************************************/
+/** \file IFile.hpp
+ *  \date 07/11/2011
+ *  \author edrezen
+ *  \brief Operating System abstraction of file management.
+ */
 
 #ifndef IFILE_HPP_
 #define IFILE_HPP_
 
 /********************************************************************************/
 
-#include "SmartPointer.hpp"
-#include "types.hpp"
+#include <os/api/IResource.hpp>
+#include <misc/api/types.hpp>
 
 /********************************************************************************/
-namespace os {
+/** \brief Operating System abstraction layer */
+ namespace os {
 /********************************************************************************/
 
-/** */
-class IFile : public dp::SmartPointer
+/** \brief Abstraction of what we need about file system
+ *
+ *  We define here a few methods we need for handling file system (there is not a lot
+ *  of methods right now).
+ */
+class IFile : public IResource
 {
 public:
 
+    /** Destructor. */
+    virtual ~IFile () {}
+
+    /** Tells whether or not we are at the end of a file.
+     *  \return true if we are at the end of the file, false otherwise.
+     */
     virtual bool isEOF () = 0;
 
+    /** Locates the cursor into the file (similar to 'fseeko' functions)
+     * \param[in] offset : bytes number we want to go, relatively from the 'whence' paramater
+     * \param[in] whence : SEEK_SET, SEEK_END, or SEEK_CUR
+     * \return 0 if successful, -1 otherwise
+     */
     virtual int seeko (u_int64_t offset, int whence) = 0;
 
-    virtual char* gets (char *s, int size) = 0;
+    /** Reads a line in the file.
+     *  \param[in] s : buffer where to put the read line.
+     *  \param[in] size : maximum number of characters to be read
+     *  \return the filled line if ok, NULL otherwise.
+     */
+    virtual char* gets (char* s, int size) = 0;
+
+    /** Writes a buffer (0 terminated) into the file.
+     *  \param[in] buffer : buffer to be dumped into the file.
+     */
+    virtual void print (const char* buffer) = 0;
+
+    /** Writes a buffer (0 terminated) into the file with a new line.
+     *  \param[in] buffer : buffer to be dumped into the file.
+     */
+    virtual void println (const char* buffer) = 0;
 };
 
 /********************************************************************************/
 
-/** Factory that creates IFile instances.
+/** \brief factory that creates IFile instance.
+ *
+ *  Factory that creates IFile instances. Different implementations may rely on
+ *  different operating systems.
  */
-class IFileFactory
+class IFileFactory : public IResource
 {
 public:
+
+    /** Destructor. */
+    virtual ~IFileFactory () {}
+
+    /** Creates a new IFile instance.
+     * \param[in] path : uri of the file to be created.
+     * \param[in] mode : mode of the file (like fprintf)
+     * \return instance of IFile, 0 otherwise.
+     */
     virtual IFile* newFile (const char* path, const char* mode) = 0;
 };
 

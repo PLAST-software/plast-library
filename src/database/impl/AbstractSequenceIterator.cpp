@@ -14,13 +14,13 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "AbstractSequenceIterator.hpp"
+#include <database/impl/AbstractSequenceIterator.hpp>
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
 
 /********************************************************************************/
-namespace database {
+namespace database { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -74,6 +74,6 @@ void AbstractSequenceIterator::setBuilder (ISequenceBuilder* builder)
 //}
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 

@@ -16,37 +16,21 @@
 
 #ifdef __LINUX__
 
-#include "LinuxFile.hpp"
-#include <stdio.h>
+#include <os/impl/LinuxFile.hpp>
+#include <os/impl/CommonOsImpl.hpp>
 
 /********************************************************************************/
-namespace os {
+namespace os { namespace impl {
 /********************************************************************************/
 
 /** */
-class LinuxFile : public IFile
+class LinuxFile : public CommonFile
 {
 public:
 
-    LinuxFile (const char* path, const char* mode)
-    {
-        _handle = ::fopen (path, mode);
-    }
+    LinuxFile (const char* path, const char* mode) : CommonFile (path, mode)  {}
 
-    virtual ~LinuxFile ()
-    {
-        if (_handle)  { ::fclose (_handle); }
-    }
-
-    bool isEOF () { return feof (_handle); }
-
-    int seeko (u_int64_t offset, int whence)  { return ::fseeko64 (_handle, offset, whence); }
-
-    char* gets (char *s, int size)  { return fgets (s, size, _handle); }
-
-protected:
-
-    FILE* _handle;
+    int seeko (u_int64_t offset, int whence)  {  return (_handle==0  ?  -1 : fseeko64 (_handle, offset, whence) );  }
 };
 
 /*********************************************************************
@@ -63,7 +47,7 @@ IFile* LinuxFileFactory::newFile (const char *path, const char *mode)
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /*  __LINUX__  */

@@ -14,8 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "BasicSequenceBuilder.hpp"
-#include "MemoryAllocator.hpp"
+#include <database/impl/BasicSequenceBuilder.hpp>
 
 #include <string.h>
 #include <stdlib.h>
@@ -27,7 +26,7 @@
 using namespace os;
 
 /********************************************************************************/
-namespace database {
+namespace database { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -125,6 +124,6 @@ void BasicSequenceBuilder::addData (const LETTER* data, size_t size, Encoding en
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 

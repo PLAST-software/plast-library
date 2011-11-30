@@ -14,75 +14,126 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#ifndef _DATABASE_INDEX_HASH_CODED_HPP_
-#define _DATABASE_INDEX_HASH_CODED_HPP_
+/** \file DatabaseIndex.hpp
+ *  \brief Implemtation of interfaces for genomic database indexation.
+ *  \date 07/11/2011
+ *  \author edrezen
+ */
+
+#ifndef _DATABASE_INDEX_HPP_
+#define _DATABASE_INDEX_HPP_
 
 /********************************************************************************/
 
-#include "AbstractDatabaseIndex.hpp"
-#include "ISeed.hpp"
+#include <index/impl/AbstractDatabaseIndex.hpp>
+#include <seed/api/ISeed.hpp>
+#include <misc/api/Vector.hpp>
+
 #include <list>
 #include <map>
 #include <stdio.h>
 
 /********************************************************************************/
 namespace indexation {
+/** \brief Implementation of genomic database indexation concepts. */
+namespace impl {
 /********************************************************************************/
 
-/********************************************************************************/
-
+/** \brief Simple implementation of the IDatabaseIndex interface.
+ *
+ * This implementation is based on seeds hash code, ie. an integer that identifies
+ * a seed.
+ *
+ * Such an integer is used as a key of a vector whose values are the lists of occurrences
+ * (in the database) for a given seed.
+ *
+ * So, the index data is a vector of vectors.
+ *
+ * The size of this data is:
+ *    - proportional to the number of seeds found in the database (roughly the size of the database itself)
+ *    - proportional to the data type size for storing a seed occurrence in the database.
+ *
+ * Since genomic databases may be huge, the data type for storing a seed occurrence must be able to hold
+ * big integers values; right now, the data type choice is u_int32_t which means that we can deal with databases
+ * of about 4 GBytes. We could use u_int64_t instead but it would imply a big memory usage (twice the size
+ * used with u_int32_t). Note that we could make this class a template one with the template type being
+ * u_int32_t or u_int64_t for instance.
+ *
+ * Note that a smarter implementation could be implemented by storing not the absolute offsets in the database
+ * (which is memory expensive), but rather relative offsets (ie. difference between two successive offsets);
+ * in this case, the data type for storing these (relative) offsets could be u_int16_t (and adding 'fake' offsets
+ * if needed in case when two successive offsets are separated by more than 2^16 characters).
+ */
 class DatabaseIndex : public AbstractDatabaseIndex
 {
 public:
 
-    /** */
+    /** Constructor.
+     * \param[in] database : the database to be indexed.
+     * \param[in] model : the seed model to be used for indexation.
+     */
     DatabaseIndex (database::ISequenceDatabase* database, seed::ISeedModel* model);
     virtual ~DatabaseIndex ();
 
-    /** Builds the index. */
+    /** \copydoc AbstractDatabaseIndex::build */
     void build ();
 
-    /** Creates an iterator on occurrences for a given seed key. */
+    /** \copydoc AbstractDatabaseIndex::createOccurrenceIterator */
     IOccurrenceIterator* createOccurrenceIterator (const seed::ISeed* seed, size_t neighbourhoodSize=0);
 
-    /** */
+    /** \copydoc AbstractDatabaseIndex::createOccurrenceBlockIterator */
     IOccurrenceBlockIterator* createOccurrenceBlockIterator (
         const seed::ISeed* seed,
         size_t neighbourhoodSize,
         size_t blockSize
     );
 
-    /** Returns the number of occurrences for a given seed. */
+    /** \copydoc AbstractDatabaseIndex::getOccurrenceNumber */
     size_t getOccurrenceNumber (const seed::ISeed* seed);
 
-    /** Merge children indexes. */
+    /** \copydoc AbstractDatabaseIndex::merge */
     void merge (void);
 
 private:
 
+    /** Data type for storing an seed offset. */
     typedef u_int32_t SequenceOffset;
+
+    /** Data type for storing a lsit of offsets. */
     typedef std::vector<SequenceOffset> IndexEntry;
 
-    typedef u_int32_t SeedHashCode;
-    SeedHashCode getHashCode (const database::IWord& kmer);
-
-    /** The index itself. */
+    /** The index itself. Defined as a vector of vectors. */
     std::vector <IndexEntry>  _index;
+
+    /** Data type that holds a seed hash code. */
+    typedef u_int32_t SeedHashCode;
+
+    /** Compute a seed hash code. Can be called in case a ISeed instance has no defined hash code
+     * (probably computed by the iterator that provides it)
+     * \param[in] kmer : the data for which we want a hash code
+     * \return the hash code.
+     */
+    SeedHashCode getHashCode (const database::IWord& kmer);
 
     /** Current sequence parsed during index build. */
     const database::ISequence* _currentSequence;
 
-    /** Shortcut & optimization. */
+    /* Shortcut & optimization. */
     size_t _span;
     size_t _alphabetSize;
 
+    /** Offset in the database of the current sequence. */
     u_int64_t _sequenceOffset;
 
-    /** */
+    /** Callback to be called each time a seed is found in some data (sequence data for instance).
+     * \param[in] seed : the iterated seed
+     */
     void iterateSeed (const seed::ISeed* seed);
 
 
     /********************************************************************************/
+    /** \brief IOccurrenceIterator implementation used by DatabaseIndex::createOccurrenceIterator class.
+     */
     class DatabaseOccurrenceIterator : public IOccurrenceIterator
     {
     public:
@@ -129,6 +180,8 @@ private:
     };
 
     /********************************************************************************/
+    /** \brief IOccurrenceIterator implementation used by DatabaseIndex::createOccurrenceBlockIterator class.
+     */
     class DatabaseOccurrenceBlockIterator : public IOccurrenceBlockIterator
     {
     public:
@@ -152,7 +205,7 @@ private:
 
         bool isDone()  { return _vectorsListIterator ==  _vectorsList.end(); }
 
-        os::Vector<const indexation::ISeedOccurrence*>& currentItem()    { return *_vectorsListIterator;    }
+        misc::Vector<const indexation::ISeedOccurrence*>& currentItem()    { return *_vectorsListIterator;    }
 
     private:
         database::ISequenceDatabase* _database;
@@ -162,10 +215,10 @@ private:
         size_t                       _blockSize;
         size_t                       _neighbourTotalSize;
 
-        os::Vector<const indexation::ISeedOccurrence*>  _occurrences;
+        misc::Vector<const indexation::ISeedOccurrence*>  _occurrences;
 
-        std::list<os::Vector<const indexation::ISeedOccurrence*> >           _vectorsList;
-        std::list<os::Vector<const indexation::ISeedOccurrence*> >::iterator _vectorsListIterator;
+        std::list<misc::Vector<const indexation::ISeedOccurrence*> >           _vectorsList;
+        std::list<misc::Vector<const indexation::ISeedOccurrence*> >::iterator _vectorsListIterator;
 
         indexation::ISeedOccurrence* _table;
         database::LETTER*            _neighbourhoods;
@@ -173,7 +226,7 @@ private:
 };
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* _DATABASE_INDEX_HASH_CODED_HPP_  */
+#endif /* _DATABASE_INDEX_HPP_  */

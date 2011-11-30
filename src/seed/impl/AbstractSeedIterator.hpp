@@ -14,59 +14,95 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+/** \file AbstractSeedIterator.hpp
+ *  \brief Abstract implementation of ISeedIterator interface
+ *  \date 07/11/2011
+ *  \author edrezen
+ */
+
 #ifndef _ABSTRACT_SEED_ITERATOR_HPP_
 #define _ABSTRACT_SEED_ITERATOR_HPP_
 
 /********************************************************************************/
 
-#include "ISeedIterator.hpp"
-#include "ISeedModel.hpp"
+#include <seed/api/ISeedIterator.hpp>
+#include <seed/api/ISeedModel.hpp>
 
-#include "IThread.hpp"
+#include <os/api/IThread.hpp>
 
 /********************************************************************************/
 namespace seed {
+/** \brief Implementation of seed based concepts. */
+namespace impl {
 /********************************************************************************/
 
-/** Define a null seed iterator, i.e. that iterates an empty set.
+/** \brief Null implementation of the ISeedIterator interface
+ *
+ *  Define a null seed iterator, i.e. that iterates an empty set.
  */
 class NullSeedIterator : public ISeedIterator
 {
 public:
 
+    /** Destructor. */
     virtual ~NullSeedIterator () {}
 
+    /** \copydoc ISeedIterator::first */
     void first()  {}
+
+    /** \copydoc ISeedIterator::next */
     dp::IteratorStatus next()   { return dp::ITER_DONE; }
+
+    /** \copydoc ISeedIterator::isDone */
     bool isDone() { return true; }
+
+    /** \copydoc ISeedIterator::currentItem */
     const ISeed* currentItem()  { return 0; }
 
+    /** \copydoc ISeedIterator::getNbTotal
+     * Implementations that don't know this number should return 0 by convention.
+     */
     u_int64_t getNbTotal ()  { return 0; }
 
+    /** \copydoc ISeedIterator::setData */
     void setData (const database::IWord& data) {}
 
-    /** Create a new iterator that is a subset of the current one. */
+    /** \copydoc ISeedIterator::extract */
     ISeedIterator* extract (size_t firstIdx, size_t lastIdx) { return 0; }
 
-    bool retrieve (ISeed& item, u_int64_t& nbRetrieved)  { return false; }
-
+    /** \copydoc ISeedIterator::createFilteredIterator */
     ISeedIterator* createFilteredIterator (const std::vector<size_t>& seedsIdx)  { return 0; }
+
+    /** \copydoc ISeedIterator::retrieve */
+    bool retrieve (ISeed& item, u_int64_t& nbRetrieved)  { return false; }
 };
 
 /********************************************************************************/
 
-
-/** Define seed iterator with a seed model
+/** \brief Define seed iterator with a seed model
+ *
+ *  This class factorizes some generic methods implementations; it remains abstract and has
+ *  to be subclassed.
  */
 class AbstractSeedIterator : public ISeedIterator
 {
 public:
 
+    /** Constructor.
+     * \param[in] model : the seed model the iterator is linked to
+     * \param[in] firstIdx : first index to be iterated
+     * \param[in] lastIdx  : last index to be iterated
+     * \param[in] hasNextValidMethod : tells whether the 'findNextValidItem' is valid or not.
+     */
     AbstractSeedIterator (ISeedModel* model, size_t firstIdx, size_t lastIdx, bool hasNextValidMethod);
+
+    /** Destructor. */
     ~AbstractSeedIterator ();
 
+    /** \copydoc ISeedIterator::first */
     void first()  { _nbRetrieved=0;  _currentIdx = _firstIdx;   if (findNextValidItem() && !isDone())  { updateItem(); } }
 
+    /** \copydoc ISeedIterator::next */
     dp::IteratorStatus next()
     {
         _currentIdx++;
@@ -74,24 +110,25 @@ public:
         return dp::ITER_UNKNOWN;
     }
 
-    bool         isDone()       { return (_currentIdx > _lastIdx);  }
+    /** \copydoc ISeedIterator::isDone */
+    bool isDone()       { return (_currentIdx > _lastIdx);  }
+
+    /** \copydoc ISeedIterator::currentItem */
     const ISeed* currentItem()  { return &_currentItem;             }
 
-    /** Method for iterating items through a method of a client. */
+    /** \copydoc ISeedIterator::iterate */
     void iterate (void* aClient, Method method);
 
-    /** Default implementation doesn't kwow how many items can be iterated.
-     *  In such a case, we return 0 by convention.  */
+    /** \copydoc ISeedIterator::getNbTotal */
     u_int64_t getNbTotal ()  { return 0; }
 
-    /** */
+    /** \copydoc ISeedIterator::setData */
     void setData (const database::IWord& data);
 
-    /** Create a new iterator that is a subset of the current one.
-     *  Note that the default implementation returns a null iterator. */
+    /** \copydoc ISeedIterator::extract */
     ISeedIterator* extract (size_t firstIdx, size_t lastIdx) { return new NullSeedIterator (); }
 
-    /** */
+    /** \copydoc ISeedIterator::retrieve */
     bool retrieve (ISeed& item, u_int64_t& nbRetrieved)
     {
         bool result = false;
@@ -103,7 +140,7 @@ public:
         return result;
     }
 
-    /** Creation of filtered iterator. */
+    /** \copydoc ISeedIterator::createFilteredIterator */
     ISeedIterator* createFilteredIterator (const std::vector<size_t>& seedsIdx)  { return 0; }
 
 protected:
@@ -143,7 +180,7 @@ protected:
 };
 
 /********************************************************************************/
-} /* end of namespaces. */
+} }  /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* _ABSTRACT_SEED_ITERATOR_HPP_  */

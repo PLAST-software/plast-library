@@ -5,7 +5,13 @@
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="cdt.managedbuild.config.gnu.lib.debug.1749414343">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.lib.debug.1749414343" moduleId="org.eclipse.cdt.core.settings" name="Debug">
-				<externalSettings/>
+				<externalSettings>
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/PlastLibrary"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/PlastLibrary/Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="PlastLibrary"/>
+					</externalSetting>
+				</externalSettings>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
@@ -30,49 +36,19 @@
 								<option id="gnu.cpp.compiler.lib.debug.option.optimization.level.757853808" name="Optimization Level" superClass="gnu.cpp.compiler.lib.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.lib.debug.option.debugging.level.1544253014" name="Debug Level" superClass="gnu.cpp.compiler.lib.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1304733242" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/seed/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/seed/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/os/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/os/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/designpattern/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/designpattern/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/database/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/database/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/misc/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/gapped/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/gapped/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/misc/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/statistics/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/statistics/impl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.debugging.gprof.1253556430" name="Generate gprof information (-pg)" superClass="gnu.cpp.compiler.option.debugging.gprof" value="true" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.preprocessor.def.1220974519" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__LINUX__"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1755057582" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool command="gcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.1438255439" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug">
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.lib.debug.option.optimization.level.106106795" name="Optimization Level" superClass="gnu.c.compiler.lib.debug.option.optimization.level" value="gnu.c.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.lib.debug.option.debugging.level.190288244" name="Debug Level" superClass="gnu.c.compiler.lib.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1900031013" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/seed/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/seed/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/misc/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/os/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/os/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/designpattern/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/designpattern/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/database/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/database/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/impl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.debugging.gprof.1515975876" name="Generate gprof information (-pg)" superClass="gnu.c.compiler.option.debugging.gprof" value="true" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1016986933" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols"/>
@@ -83,29 +59,23 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1147125037" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base"/>
 							<tool command="as" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.tool.gnu.assembler.lib.debug.673641113" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.lib.debug">
 								<option id="gnu.both.asm.option.include.paths.1839361405" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/seed/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/seed/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/misc/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/os/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/os/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/designpattern/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/designpattern/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/database/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/database/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/impl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.194638134" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.lib.debug.1749414343.453312278" name="AbstractSeedIterator.cpp" rcbsApplicability="disable" resourcePath="src/seed/impl/AbstractSeedIterator.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.lib.debug.1783800451.1293717589">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.lib.debug.1783800451.1293717589" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.lib.debug.1783800451">
+							<option id="gnu.cpp.compiler.option.include.paths.1603026860" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src}&quot;"/>
+							</option>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.120786886" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+						</tool>
+					</fileInfo>
 					<sourceEntries>
-						<entry excluding="src|api" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="api|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -139,26 +109,10 @@
 								<option id="gnu.cpp.compiler.lib.release.option.optimization.level.1342291968" name="Optimization Level" superClass="gnu.cpp.compiler.lib.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.lib.release.option.debugging.level.534390027" name="Debug Level" superClass="gnu.cpp.compiler.lib.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1267507508" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/seed/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/seed/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/os/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/os/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/designpattern/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/designpattern/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/database/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/database/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/misc/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/gapped/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/gapped/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/misc/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/statistics/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/statistics/impl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src}&quot;"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.preprocessor.def.650156252" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__LINUX__=1"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.973155241" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -166,51 +120,21 @@
 								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.lib.release.option.optimization.level.540591797" name="Optimization Level" superClass="gnu.c.compiler.lib.release.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.lib.release.option.debugging.level.1181036625" name="Debug Level" superClass="gnu.c.compiler.lib.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1047195631" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/seed/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/seed/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/misc/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/os/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/os/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/designpattern/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/designpattern/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/database/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/database/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/impl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.258582111" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.584399322" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.898167454" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.lib.release.1728389962" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.lib.release">
-								<option id="gnu.both.asm.option.include.paths.1000836756" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/ungapped/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/algorithm/misc/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/seed/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/seed/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/misc/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/os/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/os/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/designpattern/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/designpattern/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/database/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/database/impl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src/index/impl}&quot;"/>
-								</option>
+								<option id="gnu.both.asm.option.include.paths.1000836756" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath"/>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1030153061" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="api|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry excluding="seed/api" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="api|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -220,6 +144,10 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="PlastLibrary.cdt.managedbuild.target.gnu.lib.357090789" name="Static Library" projectType="cdt.managedbuild.target.gnu.lib"/>
 	</storageModule>
+	<storageModule moduleId="refreshScope" versionNumber="1">
+		<resource resourceType="PROJECT" workspacePath="/PlastLibrary"/>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.lib.release.1209756552;cdt.managedbuild.config.gnu.lib.release.1209756552.;cdt.managedbuild.tool.gnu.cpp.compiler.lib.release.184423442;cdt.managedbuild.tool.gnu.cpp.compiler.input.973155241">
@@ -234,9 +162,8 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.lib.debug.1749414343;cdt.managedbuild.config.gnu.lib.debug.1749414343.;cdt.managedbuild.tool.gnu.c.compiler.lib.debug.1438255439;cdt.managedbuild.tool.gnu.c.compiler.input.1466413571">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.lib.debug.1749414343;cdt.managedbuild.config.gnu.lib.debug.1749414343.453312278;cdt.managedbuild.tool.gnu.cpp.compiler.lib.debug.1783800451.1293717589;cdt.managedbuild.tool.gnu.cpp.compiler.input.120786886">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="refreshScope" versionNumber="1">
-		<resource resourceType="PROJECT" workspacePath="/PlastLibrary"/>
-	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

@@ -16,8 +16,8 @@
 
 #ifdef __WINDOWS__
 
-#include "WindowsThread.hpp"
-#include "macros.hpp"
+#include <os/impl/WindowsThread.hpp>
+#include <misc/api/macros.hpp>
 #include <memory>
 #include <stdio.h>
 #include <string.h>
@@ -27,7 +27,7 @@
 #define DEBUG(a)  //printf a
 
 /********************************************************************************/
-namespace os {
+namespace os { namespace impl {
 /********************************************************************************/
 
 typedef DWORD (WINAPI * THREADROUTINE)(void *);
@@ -108,21 +108,7 @@ private:
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IThreadFactory& WindowsThreadFactory::singleton ()
-{
-    static WindowsThreadFactory instance;
-    return instance;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-IThread* WindowsThreadFactory::newThread (void* (mainloop) (void*), void* data)
+IThread* WindowsThreadFactory::newThread (void* (*mainloop) (void*), void* data)
 {
     return new WindowsThread ((THREADROUTINE)mainloop, data);
 }
@@ -162,7 +148,7 @@ size_t WindowsThreadFactory::getNbCores ()
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* __WINDOWS__ */

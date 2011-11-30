@@ -14,48 +14,69 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/*****************************************************************************
- *   Define an interface of what a sequence database is.
- *****************************************************************************/
+/** \file ISequenceDatabase.hpp
+ *  \brief Definition of a genomic database
+ *  \date 07/11/2011
+ *  \author edrezen
+ *
+ *  We define here a sequences database mainly as a container of ISequence instances.
+ *
+ *  Two different ways for retrieving ISequence instances are provided:
+ *     - retrieval of a specific instance, by index or by global offset in the database
+ *     - usage of a ISequenceIterator that can loop over all ISequence instances of the database.
+ */
 
 #ifndef _ISEQUENCE_DATABASE_HPP_
 #define _ISEQUENCE_DATABASE_HPP_
 
 /********************************************************************************/
 
-#include "SmartPointer.hpp"
-#include "IProperty.hpp"
-#include "ISequenceIterator.hpp"
+#include <designpattern/api/SmartPointer.hpp>
+#include <designpattern/api/IProperty.hpp>
+#include <database/api/ISequenceIterator.hpp>
 
 /********************************************************************************/
+/** \brief Definition of concepts related to genomic databases. */
 namespace database {
 /********************************************************************************/
 
-/********************************************************************************/
-
-/** Define a database as a container of ISequence instances.
+/** \brief Define a database as a container of ISequence instances.
+ *
  *  A sequence can be retrieved directly from this container (i.e. like a vector).
  *
  *  It can also create ISequenceIterator instances, so it has both direct access to
  *  a specific sequence and also iterative access to sequences through a created
  *  iterator.
  */
-
 class ISequenceDatabase : public dp::SmartPointer
 {
 public:
 
-    /** Retrieve the number of sequences. */
+    /** Retrieve the number of sequences.
+     * \return the number of sequences in the database.
+     */
     virtual size_t getSequencesNumber () = 0;
 
-    /** Retrieve the database size. */
+    /** Retrieve the database size.
+     * \return the aggregated size of all sequences data. */
     virtual u_int64_t getSize () = 0;
 
-    /** Returns a sequence given its index. */
+    /** Returns a sequence given its index. Note that one can get the number of sequences with the
+     * getSequencesNumber method.
+     * \param[in]  index : the index of the wanted sequence
+     * \param[out] sequence : the filled sequence if successful
+     * \return true if the sequence has been retrieved, false otherwise.
+     */
     virtual bool getSequenceByIndex (size_t index, ISequence& sequence) = 0;
 
     /** Returns a sequence given an offset (in the database).
-     *  Also returns the offset in the returned sequence and the actual offset in the database.*/
+     *  Also returns the offset in the returned sequence and the actual offset in the database.
+     *  \param[in] offset : offset of the sequence in the database
+     *  \param[in] sequence : the filled sequence if successful
+     *  \param[out] offsetInSequence : offset of the given offset in the sequence
+     *  \param[out] offsetInDatabase : offset of the given offset in the database
+     * \return true if the sequence has been retrieved, false otherwise.
+     */
     virtual bool getSequenceByOffset (
         u_int64_t offset,
         ISequence& sequence,
@@ -63,14 +84,23 @@ public:
         u_int64_t& offsetInDatabase
     ) = 0;
 
-    /** Creates a Sequence iterator. */
+    /** Creates a Sequence iterator.
+     * \return the created iterator.
+     */
     virtual ISequenceIterator* createSequenceIterator () = 0;
 
     /** Split the current database in several database. All the returned
-     *  databases should represent the same set of ISequence instances than the source database. */
+     *  databases should represent the same set of ISequence instances than the source database.
+     *  \param[in] nbSplit : number of parts we want to split the database
+     *  \return a vector of split ISequenceDatabase instances.
+     */
     virtual std::vector<ISequenceDatabase*> split (size_t nbSplit) = 0;
 
-    /** Return properties about the instance. */
+    /** Return properties about the instance. These properties can provide information for statistical
+     * purpose for instance.
+     * \param[in] root : root string
+     * \return a created IProperties instance
+     */
     virtual dp::IProperties* getProperties (const std::string& root) = 0;
 };
 

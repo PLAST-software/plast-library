@@ -14,6 +14,25 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+/** \file IAlphabet.hpp
+ *  \brief Define concepts of alphabet and encoding schemes.
+ *  \date 07/11/2011
+ *  \author edrezen
+ *
+ *   PLAST compares databases made of letters that belong to some alphabet (amino acids or nucleotids).
+ *
+ *   We define here constants for all letters we can find in databases. Note that there exist some special
+ *   characters such as '*' or '-' that have specific meaning (stop codon, gap, unknown character, etc...)
+ *
+ *   We may also need to encode these letters in different format. For instance, we are likely to find
+ *   letters in database in ASCII format. It may be easier to translate them in a smaller integer range,
+ *   which is achievable with two other formats: SUBSEED and NCBI. By default, we will prefer the SUBSEED
+ *   format that maps all amino acids in the smallest integer range.
+ *
+ *   Note that we define and EncodingManager class that allows for instance to translate from ASCII to SUBSEED
+ *   (which is done for instance when reading FASTA files).
+ */
+
 #ifndef _IALPHABET_HPP_
 #define _IALPHABET_HPP_
 
@@ -23,13 +42,18 @@
 #include <stddef.h>
 
 /********************************************************************************/
+/** \brief Definition of concepts related to genomic databases. */
 namespace database {
 /********************************************************************************/
 
-/** We define what a letter is (merely an integer). */
+/** \brief Definition of what a genomic letter is.
+ */
 typedef char LETTER;
 
-/** */
+/** \brief Definition of known letters.
+ *
+ *  We enumerate all letters we can deal with.
+ */
 enum LETTER_CODE
 {
     CODE_A,     CODE_C,     CODE_D,     CODE_E,     CODE_F,     CODE_G,     CODE_H,     CODE_I,
@@ -38,40 +62,73 @@ enum LETTER_CODE
     CODE_DASH,  CODE_U,     CODE_O,     CODE_J,     CODE_BAD
 };
 
-/**
+/** \brief Definition of IAlphabet concept.
+ *
+ *  This structure provides some attributes that defines an alphabet.
  */
 struct IAlphabet
 {
+    /** Name of the alphabet ("ascii", "subseed", "ncbi"). */
     const char* name;
 
+    /** Array containing the letters known by the alphabet. One can reach an element by using LETTER_CODE enum as array index. */
     LETTER* letters;
+
+    /** Size of the alphabet: number of correct characters (for instance for amino acids). */
     size_t  size;
 
+    /** Special code that matches any character ('X' for instance). */
     LETTER any;
+
+    /** Special code for codon stop. */
     LETTER stop;
+
+    /** Special code for gap. */
     LETTER gap;
 
+    /** Tells whether the letter is valid or not.
+     * \param[in] l : code of the letter.
+     * \return true if correct, false otherwise.
+     */
     bool isValid (LETTER l)  { return l < (LETTER)size; }
 };
 
 /********************************************************************************/
 
-/** We define what data encodings are available. */
+/** We define what data encodings are available.
+ */
 enum Encoding  {  SUBSEED, ASCII, NCBI, UNKNOWN };
 
 /********************************************************************************/
 
+/** \brief Management of alphabet encoding.
+ *
+ *  This (singleton) class acts like a factory that returns IAlphabet instances given an encoding scheme.
+ *
+ *  It also provides conversion table from one encoding to another. This is useful for instance for
+ *  translating FASTA files (that are in ASCII encoding) into SUBSEED encoding. Note that we don't provide
+ *  a method that translates a character; we prefer (for optimization purpose) directly provide the full
+ *  conversion table and it is up to the client to use it for making the needed translations.
+ */
 class EncodingManager
 {
 public:
 
-    /** Singleton definition. */
+    /** Singleton definition.
+     * \return the singleton instance.
+     */
     static EncodingManager& singleton ()  { static EncodingManager instance; return instance; }
 
-    /** */
+    /** Returns an IAlphabet instance given an encoding scheme.
+     * \param[in] encoding : encoding scheme
+     * \return the IAlphabet instance.
+     */
     IAlphabet* getAlphabet (Encoding encoding);
 
-    /** */
+    /** Provides a conversion table from one encoding to another.
+     * \param[in] from : the source encoding scheme
+     * \param[in] to   : the destination encoding scheme
+     * \return the conversion array of LETTER*/
     const LETTER* getEncodingConversion (Encoding from, Encoding to);
 };
 

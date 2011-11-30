@@ -14,9 +14,9 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "DatabaseIndexHash.hpp"
-#include "MemoryAllocator.hpp"
-#include "macros.hpp"
+#include <index/impl/DatabaseIndexHash.hpp>
+#include <os/impl/DefaultOsFactory.hpp>
+#include <misc/api/macros.hpp>
 
 extern "C"
 {
@@ -25,6 +25,7 @@ extern "C"
 
 using namespace std;
 using namespace os;
+using namespace os::impl;
 using namespace dp;
 using namespace database;
 using namespace seed;
@@ -34,7 +35,7 @@ using namespace seed;
 #define DEBUG(a)  //printf a
 
 /********************************************************************************/
-namespace indexation {
+namespace indexation { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -61,7 +62,7 @@ DatabaseIndexHash::DatabaseIndexHash (ISequenceDatabase* database, ISeedModel* m
 *********************************************************************/
 DatabaseIndexHash::~DatabaseIndexHash ()
 {
-    MemoryAllocator::singleton().free (_hashTable);
+    DefaultFactory::memory().free (_hashTable);
 }
 
 /*********************************************************************
@@ -93,11 +94,11 @@ void DatabaseIndexHash::initHashTable ()
         for (size_t i=0; i<_maxSeedsNumber; i++)  {  _indexVector[i] = new IndexEntry ();  }
 
         /** We need an array that holds the values. */
-        _index =  (unsigned int*) MemoryAllocator::singleton().calloc (_maxSeedsNumber,sizeof(unsigned int));
+        _index =  (unsigned int*) DefaultFactory::memory().calloc (_maxSeedsNumber,sizeof(unsigned int));
         for (size_t i=0; i<_maxSeedsNumber; i++)  {  _index[i] = i;   }
 
         /** We create the hash structure. */
-        _hashTable = (retr_t*) MemoryAllocator::singleton().malloc (sizeof(retr_t));
+        _hashTable = (retr_t*) DefaultFactory::memory().malloc (sizeof(retr_t));
         if (_hashTable != 0)
         {
             _hashTable->length_in_bits = 0;
@@ -340,5 +341,5 @@ void DatabaseIndexHash::dump (void)
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/

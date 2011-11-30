@@ -16,28 +16,14 @@
 
 #ifdef __WINDOWS__
 
-#include "WindowsTime.hpp"
+#include <os/impl/WindowsTime.hpp>
 #include <time.h>
 
 #define CLOCK_REALTIME 0
 
 /********************************************************************************/
-namespace os {
+namespace os { namespace impl {
 /********************************************************************************/
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-ITime& WindowsTime::singleton ()
-{
-    static WindowsTime instance;
-    return instance;
-}
 
 /*********************************************************************
 ** METHOD  :
@@ -71,7 +57,7 @@ u_int32_t WindowsTime::getclock()
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* __WINDOWS__ */

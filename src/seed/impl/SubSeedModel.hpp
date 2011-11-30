@@ -14,13 +14,21 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+/** \file SubSeedModel.hpp
+ *  \brief Subseed implementation of ISeedModel interface
+ *  \date 07/11/2011
+ *  \author edrezen
+ *
+ *  Implementation of subseeds sets concepts.
+ */
+
 #ifndef _SUB_SEED_MODEL_HPP_
 #define _SUB_SEED_MODEL_HPP_
 
 /********************************************************************************/
 
-#include "AbstractSeedModel.hpp"
-#include "AbstractSeedIterator.hpp"
+#include <seed/impl/AbstractSeedModel.hpp>
+#include <seed/impl/AbstractSeedIterator.hpp>
 
 #include <stdarg.h>
 
@@ -30,32 +38,118 @@
 
 /********************************************************************************/
 namespace seed {
+/** \brief Implementation of seed based concepts. */
+namespace impl {
 /********************************************************************************/
 
-/** Seed model that uses subseed set concept.
+/** \brief Seed model that uses subseed set concept.
+ *
+ *  The SubSeedModel class implements the ISeedModel interface.
+ *
+ *  It follows the concept of subseeds where some seeds are equivalent to each other.
+ *
+ *  Such a model can be defined by several strings, one string per character in a seed.
+ *
+ *  For instance, consider a 4 span subseed model (so each seed has 4 characters) for the
+ *  amino acid alphabet. Now consider the 4 defining strings:
+ *      [0]  "H,FY,W,IV,LM,C,RK,Q,E,N,D,A,S,T,G,P"
+ *      [1]  "HFYWIVLMC,RKQENDASTGP"
+ *      [2]  "H,FYW,IVLM,C,RK,QE,ND,A,ST,G,P"
+ *      [3]  "H,FY,W,IV,LM,C,R,K,Q,E,N,D,A,S,T,G,P"
+ *  Here, the string [0] defines some subsets of equivalent letters for the character 0 of
+ *  a seed. For instance, letter F and Y belong to the same subset; by convention, we
+ *  take the first letter of each subset as the representant of the subset. So, a seed whose
+ *  first character is Y will be considered as a seed whose first character is F.
+ *  Some subsets have only one representant.
+ *
+ *  In this sample, the seeds "FRHW", "YKHW" and "YPHW" are equivalent.
+ *
+ *  It is used by the PLAST algorithm and is one of the major difference between PLAST
+ *  and BLAST. It is required by PLAST for easing parallization schemes.
+ *
+ *  Code sample:
+ *  \code
+ *  // This sample shows how to read a genomic database and how to iterate
+ *  // each seed in each sequence of the database. This simple code gives an
+ *  // idea of the skeleton needed for indexing a database.
+ *
+ *  void sample ()
+ *  {
+ *      // we create a subseed model.
+ *      ISeedModel* model = new SubSeedModel (3,
+            "H,FY,W,IV,LM,C,RK,Q,E,N,D,A,S,T,G,P",
+            "HFYWIVLMC,RKQENDASTGP",
+            "H,FYW,IVLM,C,RK,QE,ND,A,ST,G,P"
+        );
+ *
+ *      // we create a memory cached database from a FASTA file
+ *      ISequenceDatabase* database = new BufferedSequenceDatabase (
+ *          new FastaSequenceIterator ("tursiops.fa", 100),
+ *          false
+ *      );
+ *
+ *      // we create a sequence iterator from the database
+ *      ISequenceIterator* itDb = database->createSequenceIterator();
+ *
+ *      // we iterate the database
+ *      for (itDb->first(); !itDb->isDone(); itDb->next())
+ *      {
+ *          // we retrieve the current sequence.
+ *          ISequence* sequence = itDb->currentItem();
+ *
+ *          // we create a seed iterator from the sequence data
+ *          ISeedIterator* itSeed = model->createSeedsIterator (sequence->data);
+ *
+ *          // we loop each seed contained in the sequence.
+ *          for (itSeed->first(); !itSeed->isDone(); itSeed->next())
+ *          {
+ *              // we retrieve the current seed
+ *              const ISeed* seed = itSeed->currentItem();
+ *          }
+ *      }
+ *  }
+ *  \endcode
  */
 class SubSeedModel : public AbstractSeedModel
 {
 public:
 
+    /** Constructor. */
     SubSeedModel ();
+
+    /** Constructor. Read the subseeds set definition from a file.
+     * \param[in] filename : path of the file to be read.
+     */
     SubSeedModel (const char* filename);
+
+    /** Constructor that takes defining strings as input.
+     * \param[in] nbEntries : number of defining strings
+     * \param[in] ... : varargs holding the defining strings.
+     */
     SubSeedModel (size_t nbEntries, ...);
-    SubSeedModel (size_t nbEntries, va_list va);
+
+    /** Constructor that takes defining strings as input.
+     * \param[in] subseedStrings : defining strings.
+     */
     SubSeedModel (const std::vector<std::string>& subseedStrings);
 
+    /** Destructor. */
     virtual ~SubSeedModel ();
 
-    /** */
+    /** \copydoc AbstractSeedModel::getSeedsMaxNumber
+     * Note that for a subseed model, we should have
+     * a reasonable number of possible seeds due to the equivalence subsets
+     *  (which is not the case for a basic seed model).
+     */
     size_t getSeedsMaxNumber ()  { return _seedsMaxNumber; }
 
-    /** Returns an iterator that loops over seeds in a word (a sequence for instance).  */
+    /** \copydoc AbstractSeedModel::createSeedsIterator */
     ISeedIterator* createSeedsIterator (const database::IWord& data);
 
-    /** Returns an iterator that loops over all possible seeds for the model.  */
+    /** \copydoc AbstractSeedModel::createAllSeedsIterator */
     ISeedIterator* createAllSeedsIterator ();
 
-    /** */
+    /** \copydoc AbstractSeedModel::getAllSeedsTable */
     const database::LETTER* getAllSeedsTable();
 
     /** Debug purpose. */
@@ -63,23 +157,34 @@ public:
 
 protected:
 
+    /** Initialization.
+     * \param[in] span: span of the seeds.
+     */
     void initialize (size_t span);
 
+    /** Table holding the concatenation of all possible seeds. */
     database::LETTER* _allSeedsTable;
 
+    /** Number of possible seeds for the model. */
     size_t  _seedsMaxNumber;
 
+    /** Conversion table. */
     const database::LETTER* _convertTable;
 
+    /** Equivalence table. */
     char**  _equivalenceTable;
 
+    /** Equivalents vector. */
     std::vector< std::vector<database::LETTER> > _equivalentsTable;
 
     size_t _currentNumber;
 
+    /** */
     void addEntry (const char* sequence);
 
     /************************************************************/
+    /** \brief Data seed iteration for the sub seed model.
+     */
     class DataSeedIterator  : public AbstractSeedIterator
     {
     public:
@@ -96,6 +201,8 @@ protected:
     };
 
     /************************************************************/
+    /** \brief All seeds iteration for the sub seed model.
+     */
     class AllSeedsIterator : public AbstractSeedIterator
     {
     public:
@@ -125,7 +232,7 @@ protected:
 };
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* _SUB_SEED_MODEL_HPP_  */

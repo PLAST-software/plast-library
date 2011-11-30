@@ -14,41 +14,66 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+/** \file ISequence.hpp
+ *  \brief Definition of what a genomic sequence is
+ *  \date 07/11/2011
+ *  \author edrezen
+ *
+ *   Definition of what a genomic sequence is
+ */
+
 #ifndef _ISEQUENCE_HPP_
 #define _ISEQUENCE_HPP_
 
 /********************************************************************************/
 
-#include <stddef.h>
-#include "IAlphabet.hpp"
-#include "IWord.hpp"
+#include <database/api/IWord.hpp>
 
 #include <iostream>
 #include <sstream>
 
 /********************************************************************************/
+/** \brief Definition of concepts related to genomic databases. */
 namespace database {
 /********************************************************************************/
 
 class ISequenceDatabase;
 
-/** This structure is just a container for 3 information.
+/** \brief Genomic sequence definition.
  *
- * Note that:
+ *  We define here a central concept used by PLAST: a genomic sequence holding
+ *  a series of nucleotids or amino acids.
  *
- *  => the way the information is created is delegated to the interface ISequenceBuilder.
- *  => the way the information is provided to clients is delegated to the interface ISequenceIterator
+ *  Such a sequence has also some kind of description (named 'comment' here) that
+ *  can hold an identifier and a short descriptive text.
+ *
+ *  Instances of this interface are used by ISequenceDatabase objects that act as containers of
+ *  such instances with some means to find specific sequences and loop over all sequences.
+ *
+ *  Note the following:
+ *     - the way the information is created is delegated to the interface ISequenceBuilder.
+ *     - the way the information is provided to clients is delegated to the interface ISequenceIterator
  */
 struct ISequence
 {
+    /** Constructor. */
     ISequence () : database(0), comment(""), index(0) {}
 
+    /** Reference to the database that holds this sequence. */
     ISequenceDatabase*  database;
+
+    /** Comment of this sequence. */
     const char*         comment;
+
+    /** Data of the sequence, coded as a IWord (ie a table of letters in a specific encoding). */
     IWord               data;
+
+    /** Index of the sequence in its containing database. Has sense in ordered databases. */
     size_t              index;
 
-    /** */
+    /** Tool for dumping a sequence content. Useful for debug purpose.
+     * \return the string representing the sequence.
+     */
     std::string toString () const
     {
         std::stringstream ss;

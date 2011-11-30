@@ -14,7 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "IAlphabet.hpp"
+#include <database/api/IAlphabet.hpp>
 
 /********************************************************************************/
 namespace database {

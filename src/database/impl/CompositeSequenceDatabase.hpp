@@ -14,40 +14,73 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+/** \file CompositeSequenceDatabase.hpp
+ *  \brief Composite database
+ *  \date 07/11/2011
+ *  \author edrezen
+ *
+ *  Define a sequences database class that is composed of several children
+ *  ISequenceDatabase instances.
+ */
+
 #ifndef _COMPOSITE_SEQUENCE_DATABASE_HPP_
 #define _COMPOSITE_SEQUENCE_DATABASE_HPP_
 
 /********************************************************************************/
 
-#include "ISequenceDatabase.hpp"
-#include "AbstractSequenceIterator.hpp"
+#include <database/api/ISequenceDatabase.hpp>
+#include <database/impl/AbstractSequenceIterator.hpp>
 
 #include <list>
 #include <vector>
 
 /********************************************************************************/
 namespace database {
+/** \brief Implementation of concepts related to genomic databases. */
+namespace impl {
 /********************************************************************************/
 
+/** \brief Composite database made of children ISequenceDatabase instances.
+ *
+ *  Sometimes, one may have to deal with several ISequenceDatabase instances.
+ *  Instead of having several databases, one may want to have a 'parent' database
+ *  that seems to be composed of our initial several databases. In that sense, we
+ *  want to have a composite database.
+ */
 class CompositeSequenceDatabase : public ISequenceDatabase
 {
 public:
 
+    /** Constructor.
+     * \param[in] children : list of children ISequenceDatabase instances.
+     */
     CompositeSequenceDatabase (std::list<ISequenceDatabase*> children);
 
     /** Destructor. */
     virtual ~CompositeSequenceDatabase ();
 
-    /** Retrieve the database size. Use offset table for computing. */
+    /** \copydoc ISequenceDatabase::getSize
+     * Computed as the sum of all children databases sizes.
+     */
     u_int64_t getSize ()  { return _totalSize; }
 
-    /** Returns the number of sequences in the database. */
+    /** \copydoc ISequenceDatabase::getSequencesNumber
+     * Computed as the sum of all children databases sequences number.
+     */
     size_t getSequencesNumber ()  { return _sequencesTotalNb; }
 
-    /** Returns a sequence given its index. */
+    /** \copydoc ISequenceDatabase::getSequenceByIndex
+     *  Note that the filled ISequence instance will refer
+     *  the child database it belongs to and not the composite database.
+     */
     bool getSequenceByIndex (size_t index, ISequence& sequence);
 
-    /** Retrieve a sequence given its offset in the database. */
+    /** \copydoc ISequenceDatabase::getSequenceByOffset
+     *  Note that the filled ISequence instance will refer
+     *  the child database it belongs to and not the composite database.
+     *  Note also that the returned 'offsetInDatabase' parameter will refer the offset
+     *  in the child database.
+     */
     bool getSequenceByOffset (
         u_int64_t  offset,
         ISequence& sequence,
@@ -55,20 +88,24 @@ public:
         u_int64_t& offsetInDatabase
     );
 
-    /** Creates a Sequence iterator. */
+    /** \copydoc ISequenceDatabase::createSequenceIterator */
     ISequenceIterator* createSequenceIterator ();
 
-    /** Split the database. */
+    /** \copydoc ISequenceDatabase::split */
     std::vector<ISequenceDatabase*> split (size_t nbSplit);
 
-    /** Return properties about the instance. */
+    /** \copydoc ISequenceDatabase::getProperties */
     dp::IProperties* getProperties (const std::string& root);
 
 private:
 
+    /** Vector of children ISequenceDatabase instances. */
     std::vector<ISequenceDatabase*> _children;
 
+    /** Total number of sequences. */
     size_t    _sequencesTotalNb;
+
+    /** Total data sequences sizes. */
     u_int64_t _totalSize;
 
     std::vector <u_int32_t> _sequencesOffsets;
@@ -77,19 +114,31 @@ private:
 
 
 /********************************************************************************/
+
+/** \brief Sequence iterator for a list of ISequenceIterator instances.
+ *
+ *  This sequence iterator will iterate all provided sequences iterator.
+ *  It is designed to be used by the CompositeSequenceDatabase class.
+ */
 class CompositeSequenceIterator : public AbstractSequenceIterator
 {
 public:
 
+    /** Constructor.
+     * \param itList : list of iterators to be iterated.
+     */
     CompositeSequenceIterator (std::list<ISequenceIterator*>& itList)
         : _itList (itList)
     {
     }
 
+    /** Destructor. */
     virtual ~CompositeSequenceIterator ()  {  }
 
+    /** \copydoc AbstractSequenceIterator::first */
     void first()  {  _it = _itList.begin();   if (_it != _itList.end())  {  (*_it)->first(); } }
 
+    /** \copydoc AbstractSequenceIterator::next */
     dp::IteratorStatus  next()
     {
         (*_it)->next ();
@@ -101,25 +150,33 @@ public:
         return dp::ITER_UNKNOWN;
     }
 
+    /** \copydoc AbstractSequenceIterator::isDone */
     bool isDone()
     {
         bool running = (_it != _itList.end()) && (*_it)->isDone()==false;
         return !running;
     }
 
+    /** \copydoc AbstractSequenceIterator::currentItem */
     const ISequence* currentItem ()  { return (*_it)->currentItem();   }
 
+    /** \copydoc AbstractSequenceIterator::iterate */
     void iterate (void* aClient, Method method);
 
+    /** \copydoc AbstractSequenceIterator::clone */
     ISequenceIterator* clone ()  {  return new CompositeSequenceIterator (_itList);  }
 
 private:
+
+    /** List of the sequences iterator to be iterated. */
     std::list<ISequenceIterator*> _itList;
+
+    /** Iterator on the list of iterators. */
     std::list<ISequenceIterator*>::iterator _it;
 };
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* _COMPOSITE_SEQUENCE_DATABASE_HPP_ */

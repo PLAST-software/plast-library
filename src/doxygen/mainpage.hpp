@@ -1,0 +1,171 @@
+/*****************************************************************************
+ *                                                                           *
+ *   PLAST : Parallel Local Alignment Search Tool                            *
+ *   Version 2.0, released July  2011                                        *
+ *   Copyright (c) 2011                                                      *
+ *                                                                           *
+ *   PLAST is free software; you can redistribute it and/or modify it under  *
+ *   the CECILL version 2 License, that is compatible with the GNU General   *
+ *   Public License                                                          *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the            *
+ *   CECILL version 2 License for more details.                              *
+ *****************************************************************************/
+
+/** \mainpage PlastLibrary Documentation
+ *
+ * \section intro What is PlastLibrary ?
+ *
+ * The PlastLibrary is a library containing all the needed software components
+ * required for comparing two genomic databases with the PLAST algorithm.
+ *
+ * As a library, it doesn't contain any 'main' function. You will find rather
+ * specific binaries using this library, for instance:
+ *  - PlastCmd : binary for end user that wants to compare genomic databases
+ *  - PlastLibraryTest : unit tests for components of the PLAST library
+ *  - PlastDiff : binary for comparing different tools (PLAST vs BLAST for instance)
+ *
+ * You will find here the code documentation for namespaces, classes, methods of the different
+ * components that makes the PlastLibrary design.
+ *
+ * \section concepts Main concepts
+ *
+ * \subsection concepts_intro Introduction
+ *
+ * PLAST is a parallel local alignment search tool for database comparison. It scans two provided
+ * genomic databases (in FASTA format for instance) and starts its search by looking for small
+ * similarities (3 or 4 letters for instance) between the two databases.
+ *
+ * For efficiency issues, PLAST first indexes the two databases with an index model based on seeds,
+ * ie. small words of nucleotids or amino acids. Once the indexes are built, it looks for each occurrence
+ * in the subject and query databases of each possible seed. Such an occurrence in both databases
+ * is called a hit.
+ *
+ * Then, the PLAST algorighm tries to keep only the best alignments from these initial hits set.
+ * This is done through different steps:
+ *      - ungap alignments : score computed on ungap alignments (about 40 letters in each databases)
+ *      - small gap alignments : score computed on small gap alignments (about 130 letters in each databases)
+ *      - full gap alignments  : dynamic programming for finding gap alignments (arbitrary length)
+ *
+ * Then, the PLAST algorighm is composed of several steps, each step filtering out the result of previous step.
+ * At the end, only the alignments that fulfill the end user parameters are kept.
+ *
+ * So, the PLAST algorithm looks like a unix pipe; actually, the choosen design will keep this point of view:
+ * an initial set of hits (from the subject and query indexations) is iterated at each step and filtered out
+ * if needed.
+ *
+ *
+ * \subsection concepts_perf Performance
+ *
+ * PLAST is proposed as a parallel alternative of the well known BLAST tool. The main idea is to use hardware
+ * capacities for speeding up the algorithm execution.
+ *
+ * In particular, the following hardware capacities are used by PLAST:
+ *   - multicore architectures : N cores can be used for processing N pieces of the algorithm
+ *   - Simple Instruction Multiple Data (SIMD) : can be used for computing several algorithm parts in a single instruction;
+ *     a SSE implementation for specific components of the PLAST algorithm is proposed
+ *
+ * \subsection concepts_details Key concepts
+ *
+ * The key concept of the PLAST design is the iteration. As said above, the algorithm iterates an initial set of hits and
+ * tries to filter it out. Then, the resulting filtered set of hits is iterated by the next algorithm step, and so on.
+ *
+ * The Iterator concept (see GOF[94]) is the object oriented view of the iteration. An Iterator object knows how to iterate
+ * some set. The interesting part is that the Iterator object uses always the same API for iterating the underlying set,
+ * whatever the set can be.
+ *
+ * For PLAST, using Iterators will uniformize the design of the algorithm components. In particular, we will define a specific
+ * interface for iterating hits (called IHitIterator) that will be used throughout the algorithm steps. Different implementations
+ * of the IHitIterator interface will correspond to the ungap alignments step, small gap alignments step and so on.
+ *
+ * Beyond this uniformization aspect, the Iterator pattern can be used for implementing our parallization scheme for multicores
+ * architectures. We can split an Iterator instance in several Iterator instances, where the iterated set of the initial instance
+ * is the same as the union of the iterated sets of split instances. It is then easy to iterate each split iterator in a specific
+ * thread, running on a specific core and we are done with this parallelization aspect.
+ *
+
+ * \subsection concepts_entrypoint Entry point
+ *
+ * People who wants to use the library have to know its "entry point", ie. what they have to call in their main function.
+ *
+ * The IEnvironment interface may be seen as such an "entry point". It provide a 'run' method to be called for launching the
+ * PLAST algorithm. This 'run' method has an argument that provides all the parametrization of the algorithm (for instance
+ * the path of the two genomic databases to be compared).
+ *
+ * \section namespaces Namespaces architecture
+ *
+ * The top level namespaces are the following:
+ *  - os : contains an operating system abstraction layer for making multi plateform development easier
+ *  - designpattern : contains several Design Pattern (Iterator, Command, Observer...) used throughout the code
+ *  - database : provides concepts for using genomic databases
+ *  - seed : provides concepts related to seeds (ie. small words of genomic letters)
+ *  - index : provides tools for indexation of genomic databases, with seeds as indexes
+ *  - statistics : provides tools for managing statistical aspects of the PLAST algorithm
+ *  - algorithm : components of the PLAST algorithm
+ *  - misc : miscellanous (types definitions for instance)
+ *
+ *  Most of these top level namespaces hold:
+ *      - a sub namespace 'api' containing interface definitions
+ *      - a sub namespace 'impl' containing one or several implementations of the interfaces defined in 'api'
+ *
+ * The top level 'algorithm' is a little bit special. It is there that the PLAST algorithm is actually
+ * implemented. It relies on all the other top level namespaces. It is itself composed of the following
+ * sub namespaces:
+ *      - core   : configuration and running entry point of the PLAST algorithm
+ *      - hits   : hits iterators management; PLAST algorithm parts are implemented there
+ *      - result : alignments management (dumping alignments result into a file for instance)
+ *
+ *
+ * \section headers Including header files
+ *
+ * The header path files reflect the namespaces organization.
+ *
+ * For instance, accessing to the ISequenceDatabase interface can be done with:
+ * \code
+#include <database/api/ISequenceDatabase.hpp>
+ * \endcode
+ *
+ * Accessing to a specific implementation of this interface can be done with:
+ * \code
+#include <database/impl/BufferedSequenceDatabase.hpp>
+ * \endcode
+ *
+ * It has two benefits:
+ *      - the include directive gives a clear indication about the nature of the definition included
+ *        (likely to related to database management in the example above)
+ *      - compilation command only have to provide the path of the global source directory, ie.
+ *        something like -I/somepath/PlastLibrary/src
+ *
+ *
+ * \section compilation Compiling with the PlastLibrary
+ *
+ * Here is a small example of use of the PlastLibrary; it merely iterates the sequences of a FASTA file and print a few information
+ * about each sequence. We put this code sample in the test.cpp file.
+ * \code
+#include <database/impl/FastaSequenceIterator.hpp>
+
+using namespace database::impl;
+
+int main (int argc, char* argv[])
+{
+    const char* filename = (argc >= 2 ? argv[1] : "/tmp/tursiops.fa");
+
+    // we create a sequence iterator on a FASTA file
+    FastaSequenceIterator it (filename);
+
+    // we display each sequence comment
+    for (it.first(); !it.isDone(); it.next())   {  printf ("%s\n", it.currentItem()->comment);  }
+
+    return 0;
+}
+ * \endcode
+ *
+ * Now, for generating the executable (on Linux), one should have to do something like this:
+ * \code
+ * g++ test.cpp -I/somepath/PlastLibrary/src -L/somepath/PlastLibrary/lib  -lPlastLibrary -lpthread -lrt -o plasttest
+ * \endcode
+ *
+ * Note that you need (on Linux) to use the posix thread library (pthread) and the real time library (rt).
+ */

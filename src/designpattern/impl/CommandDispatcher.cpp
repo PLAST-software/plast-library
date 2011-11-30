@@ -14,16 +14,16 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "CommandDispatcher.hpp"
-#include "DefaultOsFactory.hpp"
-
-#include "macros.hpp"
+#include <designpattern/impl/CommandDispatcher.hpp>
+#include <os/impl/DefaultOsFactory.hpp>
+#include <misc/api/macros.hpp>
 
 using namespace std;
 using namespace os;
+using namespace os::impl;
 
 /********************************************************************************/
-namespace dp {
+namespace dp {  namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -37,7 +37,7 @@ namespace dp {
 DefaultCommandInvoker::DefaultCommandInvoker (IThreadFactory* threadFactory)
     : _threadFactory(threadFactory), _thread(0), _synchro(0), _command(0)
 {
-    _synchro = os::DefaultFactory::singleton().getThreadFactory().newSynchronizer();
+    _synchro = DefaultFactory::thread().newSynchronizer();
 }
 
 /*********************************************************************
@@ -150,38 +150,11 @@ void* DefaultCommandInvoker::mainloop (void* data)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-ICommandInvokerFactory& DefaultCommandInvokerFactory::singleton()
-{
-    static DefaultCommandInvokerFactory instance;
-    return instance;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-ICommandInvoker* DefaultCommandInvokerFactory::newCommandInvoker (const char* name, ...)
-{
-    return new DefaultCommandInvoker (& DefaultFactory::singleton().getThreadFactory());
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-ParallelCommandDispatcher::ParallelCommandDispatcher (ICommandInvokerFactory& factory, size_t nbUnits)
-    : _factory (factory), _nbUnits(nbUnits)
+ParallelCommandDispatcher::ParallelCommandDispatcher (size_t nbUnits)
+    : _nbUnits(nbUnits)
 {
     /** If the default value was provided, we try to guess the number of cores. */
-    if (_nbUnits == 0)  {  _nbUnits = DefaultFactory::singleton().getThreadFactory().getNbCores();  }
+    if (_nbUnits == 0)  {  _nbUnits = DefaultFactory::thread().getNbCores();  }
 }
 
 /*********************************************************************
@@ -192,11 +165,9 @@ ParallelCommandDispatcher::ParallelCommandDispatcher (ICommandInvokerFactory& fa
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-u_int32_t  ParallelCommandDispatcher::dispatchCommands (list<ICommand*> commands, ICommand* postTreatment)
+void  ParallelCommandDispatcher::dispatchCommands (list<ICommand*> commands, ICommand* postTreatment)
 {
-    u_int32_t startTime = DefaultFactory::singleton().getTimeFactory().gettime();
-
-    DEBUG (("ParallelCommandDispatcher::dispatchCommands  START (%d)\n", startTime));
+    DEBUG (("ParallelCommandDispatcher::dispatchCommands  START \n"));
 
     /** We need a list holding the threads we want to create for the command execution dispatch. */
     list<ICommandInvoker*> invokers;
@@ -205,7 +176,7 @@ u_int32_t  ParallelCommandDispatcher::dispatchCommands (list<ICommand*> commands
     for (list<ICommand*>::iterator it = commands.begin(); it != commands.end(); it++)
     {
         /** We create a thread and use it. */
-        ICommandInvoker* t = _factory.newCommandInvoker ();
+        ICommandInvoker* t = newCommandInvoker ();
         t->use();
 
         /** We add it into the list. */
@@ -237,9 +208,6 @@ u_int32_t  ParallelCommandDispatcher::dispatchCommands (list<ICommand*> commands
     DefaultCommandInvoker().executeCommand (postTreatment);
 
     DEBUG (("ParallelCommandDispatcher::dispatchCommands  FINISHED\n"));
-
-    /** We return the elapsed time. */
-    return  DefaultFactory::singleton().getTimeFactory().gettime() - startTime;
 }
 
 /*********************************************************************
@@ -250,10 +218,21 @@ u_int32_t  ParallelCommandDispatcher::dispatchCommands (list<ICommand*> commands
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-u_int32_t SerialCommandDispatcher::dispatchCommands (std::list<ICommand*> commands, ICommand* postTreatment)
+ICommandInvoker* ParallelCommandDispatcher::newCommandInvoker ()
 {
-    u_int32_t startTime = DefaultFactory::singleton().getTimeFactory().gettime();
+    return new DefaultCommandInvoker (& DefaultFactory::thread());
+}
 
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void SerialCommandDispatcher::dispatchCommands (std::list<ICommand*> commands, ICommand* postTreatment)
+{
     DefaultCommandInvoker invoker;
 
     for (list<ICommand*>::iterator it = commands.begin(); it != commands.end(); it++)
@@ -263,11 +242,8 @@ u_int32_t SerialCommandDispatcher::dispatchCommands (std::list<ICommand*> comman
 
     /** We may have to do some post treatment. Note that we do it in the current thread. */
     invoker.executeCommand (postTreatment);
-
-    /** We return the elapsed time. */
-    return  DefaultFactory::singleton().getTimeFactory().gettime() - startTime;
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/

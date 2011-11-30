@@ -14,35 +14,66 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+/** \file ISequenceBuilder.hpp
+ *  \brief Define how sequences content is built.
+ *  \date 07/11/2011
+ *  \author edrezen
+ *
+ *   Define how sequences content is built.
+ */
+
 #ifndef _ISEQUENCE_BUILDER_HPP_
 #define _ISEQUENCE_BUILDER_HPP_
 
 /********************************************************************************/
 
-#include "ISequence.hpp"
-#include "SmartPointer.hpp"
+#include <database/api/ISequence.hpp>
+#include <designpattern/api/SmartPointer.hpp>
 
 /********************************************************************************/
+/** \brief Definition of concepts related to genomic databases. */
 namespace database {
 /********************************************************************************/
 
-/** Forward references. */
+/* Forward references. */
 class ISequence;
 
 /********************************************************************************/
-/** We define a class that can modify a ISequence instance internals.
+/** \brief Interface that can modify a ISequence instance internals
+ *
+ * The ISequence structure just holds information but doesn't explain how to instanciate objects.
+ *
+ * This interface provides means for building the content (comment and data) of a ISequence instance.
+ * In that sense, it can be seen as a Builder Design Pattern, where instances of ISequence are built
+ * during some process.
+ *
+ * Actually, this process corresponds to the reading of a genomic database (reading of a FASTA file for
+ * instance); a builder is attached to the reader and each time the reader finds a piece of a sequence,
+ * it calls the builder which completes the ISequence building with this read information.
+ *
+ *  For instance, during a FASTA file iteration, the iterator finds a comment (beginning
+ *  by '>'). It can then call the builder through the 'setComment' method, and so the
+ *  builder can fill the appropriate comment attribute of the ISequence instance it builds. When the
+ *  iterator finds a line of data, it calls the 'addData' method of the builder.
  */
 class ISequenceBuilder: public dp::SmartPointer
 {
 public:
 
-    /** Accessor to the ISequence. */
+    /** Accessor to the ISequence.
+     * \return the built sequence.
+     */
     virtual ISequence* getSequence  () = 0;
 
-    /** Encoding of the data to be built. */
+    /** Encoding of the data to be built.
+     * \return the encoding scheme.
+     */
     virtual Encoding getEncoding () = 0;
 
-    /** Set the comment for the current sequence being built. */
+    /** Set the comment for the current sequence being built.
+     * \param[in] buffer : buffer holding the textual commentary.
+     * \param[in] length : size of the buffer
+     */
     virtual void setComment (const char* buffer, size_t length) = 0;
 
     /** Reset the data for the current sequence being built. */
@@ -51,7 +82,11 @@ public:
     /** Add some information for the current sequence being built.
      *  Note that a potential encoding conversion will have to be done from
      *  the encoding scheme of the provided data to the encoding scheme of the
-     *  builder. */
+     *  builder.
+     *  \param[in] data : the data
+     *  \param[in] size : size of the data
+     *  \param[in] encoding : encoding type of the data
+     */
     virtual void addData (const LETTER* data, size_t size, Encoding encoding) = 0;
 
     /** Some post treatment capabilities. */

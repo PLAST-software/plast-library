@@ -14,33 +14,43 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/*****************************************************************************
- *   Implementation of IThread interface for Windows OS.
- *****************************************************************************/
+/** \file WindowsThread.hpp
+ *  \date 07/11/2011
+ *  \author edrezen
+ *  \brief Windows abstraction of thread management.
+ */
 
 #ifndef WINDOWS_THREAD_HPP_
 #define WINDOWS_THREAD_HPP_
 
 /********************************************************************************/
 
-#include "IThread.hpp"
+#include <os/api/IThread.hpp>
 
 /********************************************************************************/
 namespace os {
+/** \brief Implementation of Operating System abstraction layer */
+namespace impl {
 /********************************************************************************/
 
+/** \brief Factory that creates IThread instances.
+ *
+ *  Thread creation needs merely the main loop function that will be called.
+ */
 class WindowsThreadFactory : public IThreadFactory
 {
 public:
 
-    static IThreadFactory& singleton ();
-
+    /** Destructor. */
     virtual ~WindowsThreadFactory() {}
 
-    IThread* newThread (void* (mainloop) (void*), void* data);
+    /** \copydoc IThreadFactory::newThread */
+    IThread* newThread (void* (*mainloop) (void*), void* data);
 
+    /** \copydoc IThreadFactory::newSynchronizer */
     ISynchronizer* newSynchronizer (void);
 
+    /** \copydoc IThreadFactory::getNbCores */
     size_t getNbCores ();
 
 private:
@@ -48,7 +58,7 @@ private:
 };
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* WINDOWS_THREAD_HPP_ */

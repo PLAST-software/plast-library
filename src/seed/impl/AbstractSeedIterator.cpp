@@ -14,8 +14,8 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "AbstractSeedIterator.hpp"
-#include "DefaultOsFactory.hpp"
+#include <seed/impl/AbstractSeedIterator.hpp>
+#include <os/impl/DefaultOsFactory.hpp>
 
 #include <stdlib.h>
 
@@ -26,7 +26,7 @@ using namespace std;
 using namespace database;
 
 /********************************************************************************/
-namespace seed {
+namespace seed { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -53,7 +53,7 @@ AbstractSeedIterator::AbstractSeedIterator (ISeedModel* model, size_t firstIdx, 
     _model->use ();
 
     /** We create a synchronizer. */
-    _synchro = os::DefaultFactory::singleton().getThreadFactory().newSynchronizer();
+    _synchro = os::impl::DefaultFactory::thread().newSynchronizer();
 }
 
 /*********************************************************************
@@ -147,5 +147,5 @@ void AbstractSeedIterator::iterate (void* aClient, Method method)
 
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/

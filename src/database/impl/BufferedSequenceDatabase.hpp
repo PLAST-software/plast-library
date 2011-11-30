@@ -14,15 +14,21 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+/** \file BufferedSequenceDatabase.hpp
+ *  \brief Sequence database in memory
+ *  \date 07/11/2011
+ *  \author edrezen
+ */
+
 #ifndef _BUFFERED_SEQUENCE_DATABASE_HPP_
 #define _BUFFERED_SEQUENCE_DATABASE_HPP_
 
 /********************************************************************************/
 
-#include "ISequenceDatabase.hpp"
-#include "ISequenceCache.hpp"
-#include "ISequenceBuilder.hpp"
-#include "AbstractSequenceIterator.hpp"
+#include <database/api/ISequenceDatabase.hpp>
+#include <database/api/ISequenceCache.hpp>
+#include <database/api/ISequenceBuilder.hpp>
+#include <database/impl/AbstractSequenceIterator.hpp>
 
 #include <vector>
 #include <string>
@@ -30,30 +36,71 @@
 
 /********************************************************************************/
 namespace database {
+/** \brief Implementation of concepts related to genomic databases. */
+namespace impl {
 /********************************************************************************/
 
-/** Sequence iterator that uses memory cached information for iterating sequences.
+/** \brief ISequenceDatabase implementation with all data kept in RAM.
+ *
+ *  This class implements the ISequenceDatabase interface by keeping the whole database
+ *  in memory.
+ *
+ *  The whole database information is kept in a cache (instance of ISequenceCache) which is
+ *  built once when some client call some method of the class.
+ *
+ *  The cache is built from some sequence iterator by providing to this iterator a ISequenceBuilder instance.
+ *  When the iteration is done, the builder has finished to build the full cache. Note that the iterator
+ *  is release once the cache has been fully built.
+ *
+ *  From this cache, the BufferedSequenceDatabase class can extract information to be compliant
+ *  to the ISequenceDatabase interface.
+ *
+ *  Code sample:
+ *  \code
+ *  void sample ()
+ *  {
+ *      // we create a sequence iterator that reads FASTA file
+ *      ISequenceIterator* seqIt = new FastaSequenceIterator ("tursiops.fa", 100);
+ *
+ *      // we create a memory cached database from this sequence iterator
+ *      ISequenceDatabase* database = new BufferedSequenceDatabase (seqIt, false);
+ *
+ *      // we try to retrieve the third sequence
+ *      ISequence sequence;
+ *      if (database->getSequenceByIndex (2, sequence) == true)
+ *      {
+ *          // we can do anything we want with the retrieved sequence.
+ *      }
+ *  }
+ *  \endcode
  */
 class BufferedSequenceDatabase : public ISequenceDatabase
 {
 public:
 
-    /** Constructor that builds the cache from a sequence iterator. */
+    /** Constructor that builds the cache from a sequence iterator.
+     * \param[in] refIterator : iterator from which the memory cache is built
+     * \param[in] filterLowComplexity : tells whether one should filter out low informative regions from sequences.
+     */
     BufferedSequenceDatabase (ISequenceIterator* refIterator, bool filterLowComplexity);
 
     /** Destructor. */
     virtual ~BufferedSequenceDatabase ();
 
-    /** Returns the number of sequences in the database. */
+    /** \copydoc ISequenceDatabase::getSequencesNumber
+     * The cache is supposed to be already built. */
     size_t getSequencesNumber ()  { getCache();  return _nbSequences; }
 
-    /** Retrieve the database size. Use offset table for computing. */
+    /** \copydoc ISequenceDatabase::getSize
+     * The cache is supposed to be already built. */
     u_int64_t getSize ()  {  return (getCache()->offsets.data)[_lastIdx+1] - (getCache()->offsets.data)[_firstIdx];  }
 
-    /** Returns a sequence given its index. */
+    /** \copydoc ISequenceDatabase::getSequenceByIndex
+     * The cache is supposed to be already built. */
     bool getSequenceByIndex (size_t index, ISequence& sequence);
 
-    /** Retrieve a sequence given its offset in the database. */
+    /** \copydoc ISequenceDatabase::getSequenceByOffset
+     * The cache is supposed to be already built. */
     bool getSequenceByOffset (
         u_int64_t  offset,
         ISequence& sequence,
@@ -61,47 +108,81 @@ public:
         u_int64_t& offsetInDatabase
     );
 
-    /** Creates a Sequence iterator. */
+    /** \copydoc ISequenceDatabase::createSequenceIterator
+     * The cache is supposed to be already built. */
     ISequenceIterator* createSequenceIterator () { return new BufferedSequenceIterator (this, getCache(), _firstIdx, _lastIdx); }
 
-    /** Split the database. */
+    /** \copydoc ISequenceDatabase::split
+     * The cache is supposed to be already built. */
     std::vector<ISequenceDatabase*> split (size_t nbSplit);
 
-    /** Return properties about the instance. */
+    /** \copydoc ISequenceDatabase::getProperties */
     dp::IProperties* getProperties (const std::string& root);
 
 private:
 
-    /** Constructor that uses a provided cache and an index range for iterating the cache. */
+    /** Constructor that uses a provided cache and an index range for iterating the cache.
+     * \param[in] cache : cache to be used
+     * \param[in] firstIdx : first index to be used in the cache
+     * \param[in] lastIdx  : last index to be used in the cache
+     */
     BufferedSequenceDatabase (ISequenceCache* cache, size_t firstIdx, size_t lastIdx);
 
     /** Number of sequences of the database. */
     size_t _nbSequences;
 
-    /** */
-    bool isIndexValid (size_t idx)  { return idx < _nbSequences; }
+    /** Check that the provided index is correct.
+     * \param[in] idx : the index to be checked.
+     * \return true if ok, false otherwise.
+     */
+    bool isIndexValid (size_t idx)  { getCache(); return idx < _nbSequences; }
 
+    /** Reference on the sequence iterator to be used for building the cache. */
     ISequenceIterator* _refIterator;
+
+    /** Smart setter for the refIterator attribute.
+     * \param[in] refIterator : the value to be set.
+     */
     void setRefSequenceIterator (ISequenceIterator* refIterator)  { SP_SETATTR (refIterator); }
 
-    /** We need a sequences cache instance. */
+    /** Cache instance. */
     ISequenceCache* _cache;
+
+    /** Accessor to the cache instance.
+     * \return the cache.
+     */
     ISequenceCache* getCache();
+
+    /** Smart setter for the cache attribute.
+     * \param[in] cache : the cache to be set.
+     */
     void setCache (ISequenceCache* cache)  { SP_SETATTR(cache); }
 
-    /** Method for building the cache. */
+    /** Method for building the cache.
+     * \param[in] refIterator : the sequence iterator to be used for building the cache.
+     * \return the built cache.
+     */
     ISequenceCache* buildCache (ISequenceIterator* refIterator);
 
+    /** First index to be used in the cache. */
     size_t _firstIdx;
+
+    /** Last index to be used in the cache. */
     size_t _lastIdx;
 
-    /** Update the provided sequence with information of sequence given by an index. */
+    /** Update the provided sequence with information of sequence given by an index.
+     * \param[in] idx : index of the sequence to be used
+     * \param[in] sequence : sequence to be filled.
+     */
     void updateSequence (size_t idx, ISequence& sequence);
 
-    /** */
+    /** Tells whether the sequence have to be filtered out (ie. removing low informative regions). */
     bool _filterLowComplexity;
 
     /********************************************************************************/
+
+    /** \brief Sequence iterator that uses information of cache.
+     */
     class BufferedSequenceIterator : public AbstractSequenceIterator
     {
     public:
@@ -153,20 +234,37 @@ private:
 };
 
 /********************************************************************************/
-/** We need a sequence builder that fills a SequenceCache instance during referenced iteration. */
+/** \brief SequenceBuilder that builds memory cache.
+ *
+ *  Sequence builder that fills a SequenceCache instance during iteration of some sequences iterator.
+ */
 class BufferedSequenceBuilder : public ISequenceBuilder
 {
 public:
+
+    /** Constructor.
+     * \param[in] cache : the cache to be built.
+     */
     BufferedSequenceBuilder (ISequenceCache* cache);
+
+    /** Destructor. */
     virtual ~BufferedSequenceBuilder () {}
 
-    /** Note: we don't need to get a sequence, we just need iterating for building some product. */
+    /** \copydoc ISequenceBuilder::getSequence
+     * Return always 0.
+     */
     ISequence* getSequence ()  { return 0; }
 
+    /** \copydoc ISequenceBuilder::getEncoding */
     Encoding getEncoding ()  { return _destEncoding; }
 
+    /** \copydoc ISequenceBuilder::setComment */
     void setComment (const char* buffer, size_t length);
+
+    /** \copydoc ISequenceBuilder::resetData */
     void resetData  ();
+
+    /** \copydoc ISequenceBuilder::addData */
     void addData (const LETTER* data, size_t size, Encoding encoding)
     {
         /** We configure (if needed) the conversion table. */
@@ -190,22 +288,32 @@ public:
         }
     }
 
-    /** */
+    /** \copydoc ISequenceBuilder::postTreamtment
+     * Nothing done in this implementation. */
     void postTreamtment ()  { /* does nothing. */ }
 
 protected:
+
+    /** Reference on the cache to be built. */
     ISequenceCache* _cache;
 
     Offset _currentDataCapacity;
     size_t _currentSequencesCapacity;
 
+    /** Source encoding scheme. */
     Encoding      _sourceEncoding;
+
+    /** Destination encoding scheme. */
     Encoding      _destEncoding;
+
+    /** Conversion table. */
     const LETTER* _convertTable;
 };
 
 /********************************************************************************/
-/** Use segmentation for removing low informative regions of the database sequences.
+/** \brief Sequence building with sequence filtering out.
+ *
+ * Use segmentation for removing low informative regions of the database sequences.
  *  The segmentation is supposed to be done in ASCII, so a post treatment will be
  *  necessary for encoding the result in SUBSEED.
  */
@@ -213,13 +321,17 @@ class BufferedSegmentSequenceBuilder : public BufferedSequenceBuilder
 {
 public:
 
+    /** Constructor.
+     * \param cache : the cache to be built.
+     */
     BufferedSegmentSequenceBuilder (ISequenceCache* cache);
 
+    /** Post treatment; it consists here to convert from ASCII to SUBSEED encoding schemes. */
     void postTreamtment ();
 };
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* _BUFFERED_SEQUENCE_DATABASE_HPP_ */

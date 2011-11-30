@@ -16,28 +16,14 @@
 
 #ifdef __LINUX__
 
-#include "LinuxTime.hpp"
+#include <os/impl/LinuxTime.hpp>
 #include <time.h>
 
 #define CLOCK_REALTIME 0
 
 /********************************************************************************/
-namespace os {
+namespace os { namespace impl {
 /********************************************************************************/
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-ITime& LinuxTime::singleton ()
-{
-    static LinuxTime instance;
-    return instance;
-}
 
 /*********************************************************************
 ** METHOD  :
@@ -51,14 +37,14 @@ u_int32_t LinuxTime::gettime ()
 {
     u_int32_t result = 0;
 
-//    struct timespec tp;
-//
-//    int err = clock_gettime (CLOCK_REALTIME, &tp);
-//
-//    if (err == 0)
-//    {
-//        result = tp.tv_sec * 1000  +  tp.tv_nsec / 1000000;
-//    }
+    struct timespec tp;
+
+    int err = clock_gettime (CLOCK_REALTIME, &tp);
+
+    if (err == 0)
+    {
+        result = tp.tv_sec * 1000  +  tp.tv_nsec / 1000000;
+    }
 
     return result;
 }
@@ -75,20 +61,20 @@ u_int32_t LinuxTime::getclock()
 {
     u_int32_t result = 0;
 
-//    struct timespec tp;
-//
-//    int err = clock_gettime (CLOCK_REALTIME, &tp);
-//
-//    if (err == 0)
-//    {
-//        result = tp.tv_sec * 1000000  +  tp.tv_nsec / 1000;
-//    }
+    struct timespec tp;
+
+    int err = clock_gettime (CLOCK_REALTIME, &tp);
+
+    if (err == 0)
+    {
+        result = tp.tv_sec * 1000000  +  tp.tv_nsec / 1000;
+    }
 
     return result;
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* __LINUX__ */

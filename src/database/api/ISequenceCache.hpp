@@ -14,26 +14,43 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+/** \file ISequenceCache.hpp
+ *  \brief Memory cached database
+ *  \date 07/11/2011
+ *  \author edrezen
+ *
+ *   Define an interface of a memory cache that holds a database content. This
+ *   may be used for keeping in memory the genomic sequences read from some file.
+ */
+
 #ifndef _ISEQUENCE_CACHE_HPP_
 #define _ISEQUENCE_CACHE_HPP_
 
 /********************************************************************************/
 
-#include "types.hpp"
-#include "SmartPointer.hpp"
-#include "MemoryAllocator.hpp"
-#include <string>
-#include <vector>
+#include <designpattern/api/SmartPointer.hpp>
+#include <misc/api/Vector.hpp>
 
 /********************************************************************************/
+/** \brief Definition of concepts related to genomic databases. */
 namespace database {
 /********************************************************************************/
 
-/** Provides means to cache a database into memory.
+/** \brief Provides a data structure for caching a database content into memory.
+ *
+ *  This class provides attributes containing sequences information in a flat format, which means:
+ *     - all sequences comments are contained in a vector
+ *     - the whole sequences datas are concatenated in a single table
+ *     - an array of offsets allows to find the start of a sequence in the whole sequences data table.
  */
 class ISequenceCache : public dp::SmartPointer
 {
 public:
+
+    /** Constructor. An estimation of the global data size is provided for configuring vectors sizes. Note that
+     * these vectors may be resized if needed.
+     * \param[in] estimatedSize : estimation of the data size.
+     */
     ISequenceCache (Offset estimatedSize) : dataSize(0), nbSequences(0), sequenceAverageA(0), sequenceAverageB(0)
     {
         database.resize (estimatedSize);
@@ -56,10 +73,10 @@ public:
     size_t sequenceAverageB;
 
     /** Vector that stores the concatenation of the sequences data. */
-    os::Vector<database::LETTER> database;
+    misc::Vector<database::LETTER> database;
 
     /** Vector that stores offsets of the sequences data. */
-    os::Vector<Offset> offsets;
+    misc::Vector<Offset> offsets;
 
     /** Vector that stores the comments. */
     std::vector<std::string> comments;

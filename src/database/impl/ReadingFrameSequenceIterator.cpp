@@ -14,8 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "ReadingFrameSequenceIterator.hpp"
-#include "MemoryAllocator.hpp"
+#include <database/impl/ReadingFrameSequenceIterator.hpp>
 #include <stdlib.h>
 #include <string.h>
 
@@ -24,10 +23,10 @@
 
 using namespace std;
 using namespace os;
-using namespace types;
+using namespace misc;
 
 /********************************************************************************/
-namespace database {
+namespace database { namespace impl  {
 /********************************************************************************/
 
 static LETTER nucleotid2acid [4][4][4] =
@@ -257,6 +256,6 @@ void ReadingFrameSequenceIterator::getCodes (int direction, LETTER l1, LETTER l2
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 

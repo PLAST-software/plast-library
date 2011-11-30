@@ -14,8 +14,8 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "StringSequenceIterator.hpp"
-#include "BasicSequenceBuilder.hpp"
+#include <database/impl/StringSequenceIterator.hpp>
+#include <database/impl/BasicSequenceBuilder.hpp>
 
 #include <string.h>
 #include <stdlib.h>
@@ -27,7 +27,7 @@
 using namespace std;
 
 /********************************************************************************/
-namespace database {
+namespace database { namespace impl  {
 /********************************************************************************/
 
 static const char* commentFormat = "> comment %d";
@@ -67,6 +67,24 @@ StringSequenceIterator::StringSequenceIterator (size_t nb, ...)
     va_end(ap);
 
     DEBUG (("StringSequenceIterator::StringSequenceIterator:  FOUND %d sequences\n", _strings.size()));
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+StringSequenceIterator::StringSequenceIterator (const std::vector<std::string>& strings)
+    : _strings(strings), _currentIdx(0)
+{
+    /** We set the encoding scheme. */
+    setEncoding (SUBSEED);
+
+    /** We set the builder. */
+    setBuilder (new BasicSequenceBuilder (SUBSEED));
 }
 
 /*********************************************************************
@@ -125,6 +143,6 @@ void StringSequenceIterator::updateItem ()
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 

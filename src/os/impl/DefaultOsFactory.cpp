@@ -14,22 +14,25 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "DefaultOsFactory.hpp"
+#include <os/impl/DefaultOsFactory.hpp>
 
-#include "LinuxThread.hpp"
-#include "LinuxTime.hpp"
-#include "LinuxFile.hpp"
+#include <os/impl/LinuxThread.hpp>
+#include <os/impl/LinuxTime.hpp>
+#include <os/impl/LinuxFile.hpp>
+#include <os/impl/LinuxMemory.hpp>
 
-#include "WindowsThread.hpp"
-#include "WindowsTime.hpp"
-#include "WindowsFile.hpp"
+#include <os/impl/WindowsThread.hpp>
+#include <os/impl/WindowsTime.hpp>
+#include <os/impl/WindowsFile.hpp>
+#include <os/impl/WindowsMemory.hpp>
 
-#include "MacOsThread.hpp"
-#include "MacOsTime.hpp"
-#include "MacOsFile.hpp"
+#include <os/impl/MacOsThread.hpp>
+#include <os/impl/MacOsTime.hpp>
+#include <os/impl/MacOsFile.hpp>
+#include <os/impl/MacOsMemory.hpp>
 
 /********************************************************************************/
-namespace os {
+namespace os { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -40,67 +43,30 @@ namespace os {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IThreadFactory&  DefaultFactory::getThreadFactory ()
+DefaultFactory::DefaultFactory ()
 {
 #ifdef __LINUX__
-    return LinuxThreadFactory::singleton();
+    _thread = new LinuxThreadFactory ();
+    _time   = new LinuxTime ();
+    _file   = new LinuxFileFactory ();
+    _memory = new LinuxMemoryAllocator ();
 #endif
 
 #ifdef __WINDOWS__
-    return WindowsThreadFactory::singleton();
+    _thread = new WindowsThreadFactory ();
+    _time   = new WindowsTime ();
+    _file   = new WindowsFileFactory ();
+    _memory = new WindowsMemoryFactory ();
 #endif
 
 #ifdef __DARWIN__
-    return MacOsThreadFactory::singleton();
-#endif
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-ITime& DefaultFactory::getTimeFactory   ()
-{
-#ifdef __LINUX__
-    return LinuxTime::singleton();
-#endif
-
-#ifdef __WINDOWS__
-    return WindowsTime::singleton();
-#endif
-
-#ifdef __DARWIN__
-    return MacOsTime::singleton();
-#endif
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-IFileFactory& DefaultFactory::getFileFactory   ()
-{
-#ifdef __LINUX__
-    return LinuxFileFactory::singleton();
-#endif
-
-#ifdef __WINDOWS__
-    return WindowsFileFactory::singleton();
-#endif
-
-#ifdef __DARWIN__
-    return MacOsFileFactory::singleton();
+    _thread = new MacOsThreadFactory ();
+    _time   = new MacOsTime ();
+    _file   = new MacOsFileFactory ();
+    _memory = new MacOsMemoryFactory ();
 #endif
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/

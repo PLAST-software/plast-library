@@ -14,9 +14,10 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "SubSeedModel.hpp"
-#include "MemoryAllocator.hpp"
-#include "FileLineIterator.hpp"
+#include <seed/impl/SubSeedModel.hpp>
+#include <os/impl/DefaultOsFactory.hpp>
+#include <designpattern/impl/FileLineIterator.hpp>
+
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -26,10 +27,13 @@
 
 using namespace std;
 using namespace os;
+using namespace os::impl;
+using namespace dp;
+using namespace dp::impl;
 using namespace database;
 
 /********************************************************************************/
-namespace seed {
+namespace seed { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -57,7 +61,7 @@ SubSeedModel::SubSeedModel (const char* filename)
     : AbstractSeedModel(0), _allSeedsTable(0), _seedsMaxNumber(1), _currentNumber(0)
 {
     /** We need to read the file. */
-    dp::FileLineIterator it (filename, 256);
+    FileLineIterator it (filename, 256);
 
     /** The first line should be the span. */
     it.first ();
@@ -110,31 +114,6 @@ SubSeedModel::SubSeedModel (size_t nbEntries, ...)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-SubSeedModel::SubSeedModel (size_t nbEntries, va_list va)
-    : AbstractSeedModel(nbEntries), _allSeedsTable(0), _seedsMaxNumber(1), _currentNumber(0)
-{
-    /** We build some attributes. */
-    initialize (_span);
-
-    do {
-        const char* entry = va_arg(va, const char*);
-        addEntry (entry);
-        nbEntries--;
-    } while (nbEntries!=0);
-
-    DEBUG (("SubSeedModel::SubSeedModel  span=%ld  maxSeeds=%ld \n", _span, _seedsMaxNumber));
-
-    //dump ();
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
 SubSeedModel::SubSeedModel (const std::vector<std::string>& subseedStrings)
     : AbstractSeedModel(subseedStrings.size()), _allSeedsTable(0), _seedsMaxNumber(1), _currentNumber(0)
 {
@@ -163,8 +142,8 @@ void SubSeedModel::initialize (size_t span)
     _alphabet = EncodingManager::singleton().getAlphabet (SUBSEED);
 
     /** We allocate the equivalence table. */
-    _equivalenceTable = (char **) MemoryAllocator::singleton().malloc (sizeof(char *)*_span);
-    for (size_t i=0; i<_span; i++)  {  _equivalenceTable[i] = (char *) MemoryAllocator::singleton().malloc (sizeof(char)*_alphabet->size);  }
+    _equivalenceTable = (char **) DefaultFactory::memory().malloc (sizeof(char *)*_span);
+    for (size_t i=0; i<_span; i++)  {  _equivalenceTable[i] = (char *) DefaultFactory::memory().malloc (sizeof(char)*_alphabet->size);  }
 
     _equivalentsTable.resize (_span);
 
@@ -185,12 +164,12 @@ SubSeedModel::~SubSeedModel ()
     /** We deallocate the equivalence table. */
     for (size_t i=0; i<_span; i++)
     {
-        MemoryAllocator::singleton().free (_equivalenceTable[i]);
+        DefaultFactory::memory().free (_equivalenceTable[i]);
     }
 
-    MemoryAllocator::singleton().free (_equivalenceTable);
+    DefaultFactory::memory().free (_equivalenceTable);
 
-    MemoryAllocator::singleton().free (_allSeedsTable);
+    DefaultFactory::memory().free (_allSeedsTable);
 }
 
 /*********************************************************************
@@ -296,10 +275,10 @@ const database::LETTER* SubSeedModel::getAllSeedsTable ()
 {
     if (_allSeedsTable == 0)
     {
-        _allSeedsTable = (LETTER*) MemoryAllocator::singleton().calloc (_span*(_seedsMaxNumber+1), sizeof(LETTER));
+        _allSeedsTable = (LETTER*) DefaultFactory::memory().calloc (_span*(_seedsMaxNumber+1), sizeof(LETTER));
         size_t idx = 0;
 
-        size_t* increments = (size_t*) MemoryAllocator::singleton().calloc (_span, sizeof(size_t));
+        size_t* increments = (size_t*) DefaultFactory::memory().calloc (_span, sizeof(size_t));
 
         for (size_t i=0; i<_span; i++)  {  increments[i] = 0;  }
 
@@ -328,7 +307,7 @@ const database::LETTER* SubSeedModel::getAllSeedsTable ()
         }
 
         /** Some clean up. */
-        MemoryAllocator::singleton().free (increments);
+        DefaultFactory::memory().free (increments);
     }
 
     /** We return the result. */
@@ -587,5 +566,5 @@ void SubSeedModel::AllSeedsIterator::updateItem ()
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/

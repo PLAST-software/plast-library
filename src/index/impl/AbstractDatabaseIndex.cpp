@@ -14,13 +14,14 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "AbstractDatabaseIndex.hpp"
-#include "Property.hpp"
+#include <index/impl/AbstractDatabaseIndex.hpp>
+#include <designpattern/impl/Property.hpp>
 
-#include "macros.hpp"
+#include <misc/api/macros.hpp>
 
 using namespace std;
 using namespace dp;
+using namespace dp::impl;
 using namespace database;
 using namespace seed;
 
@@ -28,7 +29,7 @@ using namespace seed;
 #define DEBUG(a)  //printf a
 
 /********************************************************************************/
-namespace indexation {
+namespace indexation { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -154,9 +155,9 @@ void AbstractDatabaseIndex::removeChildIndex (IDatabaseIndex* child)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-dp::IProperties* AbstractDatabaseIndex::getProperties (const std::string& root)
+IProperties* AbstractDatabaseIndex::getProperties (const std::string& root)
 {
-    dp::IProperties* props = new dp::Properties();
+    IProperties* props = new Properties();
 
     props->add (0, root);
 
@@ -208,5 +209,5 @@ dp::IProperties* AbstractDatabaseIndex::getProperties (const std::string& root)
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/

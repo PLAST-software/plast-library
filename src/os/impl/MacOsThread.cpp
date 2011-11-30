@@ -16,8 +16,8 @@
 
 #ifdef __DARWIN__
 
-#include "MacOsThread.hpp"
-#include "macros.hpp"
+#include <os/impl/MacOsThread.hpp>
+#include <misc/api/macros.hpp>
 #include <memory>
 #include <stdio.h>
 #include <string.h>
@@ -25,7 +25,7 @@
 #define DEBUG(a)  //printf a
 
 /********************************************************************************/
-namespace os {
+namespace os { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -42,6 +42,7 @@ public:
 
     MacOsThread (void* (mainloop) (void*), void* data)
     {
+        mainloop (data);
     }
 
     ~MacOsThread ()
@@ -93,21 +94,7 @@ private:
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IThreadFactory& MacOsThreadFactory::singleton ()
-{
-    static MacOsThreadFactory instance;
-    return instance;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-IThread* MacOsThreadFactory::newThread (void* (mainloop) (void*), void* data)
+IThread* MacOsThreadFactory::newThread (void* (*mainloop) (void*), void* data)
 {
     return new MacOsThread (mainloop, data);
 }
@@ -143,7 +130,7 @@ size_t MacOsThreadFactory::getNbCores ()
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* __DARWIN__ */

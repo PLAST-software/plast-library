@@ -16,16 +16,15 @@
 
 #ifdef __LINUX__
 
-#include "LinuxThread.hpp"
-#include "macros.hpp"
+#include <os/impl/LinuxThread.hpp>
+#include <misc/api/macros.hpp>
 #include <memory>
 #include <stdio.h>
 #include <string.h>
-
 #include <pthread.h>
 
 /********************************************************************************/
-namespace os {
+namespace os { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -75,21 +74,7 @@ private:
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IThreadFactory& LinuxThreadFactory::singleton ()
-{
-    static LinuxThreadFactory instance;
-    return instance;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-IThread* LinuxThreadFactory::newThread (void* (mainloop) (void*), void* data)
+IThread* LinuxThreadFactory::newThread (void* (*mainloop) (void*), void* data)
 {
     return new LinuxThread (mainloop, data);
 }
@@ -139,7 +124,7 @@ size_t LinuxThreadFactory::getNbCores ()
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* __LINUX__ */

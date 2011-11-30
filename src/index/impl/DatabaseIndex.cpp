@@ -14,8 +14,8 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "DatabaseIndex.hpp"
-#include "macros.hpp"
+#include <index/impl/DatabaseIndex.hpp>
+#include <misc/api/macros.hpp>
 
 using namespace std;
 using namespace dp;
@@ -26,7 +26,7 @@ using namespace seed;
 #define DEBUG(a) // printf a
 
 /********************************************************************************/
-namespace indexation {
+namespace indexation { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -215,7 +215,11 @@ IOccurrenceIterator* DatabaseIndex::createOccurrenceIterator (const ISeed* seed,
     /** A little shortcut. */
     std::vector<SequenceOffset>& offsets = _index[code];
 
-    return (offsets.size() > 0 ? new DatabaseOccurrenceIterator (getDatabase(), _span, &offsets, neighbourhoodSize) : 0);
+    return (offsets.size() > 0 ?
+        new DatabaseOccurrenceIterator (getDatabase(), _span, &offsets, neighbourhoodSize)
+        :
+        (IOccurrenceIterator*)  new NullIterator<const ISeedOccurrence*> ()
+    );
 }
 
 /*********************************************************************
@@ -549,5 +553,5 @@ DatabaseIndex::DatabaseOccurrenceBlockIterator::~DatabaseOccurrenceBlockIterator
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/

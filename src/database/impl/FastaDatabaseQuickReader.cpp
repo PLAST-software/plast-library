@@ -14,14 +14,14 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "FastaDatabaseQuickReader.hpp"
-#include "macros.hpp"
+#include <database/impl/FastaDatabaseQuickReader.hpp>
+#include <misc/api/macros.hpp>
 
 #define DEBUG(a)  //printf a
 #define INFO(a)   printf a
 
 /********************************************************************************/
-namespace database {
+namespace database { namespace impl {
 /********************************************************************************/
 
 /*********************************************************************
@@ -62,7 +62,7 @@ FastaDatabaseQuickReader::~FastaDatabaseQuickReader  ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void FastaDatabaseQuickReader::read (u_int64_t  maxblocksize = 0)
+void FastaDatabaseQuickReader::read (u_int64_t  maxblocksize)
 {
     size_t oldIdx     = ~0;
     size_t currentIdx =  0;
@@ -151,6 +151,6 @@ IDatabaseQuickReader::DatabaseKind_e FastaDatabaseQuickReader::getKind ()
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 

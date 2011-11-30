@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #ifndef hashes_h
 #define hashes_h
 /* ordinary jenkins hash function*/

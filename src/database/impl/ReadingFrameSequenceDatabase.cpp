@@ -14,16 +14,16 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include "ReadingFrameSequenceDatabase.hpp"
+#include <database/impl/ReadingFrameSequenceDatabase.hpp>
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
 
 using namespace std;
-using namespace types;
+using namespace misc;
 
 /********************************************************************************/
-namespace database {
+namespace database { namespace impl  {
 /********************************************************************************/
 
 /*********************************************************************
@@ -65,6 +65,6 @@ ReadingFrameSequenceDatabase::~ReadingFrameSequenceDatabase ()
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 

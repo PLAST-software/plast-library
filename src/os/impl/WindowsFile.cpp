@@ -16,37 +16,21 @@
 
 #ifdef __WINDOWS__
 
-#include "WindowsFile.hpp"
-#include <stdio.h>
+#include <os/impl/WindowsFile.hpp>
+#include <os/impl/CommonOsImpl.hpp>
 
 /********************************************************************************/
-namespace os {
+namespace os { namespace impl {
 /********************************************************************************/
 
 /** */
-class WindowsFile : public IFile
+class WindowsFile : public CommonFile
 {
 public:
 
-    WindowsFile (const char* path, const char* mode)
-    {
-        _handle = ::fopen (path, mode);
-    }
+    WindowsFile (const char* path, const char* mode) : CommonFile(path,mode) {}
 
-    virtual ~WindowsFile ()
-    {
-        if (_handle)  { ::fclose (_handle); }
-    }
-
-    bool isEOF () { return feof (_handle); }
-
-    int seeko (u_int64_t offset, int whence)  { return ::fseeko64 (_handle, offset, whence); }
-
-    char* gets (char *s, int size)  { return fgets (s, size, _handle); }
-
-protected:
-
-    FILE* _handle;
+    int seeko (u_int64_t offset, int whence)  {  return (_handle==0 ? -1 : fseeko64 (_handle, offset, whence));  }
 };
 
 /*********************************************************************
@@ -63,7 +47,7 @@ IFile* WindowsFileFactory::newFile (const char* path, const char* mode)
 }
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /*  __LINUX__  */

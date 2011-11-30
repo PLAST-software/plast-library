@@ -14,39 +14,43 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/*****************************************************************************
- *   Linux abstraction of time retrieval.
- *****************************************************************************/
+/** \file LinuxTime.hpp
+ *  \date 07/11/2011
+ *  \author edrezen
+ *  \brief Linux abstraction of time management.
+ */
 
 #ifndef _LINUX_TIME_HPP_
 #define _LINUX_TIME_HPP_
 
 /********************************************************************************/
 
-#include "ITime.hpp"
+#include <os/api/ITime.hpp>
 
 /********************************************************************************/
 namespace os {
+/** \brief Implementation of Operating System abstraction layer */
+namespace impl {
 /********************************************************************************/
 
-/** */
+/** \brief Linux implementation that provides methods returning time.
+ */
 class LinuxTime : public ITime
 {
 public:
 
-    static ITime& singleton ();
-
+    /** Destructor. */
     virtual ~LinuxTime() {}
 
-    /** Returns (in msec) the time. */
+    /** \copydoc ITime::gettime */
     u_int32_t gettime ();
 
-    /** */
+    /** \copydoc ITime::getclock */
     u_int32_t getclock();
 };
 
 /********************************************************************************/
-} /* end of namespaces. */
+} } /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* _LINUX_TIME_HPP_ */
