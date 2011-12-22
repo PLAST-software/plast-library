@@ -40,12 +40,13 @@ using namespace algo::core;
 using namespace algo::align;
 
 #include <stdio.h>
-#define DEBUG(a)  //printf a
+#define DEBUG(a)   //printf a
 
 #define SIZEV 8
 
 // Define a macro for optimized score retrieval through the vector-matrix.
 #define getScore(i,j)  (_matrixAsVector [(i)+((j)<<5)])
+//#define getScore(i,j)  (_matrix [(i)][(j)])
 
 /********************************************************************************/
 namespace algo   {
@@ -95,7 +96,10 @@ SmallGapHitIteratorSSE8::~SmallGapHitIteratorSSE8 ()
 *********************************************************************/
 LETTER* SmallGapHitIteratorSSE8::getNeighbours1 (size_t n)
 {
-    if (n > _neighboursBuf1.size)  { _neighboursBuf1.resize(n);  }
+    if (n > _neighboursBuf1.size)  {  _neighboursBuf1.resize(n);  }
+
+    memset (_neighboursBuf1.data,  database::CODE_X, n*sizeof(LETTER));
+
     return _neighboursBuf1.data;
 }
 
@@ -109,7 +113,10 @@ LETTER* SmallGapHitIteratorSSE8::getNeighbours1 (size_t n)
 *********************************************************************/
 LETTER* SmallGapHitIteratorSSE8::getNeighbours2 (size_t n)
 {
-    if (n > _neighboursBuf2.size)  { _neighboursBuf2.resize(n);  }
+    if (n > _neighboursBuf2.size)  {  _neighboursBuf2.resize(n);  }
+
+    memset (_neighboursBuf2.data,  database::CODE_X, n*sizeof(LETTER));
+
     return _neighboursBuf2.data;
 }
 
@@ -137,10 +144,12 @@ int* SmallGapHitIteratorSSE8::getComputedScores (size_t n)
 *********************************************************************/
 void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
 {
-    DEBUG (("SmallGapHitIteratorSSE8::iterateMethod \n"));
+    HIT_STATS (_iterateMethodNbCalls++);
 
     /** We may have nothing to do. */
-    if (hit->indexes.empty())  { return; }
+    if (hit->indexes.empty())  {  return;  }
+
+    DEBUG (("SmallGapHitIteratorSSE8::iterateMethod \n"));
 
     /** Shortcuts. */
     const Vector<const ISeedOccurrence*>& occur1Vector = hit->occur1;
@@ -158,11 +167,16 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
      *  we store right and left neighbourhoods distinctly (which explain the
      *  factor 2 below for dimensioning vectors). */
 
+    /** We choose n to be a multiple of 8. this will make the SIMD algorithm simpler. */
+    size_t nb = 2*nbActualHits;
+    nb = ( (size_t) ((nb-1)>>3) + 1) << 3;  /** ensure that nb % 8 == 0 */
+
     /** We need a vector holding the scores to be computed. */
-    int* computedScores = getComputedScores (2*nbActualHits);
+    int* computedScores = getComputedScores (nb);
+    memset (computedScores, 0, nb*sizeof (int));
 
     /** We retrieve two big buffers that will hold all neighbourhoods for subject and query. */
-    size_t neighbourhoodsSize = 2*nbActualHits*_parameters->smallGapBandLength;
+    size_t neighbourhoodsSize = nb*_parameters->smallGapBandLength;
     LETTER* neighboursBuf1 = getNeighbours1 (neighbourhoodsSize);
     LETTER* neighboursBuf2 = getNeighbours2 (neighbourhoodsSize);
 
@@ -187,21 +201,10 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
         /** We compute right and left neighbourhoods for both sequences. */
         extendNeighbourhood (occur1Vector.data[it->first],  right1, left1);
         extendNeighbourhood (occur2Vector.data[it->second], right2, left2);
-
-#if 0
-        printf ("occur1='%s'\n", occur1Vector.data[it->first]->sequence.toString().c_str() );
-        printf ("occur2='%s'\n", occur2Vector.data[it->second]->sequence.toString().c_str() );
-        const LETTER* convert = EncodingManager::singleton().getEncodingConversion(SUBSEED, ASCII);
-        printf ("-> r1: offset=%ld  ", occur1Vector.data[it->first]->offsetInSequence);  for (size_t k=0; k<_parameters->smallGapBandLength; k++)  { printf ("%c", convert[right1[k]]); }  printf("\n");
-        printf ("-> l1: offset=%ld  ", occur1Vector.data[it->first]->offsetInSequence);  for (size_t k=0; k<_parameters->smallGapBandLength; k++)  { printf ("%c", convert[left1[k]]); }  printf("\n");
-        printf ("-> r2: offset=%ld  ", occur2Vector.data[it->second]->offsetInSequence);  for (size_t k=0; k<_parameters->smallGapBandLength; k++)  { printf ("%c", convert[right2[k]]); }  printf("\n");
-        printf ("-> l2: offset=%ld  ", occur2Vector.data[it->second]->offsetInSequence);  for (size_t k=0; k<_parameters->smallGapBandLength; k++)  { printf ("%c", convert[left2[k]]); }  printf("\n");
-        printf ("\n");
-#endif
     }
 
     /** Now, 'neighbourhoods1' and 'neighbourhoods2' should hold all the wanted neighbourhoods. */
-    computeScores (2*nbActualHits, neighboursBuf1, neighboursBuf2, computedScores);
+    computeScores (nb, neighboursBuf1, neighboursBuf2, computedScores);
 
     /** We check the scores versus the threshold. */
     size_t k=0;
@@ -211,20 +214,18 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
 
         if (score >= _parameters->smallGapThreshold)
         {
-            /** We increase the number of iterations. */
-            _outputHitsNumber ++;
-
             /** We just continue the iteration. */
             it++;
         }
         else
         {
-            _lowScoreNumber ++;
-
             /** We remove the current index couple. */
             it = hit->indexes.erase (it);
         }
     }
+
+    /** We update the statistics about iterations. */
+    HIT_STATS (_outputHitsNumber += hit->indexes.size();)
 
     /** We are supposed to have computed scores for each hit,
      *  we can forward the information to the client.  */
@@ -246,10 +247,6 @@ void SmallGapHitIteratorSSE8::extendNeighbourhood (const ISeedOccurrence* occur,
 
     /** Shortcuts. */
     database::LETTER* bufIn  = occur->sequence.data.letters.data + occur->offsetInSequence;
-
-    /** We fill the word with default letter. */
-    memset (right, database::CODE_X, neighbourLength);
-    memset (left,  database::CODE_X, neighbourLength);
 
     /** We fill the right neighbour. */
     memcpy (right, bufIn, MIN (neighbourLength,  occur->sequence.data.letters.size - occur->offsetInSequence));
@@ -305,18 +302,16 @@ void SmallGapHitIteratorSSE8::computeScores (
     /* Load minimal score to all elements of a constant */
     vscore_min = _mm_set1_epi16 (-100);
 
-    size_t k=0;
-    size_t i=0;
-
     size_t first_b;
     size_t last_b;
 
-    short temp_score [SIZEV];
+    u_int16_t scoreTmp [SIZEV];
 
-    size_t hitIndex = 0;
-
-    for (k=0; k /*+ SIZEV*/ < nb ; k+=SIZEV)
+    for (size_t k=0; k < nb ; k+=SIZEV)
     {
+        /** Shortcut. */
+        size_t kNeighbourLength = k*neighbourLength;
+
         vbest_arr[0] = _mm_set1_epi16(0);
         //vbest_arr[0] = 0;
 
@@ -326,7 +321,7 @@ void SmallGapHitIteratorSSE8::computeScores (
         _mm_store_si128 (vbest_gap_arr, vgap_open_extend);
         //vbest_gap_arr[0] = -vgap_opend_extend;
 
-        for (i=1; i<neighbourWidth; i++)
+        for (size_t i=1; i<neighbourWidth; i++)
         {
             _mm_store_si128 (vbest_arr+i, vscore);
             //vbest_arr[i] = vscore;
@@ -345,17 +340,19 @@ void SmallGapHitIteratorSSE8::computeScores (
         first_b = 0;
         last_b  = neighbourWidth / 2;
 
-        /** Shortcuts. */
-        const LETTER* pt_A = 0;
-        const LETTER* pt_B = 0;
-
-        for (i=0; i<neighbourLength; i++)
+        for (size_t i=0; i<neighbourLength; i++)
         {
+            /** Shortcut (and optimization). */
+            const LETTER* pt_A = neighbourhoods1 + i + kNeighbourLength;
+
             _mm_store_si128 (&vscore_gap_row, vscore_min);
-            _mm_store_si128 (&vscore, vscore_min);
+            _mm_store_si128 (&vscore,         vscore_min);
 
             for (size_t j=first_b; j<last_b; j++)
             {
+                /** Shortcut (and optimization). */
+                const LETTER* pt_B = neighbourhoods2 + j + kNeighbourLength;
+
                 _mm_store_si128 (&vscore_gap_col, *(vbest_gap_arr+j));
 
                 //vscore_gap_col = vbest_gap_arr[j];
@@ -363,28 +360,25 @@ void SmallGapHitIteratorSSE8::computeScores (
                 //----------vnext_score = vbest_arr[j] + h_matrix[h_A[l + i]][h_B[l+j]];
                 // vtemp = h_matrix[h_A[l + i]][h_B[l+j]]
 
+
+                const LETTER* cursor_A = pt_A;
+                const LETTER* cursor_B = pt_B;
+
                 for (size_t l=0; l<SIZEV; l++)
                 {
-                    if (k+l<nb)
-                    {
-                        pt_A =  neighbourhoods1 + (k+l) * neighbourLength;
-                        pt_B =  neighbourhoods2 + (k+l) * neighbourLength;
+                    scoreTmp[l] = getScore (*cursor_A, *cursor_B);
 
-                        temp_score[l] = getScore (pt_A[i], pt_B[j]) ;
-                    }
-                    else
-                    {
-                        temp_score[l] = 0;
-                    }
+                    cursor_A += neighbourLength;
+                    cursor_B += neighbourLength;
                 }
 
                 vtemp = _mm_set_epi16 (
-                    temp_score[7],temp_score[6],temp_score[5],temp_score[4],
-                    temp_score[3],temp_score[2],temp_score[1],temp_score[0]
+                    scoreTmp[7],scoreTmp[6],scoreTmp[5],scoreTmp[4],
+                    scoreTmp[3],scoreTmp[2],scoreTmp[1],scoreTmp[0]
                 );
 
                 //vtemp = _mm_set1_epi16(0);
-                vtemp = _mm_adds_epi16(vtemp,*(vbest_arr+j));
+                vtemp = _mm_adds_epi16 (vtemp,*(vbest_arr+j));
                 _mm_store_si128 (&vnext_score,vtemp);
 
                 //--------    end vnext_score = vbest_arr[j] +  h_matrix ----//
@@ -420,7 +414,8 @@ void SmallGapHitIteratorSSE8::computeScores (
 
                 _mm_store_si128 (&vscore, vnext_score);
                 //vscore = vnext_score;
-            }
+
+            } /* end of for (size_t j=first_b; j<last_b; j++) */
 
             if (i > 7)      first_b += 1;
 
@@ -435,18 +430,21 @@ void SmallGapHitIteratorSSE8::computeScores (
 
                 last_b += 1;
             }
-        }
 
-        if (hitIndex < nb)  scores[hitIndex++] =  _mm_extract_epi16 (vbest_score,0);
-        if (hitIndex < nb)  scores[hitIndex++] =  _mm_extract_epi16 (vbest_score,1);
-        if (hitIndex < nb)  scores[hitIndex++] =  _mm_extract_epi16 (vbest_score,2);
-        if (hitIndex < nb)  scores[hitIndex++] =  _mm_extract_epi16 (vbest_score,3);
-        if (hitIndex < nb)  scores[hitIndex++] =  _mm_extract_epi16 (vbest_score,4);
-        if (hitIndex < nb)  scores[hitIndex++] =  _mm_extract_epi16 (vbest_score,5);
-        if (hitIndex < nb)  scores[hitIndex++] =  _mm_extract_epi16 (vbest_score,6);
-        if (hitIndex < nb)  scores[hitIndex++] =  _mm_extract_epi16 (vbest_score,7);
+        }  /* end of for (i=0; i<neighbourLength; i++) */
 
-    } /* end of for (k=0; k < nb - SIZEV; k+=SIZEV) */
+        scores[0] =  _mm_extract_epi16 (vbest_score,0);
+        scores[1] =  _mm_extract_epi16 (vbest_score,1);
+        scores[2] =  _mm_extract_epi16 (vbest_score,2);
+        scores[3] =  _mm_extract_epi16 (vbest_score,3);
+        scores[4] =  _mm_extract_epi16 (vbest_score,4);
+        scores[5] =  _mm_extract_epi16 (vbest_score,5);
+        scores[6] =  _mm_extract_epi16 (vbest_score,6);
+        scores[7] =  _mm_extract_epi16 (vbest_score,7);
+
+        scores += SIZEV;
+
+    } /* end of for (k=0; k < nb; k+=SIZEV) */
 }
 
 /*********************************************************************

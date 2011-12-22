@@ -31,6 +31,7 @@
 #include <designpattern/api/SmartPointer.hpp>
 #include <misc/api/types.hpp>
 #include <stddef.h>
+#include <string>
 #include <list>
 
 /********************************************************************************/
@@ -85,6 +86,45 @@ class ICommand : public SmartPointer
 public:
     /** Method that executes some job. */
     virtual void execute () = 0;
+};
+
+/********************************************************************************/
+
+/** \brief Interface for ICommand factories
+ *
+ * This interface defines a factory for creating ICommand instances.
+ *
+ * It also provides a tool for creating a list of commands from a list of factories.
+ * This may be useful for classes that need some data whose retrieval may take a long time.
+ * Instead of being themself a ICommand, they delegate the data retrieval to some ICommand
+ * that they know how to instanciate.
+ */
+class ICommandFactory : public SmartPointer
+{
+public:
+
+    /** Create a command. A name is provided for discriminating the kind of ICommand to be instanciated.
+     * \param[in] name : name used for solving the type of ICommand to create
+     * \return the created command if any.
+     */
+    virtual ICommand* createCommand (const std::string& name) = 0;
+
+    /** Create a list of commands from a list of command factories.
+     * \param[in] factories : list of factories used for creating ICommand instances
+     * \param[in] name : discriminant for creating ICommand instances.
+     * \return the list of ICommand instances.
+     */
+    static std::list<ICommand*> createCommandsList (const std::list<ICommandFactory*>& factories, const std::string& name)
+    {
+        std::list<ICommand*> result;
+
+        for (std::list<ICommandFactory*>::const_iterator it = factories.begin(); it != factories.end(); it++)
+        {
+            result.push_back ((*it)->createCommand(name));
+        }
+
+        return result;
+    }
 };
 
 /********************************************************************************/

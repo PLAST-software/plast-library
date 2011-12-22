@@ -167,6 +167,9 @@ void DefaultEnvironment::run (dp::IProperties* properties)
         /** We execute the algorithms through the dispatcher. */
         dispatcher->dispatchCommands (algorithms, 0);
     }
+
+    /** We send a notification telling we are done (ie. current==total). */
+    this->notify (new AlgorithmConfigurationEvent (parametersList.size(), parametersList.size()));
 }
 
 /*********************************************************************
@@ -315,6 +318,13 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
             if ( (prop = properties->getProperty (STR_OPTION_EVALUE)) != 0)                 {  params->evalue               = atof (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_GAPPED)) != 0)       {  params->XdroppofGap          = atoi (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_FINAL)) != 0)        {  params->finalXdroppofGap     = atoi (prop->value.c_str()); }
+
+            if ( (prop = properties->getProperty (STR_OPTION_SCORE_MATRIX)) != 0)
+            {
+                     if (prop->value.compare ("BLOSUM62")==0)   {  params->matrixKind = ENUM_BLOSUM62;  }
+                else if (prop->value.compare ("BLOSUM50")==0)   {  params->matrixKind = ENUM_BLOSUM50;  }
+                else                                            {  params->matrixKind = ENUM_BLOSUM62;  }
+            }
 
             if ( (prop = properties->getProperty (STR_OPTION_STRANDS_LIST)) != 0)
             {

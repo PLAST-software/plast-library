@@ -118,6 +118,8 @@ FullGapHitIterator::~FullGapHitIterator ()
 *********************************************************************/
 void FullGapHitIterator::iterateMethod  (Hit* hit)
 {
+    HIT_STATS (_iterateMethodNbCalls++);
+
     /** Shortcuts. */
     const Vector<const ISeedOccurrence*>& occur1Vector = hit->occur1;
     const Vector<const ISeedOccurrence*>& occur2Vector = hit->occur2;
@@ -230,16 +232,7 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
 
         /** We retrieve statistical information for the current query sequence. */
         IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfo (seq2);
-
-#if 0
-        DEBUG (("cutoff=%d   score=%d \n", info.cut_offs, score));
-        DEBUG (("   query %ld  : offsetInSeq=%ld  leftOffset=%d  rightOffset=%d\n",
-            occur2->sequence.index, occur2->offsetInSequence, leftOffsetInQuery, rightOffsetInQuery
-        ));
-        DEBUG (("   subject %ld: offsetInSeq=%ld  leftOffset=%d  rightOffset=%d\n",
-            occur1->sequence.index, occur1->offsetInSequence, leftOffsetInSubject, rightOffsetInSubject
-        ));
-#endif
+//printf ("idx=%3d  cutoff=%ld\n", seq2.index, info.cut_offs);
 
         if (score >= info.cut_offs)
         {
@@ -399,16 +392,6 @@ int FullGapHitIterator::SemiGappedAlign (
         score_gap_row = MININT;
         last_b_index  = first_b_index;
 
-#ifdef TT
-printf ("0) reverse=%d  first_b_index=%d   b_size=%d  val=%d \n ",
-    reverse_sequence, first_b_index, b_size,
-    (reverse_sequence ?  A[ M - a_index ]  : A[ a_index ]  )
-);
-//const char* tmp = reverse_sequence ? &B[N - first_b_index] : &B[first_b_index];
-//for (size_t k=first_b_index; k<b_size; k++)  { printf ("%2d ", *tmp);  tmp+=b_increment; }
-//printf ("\n           ==> ");
-#endif
-
         for (b_index = first_b_index; b_index < b_size; b_index++)
         {
 #ifdef WITH_DYNPRO_CORRECT
@@ -424,9 +407,6 @@ printf ("0) reverse=%d  first_b_index=%d   b_size=%d  val=%d \n ",
             score_gap_col = score_array[b_index].best_gap;
             next_score    = score_array[b_index].best + matrix_row[ (int)*b_ptr ];
 
-#ifdef TT
-printf ("%d[%d] ", *b_ptr,  matrix_row[ (int)*b_ptr ]);
-#endif
             if (score < score_gap_col)
                 score = score_gap_col;
 
@@ -469,9 +449,6 @@ printf ("%d[%d] ", *b_ptr,  matrix_row[ (int)*b_ptr ]);
 
         } /* end of for (b_index... */
 
-#ifdef TT
-    printf ("\n");
-#endif
         /* Finish aligning if the best scores for all positions
            of B will fail the X-dropoff test, i.e. the inner loop
            bounds have converged to each other */
@@ -494,7 +471,6 @@ printf ("%d[%d] ", *b_ptr,  matrix_row[ (int)*b_ptr ]);
                before doing the next row */
 
             b_size = last_b_index + 1;
-//if (b_size>=N)  { printf ("ko2  bsize=%d  N=%d\n", b_size, N); }
         }
         else
         {
@@ -510,7 +486,6 @@ printf ("%d[%d] ", *b_ptr,  matrix_row[ (int)*b_ptr ]);
                 score_gap_row               -= gap_extend;
                 b_size++;
             }
-//if (b_size>=N)  { printf ("ko3  bsize=%d  N=%d   prev=%d\n", b_size, N, k); }
         }
 
         if (b_size <= N)
@@ -518,7 +493,6 @@ printf ("%d[%d] ", *b_ptr,  matrix_row[ (int)*b_ptr ]);
             score_array[b_size].best     = MININT;
             score_array[b_size].best_gap = MININT;
             b_size++;
-//if (b_size>=N)  { printf ("ko4  bsize=%d  N=%d\n", b_size, N); }
         }
 
 
@@ -526,9 +500,6 @@ printf ("%d[%d] ", *b_ptr,  matrix_row[ (int)*b_ptr ]);
 
     DefaultFactory::memory().free (score_array);
 
-#ifdef TT
-    printf ("=========> %d %d  (score=%d)\n", *a_offset, *b_offset, best_score);
-#endif
     return best_score;
 }
 

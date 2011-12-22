@@ -135,16 +135,16 @@ public:
     /** Destructor. */
     virtual ~NullIterator () {}
 
-    /** \copydoc IOccurrenceIterator::first  */
+    /** \copydoc Iterator::first  */
     void first() {}
 
-    /** \copydoc IOccurrenceIterator::next  */
+    /** \copydoc Iterator::next  */
     dp::IteratorStatus next() { return dp::ITER_UNKNOWN; }
 
-    /** \copydoc IOccurrenceIterator::isDone  */
+    /** \copydoc Iterator::isDone  */
     bool isDone() { return true; }
 
-    /** \copydoc IOccurrenceIterator::isDone  */
+    /** \copydoc Iterator::isDone  */
     Item currentItem() { return 0; }
 };
 

@@ -14,25 +14,19 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include <os/impl/DefaultOsFactory.hpp>
+#include <database/impl/SequenceTokenizer.hpp>
 
-#include <os/impl/LinuxThread.hpp>
-#include <os/impl/LinuxTime.hpp>
-#include <os/impl/LinuxFile.hpp>
-#include <os/impl/LinuxMemory.hpp>
+#include <string.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <stdio.h>
 
-#include <os/impl/WindowsThread.hpp>
-#include <os/impl/WindowsTime.hpp>
-#include <os/impl/WindowsFile.hpp>
-#include <os/impl/WindowsMemory.hpp>
+#define DEBUG(a)  //printf a
 
-#include <os/impl/MacOsThread.hpp>
-#include <os/impl/MacOsTime.hpp>
-#include <os/impl/MacOsFile.hpp>
-#include <os/impl/MacOsMemory.hpp>
+using namespace std;
 
 /********************************************************************************/
-namespace os { namespace impl {
+namespace database { namespace impl  {
 /********************************************************************************/
 
 /*********************************************************************
@@ -43,28 +37,11 @@ namespace os { namespace impl {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-DefaultFactory::DefaultFactory ()
+SequenceTokenizer::SequenceTokenizer (const database::IWord& sequence)
+ : _sequence (sequence), _currentIdx(0), _size(0)
 {
-#ifdef __LINUX__
-    _thread = new LinuxThreadFactory ();
-    _time   = new LinuxTime ();
-    _file   = new LinuxFileFactory ();
-    _memory = new LinuxMemoryAllocator ();
-#endif
-
-#ifdef __WINDOWS__
-    _thread = new WindowsThreadFactory ();
-    _time   = new WindowsTime ();
-    _file   = new WindowsFileFactory ();
-    _memory = new WindowsMemoryFactory ();
-#endif
-
-#ifdef __DARWIN__
-    _thread = new MacOsThreadFactory ();
-    _time   = new MacOsTime ();
-    _file   = new MacOsFileFactory ();
-    _memory = new MacOsMemoryFactory ();
-#endif
+    /** We build the list of pairs. */
+    build ();
 }
 
 /*********************************************************************
@@ -75,14 +52,55 @@ DefaultFactory::DefaultFactory ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-DefaultFactory::~DefaultFactory ()
+void SequenceTokenizer::build ()
 {
-    if (_thread)    { delete _thread; }
-    if (_time)      { delete _time;   }
-    if (_file)      { delete _file;   }
-    if (_memory)    { delete _memory; }
+    /** We retrieve the alphabet for the encoding of the sequence. */
+    IAlphabet* alphabet = EncodingManager::singleton().getAlphabet (_sequence.encoding);
+
+    if (alphabet != 0)
+    {
+        size_t validIndex = 0;
+
+        /** Shortcuts. */
+        LETTER* data = _sequence.letters.data;
+        size_t  size = _sequence.letters.size;
+
+        /** We loop each letter of the sequence. We maintain a small state machine
+         *  for tracking areas of valid letters.
+         */
+        bool isOK = false;
+
+        for (size_t i=0; i<size; i++)
+        {
+            /** We get the current letter validity status. */
+            bool isValid = alphabet->isValid (data[i]);
+
+            if (isOK==true && !isValid)
+            {
+                isOK = false;
+                _pairs.push_back (pair<size_t,size_t> (validIndex, i-1));
+            }
+
+            else if (isOK==false && isValid)
+            {
+                isOK = true;
+                validIndex = i;
+            }
+
+        } /* end of for (size_t i=0; i<size; i++) */
+
+        /** We may have to add an extra pair. */
+        if (isOK==true)
+        {
+            _pairs.push_back (pair<size_t,size_t> (validIndex, size-1));
+        }
+    }
+
+    /** We update our shortcut. */
+    _size = _pairs.size();
 }
 
 /********************************************************************************/
 } } /* end of namespaces. */
 /********************************************************************************/
+

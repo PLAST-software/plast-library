@@ -31,6 +31,8 @@ using namespace os::impl;
 
 extern "C" void seg_segSequence (char* sequence, size_t length);
 
+u_int64_t nb_getSequenceByOffset = 0;
+
 /********************************************************************************/
 namespace database { namespace impl {
 /********************************************************************************/
@@ -137,7 +139,6 @@ ISequenceCache* BufferedSequenceDatabase::buildCache (ISequenceIterator* refIter
     ISequenceBuilder* builder = 0;
     if (_filterLowComplexity == false)   { builder = new BufferedSequenceBuilder        (result);  }
     else                                 { builder = new BufferedSegmentSequenceBuilder (result);  }
-
     refIterator->setBuilder (builder);
 
     /** We just loop through the ref iterator => the builder will fill the cache vectors. */
@@ -286,6 +287,8 @@ bool BufferedSequenceDatabase::getSequenceByOffset (
     u_int64_t& actualOffsetInDatabase
 )
 {
+    nb_getSequenceByOffset++;
+
     /** Shortcut. */
     ISequenceCache* cache = getCache ();
 
@@ -495,8 +498,9 @@ IProperties* BufferedSequenceDatabase::getProperties (const std::string& root)
 ** REMARKS :
 *********************************************************************/
 BufferedSequenceBuilder::BufferedSequenceBuilder (ISequenceCache* cache)
-    : _cache(cache),  _sourceEncoding(UNKNOWN), _destEncoding(SUBSEED), _convertTable(0)
+    : _cache(0),  _sourceEncoding(UNKNOWN), _destEncoding(SUBSEED), _convertTable(0)
 {
+    setCache (cache);
     _currentDataCapacity      = _cache->database.size;
     _currentSequencesCapacity = _cache->offsets.size;
 }

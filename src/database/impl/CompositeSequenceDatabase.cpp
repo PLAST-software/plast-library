@@ -53,6 +53,8 @@ CompositeSequenceDatabase::CompositeSequenceDatabase (std::list<ISequenceDatabas
         /** Shortcut. */
         ISequenceDatabase* current = *it;
 
+        DEBUG (("CompositeSequenceDatabase::CompositeSequenceDatabase: orf=%p\n", current));
+
         _children.push_back (current);
 
         /** We use the instance. */
@@ -113,6 +115,8 @@ bool CompositeSequenceDatabase::getSequenceByIndex (size_t index, ISequence& seq
         result = _children[i]->getSequenceByIndex (index - _sequencesOffsets[i], sequence);
     }
 
+if (!result)  { printf ("CompositeSequenceDatabase::getSequenceByIndex: AAAAAAAARGGG\n"); }
+
     return result;
 }
 
@@ -151,6 +155,8 @@ bool CompositeSequenceDatabase::getSequenceByOffset (
             offsetInDatabase
         );
     }
+
+if (!result)  { printf ("CompositeSequenceDatabase::getSequenceByOffset: AAAAAAAARGGG\n"); }
 
     return result;
 }
@@ -220,6 +226,41 @@ IProperties* CompositeSequenceDatabase::getProperties (const std::string& root)
     props->add (1, "nb_sequences",   "%ld",  getSequencesNumber());
 
     return props;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+CompositeSequenceIterator::CompositeSequenceIterator (std::list<ISequenceIterator*>& itList)
+    : _itList (itList)
+{
+    /** We use each provided sequence iterator. */
+    for (list<ISequenceIterator*>::iterator it = _itList.begin() ; it != _itList.end(); it++)
+    {
+        (*it)->use();
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+CompositeSequenceIterator::~CompositeSequenceIterator ()
+{
+    /** We release each provided sequence iterator. */
+    for (list<ISequenceIterator*>::iterator it = _itList.begin() ; it != _itList.end(); it++)
+    {
+        (*it)->forget();
+    }
 }
 
 /*********************************************************************

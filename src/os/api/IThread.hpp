@@ -103,11 +103,6 @@ public:
     /** Returns the number of available cores.
      * \return the number of cores. */
     virtual size_t getNbCores () = 0;
-
-protected:
-
-    /** Destructor. */
-    ~IThreadFactory () {}
 };
 
 /********************************************************************************/

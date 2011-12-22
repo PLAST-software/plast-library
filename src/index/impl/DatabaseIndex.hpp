@@ -130,6 +130,8 @@ private:
      */
     void iterateSeed (const seed::ISeed* seed);
 
+    /** */
+    Offset _lastValidOffset;
 
     /********************************************************************************/
     /** \brief IOccurrenceIterator implementation used by DatabaseIndex::createOccurrenceIterator class.

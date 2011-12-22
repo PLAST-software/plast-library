@@ -14,9 +14,12 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#include <algo/stats/impl/Statistics.hpp>
 #include <misc/api/types.hpp>
+#include <misc/api/macros.hpp>
+
 #include <os/impl/DefaultOsFactory.hpp>
+
+#include <algo/stats/impl/Statistics.hpp>
 
 #include <math.h>
 
@@ -33,51 +36,57 @@ using namespace algo::core;
 namespace statistics { namespace impl {
 /********************************************************************************/
 
-#define INT2_MAX    32768
+#define VMAX    (double)32768
 
-/** Number of statistical parameters in each row of the precomputed tables. */
-#define BLAST_NUM_STAT_VALUES 8
+/** Structure holding statistical information. */
+struct Info
+{
+    double openGap;
+    double extendGap;
+    double lambda;
+    double K;
+    double H;
+    double alpha;
+    double beta;
+};
 
-/** Holds values (gap-opening, extension, etc.) for a matrix. */
-typedef double array_of_8[BLAST_NUM_STAT_VALUES];
+/** Supported values (gap-existence, extension, etc.) for BLOSUM62. */
+static Info blosum62_values [] =
+{ // openGap  extendGap   lambda     K       H       alpha   beta
+    { VMAX,    VMAX,      0.3176,  0.134,  0.4012,  0.7916,  -3.2    },
+    {   11,       2,      0.2970,  0.082,  0.2700,  1.1000,  -10     },
+    {   10,       2,      0.2910,  0.075,  0.2300,  1.3000,  -15     },
+    {    9,       2,      0.2790,  0.058,  0.1900,  1.5000,  -19     },
+    {    8,       2,      0.2640,  0.045,  0.1500,  1.8000,  -26     },
+    {    7,       2,      0.2390,  0.027,  0.1000,  2.5000,  -46     },
+    {    6,       2,      0.2010,  0.012,  0.0610,  3.3000,  -58     },
+    {   13,       1,      0.2920,  0.071,  0.2300,  1.2000,  -11     },
+    {   12,       1,      0.2830,  0.059,  0.1900,  1.5000,  -19     },
+    {   11,       1,      0.2670,  0.041,  0.1400,  1.9000,  -30     },
+    {   10,       1,      0.2430,  0.024,  0.1000,  2.5000,  -44     },
+    {    9,       1,      0.2060,  0.010,  0.0520,  4.0000,  -87     }
+};
 
-#define BLOSUM62_VALUES_MAX 12 /**< Number of different combinations supported for BLOSUM62. */
-
-static array_of_8 blosum62_values [BLOSUM62_VALUES_MAX] = {
-    {(double) INT2_MAX, (double) INT2_MAX, (double) INT2_MAX, 0.3176, 0.134, 0.4012, 0.7916, -3.2},
-    {11, 2, (double) INT2_MAX, 0.297, 0.082, 0.27, 1.1, -10},
-    {10, 2, (double) INT2_MAX, 0.291, 0.075, 0.23, 1.3, -15},
-    {9, 2, (double) INT2_MAX, 0.279, 0.058, 0.19, 1.5, -19},
-    {8, 2, (double) INT2_MAX, 0.264, 0.045, 0.15, 1.8, -26},
-    {7, 2, (double) INT2_MAX, 0.239, 0.027, 0.10, 2.5, -46},
-    {6, 2, (double) INT2_MAX, 0.201, 0.012, 0.061, 3.3, -58},
-    {13, 1, (double) INT2_MAX, 0.292, 0.071, 0.23, 1.2, -11},
-    {12, 1, (double) INT2_MAX, 0.283, 0.059, 0.19, 1.5, -19},
-    {11, 1, (double) INT2_MAX, 0.267, 0.041, 0.14, 1.9, -30},
-    {10, 1, (double) INT2_MAX, 0.243, 0.024, 0.10, 2.5, -44},
-    {9, 1, (double) INT2_MAX, 0.206, 0.010, 0.052, 4.0, -87},
-}; /**< Supported values (gap-existence, extension, etc.) for BLOSUM62. */
-
-#define BLOSUM50_VALUES_MAX 16 /**< Number of different combinations supported for BLOSUM50. */
-
-static array_of_8 blosum50_values[BLOSUM50_VALUES_MAX] = {
-    {(double) INT2_MAX, (double) INT2_MAX, (double) INT2_MAX, 0.2318, 0.112, 0.3362, 0.6895, -4.0},
-    {13, 3, (double) INT2_MAX, 0.212, 0.063, 0.19, 1.1, -16},
-    {12, 3, (double) INT2_MAX, 0.206, 0.055, 0.17, 1.2, -18},
-    {11, 3, (double) INT2_MAX, 0.197, 0.042, 0.14, 1.4, -25},
-    {10, 3, (double) INT2_MAX, 0.186, 0.031, 0.11, 1.7, -34},
-    {9, 3, (double) INT2_MAX, 0.172, 0.022, 0.082, 2.1, -48},
-    {16, 2, (double) INT2_MAX, 0.215, 0.066, 0.20, 1.05, -15},
-    {15, 2, (double) INT2_MAX, 0.210, 0.058, 0.17, 1.2, -20},
-    {14, 2, (double) INT2_MAX, 0.202, 0.045, 0.14, 1.4, -27},
-    {13, 2, (double) INT2_MAX, 0.193, 0.035, 0.12, 1.6, -32},
-    {12, 2, (double) INT2_MAX, 0.181, 0.025, 0.095, 1.9, -41},
-    {19, 1, (double) INT2_MAX, 0.212, 0.057, 0.18, 1.2, -21},
-    {18, 1, (double) INT2_MAX, 0.207, 0.050, 0.15, 1.4, -28},
-    {17, 1, (double) INT2_MAX, 0.198, 0.037, 0.12, 1.6, -33},
-    {16, 1, (double) INT2_MAX, 0.186, 0.025, 0.10, 1.9, -42},
-    {15, 1, (double) INT2_MAX, 0.171, 0.015, 0.063, 2.7, -76},
-};  /**< Supported values (gap-existence, extension, etc.) for BLOSUM50. */
+/** Supported values (gap-existence, extension, etc.) for BLOSUM50. */
+static Info  blosum50_values[] =
+{ // openGap  extendGap   lambda     K       H       alpha   beta
+    { VMAX,    VMAX,      0.2318,  0.112,  0.3362,  0.6895,  -4.0    },
+    {   13,       3,      0.212,   0.063,  0.1900,  1.1000,  -16     },
+    {   12,       3,      0.206,   0.055,  0.1700,  1.2000,  -18     },
+    {   11,       3,      0.197,   0.042,  0.1400,  1.4000,  -25     },
+    {   10,       3,      0.186,   0.031,  0.1100,  1.7000,  -34     },
+    {    9,       3,      0.172,   0.022,  0.0820,  2.1000,  -48     },
+    {   16,       2,      0.215,   0.066,  0.2000,  1.0500,  -15     },
+    {   15,       2,      0.210,   0.058,  0.1700,  1.2000,  -20     },
+    {   14,       2,      0.202,   0.045,  0.1400,  1.4000,  -27     },
+    {   13,       2,      0.193,   0.035,  0.1200,  1.6000,  -32     },
+    {   12,       2,      0.181,   0.025,  0.0950,  1.9000,  -41     },
+    {   19,       1,      0.212,   0.057,  0.1800,  1.2000,  -21     },
+    {   18,       1,      0.207,   0.050,  0.1500,  1.4000,  -28     },
+    {   17,       1,      0.198,   0.037,  0.1200,  1.6000,  -33     },
+    {   16,       1,      0.186,   0.025,  0.1000,  1.9000,  -42     },
+    {   15,       1,      0.171,   0.015,  0.0630,  2.7000,  -76     }
+};
 
 /*********************************************************************
 ** METHOD  :
@@ -112,6 +121,43 @@ void GlobalParameters::setParameters (IParameters* parameters)
     if (_parameters != 0)  { _parameters->use();    }
 }
 
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+bool GlobalParameters::lookup (void* table, size_t size)
+{
+    bool found = false;
+
+    for (size_t i=0; !found &&  i<size; i++)
+    {
+        /** Shortcut. */
+        Info&  current = ((Info*)table)[i];
+
+        if (current.openGap==_parameters->openGapCost  &&  current.extendGap==_parameters->extendGapCost)
+        {
+            lambda  = current.lambda;
+            K       = current.K;
+            H       = current.H;
+            alpha   = current.alpha;
+            beta    = current.beta;
+            evalue  = _parameters->evalue;
+            logK    = log(K);
+
+            found = true;
+        }
+    }
+
+    if (!found) {  throw GlobalParametersFailure ("No found statistical parameters for given matrix and open/extend gap scores..."); }
+
+    return found;
+}
+
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
@@ -122,6 +168,8 @@ void GlobalParameters::setParameters (IParameters* parameters)
 *********************************************************************/
 void GlobalParameters::build (void)
 {
+    bool found = false;
+
     switch (_parameters->matrixKind)
     {
         case ENUM_BLOSUM62:
@@ -129,22 +177,7 @@ void GlobalParameters::build (void)
             if (_parameters->openGapCost   == 0)   {  _parameters->openGapCost   = 11;  }
             if (_parameters->extendGapCost == 0)   {  _parameters->extendGapCost = 1;   }
 
-            for (size_t i=0; i<BLOSUM62_VALUES_MAX; i++)
-            {
-                /** Shortcut. */
-                array_of_8&  current = blosum62_values[i];
-
-                if (current[0]==_parameters->openGapCost  &&  current[1]==_parameters->extendGapCost)
-                {
-                    lambda  = current[3];
-                    K       = current[4];
-                    H       = current[5];
-                    alpha   = current[6];
-                    beta    = current[7];
-                    evalue  = _parameters->evalue;
-                    logK    = log(K);
-                }
-            }
+            found = lookup (blosum62_values, ARRAYSIZE(blosum62_values));
 
             if (_parameters->smallGapThreshold   == 0)    { _parameters->smallGapThreshold   = 54; }
             if (_parameters->ungapScoreThreshold == 0)    { _parameters->ungapScoreThreshold = 38; }
@@ -163,22 +196,7 @@ void GlobalParameters::build (void)
             if (_parameters->openGapCost   == 0)   {  _parameters->openGapCost   = 13;  }
             if (_parameters->extendGapCost == 0)   {  _parameters->extendGapCost = 2;   }
 
-            for (size_t i=0; i<BLOSUM50_VALUES_MAX; i++)
-            {
-                /** Shortcut. */
-                array_of_8&  current = blosum50_values[i];
-
-                if (current[0]==_parameters->openGapCost  &&  current[1]==_parameters->extendGapCost)
-                {
-                    lambda  = current[3];
-                    K       = current[4];
-                    H       = current[5];
-                    alpha   = current[6];
-                    beta    = current[7];
-                    evalue  = _parameters->evalue;
-                    logK    = log(K);
-                }
-            }
+            found = lookup (blosum50_values, ARRAYSIZE(blosum50_values));
 
             if (_parameters->smallGapThreshold   == 0)    { _parameters->smallGapThreshold   = 60; }
             if (_parameters->ungapScoreThreshold == 0)    { _parameters->ungapScoreThreshold = 44; }

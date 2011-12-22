@@ -116,6 +116,8 @@ CompositionHitIterator::~CompositionHitIterator ()
 *********************************************************************/
 void CompositionHitIterator::iterateMethod  (Hit* hit)
 {
+    HIT_STATS (_iterateMethodNbCalls++);
+
     double ln2 = 0.69314718055994530941;
 
     /** Shortcuts. */

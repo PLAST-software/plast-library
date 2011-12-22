@@ -54,7 +54,8 @@ AbstractPipeHitIterator::AbstractPipeHitIterator (
     : _sourceIterator (sourceIterator), _model(model), _scoreMatrix(scoreMatrix),  _parameters(parameters), _ungapResult(ungapResult),
       _matrix(0), _matrixAsVector(0),
       _client(0), _method(0),
-      _scoreOK(0),_scoreKO(0)
+      _scoreOK(0),_scoreKO(0),
+      _iterateMethodNbCalls(0)
 {
     if (_sourceIterator)  { _sourceIterator->use ();    }
     if (_model)         { _model->use ();           }

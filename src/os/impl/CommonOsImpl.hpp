@@ -48,10 +48,14 @@ class CommonFile : public IFile
 public:
 
     /** Constructor. */
-    CommonFile (const char* path, const char* mode) : _handle(0)  {  _handle = fopen (path, mode);  }
+    CommonFile (const char* path, const char* mode) : _handle(0), _isStdout(false)
+    {
+        _isStdout = path && strcmp(path,"stdout")==0;
+        _handle   = _isStdout ? stdout : fopen (path, mode);
+    }
 
     /** Destructor. */
-    virtual ~CommonFile ()  { if (_handle)  { fclose (_handle); }  }
+    virtual ~CommonFile ()  {  if (_handle && !_isStdout)  {  fclose (_handle);  }  }
 
     /** \copydoc IFile::isEOF */
     bool isEOF ()  {  return (_handle ? feof (_handle) : true); }
@@ -67,6 +71,7 @@ public:
 
 protected:
     FILE* _handle;
+    bool  _isStdout;
 };
 
 /********************************************************************************/

@@ -158,6 +158,7 @@ protected:
     /* Statistics. */
     u_int64_t _scoreOK;
     u_int64_t _scoreKO;
+    u_int64_t _iterateMethodNbCalls;
 };
 
 /********************************************************************************/

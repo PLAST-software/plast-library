@@ -47,6 +47,7 @@
 #include <algo/align/impl/BasicAlignmentResult2.hpp>
 #include <algo/align/impl/BasicAlignmentResult3.hpp>
 #include <algo/align/impl/AlignmentResultVisitors.hpp>
+#include <algo/align/impl/NullAlignmentResult.hpp>
 
 using namespace std;
 using namespace misc;
@@ -142,12 +143,12 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->smallGapBandLength   = 64;
         params->smallGapBandWidth    = 16;
         params->smallGapThreshold    = 54;
-        params->openGapCost          = 11;
-        params->extendGapCost        = 1;
+        params->openGapCost          = 0;  // 0 means default value; actual value will be set later
+        params->extendGapCost        = 0;  // 0 means default value; actual value will be set later
         params->evalue               = 10.0;
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
-        params->outputfile           = "out";
+        params->outputfile           = "stdout";
     }
 
     else if (algoName.compare ("tplastn")==0)
@@ -171,12 +172,12 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->smallGapBandLength   = 64;
         params->smallGapBandWidth    = 16;
         params->smallGapThreshold    = 40;
-        params->openGapCost          = 11;
-        params->extendGapCost        = 1;
+        params->openGapCost          = 0;  // 0 means default value; actual value will be set later
+        params->extendGapCost        = 0;  // 0 means default value; actual value will be set later
         params->evalue               = 10.0;
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
-        params->outputfile           = "out";
+        params->outputfile           = "stdout";
     }
 
     else if (algoName.compare ("plastx")==0)
@@ -200,12 +201,12 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->smallGapBandLength   = 64;
         params->smallGapBandWidth    = 16;
         params->smallGapThreshold    = 54;
-        params->openGapCost          = 11;
-        params->extendGapCost        = 1;
+        params->openGapCost          = 0; // 0 means default value; actual value will be set later
+        params->extendGapCost        = 0; // 0 means default value; actual value will be set later
         params->evalue               = 10.0;
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
-        params->outputfile           = "out";
+        params->outputfile           = "stdout";
     }
 
     else if (algoName.compare ("tplastx")==0)
@@ -418,7 +419,7 @@ IHitIterator* DefaultConfiguration::createUngapHitIterator (
     IAlignmentResult* actualUngapResult = ungapResult;
 
     IProperty* optimProp = _properties->getProperty (STR_OPTION_OPTIM_FILTER_UNGAP);
-    if (optimProp && optimProp->value.compare("F")==0)  { actualUngapResult = 0; }
+    if (optimProp && optimProp->value.compare("F")==0)  { actualUngapResult = new NullAlignmentResult(); }
 
     IProperty* maxhitsPerIterProp = _properties->getProperty (STR_OPTION_MAX_HIT_PER_ITERATION);
     u_int32_t maxHitsPerIter = maxhitsPerIterProp ? maxhitsPerIterProp->getInt() : 0;
@@ -467,7 +468,11 @@ IHitIterator* DefaultConfiguration::createSmallGapHitIterator (
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_HIT_SMALLGAP);
 
-    if (prop && prop->value.compare("SmallGapHitIteratorNull")==0)
+    if (prop && prop->value.compare("SmallGapHitIterator")==0)
+    {
+        result = new SmallGapHitIterator (source, model, matrix, params, ungapResult);
+    }
+    else if (prop && prop->value.compare("SmallGapHitIteratorNull")==0)
     {
         result = new SmallGapHitIteratorNull (source, model, matrix, params, ungapResult);
     }
@@ -690,7 +695,7 @@ IAlignmentResultVisitor* DefaultConfiguration::createResultVisitor ()
     IAlignmentResultVisitor* result = 0;
 
     /** We need an uri. We take the one provided by the properties. */
-    string uri ("out");
+    string uri ("stdout");
     if ( (prop = _properties->getProperty (STR_OPTION_OUTPUT_FILE)) != 0)   { uri = prop->value;  }
 
     if ( (prop = _properties->getProperty (STR_OPTION_OUTPUT_FORMAT)) != 0)

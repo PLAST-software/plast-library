@@ -127,13 +127,10 @@ public:
     /** Constructor.
      * \param itList : list of iterators to be iterated.
      */
-    CompositeSequenceIterator (std::list<ISequenceIterator*>& itList)
-        : _itList (itList)
-    {
-    }
+    CompositeSequenceIterator (std::list<ISequenceIterator*>& itList);
 
     /** Destructor. */
-    virtual ~CompositeSequenceIterator ()  {  }
+    virtual ~CompositeSequenceIterator ();
 
     /** \copydoc AbstractSequenceIterator::first */
     void first()  {  _it = _itList.begin();   if (_it != _itList.end())  {  (*_it)->first(); } }

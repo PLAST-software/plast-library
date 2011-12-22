@@ -190,6 +190,7 @@ IDatabaseIndex* BasicIndexator::buildIndex (ISequenceDatabase* database, ISeedMo
 
     /** We get the number of possible execution units from the command dispatcher. */
     size_t nbSplits = dispatcher->getExecutionUnitsNumber();
+    DEBUG (("BasicIndexator::buildIndex:  nbSplits=%ld \n", nbSplits));
 
     /** Note that we distingish two cases for optimization concerns. */
 

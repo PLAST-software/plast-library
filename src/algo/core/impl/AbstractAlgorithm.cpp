@@ -216,6 +216,8 @@ void AbstractAlgorithm::execute (void)
     /********************************************************************************/
     for (queryDbIt.first(); !queryDbIt.isDone(); queryDbIt.next())
     {
+        DEBUG (("AbstractAlgorithm::execute : QUERY LOOP...\n"));
+
         /** Shortcuts. */
         ISequenceDatabase* queryDb = queryDbIt.currentItem();
 
@@ -239,6 +241,8 @@ void AbstractAlgorithm::execute (void)
         /********************************************************************************/
         for (subjectDbIt.first(); !subjectDbIt.isDone(); subjectDbIt.next())
         {
+            DEBUG (("AbstractAlgorithm::execute : SUBJECT LOOP...\n"));
+
             timeStats->addEntry ("algorithm");
 
             /** Shortcuts. */
@@ -307,12 +311,16 @@ void AbstractAlgorithm::execute (void)
             /** We want to have iteration execution time. */
             timeStats->addEntry ("iteration");
 
+            DEBUG (("AbstractAlgorithm::execute : dispatching %ld commands for execution...\n", commands.size()));
+
             /** We run the commands through a dispatcher. Here is the big picture where most of the work will be done.
              *  This is also a synchronization point; if the dispatcher creates many threads for job parallelization (or
              *  if the job has been sent on a network for using remote computers), this 'dispatchCommands' message ensures
              *  that all commands must be finished before we can go to the next instruction.
              */
             dispatcher->dispatchCommands (commands, 0);
+
+            DEBUG (("AbstractAlgorithm::execute : dispatching done...\n"));
 
             /** Now, our alignment result instance should hold found alignments, with possible redundancies, so we try to
              * remove redundant alignments now. */
@@ -370,13 +378,10 @@ ListIterator<ISequenceDatabase*> AbstractAlgorithm::createDatabaseIterator (
 
     if (frames.empty() == false)
     {
-#if 0
+#if 1
+        /** We create the 6 reading frame databases. Note we use an auxiliary method (parallelization possibility). */
         list<ISequenceDatabase*> framedList;
-
-        for (size_t i=0; i<frames.size(); i++)
-        {
-            framedList.push_back (new ReadingFrameSequenceDatabase (frames[i], db, filtering));
-        }
+        readReadingFrameDatabases (frames, db, filtering, framedList);
 
         /** We could improve this by reading only once the nucleotid databases and generating 6 reading frames
          *  from this single reading. */
@@ -387,7 +392,6 @@ ListIterator<ISequenceDatabase*> AbstractAlgorithm::createDatabaseIterator (
         {
             dbList.push_back (new ReadingFrameSequenceDatabase (frames[i], db, filtering));
         }
-
 #endif
     }
     else
@@ -464,6 +468,61 @@ IHitIterator* AbstractAlgorithm::createHitIterator (
 
     /** We return the result. */
     return compositionHitIterator;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AbstractAlgorithm::readReadingFrameDatabases (
+    const vector<ReadingFrame_e>& frames,
+    ISequenceDatabase* db,
+    bool filtering,
+    list<ISequenceDatabase*>& framedList
+)
+{
+    /** We first clear the list to be filled. */
+    framedList.clear ();
+
+    /** IMPORTANT !!! The provided nucleotid database may have lazy accessors, so some
+     * internals may have not been yet initialized. Since we are going to use it in
+     * different threads, we should be sure that the internals are initialized first.
+     * We can do it by calling some accessor.
+     */
+    db->getSize();
+
+    /** We create a list of commands. */
+    list<ICommand*> commands;
+    for (size_t i=0; i<frames.size(); i++)
+    {
+        /** We create and use a command. */
+        ICommand* cmd = new ReadingFrameSequenceCommand (db, frames[i], filtering);
+        cmd->use ();
+
+        /** We add the command to the list to be dispatched. */
+        commands.push_back (cmd);
+    }
+
+    /** We dispatch the databases reading in a parallel way. */
+    ParallelCommandDispatcher dispatcher;
+    dispatcher.dispatchCommands (commands, 0);
+
+    /** We retrieve the created databases. */
+    for (list<ICommand*>::iterator it = commands.begin(); it != commands.end(); it++)
+    {
+        /** Shortcut. */
+        ReadingFrameSequenceCommand* current = dynamic_cast<ReadingFrameSequenceCommand*> (*it);
+
+        /** We add the database to the resulting list. */
+        if (current != 0)  {  framedList.push_back (current->getResult());  }
+
+        /** We forget the command. */
+        (*it)->forget();
+    }
 }
 
 /*********************************************************************

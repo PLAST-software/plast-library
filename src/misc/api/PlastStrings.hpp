@@ -113,6 +113,11 @@ namespace misc {
  */
 #define STR_OPTION_FILTER_QUERY             "-F"
 
+/** Command Line option telling which score matrix is wanted
+ *  String value (BLOSUM62 or BLOSUM50).
+ */
+#define STR_OPTION_SCORE_MATRIX             "-M"
+
 /** Command Line option giving the output format.
  *  Enum value (1 for tabulated output, 2 for XML output)
  */
@@ -212,6 +217,11 @@ namespace misc {
  *  String.
  */
 #define STR_OPTION_INFO_STATS               "-stats"
+
+/** Command Line option giving the file path for statistics information about the hits iterators information.
+ *  String.
+ */
+#define STR_OPTION_INFO_HITS_STATS          "-hits-stats"
 
 /** Command Line option giving the path of the file holding the algorithm execution percentage.
  *  String.

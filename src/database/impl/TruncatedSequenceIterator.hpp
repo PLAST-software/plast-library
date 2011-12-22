@@ -14,19 +14,18 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/** \file FastaSequenceIterator.hpp
- *  \brief Sequence iterator that parses FASTA files
+/** \file TruncatedSequenceIterator.hpp
+ *  \brief Sequence iterator that controls the number of iterated items
  *  \date 07/11/2011
  *  \author edrezen
  */
 
-#ifndef _FASTA_ITERATOR_HPP_
-#define _FASTA_ITERATOR_HPP_
+#ifndef _TRUNCATED_SEQUENCES_ITERATOR_HPP_
+#define _TRUNCATED_SEQUENCES_ITERATOR_HPP_
 
 /********************************************************************************/
 
 #include <database/impl/AbstractSequenceIterator.hpp>
-#include <designpattern/impl/FileLineIterator.hpp>
 #include <misc/api/types.hpp>
 
 /********************************************************************************/
@@ -35,66 +34,57 @@ namespace database {
 namespace impl {
 /********************************************************************************/
 
-/** \brief Sequence iterator that parses FASTA files
+/** \brief Sequence iterator that controls the number of iterated items
  *
- *  This class implements the ISequenceIterator interface by iterating sequences
- *  read from a FASTA file.
+ *  This class is a Proxy (design pattern) since it controls the number of iterated
+ *  items by a given sequences iterator.
  *
- *  It is possible to set a maximum size for the comment associated to each sequence.
- *
- *  It is also possible to set a range to be read in the file. This range is given
- *  by two offsets (begin, end); such offsets may have been computed through the
- *  IDatabaseQuickReader::getOffsets method. If (0,0) is provided, the full file is read.
+ *  It may be useful for truncating a database.
  */
-class FastaSequenceIterator : public AbstractSequenceIterator
+class TruncatedSequenceIterator : public AbstractSequenceIterator
 {
 public:
 
     /** Constructor.
-     * \param[in] filename : path of the FASTA file to be read.
-     * \param[in] commentMaxSize : maximum size of sequences comments
-     * \param[in] offset0 : starting offset
-     * \param[in] offset1 : ending offset
+     * \param[in] ref : the actual sequences iterator to be iterated.
+     * \param[in] nbTruncate : number of sequences to be iterated.
      */
-    FastaSequenceIterator (
-        const char* filename,
-        size_t commentMaxSize=256,
-        u_int64_t offset0 = 0,
-        u_int64_t offset1 = 0
-    );
+    TruncatedSequenceIterator (ISequenceIterator* ref, size_t nbTruncate)
+        : _ref(0), _nbTruncate(nbTruncate), _currentNb(0)  { setRef (ref); }
 
     /** Destructor. */
-    virtual ~FastaSequenceIterator ();
+    virtual ~TruncatedSequenceIterator ()  { setRef(0); }
 
     /** \copydoc AbstractSequenceIterator::first */
-    void first();
+    void first()   { _currentNb=0;  if (_ref)  { _ref->first (); } }
 
     /** \copydoc AbstractSequenceIterator::next */
-    dp::IteratorStatus next();
+    dp::IteratorStatus next()  {  _currentNb++; return (_ref ? _ref->next() : dp::ITER_UNKNOWN);   }
 
     /** \copydoc AbstractSequenceIterator::isDone */
-    bool isDone()  { return _isDone;  }
+    bool isDone()  { return (_ref ? _currentNb >=_nbTruncate ||  _ref->isDone() : true);  }
 
     /** \copydoc AbstractSequenceIterator::currentItem */
-    ISequence* currentItem() { return getBuilder()->getSequence(); }
+    const ISequence* currentItem() { return (_ref ? _ref->currentItem() : 0); }
 
     /** \copydoc AbstractSequenceIterator::clone */
-    ISequenceIterator* clone () { return 0; }
+    ISequenceIterator* clone () { return new TruncatedSequenceIterator(_ref,_nbTruncate); }
 
 private:
 
-    /** Maximum size of a sequence comment. */
-    size_t _commentMaxSize;
+    /** Referenced iterator. */
+    ISequenceIterator* _ref;
+    void setRef (ISequenceIterator* ref)  { SP_SETATTR(ref); }
 
-    /** File line iterator for reading the file line by line. */
-    dp::impl::FileLineIterator _fileIterator;
+    /** */
+    size_t _nbTruncate;
 
-    /** Tells whether the iteration is finished or not. */
-    bool _isDone;
+    /** */
+    size_t _currentNb;
 };
 
 /********************************************************************************/
 } } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* _FASTA_ITERATOR_HPP_ */
+#endif /* _TRUNCATED_SEQUENCES_ITERATOR_HPP_ */

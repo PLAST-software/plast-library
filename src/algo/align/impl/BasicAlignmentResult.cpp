@@ -111,9 +111,17 @@ bool BasicAlignmentResult::doesExist (const Alignment& align)
     {
         Alignment& current = *itAlign;
 
+#if 1
         found =
+            (align._subjectDb == current._subjectDb)  &&  (align._queryDb == current._queryDb)  &&
             (align._subjectStartInSeq >= current._subjectStartInSeq  &&  align._subjectEndInSeq <= current._subjectEndInSeq)  &&
             (align._queryStartInSeq   >= current._queryStartInSeq    &&  align._queryEndInSeq   <= current._queryEndInSeq);
+#else
+        found =
+            (align._subjectDb == current._subjectDb)  &&  (align._queryDb == current._queryDb)  &&
+            (align._subjectStartInSeq == current._subjectStartInSeq  &&  align._subjectEndInSeq == current._subjectEndInSeq)  &&
+            (align._queryStartInSeq   == current._queryStartInSeq    &&  align._queryEndInSeq   == current._queryEndInSeq);
+#endif
     }
 
     return found;
@@ -260,7 +268,7 @@ bool BasicAlignmentResult::insertInContainer (Alignment& a1, void* context, Alig
 
 #else
 
-#if 1
+#if 0
         alreadyKnown =
             (       a1._subjectStartInSeq >= a2._subjectStartInSeq
                 &&  a1._subjectEndInSeq   <= a2._subjectEndInSeq   )  &&
@@ -270,6 +278,7 @@ bool BasicAlignmentResult::insertInContainer (Alignment& a1, void* context, Alig
 
 #else
         alreadyKnown =
+            (a1._subjectDb == a2._subjectDb)  &&  (a1._queryDb == a2._queryDb)  &&
             (       a1._subjectStartInSeq == a2._subjectStartInSeq
                 &&  a1._subjectEndInSeq   == a2._subjectEndInSeq   )  &&
             (       a1._queryStartInSeq   == a2._queryStartInSeq
@@ -428,84 +437,97 @@ void BasicAlignmentResult::shrink (void)
 *********************************************************************/
 void BasicAlignmentResult::accept (IAlignmentResultVisitor* visitor)
 {
-    ReadingFrameSequenceDatabase* subjectRF = dynamic_cast<ReadingFrameSequenceDatabase*> (_subjectDb);
-    ReadingFrameSequenceDatabase* queryRF   = dynamic_cast<ReadingFrameSequenceDatabase*> (_queryDb);
-
-    ISequenceDatabase* actualSubjectDb = (subjectRF ? subjectRF->getNucleotidDatabase() : _subjectDb);
-    ISequenceDatabase* actualQueryDb   = (queryRF   ? queryRF->getNucleotidDatabase()   : _queryDb);
-
     /** We loop the query sequences. */
     for (size_t i=0; i<_queryEntries.size(); i++)
     {
         /** We retrieve the query sequence. */
         ISequence query;
-        if (actualQueryDb->getSequenceByIndex (i, query))
+        if (_queryDb->getSequenceByIndex (i, query) == false)  { continue; }
+
+        /** We call the visitor. */
+        visitor->visitQuerySequence (&query);
+
+        /** We retrieve the subject entries. */
+        SubjectEntries& subjects = _queryEntries[i];
+
+        /** We loop the subjects entries. */
+        for (SubjectEntries::iterator itSubjects = subjects.begin(); itSubjects != subjects.end(); itSubjects++)
         {
+            ISequence subject;
+            if (_subjectDb->getSequenceByIndex (itSubjects->first, subject) == false)  { continue; }
+
             /** We call the visitor. */
-            visitor->visitQuerySequence (&query);
+            visitor->visitSubjectSequence (&subject);
 
-            /** We retrieve the subject entries. */
-            SubjectEntries& subjects = _queryEntries[i];
-
-            /** We loop the subjects entries. */
-            for (SubjectEntries::iterator itSubjects = subjects.begin(); itSubjects != subjects.end(); itSubjects++)
+            /** We loop over alignments. */
+            AlignmentsContainer& alignments = itSubjects->second;
+            for (AlignmentsContainer::iterator itAlign = alignments.begin(); itAlign != alignments.end(); itAlign++)
             {
-                ISequence subject;
-                if (actualSubjectDb->getSequenceByIndex (itSubjects->first, subject))
+                /** We get a copy of the currently iterated alignment (copy because we may have to modify it). */
+                Alignment align = *itAlign;
+
+                ReadingFrameSequenceDatabase* subjectRF = dynamic_cast<ReadingFrameSequenceDatabase*> (align._subjectDb);
+                ReadingFrameSequenceDatabase* queryRF   = dynamic_cast<ReadingFrameSequenceDatabase*> (align._queryDb);
+
+                /** Alignment information have been computed by comparing two proteins.
+                 *  Now, we may have to go back to the initial nucleotid alphabet, so we have to translate
+                 *  alignment information.
+                 *
+                 *  IMPORTANT: be aware that variables 'query' and 'subject' represent sequence in protein alphabet...
+                 */
+
+                if (subjectRF != 0)
                 {
-                    /** We call the visitor. */
-                    visitor->visitSubjectSequence (&subject);
+                    /** We retrieve the corresponding nucleotid sequence. It is required for having the exact size of the
+                     *  initial nucleotid sequence.
+                     */
+                    ISequence nucleotidSubject;
+                    if (subjectRF->getNucleotidDatabase()->getSequenceByIndex (itSubjects->first, nucleotidSubject) == false)  { continue; }
 
-                    /** We loop over alignments. */
-                    AlignmentsContainer& alignments = itSubjects->second;
-                    for (AlignmentsContainer::iterator itAlign = alignments.begin(); itAlign != alignments.end(); itAlign++)
+                    size_t subjectLength = align._subjectEndInSeq - align._subjectStartInSeq + 1;
+
+                    /** We convert [start,end] in terms of nucleotid sequence. */
+                    align._subjectStartInSeq = 3*align._subjectStartInSeq + subjectRF->getFrameShift();
+                    align._subjectEndInSeq   = align._subjectStartInSeq + 3*subjectLength - 1;
+
+                    /** We may have to reverse the indexes according to the ORF. */
+                    if (subjectRF->isTopFrame() == false)
                     {
-                        /** We get a copy of the currently iterated alignment (copy because we may have to modify it). */
-                        Alignment align = *itAlign;
-
-                        /** Alignment information have been computed by comparing two proteins.
-                         *  Now, we may have to go back to the initial nucleotid alphabet, so we have to translate
-                         *  alignment information */
-
-                        if (subjectRF != 0)
-                        {
-                            size_t subjectLength = align._subjectEndInSeq - align._subjectStartInSeq + 1;
-
-                            /** We convert [start,end] in terms of nucleotid sequence. */
-                            align._subjectStartInSeq = 3*align._subjectStartInSeq + subjectRF->getFrameShift();
-                            align._subjectEndInSeq   = align._subjectStartInSeq + 3*subjectLength - 1;
-
-                            /** We may have to reverse the indexes according to the ORF. */
-                            if (subjectRF->isTopFrame() == false)
-                            {
-                                align._subjectStartInSeq = subject.data.letters.size - align._subjectStartInSeq - 1;
-                                align._subjectEndInSeq   = subject.data.letters.size - align._subjectEndInSeq   - 1;
-                            }
-                        }
-
-                        if (queryRF != 0)
-                        {
-                            size_t queryLength = align._queryEndInSeq - align._queryStartInSeq + 1;
-
-                            /** We convert [start,end] in terms of nucleotid sequence. */
-                            align._queryStartInSeq = 3*align._queryStartInSeq + queryRF->getFrameShift();
-                            align._queryEndInSeq   = align._queryStartInSeq + 3*queryLength - 1;
-
-                            /** We may have to reverse the indexes according to the ORF. */
-                            if (queryRF->isTopFrame() == false)
-                            {
-                                align._queryStartInSeq = query.data.letters.size - align._queryStartInSeq - 1;
-                                align._queryEndInSeq   = query.data.letters.size - align._queryEndInSeq   - 1;
-                            }
-                        }
-
-                        /** We call the visitor. */
-                        visitor->visitAlignment (&align);
+                        align._subjectStartInSeq = nucleotidSubject.data.letters.size - align._subjectStartInSeq - 1;
+                        align._subjectEndInSeq   = nucleotidSubject.data.letters.size - align._subjectEndInSeq   - 1;
                     }
                 }
-            }
-        }
-    }
+
+                if (queryRF != 0  &&  queryRF->getNucleotidDatabase() != 0)
+                {
+                    /** We retrieve the corresponding nucleotid sequence. It is required for having the exact size of the
+                     *  initial nucleotid sequence.
+                     */
+                    ISequence nucleotidQuery;
+                    if (queryRF->getNucleotidDatabase()->getSequenceByIndex (i, nucleotidQuery) == false)  { continue; }
+
+                    size_t queryLength = align._queryEndInSeq - align._queryStartInSeq + 1;
+
+                    /** We convert [start,end] in terms of nucleotid sequence. */
+                    align._queryStartInSeq = 3*align._queryStartInSeq + queryRF->getFrameShift();
+                    align._queryEndInSeq   = align._queryStartInSeq + 3*queryLength - 1;
+
+                    /** We may have to reverse the indexes according to the ORF. */
+                    if (queryRF->isTopFrame() == false)
+                    {
+                        align._queryStartInSeq = nucleotidQuery.data.letters.size - align._queryStartInSeq - 1;
+                        align._queryEndInSeq   = nucleotidQuery.data.letters.size - align._queryEndInSeq   - 1;
+                    }
+                }
+
+                /** We call the visitor. */
+                visitor->visitAlignment (&align);
+
+            } /* end of for (AlignmentsContainer::iterator itAlign ... */
+
+        } /* end of for (SubjectEntries::iterator itSubjects = ... */
+
+    }  /* end of for (size_t i=0; i<_queryEntries.size(); i++) */
 }
 
 /********************************************************************************/

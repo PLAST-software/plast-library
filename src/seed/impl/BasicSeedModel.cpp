@@ -14,6 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+#include <misc/api/macros.hpp>
 #include <seed/impl/BasicSeedModel.hpp>
 
 #include <stdio.h>
@@ -67,6 +68,8 @@ BasicSeedModel::~BasicSeedModel ()
 ISeedIterator* BasicSeedModel::createSeedsIterator (const database::IWord& data)
 {
     return new DataSeedIterator (this, data);
+    //return new DataSeedIteratorWithTokenizer (this, data);
+
 }
 
 /*********************************************************************
@@ -148,7 +151,7 @@ bool BasicSeedModel::DataSeedIterator::findNextValidItem (void)
         bool   isBadLetter  = false;
 
         /** We look whether there is a bad letter in the current seed. */
-        for (size_t i=0;  i <_span; i++)
+        for (size_t i=0; i <_span; i++)
         {
             DEBUG (("DataSeedIterator::findNextValidLetter: data[%ld]=%d  \n" ,i, _data.letters[i+_currentIdx]));
 
@@ -176,9 +179,76 @@ bool BasicSeedModel::DataSeedIterator::findNextValidItem (void)
         {
             found = true;
         }
-    }
+
+    } /* end of while (found==false && _currentIdx <= _lastIdx) */
 
     DEBUG (("DataSeedIterator::findNextValidLetter: ------------------- _currentIdx=%ld  _lastIdx=%ld  found=%d\n", _currentIdx, _lastIdx, found));
+
+    if (found)
+    {
+        /** We set the hash code. The output word is supposed to have been translated above. */
+        _currentItem.code  = _specificModel->getHashCode (_currentItem.kmer);
+
+        /** We set the index. */
+        _currentItem.offset  = _currentIdx;
+    }
+
+    return found;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+BasicSeedModel::DataSeedIteratorWithTokenizer::DataSeedIteratorWithTokenizer (BasicSeedModel* model, const database::IWord& data)
+    : DataSeedIterator (model, data), _delta(0), _tokenizer(data), _begin(0), _end(0)
+{
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+bool BasicSeedModel::DataSeedIteratorWithTokenizer::findNextValidItem (void)
+{
+    bool found = false;
+
+    /** Shortcuts. */
+    LETTER* out    = _currentItem.kmer.letters.data;
+    LETTER* buffer = _data.letters.data;
+
+    if (_begin <= _end)
+    {
+        memcpy (out, buffer+_begin, _span);
+        _begin++;
+        found = true;
+    }
+    else
+    {
+        _currentToken++;
+        found = updateBound();
+
+        if (found)
+        {
+            memcpy (out, buffer+_begin, _span);
+            _begin++;
+            found = true;
+        }
+        else
+        {
+            /** We should be done. */
+            _currentIdx = _lastIdx + 1;
+            found = false;
+        }
+    }
 
     if (found)
     {

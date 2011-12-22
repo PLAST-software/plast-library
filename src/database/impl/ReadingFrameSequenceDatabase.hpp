@@ -28,6 +28,8 @@
 
 /********************************************************************************/
 
+#include <designpattern/api/ICommand.hpp>
+
 #include <database/impl/BufferedSequenceDatabase.hpp>
 #include <database/impl/ReadingFrameSequenceIterator.hpp>
 
@@ -118,6 +120,43 @@ protected:
 
     /** Smart setter for _frame attribute. */
     void setNucleotidDatabase (ISequenceDatabase* nucleotidDatabase)  { SP_SETATTR (nucleotidDatabase); }
+};
+
+/********************************************************************************/
+
+/** \brief Define a command for reading a orf database.
+ *
+ * This implementation is useful for reading several frames in different threads.
+ */
+class ReadingFrameSequenceCommand : public dp::ICommand
+{
+public:
+
+    /** Constructor.
+     */
+    ReadingFrameSequenceCommand (
+        database::ISequenceDatabase*  nucleotidDatabase,
+        misc::ReadingFrame_e          frame,
+        bool                          filtering
+    ) : _nucleotidDatabase(nucleotidDatabase), _frame(frame), _filtering(filtering), _resultDatabase(0) {}
+
+    /** \copydoc dp::ICommand::execute */
+    void execute ()
+    {
+        _resultDatabase = new ReadingFrameSequenceDatabase (_frame, _nucleotidDatabase, _filtering);
+        _resultDatabase->getSize();
+    }
+
+    /** Return the (amino acid) resulting database.
+     * \return the read database
+     */
+    database::ISequenceDatabase*  getResult () { return _resultDatabase; }
+
+private:
+    database::ISequenceDatabase*  _nucleotidDatabase;
+    misc::ReadingFrame_e          _frame;
+    bool                          _filtering;
+    database::ISequenceDatabase*  _resultDatabase;
 };
 
 /********************************************************************************/

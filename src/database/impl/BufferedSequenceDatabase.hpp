@@ -248,7 +248,7 @@ public:
     BufferedSequenceBuilder (ISequenceCache* cache);
 
     /** Destructor. */
-    virtual ~BufferedSequenceBuilder () {}
+    virtual ~BufferedSequenceBuilder () { setCache (0); }
 
     /** \copydoc ISequenceBuilder::getSequence
      * Return always 0.
@@ -296,6 +296,7 @@ protected:
 
     /** Reference on the cache to be built. */
     ISequenceCache* _cache;
+    void setCache (ISequenceCache* cache)  { SP_SETATTR(cache); }
 
     Offset _currentDataCapacity;
     size_t _currentSequencesCapacity;

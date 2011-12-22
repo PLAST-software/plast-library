@@ -28,7 +28,8 @@ using namespace seed;
 using namespace indexation;
 
 #include <stdio.h>
-#define DEBUG(a)  //printf a
+#define DEBUG(a)    //printf a
+#define VERBOSE(a)  //printf a
 
 /********************************************************************************/
 namespace algo   {
@@ -113,7 +114,7 @@ void SeedHitIteratorCached::iterate (void* aClient, Method method)
             nbRetrieved, nbTotal
         ));
 
-        DEBUG (("ITERATE SEED '%s' [%ld,%ld]  nb1=%ld  nb2=%ld (%ld) \n",
+        VERBOSE (("ITERATE SEED '%s' [%ld,%ld]  nb1=%ld  nb2=%ld (%ld) \n",
             seed.kmer.toString().c_str(), nbRetrieved, nbTotal, nbOccur1, nbOccur2, nbOccur1*nbOccur2
         ));
 

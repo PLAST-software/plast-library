@@ -96,13 +96,24 @@ struct IWord
         letters.setReference (size, aBuffer);
     }
 
+    /** Update instance by providing a reference to a buffer. There is no data copy here, just references.
+     * When using this, it is important to ensure that the referenced data lives longer than the IWord
+     * instance that refers it.
+     * \param[in]  size : size of the data to be referenced.
+     * \param[in] aBuffer : buffer to be referenced.
+     */
+    void setReference (const IWord& w)
+    {
+        setReference (w.letters.size, w.letters.data);
+    }
+
     /** Comparison operator.
      * \param[in] w : instance to be compared to.
      * \return true if identical, false otherwise.
      */
     bool operator== (const IWord& w) const
     {
-        return (encoding != w.encoding) &&  (letters == w.letters);
+        return (encoding == w.encoding) &&  (letters == w.letters);
     }
 
     /** Method for having textual representation of the IWord instance. Mainly for debug purpose.

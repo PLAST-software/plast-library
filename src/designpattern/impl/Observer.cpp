@@ -76,19 +76,22 @@ Subject::~Subject()
 *********************************************************************/
 void Subject::notify (EventInfo* event)
 {
-    if (event !=0  &&  _observers != 0)
+    if (event != 0)
     {
         /** We locally use the event. */
         LOCAL (event);
 
-        /** Optimization in case we have only one observer. */
-        if (_singleObserver != 0)  {  _singleObserver->update (event, this);  }
-
-        else
+        if (_observers != 0)
         {
-            for (std::list<IObserver*>::iterator it=_observers->begin(); it!=_observers->end(); it++)
+            /** Optimization in case we have only one observer. */
+            if (_singleObserver != 0)  {  _singleObserver->update (event, this);  }
+
+            else
             {
-                (*it)->update (event, this);
+                for (std::list<IObserver*>::iterator it=_observers->begin(); it!=_observers->end(); it++)
+                {
+                    (*it)->update (event, this);
+                }
             }
         }
     }

@@ -66,6 +66,30 @@ public:
 
 /********************************************************************************/
 
+/** \brief Exception class for bad statistical parameters
+ */
+class GlobalParametersFailure
+{
+public:
+
+    /** Constructor with some informative string.
+     * \param[in] message : a description of the exception.
+     */
+    GlobalParametersFailure (const char* message) : _message(message)  {}
+
+    /** Returns the description message.
+     * \return the message
+     */
+    const char* getMessage ()  { return _message.c_str(); }
+
+private:
+
+    /** The informative message. */
+    std::string _message;
+};
+
+/********************************************************************************/
+
 /** \brief Interface that provides statistical information for query sequences.
  */
 class IQueryInformation : public dp::SmartPointer

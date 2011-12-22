@@ -67,7 +67,7 @@ UngapHitIteratorSSE16::UngapHitIteratorSSE16 (
     u_int32_t           maxHitsPerIteration
 )
     : AbstractPipeHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult),
-      _ungapKnownNumber(0)
+      _ungapKnownNumber(0), _databk(0)
 {
     DEBUG (("UngapHitIteratorSSE16::UngapHitIteratorSSE16:  span=%ld  _neighbourLength=%d \n",
         _model->getSpan(),
@@ -76,6 +76,12 @@ UngapHitIteratorSSE16::UngapHitIteratorSSE16 (
 
     /** We overide the default value. */
     if (maxHitsPerIteration > 0)  { _maxHitsPerIteration = maxHitsPerIteration; }
+
+    size_t sizeMatrix        = _scoreMatrix->getN();
+    size_t sizeNeighbour     = _span + 2*_parameters->ungapNeighbourLength;
+
+    /** We allocate some memory space for inner processing. */
+    _databk = (char *) DefaultFactory::memory().calloc (sizeMatrix*sizeNeighbour + 64,  sizeof(__m128i));
 }
 
 /*********************************************************************
@@ -88,6 +94,8 @@ UngapHitIteratorSSE16::UngapHitIteratorSSE16 (
 *********************************************************************/
 UngapHitIteratorSSE16::~UngapHitIteratorSSE16 ()
 {
+    /** Some clean up. */
+    DefaultFactory::memory().free (_databk);
 }
 
 /*********************************************************************
@@ -100,45 +108,44 @@ UngapHitIteratorSSE16::~UngapHitIteratorSSE16 ()
 *********************************************************************/
 void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
 {
+    HIT_STATS_VERBOSE (_iterateMethodNbCalls++);
+
     __m128i *pvb;
     __m128i pvScore;
     __m128i vscore;
     __m128i vMaxScore;
-    __m128i vBias;
 
-    size_t sizeMatrix        = _scoreMatrix->getN();
-    size_t sizeNeighbour     = _span + 2*_parameters->ungapNeighbourLength;
-    size_t sizeHalfNeighbour = _span + 1*_parameters->ungapNeighbourLength;
+    register u_int8_t sizeMatrix        = _scoreMatrix->getN();
+    register u_int8_t sizeNeighbour     = _span + 2*_parameters->ungapNeighbourLength;
+    register u_int8_t sizeHalfNeighbour = _span + 1*_parameters->ungapNeighbourLength;
 
-    char* databk = (char *) DefaultFactory::memory().calloc (sizeMatrix*sizeNeighbour + 64,  sizeof(__m128i));
+    u_int32_t currentNbHits = hit->size();
+    u_int32_t maxHitsPerIteration = _maxHitsPerIteration;
 
-    size_t aligned = ((size_t) (databk +15)) & ~(0x0f);
+    char* databk = _databk;
+
+    size_t aligned = ((size_t) (databk + 0x0f)) & ~(0x0f);
     pvb = (__m128i *) aligned;
 
-    short          bias  = _scoreMatrix->getDefaultScore();
-    unsigned short rbias = -bias;
-
-    int score_arr [NB/2];  memset (score_arr,0,sizeof(score_arr));
-
-    int dup = (rbias << 8) | (rbias & 0x00ff);
-    vBias = _mm_insert_epi16    (vBias, dup, 0);
-    vBias = _mm_shufflelo_epi16 (vBias, 0);
-    vBias = _mm_shuffle_epi32   (vBias, 0);
+    short   bias  = _scoreMatrix->getDefaultScore();
+    __m128i vBias = _mm_set1_epi8 (-bias);
 
     /** Shortcuts. */
     const Vector<const ISeedOccurrence*>& occur1Vector = hit->occur1;
     const Vector<const ISeedOccurrence*>& occur2Vector = hit->occur2;
+    const ISeedOccurrence* occur1ForIndexI = 0;
 
     size_t nb1 = occur1Vector.size;
     size_t nb2 = occur2Vector.size;
 
-    int actualThreshold = _parameters->ungapScoreThreshold;
+    __m128i vThreshold  = _mm_set1_epi8 (_parameters->ungapScoreThreshold - 1);
+    __m128i vThreshold2 = _mm_set1_epi8 (_parameters->ungapScoreThreshold);
 
     /** Statistics. */
     HIT_STATS (_inputHitsNumber += nb1 * nb2;)
 
     /** We loop over query occurrences. */
-    for (size_t j=0; j<nb2; j+=NB)
+    for (register size_t j=0; j<nb2; j+=NB)
     {
         /** We first reset to 0 all scores of the pseudo SSE score matrix. */
         memset (databk, 0, (sizeMatrix*sizeNeighbour + 64) * sizeof(__m128i));
@@ -148,16 +155,13 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
         size_t dj = nb2 - j;
         int  lmin = MIN (dj, NB);
 
-        /** */
-        bool isUsable = (lmin == NB);
-
-        for (size_t i=0; i<sizeMatrix; i++)
+        for (register size_t i=0; i<sizeMatrix; i++)
         {
             int8_t* matrixRow = _matrix[i];
 
-            for (size_t k=0; k<sizeNeighbour; k++)
+            for (register size_t k=0; k<sizeNeighbour; k++)
             {
-                for (int l=0; l<lmin; l++)
+                for (register int l=0; l<lmin; l++)
                 {
                     LETTER* occurQuery = occur2Vector.data[j+l]->neighbourhood.letters.data;
                     *pc++ = (char) (matrixRow [(int)occurQuery[k]] - bias);
@@ -169,111 +173,61 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
         }
 
         /** We loop over subject occurrences. */
-        for (size_t i=0; i<nb1; i++)
+        for (register size_t i=0; i<nb1; i++)
         {
-            vMaxScore = _mm_xor_si128 (vMaxScore, vMaxScore);
-            vscore    = _mm_xor_si128 (vscore, vscore);
+            /** We use a shortcut (avoids several memory accesses). */
+            occur1ForIndexI = occur1Vector.data[i];
 
-            LETTER* neighbour1 = occur1Vector.data[i]->neighbourhood.letters.data;
+            LETTER* neighbour1 = occur1ForIndexI->neighbourhood.letters.data;
 
-            for (size_t k=0; k<sizeHalfNeighbour; k++)
+            vMaxScore = _mm_set1_epi8 (0);
+            vscore    = _mm_set1_epi8 (0);
+
+            for (register u_int8_t k=0; k<sizeHalfNeighbour; k++)
             {
                 pvScore   = *(pvb + (neighbour1[k] * sizeNeighbour + k));
-                vscore    = _mm_adds_epu8 (vscore, pvScore);
-                vscore    = _mm_subs_epu8 (vscore, vBias);
-                vMaxScore = _mm_max_epu8 (vMaxScore, vscore);
+                vscore    = _mm_adds_epu8 (vscore,    pvScore);
+                vscore    = _mm_subs_epu8 (vscore,    vBias);
+                vMaxScore = _mm_max_epu8  (vMaxScore, vscore);
             }
 
             _mm_store_si128 (&vscore,vMaxScore);
 
-            for (size_t k=sizeHalfNeighbour; k<sizeNeighbour; k++)
+            for (register u_int8_t k=sizeHalfNeighbour; k<sizeNeighbour; k++)
             {
                 pvScore   = *(pvb + (neighbour1[k] * sizeNeighbour + k));
-                vscore    = _mm_adds_epu8 (vscore, pvScore);
-                vscore    = _mm_subs_epu8 (vscore, vBias);
+                vscore    = _mm_adds_epu8 (vscore,    pvScore);
+                vscore    = _mm_subs_epu8 (vscore,    vBias);
                 vMaxScore = _mm_max_epu8  (vMaxScore, vscore);
             }
 
-            score_arr[0] =  _mm_extract_epi16 (vMaxScore,0);
-            score_arr[1] =  _mm_extract_epi16 (vMaxScore,1);
-            score_arr[2] =  _mm_extract_epi16 (vMaxScore,2);
-            score_arr[3] =  _mm_extract_epi16 (vMaxScore,3);
-            score_arr[4] =  _mm_extract_epi16 (vMaxScore,4);
-            score_arr[5] =  _mm_extract_epi16 (vMaxScore,5);
-            score_arr[6] =  _mm_extract_epi16 (vMaxScore,6);
-            score_arr[7] =  _mm_extract_epi16 (vMaxScore,7);
+            /** Note the trick here: we first re-calibrate the computed max score
+             *  in order to get rid of possible saturations. */
+            vMaxScore = _mm_min_epu8 (vMaxScore, vThreshold2);
 
-            for (size_t k=0; k<NB/2; k++)
+            /** We compare the max score to the wanted threshold.
+             *  We get the test result as a mask of 16 bits.
+             *  For each bit, 1 means that the score passed the threshold test. */
+            u_int16_t maskTestThreshold = _mm_movemask_epi8 (_mm_cmpgt_epi8 (vMaxScore, vThreshold));
+
+            /** Possible optimization: just continue if we know that every threshold tests failed. */
+            if (maskTestThreshold == 0)  {  continue; }
+
+            for (register u_int8_t k=0; k<NB; k++)
             {
-                int finalScore = 0;
-                bool isNotKnown = true;
-                int val = score_arr[k];
-
-                if (isUsable || (j+2*k + 0 < nb2))
+                /** If the value is 0, it means that the two comparisons failed the threshold test. */
+                if ((maskTestThreshold >> k) & 0x1)
                 {
-                    finalScore = ( (val >> 0)  & 0x00ff) ;
-                    if (finalScore >= actualThreshold)
+                    size_t idx = j+k;
+
+                    if (_ungapResult->doesExist(occur1ForIndexI, occur2Vector.data[idx]) == false)
                     {
-                        HIT_STATS (_scoreOK ++;)
-
-#if 1
-                        isNotKnown =  (_ungapResult==0) ||
-                            (_ungapResult!=0 && _ungapResult->doesExist(occur1Vector.data[i], occur2Vector.data[j+2*k+0]) == false);
-#else
-                        isNotKnown = true;
-#endif
-
-                        if (isNotKnown)
-                        {
-                            /** We increase the number of iterations. */
-                            HIT_STATS (_outputHitsNumber ++;)
-
-                            hit->addIndexes (i, j+2*k+0);
-                        }
-                        else
-                        {
-                            HIT_STATS (_ungapKnownNumber ++;)
-                        }
+                        /** We tag this hit to be used for further processing. */
+                        currentNbHits = hit->addIndexes (i, idx);
                     }
-                    else
-                    {
-                        HIT_STATS (_scoreKO ++;)
-                    }
+                    else  {  HIT_STATS_VERBOSE (_ungapKnownNumber ++;)  }
                 }
-
-                if (isUsable || ( j+2*k + 1 < nb2))
-                {
-                    finalScore = ( (val >> 8)  & 0x00ff) ;
-                    if (finalScore >= actualThreshold)
-                    {
-                        HIT_STATS (_scoreOK ++;)
-
-#if 1
-                        isNotKnown = (_ungapResult==0) ||
-                            (_ungapResult!=0 && _ungapResult->doesExist(occur1Vector.data[i], occur2Vector.data[j+2*k+1]) == false);
-#else
-                        isNotKnown = true;
-#endif
-
-                        if (isNotKnown)
-                        {
-                            HIT_STATS (_outputHitsNumber ++;)
-
-                            /** We tag this hit to be used for further processing. */
-                            hit->addIndexes (i, j+2*k+1);
-                        }
-                        else
-                        {
-                            HIT_STATS (_ungapKnownNumber ++;)
-                        }
-                    }
-                    else
-                    {
-                        HIT_STATS (_scoreKO ++;)
-                    }
-                }
-
-            }  /* end of for (size_t k=0; k<8; k++) */
+            }
 
         }  /* end of for (size_t i=0; i<nb1; i++) */
 
@@ -282,20 +236,26 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
          *  further iterators. Without such a threshold, these iterators may have to deal with
          *  thousands of hits, which can be prohibitive in terms of memory usage.
          */
-        if (hit->indexes.size() >= _maxHitsPerIteration)
+
+        /** Note the modulo 8 here; since the next step (likely small gaps) uses a SIMD scheme
+         *  that vectorizes 8 scores computation at a time, we try to send to it blocks of 8 hits
+         *  in order to compute 8 useful scores (and no fake score used to fill up to 8 the SIMD
+         *  128 bits variables).
+         */
+        if (currentNbHits % 8 == 0  || currentNbHits >= maxHitsPerIteration)
         {
+            HIT_STATS (_outputHitsNumber += currentNbHits;)
             (_client->*_method) (hit);
-            hit->resetIndexes();
+            currentNbHits = hit->resetIndexes();
         }
 
     }  /* end of for (size_t j=0; j<nb2; j+=NB) */
 
     /** We are supposed to have computed scores for each hit,
      *  we can forward the information to the client.  */
+    HIT_STATS (_outputHitsNumber += currentNbHits;)
     (_client->*_method) (hit);
-
-    /** Some clean up. */
-    DefaultFactory::memory().free (databk);
+    currentNbHits = hit->resetIndexes();
 }
 
 /*********************************************************************

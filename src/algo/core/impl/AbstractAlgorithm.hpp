@@ -39,6 +39,8 @@
 #include <algo/core/api/IAlgoConfig.hpp>
 #include <algo/core/api/IAlgoParameters.hpp>
 
+#include <vector>
+
 /********************************************************************************/
 namespace algo {
 namespace core {
@@ -219,6 +221,14 @@ protected:
     /** */
     algo::align::IAlignmentResult* _gapAlignmentResult;
     void setGapAlignmentResult (algo::align::IAlignmentResult* gapAlignmentResult)  { SP_SETATTR(gapAlignmentResult); }
+
+    /** */
+    void readReadingFrameDatabases (
+        const std::vector<misc::ReadingFrame_e>& frames,
+        database::ISequenceDatabase* db,
+        bool filtering,
+        std::list<database::ISequenceDatabase*>& framedList
+    );
 
     /** */
     class AlgoTimeInfo : public os::impl::TimeInfo

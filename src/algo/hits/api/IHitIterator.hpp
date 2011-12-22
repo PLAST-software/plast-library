@@ -48,9 +48,11 @@ namespace hits   {
  *  It should be activated/deactivated through compilation flag.
  */
 #if 1
-    #define HIT_STATS(a)  a
+    #define HIT_STATS(a)            a
+    #define HIT_STATS_VERBOSE(a)    //a
 #else
     #define HIT_STATS(a)
+    #define HIT_STATS_VERBOSE(a)
 #endif
 
 #define HIT_BAD_SCORE  -100
@@ -100,7 +102,7 @@ typedef std::pair<size_t,size_t> IdxCouple;
 struct Hit
 {
     /** Constructor. */
-    Hit () : occur1(1), occur2(1)  { }
+    Hit () : occur1(1), occur2(1), _size(0)  { }
 
     /** Destructor. */
     ~Hit ()  {  resetIndexes();  }
@@ -136,13 +138,18 @@ struct Hit
     misc::Vector<const indexation::ISeedOccurrence*> occur2;
 
     /** Add a couple of vector indexes in the list of valid matches. */
-    void addIndexes   (size_t i, size_t j)  {   indexes.push_back (std::pair<size_t,size_t> (i,j));  }
+    size_t addIndexes   (size_t i, size_t j)  {   indexes.push_back (std::pair<size_t,size_t> (i,j));   return ++_size; }
 
     /** Clear the list of valid matches. */
-    void resetIndexes (void)  {  indexes.clear ();  }
+    size_t resetIndexes (void)  {  indexes.clear ();  _size=0;  return _size; }
+
+    /** Returns the number of indexes. */
+    size_t size (void)  {  return _size;  }
 
     /** List of valid matches [index in subject, index in query] for the defining seed. */
     std::list<IdxCouple> indexes;
+
+    size_t _size;
 };
 
 /********************************************************************************/

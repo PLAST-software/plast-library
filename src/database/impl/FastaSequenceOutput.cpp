@@ -120,20 +120,21 @@ void FastaSequenceOutput::dumpSequence (const ISequence* seq)
     {
         char buffer[256];
 
-        const char* comment = seq->comment;
-
         if (_itComments != _comments.end())
         {
             sprintf (buffer, ">%s", (*_itComments).c_str());
-            comment = buffer;
             _itComments ++;
+        }
+        else
+        {
+            sprintf (buffer, ">%s",seq->comment);
         }
 
         /** We write the comment. */
-        _file->println (comment);
+        _file->println (buffer);
 
         /** We split the data in lines of N characters max. */
-        WrapperIterator it (seq->data.toString(), 80);
+        WrapperIterator it (seq->data.toString(), 60);
 
         for (it.first(); ! it.isDone(); it.next())
         {

@@ -89,6 +89,9 @@ protected:
 
     /** Span of the seed model.*/
     size_t               _span;
+
+    /** Extra span of the seed model.*/
+    size_t               _extraSpan;
 };
 
 /********************************************************************************/

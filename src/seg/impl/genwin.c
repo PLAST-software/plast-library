@@ -21,38 +21,9 @@ void incrementsv (register int* sv, int class);
 
 /********************************************************************************/
 
-#define STRSIZE 100
-
-/********************************************************************************/
-
-char *blastdbs[] = {
-    "bba", "bbn", "embl", "gbupdate", "genbank", "genpept", "gpupdate",
-    "nr", "nrdb", "nrdb.shuf", "pir", "pseq", "swissprot", "tfdaa"
-};
-
-int nblastdbs = 14;
-
-int nabets;
-struct Alphabet** abets;
-
-int ntvecs;
-struct TransVector** tvecs;
-
-int nsvecs;
-struct ScoreVector** svecs;
-
-int nsmats;
-struct ScoreMatrix** smats;
-
-int aaindex[128];
-unsigned char	aaflag[128];
-char aachar[20];
-
-struct strlist
-{
-    char string[STRSIZE];
-    struct strlist *next;
-} *str, *curstr;
+static int              aaindex[128];
+static unsigned char	aaflag[128];
+static char             aachar[20];
 
 /*********************************************************************
  ** METHOD  :
@@ -64,24 +35,31 @@ struct strlist
  *********************************************************************/
 void genwininit (void)
 {
-    char *cp, *cp0;
-    int		i;
-    char	c;
+    static char first = 1;
 
-    for (i = 0; i < sizeof(aaindex)/sizeof(aaindex[0]); ++i)
+    if (first)
     {
-        aaindex[i] = 20;
-        aaflag[i] = TRUE;
-    }
+        char *cp, *cp0;
+        int		i;
+        char	c;
 
-    for (cp = cp0 = "ACDEFGHIKLMNPQRSTVWY"; (c = *cp) != '\0'; ++cp)
-    {
-        i = cp - cp0;
-        aaindex[(int)c] = i;
-        aaindex[tolower(c)] = i;
-        aachar[i] = tolower(c);
-        aaflag[(int)c] = FALSE;
-        aaflag[tolower(c)] = FALSE;
+        for (i = 0; i < sizeof(aaindex)/sizeof(aaindex[0]); ++i)
+        {
+            aaindex[i] = 20;
+            aaflag[i] = TRUE;
+        }
+
+        for (cp = cp0 = "ACDEFGHIKLMNPQRSTVWY"; (c = *cp) != '\0'; ++cp)
+        {
+            i = cp - cp0;
+            aaindex[(int)c] = i;
+            aaindex[tolower(c)] = i;
+            aachar[i] = tolower(c);
+            aaflag[(int)c] = FALSE;
+            aaflag[tolower(c)] = FALSE;
+        }
+
+        first = 0;
     }
 }
 
@@ -321,23 +299,36 @@ void enton (struct Sequence* win)
 ** REMARKS :
 *********************************************************************/
 static int		thewindow;
-static double	*entray;
+static double	entray[256];
 
 #define LN2	0.69314718055994530941723212145818
 
 void entropy_init (int	window)
 {
-    int		i;
-    double	x, xw;
+    static char first = 1;
 
-    entray = (double *)malloc((window+1) * sizeof(*entray));
-    xw = window;
-    for (i = 1; i <= window; ++i) {
-        x = i / xw;
-        entray[i] = -x * log(x) / LN2;
+    if (first)
+    {
+        int		i;
+        double	x, xw;
+
+        if (window >= sizeof(entray)/sizeof(entray[0]))
+        {
+            fprintf (stderr, "entropy_init: window size too big (%d)\n", window);
+            exit (1);
+        }
+
+        xw = window;
+        for (i = 1; i <= window; ++i)
+        {
+            x = i / xw;
+            entray[i] = -x * log(x) / LN2;
+        }
+
+        thewindow = window;
+
+        first = 0;
     }
-
-    thewindow = window;
 }
 
 /*********************************************************************
@@ -350,7 +341,6 @@ void entropy_init (int	window)
 *********************************************************************/
 void entropy_exit ()
 {
-    if (entray != 0)  { free (entray); }
 }
 
 /*********************************************************************
@@ -445,349 +435,6 @@ void incrementsv (register int* sv, int class)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-struct Sequence* readentry (struct Database *dbase)
-{
-    struct Sequence *seq;
-    int	c;
-
-    seq = (struct Sequence *) malloc(sizeof(struct Sequence));
-
-    seq->db         = dbase;
-    seq->parent     = (struct Sequence *) NULL;
-    seq->root       = (struct Sequence *) NULL;
-    seq->children   = (struct Sequence **) NULL;
-    seq->rubberwin  = FALSE;
-    seq->floatwin   = FALSE;
-
-    if (!readhdr(seq))
-    {
-        return((struct Sequence *) NULL);
-    }
-
-    while (1)  /*---[skip multiple headers]---*/
-    {
-        c = getc(dbase->fp);
-
-        if (c == EOF)
-            break;
-
-        if (c != '>')
-        {
-            ungetc(c, dbase->fp);
-            break;
-        }
-
-        while ((c=getc(dbase->fp)) != EOF && c !='\n')
-            ;
-
-        if (c == EOF)
-            break;
-    }
-    readseq(seq);
-
-    seq->entropy     = -2.;
-    seq->state       = (int *) NULL;
-    seq->composition = (int *) NULL;
-    seq->classvec    = (char *) NULL;
-    seq->scorevec    = (double *) NULL;
-
-    return (seq);
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-int readhdr (struct Sequence *seq)
-{
-    FILE *fp;
-    char *bptr, *curpos;
-    int	c, i, itotal;
-    int idend, namend, orgend;
-
-    fp = seq->db->fp;
-
-    if ((c=getc(fp)) == EOF)
-    {
-        free(seq);
-        return (FALSE);
-    }
-
-    while (c != EOF && isspace(c))
-    {
-        c = getc(fp);
-    }
-
-    if (c!='>')
-    {
-        fprintf(stderr, "Error reading fasta format - '>' not found.\n");
-        exit(1);
-    }
-    ungetc(c, fp);
-
-    /*                                               ---[read the header line]---*/
-    str = (struct strlist *) malloc (sizeof(struct strlist));
-    str->next = NULL;
-    curstr = str;
-
-    for (i=0,itotal=0,c=getc(fp); c != EOF; c=getc(fp))
-    {
-        if (c=='\n') break;
-
-        if (i==STRSIZE-1)
-        {
-            curstr->string[i] = '\0';
-            curstr->next = (struct strlist *) malloc (sizeof(struct strlist));
-            curstr = curstr->next;
-            curstr->next = NULL;
-            i = 0;
-        }
-
-        curstr->string[i] = c;
-        itotal++;
-        i++;
-    }
-
-    curstr->string[i] = '\0';
-    seq->header = (char *) malloc (itotal+2);
-    seq->header[0] = '\0';
-
-    for (curstr=str, curpos=seq->header; curstr!=NULL;)
-    {
-        if (curstr->next==NULL)
-        {
-            memccpy(curpos, curstr->string, '\0', STRSIZE);
-        }
-        else
-        {
-            memccpy(curpos, curstr->string, '\0', STRSIZE-1);
-        }
-
-        str = curstr;
-        curstr = curstr->next;
-        free (str);
-
-        if (curstr!=NULL)   {  curpos = curpos+STRSIZE-1;  }
-    }
-
-    bptr = (seq->header)+1;
-    seq->name     = (char *) NULL;
-    seq->organism = (char *) NULL;
-    /*                                                   ---[parse out the id]---*/
-    idend = findchar(bptr, ' ');
-    if (idend==-1)  {  idend = findchar(bptr, '\n');  }
-    if (idend==-1)  {  idend = findchar(bptr, '\0');  }
-    if (idend==-1)
-    {
-        fprintf(stderr, "Error parsing header line - id.\n");
-        fputs(seq->header, fp);
-        exit(1);
-    }
-
-    seq->id = (char *) malloc((idend+1)*sizeof(char));
-    memcpy(seq->id, bptr, idend);
-    seq->id[idend] = '\0';
-
-    if (bptr[idend]=='\n' || bptr[idend]=='\0')   {  return(TRUE);  }
-
-    /*                                         ---[parse out the protein name]---*/
-    bptr = bptr + idend + 1;
-    while (bptr[0]==' ')  {  bptr++;  }
-
-    namend = findchar(bptr, '-');
-    if (namend==-1) {  namend = findchar(bptr, '\n');  }
-    if (namend==-1) {  namend = findchar(bptr, '\0');  }
-    if (namend==-1)
-    {
-        fprintf(stderr, "Error parsing header line - name.\n");
-        fputs(seq->header, fp);
-        return(TRUE);
-    }
-
-    seq->name = (char *) malloc((namend+1)*sizeof(char));
-    memcpy(seq->name, bptr, namend);
-    seq->name[namend] = '\0';
-
-    if (bptr[namend]=='\n' || bptr[namend]=='\0')   {  return(TRUE);  }
-
-    /*                                                 ---[parse out organism]---*/
-    bptr = bptr + namend + 1;
-    while (bptr[0]==' ') {bptr++;}
-
-    orgend = findchar(bptr, '|');
-    if (orgend==-1) {  orgend = findchar(bptr, '#');   }
-    if (orgend==-1) {  orgend = findchar(bptr, '\n');  }
-    if (orgend==-1) {  orgend = findchar(bptr, '\0');  }
-    if (orgend==-1)
-    {
-        fprintf(stderr, "Error parsing header line - organism.\n");
-        fputs(seq->header, fp);
-        return(TRUE);
-    }
-
-    seq->organism = (char *) malloc((orgend+1)*sizeof(char));
-    memcpy(seq->organism, bptr, orgend);
-    seq->organism[orgend] = '\0';
-
-    /*                                    ---[skip over multiple header lines]---*/
-    while (TRUE)
-    {
-        c = getc(fp);
-        if (c == EOF)
-            return(TRUE);
-        if (c=='>')
-        {
-            skipline(fp);
-        }
-        else
-        {
-            ungetc(c,fp);
-            break;
-        }
-    }
-
-    return(TRUE);
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-void skipline (FILE *fp)
-{
-    int	c;
-    while ((c=getc(fp))!='\n' && c!=EOF)   ;
-    return;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-int findchar (char *str, char chr)
-{
-    int i;
-
-    for (i=0; ; i++)
-    {
-        if (str[i]==chr)
-        {
-            return(i);
-        }
-        if (str[i]=='\0')
-        {
-            return(-1);
-        }
-    }
-
-    return (-1);
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-void readseq (struct Sequence* seq)
-{
-    FILE *fp;
-    int i, itotal;
-    int	c;
-    char *curpos;
-
-    fp = seq->db->fp;
-
-    seq->punctuation = FALSE;
-
-    str = (struct strlist *) malloc (sizeof(struct strlist));
-    str->next = NULL;
-    curstr = str;
-
-    for (i = 0, itotal = 0, c = getc(fp); c != EOF; c = getc(fp))
-    {
-        if (!aaflag[c])
-        {
-            Keep:
-            if (i < STRSIZE-1)
-            {
-                curstr->string[i++] = c;
-                continue;
-            }
-            itotal += STRSIZE-1;
-            curstr->string[STRSIZE-1] = '\0';
-            curstr->next = (struct strlist *) malloc(sizeof(*curstr));
-            curstr = curstr->next;
-            curstr->next = NULL;
-            curstr->string[0] = c;
-            i = 1;
-            continue;
-        }
-
-        switch (c)
-        {
-        case '>':
-            ungetc(c, fp);
-            goto EndLoop;
-        case '*': case '-':
-            seq->punctuation = TRUE;
-            goto Keep;
-        case 'b': case 'B':
-        case 'u': case 'U': /* selenocysteine */
-        case 'x': case 'X':
-        case 'z': case 'Z':
-            goto Keep;
-        default:
-            continue;
-        }
-    }
-    EndLoop:
-    itotal += i;
-
-    curstr->string[i] = '\0';
-    seq->seq = (char *) malloc (itotal+2);
-    seq->seq[0] = '\0';
-
-    for (curstr = str, curpos = seq->seq; curstr != NULL;)
-    {
-        if (curstr->next == NULL)
-            memccpy(curpos, curstr->string, '\0', STRSIZE);
-        else
-            memccpy(curpos, curstr->string, '\0', STRSIZE-1);
-
-        str = curstr;
-        curstr = curstr->next;
-        free(str);
-
-        if (curstr != NULL)
-            curpos = curpos+STRSIZE-1;
-    }
-
-    seq->length = strlen(seq->seq);
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
 void upper (register char* string, size_t len)
 {
     register char	*stringmax, c;
@@ -812,32 +459,4 @@ void lower (char* string, size_t len)
     for (stringmax = string + len; string < stringmax; ++string)
         if (isupper(c = *string))
             *string = tolower(c);
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-int min (int a, int b)
-{
-    if (a<b)    { return(a); }
-    else        { return(b); }
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-int max (int a, int b)
-{
-    if (a<b)    { return(b); }
-    else        { return(a); }
 }

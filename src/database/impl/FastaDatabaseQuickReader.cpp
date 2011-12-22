@@ -107,8 +107,8 @@ void FastaDatabaseQuickReader::read (u_int64_t  maxblocksize)
                     char c = buffer[i];
 
                     bool isNucleotid =
-                        (c=='A') || (c=='C') || (c=='G') || (c=='T') ||
-                        (c=='a') || (c=='c') || (c=='g') || (c=='t');
+                        (c=='A') || (c=='C') || (c=='G') || (c=='T') || (c=='N') ||
+                        (c=='a') || (c=='c') || (c=='g') || (c=='t') || (c=='n');
 
                     if (isNucleotid)  { _nbNucleotids++;  }
                     else              { _nbAminoAcids++;  }

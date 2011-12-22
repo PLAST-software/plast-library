@@ -52,6 +52,9 @@ namespace misc {
 /** Absolute value. */
 #define ABS(a)    ((a) > 0   ? (a) : -(a))
 
+/** Size of an array (computed through sizeof). */
+#define ARRAYSIZE(t)  (sizeof(t) / sizeof(t[0]))
+
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/

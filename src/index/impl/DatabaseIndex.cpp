@@ -481,18 +481,7 @@ DatabaseIndex::DatabaseOccurrenceBlockIterator::DatabaseOccurrenceBlockIterator 
              *  index has been built with the composed database but here we want to know which
              *  sub database is actually the wanted one (ie one of the 6 reading frame database).
              */
-#if 0
-            _database->getActualInfoFromOffset (
-                (*_offsets)[currentIdx],
-                occur->database,
-                occur->offsetInDatabase
-            );
-            if (occur->database == 0)  { /* should throw some exception */ }
 
-            /** We retrieve other information: sequence and offset in sequence. */
-            (occur->database)->getSequenceByOffset (occur->offsetInDatabase, occur->sequence, occur->offsetInSequence);
-
-#else
             /** We retrieve other information: sequence and offsets in sequence and db. */
             _database->getSequenceByOffset (
                 (*_offsets)[currentIdx],
@@ -500,7 +489,6 @@ DatabaseIndex::DatabaseOccurrenceBlockIterator::DatabaseOccurrenceBlockIterator 
                 occur->offsetInSequence,
                 occur->offsetInDatabase
             );
-#endif
 
             /** We may have to build the neighbourhood. */
             if (_neighbourSize > 0)

@@ -241,17 +241,20 @@ void ReadingFrameSequenceIterator::getCodes (int direction, LETTER l1, LETTER l2
 {
     /** We duplicate code for optimization => less calls to the method (we get the 3 codes in a single call). */
 
+#define DEFAULT_CODE  BAD_CODE
+//#define DEFAULT_CODE  ((rand() & 3))
+
     if (direction > 0)
     {
-         if (l1==A)  c1=0;  else if (l1==C)  c1=1;  else if (l1==G)  c1=2;  else if (l1==T)  c1=3;  else c1=BAD_CODE;
-         if (l2==A)  c2=0;  else if (l2==C)  c2=1;  else if (l2==G)  c2=2;  else if (l2==T)  c2=3;  else c2=BAD_CODE;
-         if (l3==A)  c3=0;  else if (l3==C)  c3=1;  else if (l3==G)  c3=2;  else if (l3==T)  c3=3;  else c3=BAD_CODE;
+         if (l1==A)  c1=0;  else if (l1==C)  c1=1;  else if (l1==G)  c1=2;  else if (l1==T)  c1=3;  else c1=DEFAULT_CODE;
+         if (l2==A)  c2=0;  else if (l2==C)  c2=1;  else if (l2==G)  c2=2;  else if (l2==T)  c2=3;  else c2=DEFAULT_CODE;
+         if (l3==A)  c3=0;  else if (l3==C)  c3=1;  else if (l3==G)  c3=2;  else if (l3==T)  c3=3;  else c3=DEFAULT_CODE;
     }
     else
     {
-        if (l1==A)   c1=3;  else if (l1==C)  c1=2;  else if (l1==G)  c1=1;  else if (l1==T)  c1=0;  else c1=BAD_CODE;
-        if (l2==A)   c2=3;  else if (l2==C)  c2=2;  else if (l2==G)  c2=1;  else if (l2==T)  c2=0;  else c2=BAD_CODE;
-        if (l3==A)   c3=3;  else if (l3==C)  c3=2;  else if (l3==G)  c3=1;  else if (l3==T)  c3=0;  else c3=BAD_CODE;
+        if (l1==A)   c1=3;  else if (l1==C)  c1=2;  else if (l1==G)  c1=1;  else if (l1==T)  c1=0;  else c1=DEFAULT_CODE;
+        if (l2==A)   c2=3;  else if (l2==C)  c2=2;  else if (l2==G)  c2=1;  else if (l2==T)  c2=0;  else c2=DEFAULT_CODE;
+        if (l3==A)   c3=3;  else if (l3==C)  c3=2;  else if (l3==G)  c3=1;  else if (l3==T)  c3=0;  else c3=DEFAULT_CODE;
     }
 }
 

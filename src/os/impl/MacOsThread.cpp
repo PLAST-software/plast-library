@@ -21,6 +21,7 @@
 #include <memory>
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
 
 #define DEBUG(a)  //printf a
 
@@ -39,21 +40,11 @@ namespace os { namespace impl {
 class MacOsThread : public IThread
 {
 public:
-
-    MacOsThread (void* (mainloop) (void*), void* data)
-    {
-        mainloop (data);
-    }
-
-    ~MacOsThread ()
-    {
-    }
-
-    void join ()
-    {
-    }
-
+    MacOsThread (void* (mainloop) (void*), void* data)  { pthread_create (&_thread, NULL,  mainloop, data); }
+    ~MacOsThread ()  { pthread_detach (_thread);        }
+    void join ()     { pthread_join   (_thread, NULL);  }
 private:
+    pthread_t  _thread;
 };
 
 /*********************************************************************
@@ -67,23 +58,14 @@ private:
 class MacOsSynchronizer : public ISynchronizer
 {
 public:
-    MacOsSynchronizer ()
-    {
-    }
+    MacOsSynchronizer ()            {  pthread_mutex_init (&_mutex, NULL);  }
+    virtual ~MacOsSynchronizer()    {  pthread_mutex_destroy (&_mutex);     }
 
-    virtual ~MacOsSynchronizer()
-    {
-    }
-
-    void lock ()
-    {
-    }
-
-    void unlock ()
-    {
-    }
+    void   lock ()  { pthread_mutex_lock   (&_mutex); }
+    void unlock ()  { pthread_mutex_unlock (&_mutex); }
 
 private:
+    pthread_mutex_t  _mutex;
 };
 
 /*********************************************************************
@@ -123,6 +105,20 @@ ISynchronizer* MacOsThreadFactory::newSynchronizer (void)
 size_t MacOsThreadFactory::getNbCores ()
 {
     size_t result = 0;
+
+    /** We open the "/proc/cpuinfo" file. */
+    FILE* file = fopen ("/proc/cpuinfo", "r");
+    if (file)
+    {
+        char buffer[256];
+
+        while (fgets(buffer, sizeof(buffer), file))
+        {
+            if (strstr(buffer, "processor") != NULL)  { result ++;  }
+        }
+
+        fclose (file);
+    }
 
     if (result==0)  { result = 1; }
 

@@ -34,6 +34,8 @@
 #include <seed/impl/AbstractSeedModel.hpp>
 #include <seed/impl/AbstractSeedIterator.hpp>
 
+#include <database/impl/SequenceTokenizer.hpp>
+
 #include <string>
 
 /********************************************************************************/
@@ -90,7 +92,8 @@ private:
     {
     public:
         DataSeedIterator (BasicSeedModel* model, const database::IWord& data);
-    private:
+
+    protected:
         BasicSeedModel* _specificModel;
 
         /** Find the next valid item. May add some increment to the current position. */
@@ -98,6 +101,55 @@ private:
 
         /** Update (if needed) of the current item object. */
         void updateItem (void) { /* done in findNextValidItem */ }
+    };
+
+    /************************************************************/
+
+    /** \brief Data seed iteration for the basic seed model.
+     */
+    class DataSeedIteratorWithTokenizer  : public DataSeedIterator
+    {
+    public:
+        DataSeedIteratorWithTokenizer (BasicSeedModel* model, const database::IWord& data);
+
+        /** \copydoc DataSeedIterator::first */
+        void first()
+        {
+            _currentToken = 0;
+
+            updateBound ();
+            DataSeedIterator::first();
+        }
+
+    protected:
+
+        /** Find the next valid item. May add some increment to the current position. */
+        virtual bool findNextValidItem (void);
+
+        /** */
+        bool updateBound ()
+        {
+            bool result = _currentToken < _tokenizer.getItems().size();
+
+            if (result)
+            {
+                _begin = _tokenizer.getItems()[_currentToken].first  + _delta;
+                _end   = _tokenizer.getItems()[_currentToken].second;
+
+                if (_end >= _delta)  { _end -= _delta; }
+
+                if (_end >= _begin + _span - 1)  {  _end -= _span-1;      }
+                else                             {  _end  = 0;  _begin=1; }
+            }
+            return result;
+        }
+
+        size_t _delta;
+
+        database::impl::SequenceTokenizer _tokenizer;
+        size_t _currentToken;
+        size_t _begin;
+        size_t _end;
     };
 
     /************************************************************/

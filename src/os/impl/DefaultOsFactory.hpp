@@ -100,7 +100,7 @@ private:
     DefaultFactory ();
 
     /** Destructor. */
-    virtual ~DefaultFactory ()  {}
+    virtual ~DefaultFactory ();
 
     /** */
     IThreadFactory*   _thread;

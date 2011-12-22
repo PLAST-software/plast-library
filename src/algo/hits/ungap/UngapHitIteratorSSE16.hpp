@@ -89,6 +89,9 @@ protected:
 
     /* Statistics. */
     u_int64_t _ungapKnownNumber;
+
+    /** Inner buffer. */
+    char* _databk;
 };
 
 /********************************************************************************/

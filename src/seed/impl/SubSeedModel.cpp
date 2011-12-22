@@ -435,6 +435,81 @@ bool SubSeedModel::DataSeedIterator::findNextValidItem (void)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+SubSeedModel::DataSeedIteratorWithTokenizer::DataSeedIteratorWithTokenizer (SubSeedModel* model, const database::IWord& data)
+    : DataSeedIterator (model, data), _delta(0), _tokenizer(data), _begin(0), _end(0)
+{
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+bool SubSeedModel::DataSeedIteratorWithTokenizer::findNextValidItem (void)
+{
+    bool found = false;
+
+    /** Shortcuts. */
+    LETTER* out    = _currentItem.kmer.letters.data;
+    LETTER* buffer = _data.letters.data;
+
+    if (_begin <= _end)
+    {
+        for (size_t i=0; i<_span; i++)
+        {
+            int l = buffer[i+_currentIdx];
+            out[i] = _equivalenceTable [i] [l];
+        }
+        _begin++;
+        found = true;
+    }
+    else
+    {
+        _currentToken++;
+        found = updateBound();
+
+        if (found)
+        {
+            for (size_t i=0; i<_span; i++)
+            {
+                int l = buffer[i+_currentIdx];
+                out[i] = _equivalenceTable [i] [l];
+            }
+            _begin++;
+            found = true;
+        }
+        else
+        {
+            /** We should be done. */
+            _currentIdx = _lastIdx + 1;
+            found = false;
+        }
+    }
+
+    if (found)
+    {
+        /** We set the hash code. The output word is supposed to have been translated above. */
+        _currentItem.code  = _specificModel->getHashCode (_currentItem.kmer);
+
+        /** We set the index. */
+        _currentItem.offset  = _currentIdx;
+    }
+
+    return found;
+}
+
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 SubSeedModel::AllSeedsIterator::AllSeedsIterator (SubSeedModel* model, size_t firstIdx, size_t lastIdx)
     : AbstractSeedIterator (model, firstIdx, lastIdx, false),
       _specificModel(model),

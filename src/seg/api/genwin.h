@@ -191,12 +191,6 @@ int  findchar (char *str, char chr);
 void upper (char* string, size_t len);
 void lower (char* string, size_t len);
 
-int min (int a, int b);
-int max (int a, int b);
-
 /********************************************************************************/
-
-extern int  aaindex[];
-extern char aachar[];
 
 #endif /* _GENWIN_H_ */
