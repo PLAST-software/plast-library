@@ -71,14 +71,19 @@ private:
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-BasicIndexator::BasicIndexator (ISeedModel* model, algo::core::IParameters* params)
-    : _model(0), _params(0),
+BasicIndexator::BasicIndexator (
+    ISeedModel* model,
+    algo::core::IParameters* params,
+    indexation::IDatabaseIndexFactory* factory
+)
+    : _model(0), _params(0), _factory(0),
       _subjectDatabase(0),  _queryDatabase(0),
       _subjectIndex(0),     _queryIndex(0)
 {
     /** We use some resources. */
-    setModel  (model);
-    setParams (params);
+    setModel   (model);
+    setParams  (params);
+    setFactory (factory);
 }
 
 /*********************************************************************
@@ -92,8 +97,9 @@ BasicIndexator::BasicIndexator (ISeedModel* model, algo::core::IParameters* para
 BasicIndexator::~BasicIndexator ()
 {
     /** We release some resources. */
-    setModel  (0);
-    setParams (0);
+    setModel           (0);
+    setParams          (0);
+    setFactory         (0);
     setSubjectDatabase (0);
     setQueryDatabase   (0);
 }
@@ -185,7 +191,7 @@ void BasicIndexator::build (dp::ICommandDispatcher* dispatcher)
 IDatabaseIndex* BasicIndexator::buildIndex (ISequenceDatabase* database, ISeedModel* model, ICommandDispatcher* dispatcher)
 {
     /** We create the index and use it. */
-    IDatabaseIndex* index = new DatabaseIndex (database, model);
+    IDatabaseIndex* index = _factory->newDatabaseIndex (database, model);
     index->use ();
 
     /** We get the number of possible execution units from the command dispatcher. */
@@ -203,7 +209,7 @@ IDatabaseIndex* BasicIndexator::buildIndex (ISequenceDatabase* database, ISeedMo
         for (size_t i=0; i<splits.size(); i++)
         {
             /** We create an index for the current frame. */
-            IDatabaseIndex* chidlIndex = new DatabaseIndex (splits[i], model);
+            IDatabaseIndex* chidlIndex = _factory->newDatabaseIndex (splits[i], model);
 
             /** We add the index to the global index. */
             index->addChildIndex (chidlIndex);
@@ -277,8 +283,8 @@ IProperties* BasicIndexator::getProperties ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-BasicSortedIndexator::BasicSortedIndexator (ISeedModel* model, IParameters* params)
-    : BasicIndexator (model, params)
+BasicSortedIndexator::BasicSortedIndexator (ISeedModel* model, IParameters* params, IDatabaseIndexFactory* factory)
+    : BasicIndexator (model, params, factory)
 {
 }
 

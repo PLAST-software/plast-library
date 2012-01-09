@@ -26,6 +26,8 @@
 #include <seed/impl/BasicSeedModel.hpp>
 #include <seed/impl/SubSeedModel.hpp>
 
+#include <index/impl/DatabaseIndex.hpp>
+
 #include <algo/core/impl/DefaultAlgoConfig.hpp>
 #include <algo/core/impl/ScoreMatrix.hpp>
 #include <algo/core/impl/BasicAlgoIndexator.hpp>
@@ -59,6 +61,8 @@ using namespace database;
 using namespace database::impl;
 using namespace seed;
 using namespace seed::impl;
+using namespace indexation;
+using namespace indexation::impl;
 using namespace indexation;
 using namespace statistics;
 using namespace statistics::impl;
@@ -171,7 +175,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->ungapScoreThreshold  = 38;
         params->smallGapBandLength   = 64;
         params->smallGapBandWidth    = 16;
-        params->smallGapThreshold    = 40;
+        params->smallGapThreshold    = 54;
         params->openGapCost          = 0;  // 0 means default value; actual value will be set later
         params->extendGapCost        = 0;  // 0 means default value; actual value will be set later
         params->evalue               = 10.0;
@@ -346,21 +350,45 @@ ISeedModel* DefaultConfiguration::createSeedModel (SeedModelKind_e modelKind, co
 IIndexator*  DefaultConfiguration::createIndexator (seed::ISeedModel* seedsModel, algo::core::IParameters* params)
 {
     IIndexator* result = 0;
+    IProperty* prop = 0;
 
-    /** We retrieve the property. */
-    IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_INDEXATION);
+    /** We will need a factory for creating IDatabaseIndex instances. */
+    IDatabaseIndexFactory* dbIndexFactory = 0;
 
-    if (prop && prop->value.compare("BasicIndexator")==0)
+    if (params->algoKind == ENUM_PLASTP)
     {
-        result = new BasicIndexator (seedsModel, params);
+        dbIndexFactory = new DatabaseIndexFactory ();
     }
-    else if (prop && prop->value.compare("BasicSortedIndexator")==0)
+    else if ( (prop = _properties->getProperty (STR_OPTION_CODON_STOP_OPTIM)) != 0)
     {
-        result = new BasicSortedIndexator (seedsModel, params);
+        if (prop->getInt() != 0)
+        {
+            dbIndexFactory = new DatabaseIndexCodonStopOptimFactory (prop->getInt());
+        }
+        else
+        {
+            dbIndexFactory = new DatabaseIndexFactory ();
+        }
     }
     else
     {
-        result = new BasicSortedIndexator (seedsModel, params);
+        dbIndexFactory = new DatabaseIndexCodonStopOptimFactory (params->ungapNeighbourLength);
+    }
+
+    /** We retrieve the property. */
+    prop = _properties->getProperty (STR_OPTION_FACTORY_INDEXATION);
+
+    if (prop && prop->value.compare("BasicIndexator")==0)
+    {
+        result = new BasicIndexator (seedsModel, params, dbIndexFactory);
+    }
+    else if (prop && prop->value.compare("BasicSortedIndexator")==0)
+    {
+        result = new BasicSortedIndexator (seedsModel, params, dbIndexFactory);
+    }
+    else
+    {
+        result = new BasicSortedIndexator (seedsModel, params, dbIndexFactory);
     }
 
     return result;

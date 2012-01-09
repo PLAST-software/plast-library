@@ -311,7 +311,8 @@ void BasicAlignmentResult2::accept (IAlignmentResultVisitor* visitor)
 
         if (querySeq.index != idx.first)
         {
-            querySeq.index = idx.first;
+            querySeq.index   = idx.first;
+            subjectSeq.index = ~0;  // need to reset the subject index for a new found query
             querySeq.comment =  _queryComments.empty()==false ? _queryComments[querySeq.index].c_str() : "query?";
             visitor->visitQuerySequence (&querySeq);
         }

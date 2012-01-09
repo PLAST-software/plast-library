@@ -139,6 +139,22 @@ public:
 };
 
 /********************************************************************************/
+
+/** \brief Interface of a factory for creating IDatabaseIndex instances
+ */
+class IDatabaseIndexFactory : public dp::SmartPointer
+{
+public:
+
+    /** Creates a new instance of IDatabaseIndexFactory
+     */
+    virtual IDatabaseIndex* newDatabaseIndex (
+        database::ISequenceDatabase* database,
+        seed::ISeedModel*            model
+    ) = 0;
+};
+
+/********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
 

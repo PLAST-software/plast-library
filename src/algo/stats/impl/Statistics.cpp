@@ -312,7 +312,8 @@ void QueryInformation::build (void)
     ISequenceIterator* itSeq = _queryDb->createSequenceIterator();
     LOCAL (itSeq);
 
-    for (itSeq->first(); ! itSeq->isDone(); itSeq->next())
+    size_t i=0;
+    for (itSeq->first(); ! itSeq->isDone(); itSeq->next(), i++)
     {
         const ISequence* seq = itSeq->currentItem();
 
@@ -353,6 +354,10 @@ void QueryInformation::build (void)
          *  because '_queryDb' may be a database composed of several databases, and the 'database' attribute
          *  may reference a child database belonging to '_queryDb'. */
         _seqInfoMap[seq->database].push_back (info);
+
+        DEBUG (("[%d]  searchsp=%ld  seqLength=%ld  lenAdjust=%ld  => cuttof=%d  evalue=%f  scoremin=%d\n",
+            i, eff_searchsp, info.sequence_length, length_adjustment, cutoffs, evalue, _parameters->smallGapThreshold
+        ));
 
         /** We update the minimum score. */
         if (cutoffs < _parameters->smallGapThreshold)     {  _parameters->smallGapThreshold = cutoffs;  }

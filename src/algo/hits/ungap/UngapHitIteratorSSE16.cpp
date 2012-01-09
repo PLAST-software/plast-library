@@ -115,9 +115,9 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
     __m128i vscore;
     __m128i vMaxScore;
 
-    register u_int8_t sizeMatrix        = _scoreMatrix->getN();
-    register u_int8_t sizeNeighbour     = _span + 2*_parameters->ungapNeighbourLength;
-    register u_int8_t sizeHalfNeighbour = _span + 1*_parameters->ungapNeighbourLength;
+    u_int8_t sizeMatrix        = _scoreMatrix->getN();
+    u_int8_t sizeNeighbour     = _span + 2*_parameters->ungapNeighbourLength;
+    u_int8_t sizeHalfNeighbour = _span + 1*_parameters->ungapNeighbourLength;
 
     u_int32_t currentNbHits = hit->size();
     u_int32_t maxHitsPerIteration = _maxHitsPerIteration;
@@ -144,36 +144,39 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
     /** Statistics. */
     HIT_STATS (_inputHitsNumber += nb1 * nb2;)
 
+    /** We retrieve the whole neighbourhoods buffer. This is important to get the full buffer
+     * for locality concerns (ie. for optimizing CPU cache usage). */
+    const LETTER* neighboursOccur2 = hit->neighbourhoodsOccur2;
+
     /** We loop over query occurrences. */
-    for (register size_t j=0; j<nb2; j+=NB)
+    for (size_t j=0; j<nb2; j+=NB)
     {
         /** We first reset to 0 all scores of the pseudo SSE score matrix. */
         memset (databk, 0, (sizeMatrix*sizeNeighbour + 64) * sizeof(__m128i));
 
         char* pc = (char *) pvb;
 
-        size_t dj = nb2 - j;
-        int  lmin = MIN (dj, NB);
+        u_int8_t lmin  = MIN (nb2 - j, NB);
+        u_int8_t delta = (NB - lmin);
 
-        for (register size_t i=0; i<sizeMatrix; i++)
+        for (u_int8_t m=0; m<sizeMatrix; m++)
         {
-            int8_t* matrixRow = _matrix[i];
+            int8_t* matrixRow = _matrix[m];
 
-            for (register size_t k=0; k<sizeNeighbour; k++)
+            for (u_int8_t k=0; k<sizeNeighbour; k++)
             {
-                for (register int l=0; l<lmin; l++)
+                for (u_int8_t l=0; l<lmin; l++)
                 {
-                    LETTER* occurQuery = occur2Vector.data[j+l]->neighbourhood.letters.data;
-                    *pc++ = (char) (matrixRow [(int)occurQuery[k]] - bias);
+                    *pc++ = (char) (matrixRow [(int) neighboursOccur2[(j+l)*sizeNeighbour+k]] - bias);
                 }
 
-                /** We may have to skip some null scores. */
-                pc += (NB - lmin);
+                /** We may have to skip some null scores (in case lmin > NB). */
+                pc += delta;
             }
         }
 
         /** We loop over subject occurrences. */
-        for (register size_t i=0; i<nb1; i++)
+        for (size_t i=0; i<nb1; i++)
         {
             /** We use a shortcut (avoids several memory accesses). */
             occur1ForIndexI = occur1Vector.data[i];
@@ -183,7 +186,7 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
             vMaxScore = _mm_set1_epi8 (0);
             vscore    = _mm_set1_epi8 (0);
 
-            for (register u_int8_t k=0; k<sizeHalfNeighbour; k++)
+            for (u_int8_t k=0; k<sizeHalfNeighbour; k++)
             {
                 pvScore   = *(pvb + (neighbour1[k] * sizeNeighbour + k));
                 vscore    = _mm_adds_epu8 (vscore,    pvScore);
@@ -193,7 +196,7 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
 
             _mm_store_si128 (&vscore,vMaxScore);
 
-            for (register u_int8_t k=sizeHalfNeighbour; k<sizeNeighbour; k++)
+            for (u_int8_t k=sizeHalfNeighbour; k<sizeNeighbour; k++)
             {
                 pvScore   = *(pvb + (neighbour1[k] * sizeNeighbour + k));
                 vscore    = _mm_adds_epu8 (vscore,    pvScore);
@@ -213,10 +216,10 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
             /** Possible optimization: just continue if we know that every threshold tests failed. */
             if (maskTestThreshold == 0)  {  continue; }
 
-            for (register u_int8_t k=0; k<NB; k++)
+            for (u_int8_t k=0; k<NB; k++)
             {
                 /** If the value is 0, it means that the two comparisons failed the threshold test. */
-                if ((maskTestThreshold >> k) & 0x1)
+                if ( (maskTestThreshold >> k)  & 0x1)
                 {
                     size_t idx = j+k;
 
@@ -225,7 +228,6 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
                         /** We tag this hit to be used for further processing. */
                         currentNbHits = hit->addIndexes (i, idx);
                     }
-                    else  {  HIT_STATS_VERBOSE (_ungapKnownNumber ++;)  }
                 }
             }
 

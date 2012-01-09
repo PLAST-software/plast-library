@@ -72,6 +72,9 @@ SmallGapHitIteratorSSE8::SmallGapHitIteratorSSE8 (
     : AbstractPipeHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult),
       _lowScoreNumber(0)
 {
+    DEBUG (("gap_open=%d  gap_extend=%d  scoremin=%d \n",
+        _parameters->openGapCost, _parameters->extendGapCost, _parameters->smallGapThreshold
+    ));
 }
 
 /*********************************************************************
@@ -359,7 +362,6 @@ void SmallGapHitIteratorSSE8::computeScores (
 
                 //----------vnext_score = vbest_arr[j] + h_matrix[h_A[l + i]][h_B[l+j]];
                 // vtemp = h_matrix[h_A[l + i]][h_B[l+j]]
-
 
                 const LETTER* cursor_A = pt_A;
                 const LETTER* cursor_B = pt_B;

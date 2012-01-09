@@ -102,10 +102,15 @@ typedef std::pair<size_t,size_t> IdxCouple;
 struct Hit
 {
     /** Constructor. */
-    Hit () : occur1(1), occur2(1), _size(0)  { }
+    Hit () : _code(0), occur1(1), neighbourhoodsOccur1(0), occur2(1), neighbourhoodsOccur2(0), _size(0)  { }
 
     /** Destructor. */
     ~Hit ()  {  resetIndexes();  }
+
+    /** */
+    void setSeedHashCode (seed::SeedHashCode code)  { _code = code; }
+    seed::SeedHashCode getSeedHashCode () { return _code; }
+    seed::SeedHashCode _code;
 
     /** Set occurrences references. Note that the referenced arguments are supposed
      * to live longer to the Hit instance.
@@ -131,11 +136,27 @@ struct Hit
         }
     }
 
+    /** Keep a reference on the two buffer holding the neighbourhoods of all hits.
+     * \param[in] neighbourhoods1 : reference to be memorized
+     * \param[in] neighbourhoods2 : reference to be memorized
+     */
+    void setNeighbourhoods (const database::LETTER* neighbourhoods1, const database::LETTER* neighbourhoods2)
+    {
+        neighbourhoodsOccur1 = neighbourhoods1;
+        neighbourhoodsOccur2 = neighbourhoods2;
+    }
+
     /** Vector of occurrences of the defining seed in the subject database. */
     misc::Vector<const indexation::ISeedOccurrence*> occur1;
 
+    /** Buffer holding the neighbourhoods of all occurrences in the subject database. */
+    const database::LETTER* neighbourhoodsOccur1;
+
     /** Vector of occurrences of the defining seed in the query database. */
     misc::Vector<const indexation::ISeedOccurrence*> occur2;
+
+    /** Buffer holding the neighbourhoods of all occurrences in the subject database. */
+    const database::LETTER* neighbourhoodsOccur2;
 
     /** Add a couple of vector indexes in the list of valid matches. */
     size_t addIndexes   (size_t i, size_t j)  {   indexes.push_back (std::pair<size_t,size_t> (i,j));   return ++_size; }

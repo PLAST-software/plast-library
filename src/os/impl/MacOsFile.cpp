@@ -28,7 +28,7 @@ class MacOsFile : public CommonFile
 {
 public:
 
-    MacOsFile (const char* path, const char* mode) : CommonFile(path,mode)  {}
+    MacOsFile (const char* path, const char* mode, bool temporary) : CommonFile(path,mode,temporary)  {}
 
     int seeko (u_int64_t offset, int whence)
     {
@@ -45,9 +45,9 @@ public:
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IFile* MacOsFileFactory::newFile (const char* path, const char* mode)
+IFile* MacOsFileFactory::newFile (const char* path, const char* mode, bool temporary)
 {
-    return new MacOsFile (path, mode);
+    return new MacOsFile (path, mode, temporary);
 }
 
 /********************************************************************************/

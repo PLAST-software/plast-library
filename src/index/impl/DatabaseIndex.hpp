@@ -94,7 +94,7 @@ public:
     /** \copydoc AbstractDatabaseIndex::merge */
     void merge (void);
 
-private:
+protected:
 
     /** Data type for storing an seed offset. */
     typedef u_int32_t SequenceOffset;
@@ -132,6 +132,9 @@ private:
 
     /** */
     Offset _lastValidOffset;
+
+    /** */
+    virtual seed::ISeedIterator* createSeedsIterator (const database::IWord& data);
 
     /********************************************************************************/
     /** \brief IOccurrenceIterator implementation used by DatabaseIndex::createOccurrenceIterator class.
@@ -209,6 +212,8 @@ private:
 
         misc::Vector<const indexation::ISeedOccurrence*>& currentItem()    { return *_vectorsListIterator;    }
 
+        database::LETTER* getNeighbourhoods ()  { return _neighbourhoods; }
+
     private:
         database::ISequenceDatabase* _database;
         size_t                       _span;
@@ -225,6 +230,82 @@ private:
         indexation::ISeedOccurrence* _table;
         database::LETTER*            _neighbourhoods;
     };
+};
+
+/********************************************************************************/
+
+/** \brief Simple implementation of the IDatabaseIndex interface.
+ *
+ * This implementation is based on seeds hash code, ie. an integer that identifies
+ * a seed.
+ *
+ * It also tries to filter out some unwanted index because of presence of STOP codon.
+ */
+class DatabaseIndexCodonStopOptim : public DatabaseIndex
+{
+public:
+
+    /** Constructor.
+     * \param[in] database : the database to be indexed.
+     * \param[in] model : the seed model to be used for indexation.
+     */
+    DatabaseIndexCodonStopOptim (
+        database::ISequenceDatabase* database,
+        seed::ISeedModel* model,
+        size_t skipRange
+    ) : DatabaseIndex (database, model), _range(skipRange)  {}
+
+protected:
+
+    /** */
+    size_t _range;
+
+    /** */
+    seed::ISeedIterator* createSeedsIterator (const database::IWord& data);
+};
+
+/********************************************************************************/
+
+/** \brief Factory that creates DatabaseIndexCodonStopOptim instances.
+  */
+class DatabaseIndexFactory : public IDatabaseIndexFactory
+{
+public:
+
+    /** \copydoc IDatabaseIndexFactory::newDatabaseIndex */
+    IDatabaseIndex* newDatabaseIndex (
+        database::ISequenceDatabase* database,
+        seed::ISeedModel*            model
+    )
+    {
+        return new DatabaseIndex (database, model);
+    }
+};
+
+/********************************************************************************/
+
+/** \brief Factory that creates DatabaseIndexCodonStopOptim instances.
+  */
+class DatabaseIndexCodonStopOptimFactory : public IDatabaseIndexFactory
+{
+public:
+
+    /** Constructor. */
+    DatabaseIndexCodonStopOptimFactory (size_t range)  : _range(range) {}
+
+    /** \copydoc IDatabaseIndexFactory::newDatabaseIndex */
+    IDatabaseIndex* newDatabaseIndex (
+        database::ISequenceDatabase* database,
+        seed::ISeedModel*            model
+    )
+    {
+        return new DatabaseIndexCodonStopOptim (database, model, _range);
+    }
+
+private:
+
+    /** */
+    size_t _range;
 };
 
 /********************************************************************************/

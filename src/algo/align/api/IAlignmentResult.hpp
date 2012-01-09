@@ -82,7 +82,7 @@ public:
 
     /** Default constructor.
      */
-    Alignment ()  :  _evalue(0), _bitscore(0), _nbGap(0), _identity(0), _nbMis(0), _direction(0)  {}
+    Alignment ()  :  _evalue(0), _bitscore(0), _nbGap(0), _identity(0), _nbMis(0) {}
 
     /** Constructor.
      */
@@ -94,7 +94,7 @@ public:
         int rightOffsetInQuery,
         int rightOffsetInSubject,
         int score
-    )  :   _occur1(occur1), _occur2(occur2),  _evalue(0), _bitscore(0), _nbGap(0), _identity(0), _nbMis(0), _direction(0)
+    )  :   _occur1(occur1), _occur2(occur2),  _evalue(0), _bitscore(0), _nbGap(0), _identity(0), _nbMis(0)
     {
         configure (occur1, occur2, leftOffsetInQuery, leftOffsetInSubject, rightOffsetInQuery, rightOffsetInSubject);
     }
@@ -191,14 +191,6 @@ public:
     /** Number of misses. */
     size_t _nbMis;
 
-    /** Reading direction of query and subject.
-     * 0 => query from left  to right and subject from left  to right
-     * 1 => query from right to left  and subject from left  to right
-     * 2 => query from left  to right and subject from right to left
-     * 3 => query from right to left  and subject from right to left
-     */
-    char _direction;
-
     /** Debug string.
      * \return a string.*/
     std::string toString ()  const
@@ -252,11 +244,6 @@ private:
         _queryEndInDb     = occur2->offsetInDatabase + rightOffsetInQuery;
 
         _length = MAX (_subjectEndInSeq - _subjectStartInSeq + 1, _queryEndInSeq - _queryStartInSeq + 1);
-
-        /** We set the direction. */
-        _direction  = 0;
-        _direction |= (_queryEndInSeq     - _queryStartInSeq >= 0 ? 0 : 1) << 0;
-        _direction |= (_subjectStartInSeq - _subjectEndInSeq >= 0 ? 1 : 0) << 1;
     }
 };
 

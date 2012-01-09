@@ -38,6 +38,7 @@
 #include <algo/align/api/IAlignmentSplitter.hpp>
 
 #include <algo/align/impl/UngapAlignmentResult.hpp>
+#include <algo/align/impl/SemiGappedAlign.hpp>
 
 #include <set>
 
@@ -119,31 +120,12 @@ protected:
     /** Smart setter for _splitter attribute. */
     void setAlignmentSplitter (algo::align::IAlignmentSplitter* splitter)  { SP_SETATTR (splitter); }
 
-    /** Dynamic programming for finding a gap alignment betweed two sequences. Ref NCBI.
-     */
-    int SemiGappedAlign (
-        char* A,
-        char* B,
-        int M,
-        int N,
-        int* a_offset,
-        int* b_offset,
-        int reverse_sequence,
-        int8_t** matrix,
-        int gap_open,
-        int gap_extend,
-        int x_dropoff
-    );
-
-    struct BlastGapDP {
-        int best;
-        int best_gap;
-    };
+    /** Object that computes score through dynamic programming. Ref NCBI. */
+    algo::align::impl::SemiGapAlign* _dynpro;
+    void setDynPro (algo::align::impl::SemiGapAlign* dynpro)  {  SP_SETATTR (dynpro); }
 
     u_int64_t _ungapKnownNumber;
     u_int64_t _gapKnownNumber;
-
-    bool _checkMemory;
 };
 
 /********************************************************************************/

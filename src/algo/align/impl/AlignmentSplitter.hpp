@@ -83,15 +83,15 @@ private:
     int _openGapCost;
     int _extendGapCost;
 
-    short** _matrix_H;
-    short** _matrix_E;
-    short** _matrix_F;
+    int16_t** _matrix_H;
+    int16_t** _matrix_E;
+    int16_t** _matrix_F;
 
     int _DefaultAlignSize;
     int _MaxAlignSize;
 
-    short** newMatrix  (int nrows, int ncols);
-    void    freeMatrix (short*** mat);
+    int16_t** newMatrix  (int nrows, int ncols);
+    void      freeMatrix (int16_t*** mat);
 };
 
 /********************************************************************************/

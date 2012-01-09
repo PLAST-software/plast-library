@@ -73,6 +73,11 @@ public:
      *  \param[in] buffer : buffer to be dumped into the file.
      */
     virtual void println (const char* buffer) = 0;
+
+    /** Flush the file.
+     */
+    virtual void flush () = 0;
+
 };
 
 /********************************************************************************/
@@ -92,9 +97,10 @@ public:
     /** Creates a new IFile instance.
      * \param[in] path : uri of the file to be created.
      * \param[in] mode : mode of the file (like fprintf)
+     * \param[in] temporary : file is removed from filesystem if true
      * \return instance of IFile, 0 otherwise.
      */
-    virtual IFile* newFile (const char* path, const char* mode) = 0;
+    virtual IFile* newFile (const char* path, const char* mode, bool temporary=false) = 0;
 };
 
 /********************************************************************************/

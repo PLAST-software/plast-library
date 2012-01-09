@@ -117,6 +117,19 @@ void DatabaseIndex::iterateSeed (const ISeed* seed)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+ISeedIterator* DatabaseIndex::createSeedsIterator (const database::IWord& data)
+{
+    return getModel()->createSeedsIterator (data);
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 void DatabaseIndex::build ()
 {
     DEBUG (("DatabaseIndex::build : START ! \n"));
@@ -144,7 +157,7 @@ void DatabaseIndex::build ()
         DEBUG (("DatabaseIndex::build : current sequence '%s'\n", _currentSequence->data.toString().c_str()));
 
         /** We create a seed iterator. */
-        ISeedIterator* itSeed = getModel()->createSeedsIterator (_currentSequence->data);
+        ISeedIterator* itSeed = createSeedsIterator (_currentSequence->data);
         LOCAL (itSeed);
 
         /** We iterate the seed iterator. */
@@ -538,6 +551,68 @@ DatabaseIndex::DatabaseOccurrenceBlockIterator::~DatabaseOccurrenceBlockIterator
 {
     if (_table)             { delete[] _table;          }
     if (_neighbourhoods)    { delete[] _neighbourhoods; }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+ISeedIterator* DatabaseIndexCodonStopOptim::createSeedsIterator (const database::IWord& data)
+{
+    ISeedIterator* result = 0;
+
+    /** Shortcut. */
+    size_t span = getModel()->getSpan();
+
+    /** We create a local seeds iterator. */
+    ISeedIterator* itSeed = getModel()->createSeedsIterator (data);
+    LOCAL (itSeed);
+
+    Offset previousOffset = 0;
+    vector<Offset> badIntervals;
+
+    /** We loop the seeds iterator for tagging itervals of holding bad letters. */
+    for (itSeed->first(); !itSeed->isDone(); itSeed->next())
+    {
+        Offset currentOffset = itSeed->currentItem()->offset;
+
+        if ( (currentOffset > span) && (currentOffset != previousOffset + 1) )
+        {
+            badIntervals.push_back (previousOffset + span);
+            badIntervals.push_back (currentOffset  - 1);
+        }
+
+        previousOffset = currentOffset;
+    }
+
+    /** We duplicate the data we got as parameter. */
+    IWord filteredData (data.letters.size, data.letters.data);
+
+    LETTER* theData = filteredData.letters.data;
+
+    size_t nbInarowLettersRequired = _range;
+
+    for (size_t i=2; i<badIntervals.size(); i+=2)
+    {
+        Offset off0 = badIntervals[i-1];
+        Offset off1 = badIntervals[i];
+
+        /** We may have to invalidate some intervals holding not enough letters until reaching a stop codon. */
+        if ( (theData[off1] == CODE_STAR)  &&  (off1 - off0 < nbInarowLettersRequired) )
+        {
+            memset (theData+off0+1, CODE_X, off1-off0-1);
+        }
+    }
+
+    /** We create the result with the potentially filtered out data. */
+    result = getModel()->createSeedsIterator (filteredData);
+
+    /** We return the result. */
+    return result;
 }
 
 /********************************************************************************/

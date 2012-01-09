@@ -157,6 +157,10 @@ class IOccurrenceIterator : public dp::Iterator<const ISeedOccurrence*>
  */
 class IOccurrenceBlockIterator : public dp::Iterator<misc::Vector<const ISeedOccurrence*>& >
 {
+public:
+
+    /** Returns the all the neighbourhoods in a single buffer. */
+    virtual database::LETTER* getNeighbourhoods () = 0;
 };
 
 /********************************************************************************/

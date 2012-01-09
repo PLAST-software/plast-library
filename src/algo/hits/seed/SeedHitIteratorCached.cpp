@@ -101,6 +101,8 @@ void SeedHitIteratorCached::iterate (void* aClient, Method method)
      *  concurrent access by different threads. */
     for (ISeed seed; _seedIterator->retrieve (seed, nbRetrieved);  nbSeeds++)
     {
+        _hit.setSeedHashCode (seed.code);
+
         /** we retrieve the number of occurrences for the current seed. */
         size_t nbOccur1 = _indexDb1->getOccurrenceNumber (&seed);
         size_t nbOccur2 = _indexDb2->getOccurrenceNumber (&seed);
@@ -162,6 +164,9 @@ void SeedHitIteratorCached::iterate (void* aClient, Method method)
                     /** We have now two containers holding occurrences of the current seed in both
                      *  subject and query databases. We set them as reference to the Hit instance. */
                     _hit.setOccurrencesRef (table1, table2);
+
+                    /** We also get a reference on the two buffers holding the neighbourhoods. */
+                    _hit.setNeighbourhoods (itOccurBlockDb1->getNeighbourhoods(), itOccurBlockDb2->getNeighbourhoods());
 
                     /** We call the callback of a potential client; this is likely another IHitIterator,
                      *  used for filtering out all possible hits (ie. table1 x table2) for the current seed. */

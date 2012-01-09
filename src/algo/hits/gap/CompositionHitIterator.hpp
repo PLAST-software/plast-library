@@ -33,6 +33,7 @@
 #include <algo/stats/api/IStatistics.hpp>
 
 #include <algo/hits/common/AbstractPipeHitIterator.hpp>
+#include <algo/hits/gap/FullGapHitIterator.hpp>
 
 #include <algo/align/api/IAlignmentResult.hpp>
 #include <algo/align/api/IAlignmentSplitter.hpp>
@@ -55,11 +56,11 @@ namespace gapped {
  *
  * This implementation relies on some code of the NCBI BLAST (see ALIGN_EX()).
  */
-class CompositionHitIterator : public algo::hits::common::AbstractPipeHitIterator
+class CompositionHitIterator : public algo::hits::gapped::FullGapHitIterator
 {
 public:
 
-    /** \copydoc common::AbstractPipeHitIterator::AbstractPipeHitIterator
+    /** \copydoc common::FullGapHitIterator::FullGapHitIterator
      * \param[in] queryInfo        : information about query sequences (including cutoffs)
      * \param[in] globalStats      : global statistics
      * \param[out] alignmentResult : list of gap alignments to be filled during algorithm execution
@@ -94,53 +95,6 @@ protected:
 
     /** \copydoc common::AbstractPipeHitIterator::iterateMethod */
     void iterateMethod (algo::hits::Hit* hit);
-
-    /** Information about query sequences. */
-    statistics::IQueryInformation*  _queryInfo;
-
-    /** Smart setter for _queryInfo attribute. */
-    void setQueryInfo (statistics::IQueryInformation*  queryInfo)  {    SP_SETATTR(queryInfo);  }
-
-    /** Global statistics. */
-    statistics::IGlobalParameters*  _globalStats;
-
-    /** Smart setter for _globalStats attribute. */
-    void setGlobalStats (statistics::IGlobalParameters*  globalStats)  { SP_SETATTR(globalStats); }
-
-    /** Gap alignments. */
-    algo::align::IAlignmentResult* _alignmentResult;
-
-    /** Smart setter for _alignmentResult attribute. */
-    void setAlignmentResult (algo::align::IAlignmentResult* alignmentResult)  { SP_SETATTR (alignmentResult); }
-
-    /** Tool that knows how to split an gap alignment into several ungap alignments. */
-    algo::align::IAlignmentSplitter* _splitter;
-
-    /** Smart setter for _splitter attribute. */
-    void setAlignmentSplitter (algo::align::IAlignmentSplitter* splitter)  { SP_SETATTR (splitter); }
-
-    /** Dynamic programming for finding a gap alignment betweed two sequences. Ref NCBI.
-     */
-    int ALIGN_EX (
-        char* A,
-        char* B,
-        int M,
-        int N,
-        int* a_offset,
-        int* b_offset,
-        int reverse_sequence,
-        bool composition_based
-    );
-
-    struct BlastGapDP {
-        int best;
-        int best_gap;
-    };
-
-    u_int64_t _ungapKnownNumber;
-    u_int64_t _gapKnownNumber;
-
-    bool _checkMemory;
 };
 
 /********************************************************************************/

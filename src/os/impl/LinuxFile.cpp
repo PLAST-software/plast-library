@@ -19,6 +19,9 @@
 #include <os/impl/LinuxFile.hpp>
 #include <os/impl/CommonOsImpl.hpp>
 
+#include <iostream>
+#include <sstream>
+
 /********************************************************************************/
 namespace os { namespace impl {
 /********************************************************************************/
@@ -28,7 +31,17 @@ class LinuxFile : public CommonFile
 {
 public:
 
-    LinuxFile (const char* path, const char* mode) : CommonFile (path, mode)  {}
+    LinuxFile (const char* path, const char* mode, bool temporary) : CommonFile (path, mode, temporary)  {}
+
+    ~LinuxFile ()
+    {
+        if (_temporary)
+        {
+            std::stringstream ss;
+            ss << "/bin/rm " << _path;
+            system (ss.str().c_str());
+        }
+    }
 
     int seeko (u_int64_t offset, int whence)  {  return (_handle==0  ?  -1 : fseeko64 (_handle, offset, whence) );  }
 };
@@ -41,9 +54,9 @@ public:
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IFile* LinuxFileFactory::newFile (const char *path, const char *mode)
+IFile* LinuxFileFactory::newFile (const char *path, const char *mode, bool temporary)
 {
-    return new LinuxFile (path, mode);
+    return new LinuxFile (path, mode, temporary);
 }
 
 /********************************************************************************/

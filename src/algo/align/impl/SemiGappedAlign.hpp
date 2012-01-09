@@ -26,6 +26,7 @@
 /********************************************************************************/
 
 #include <algo/align/api/IAlignmentSplitter.hpp>
+#include <algo/core/api/IScoreMatrix.hpp>
 
 /********************************************************************************/
 namespace algo   {
@@ -43,10 +44,15 @@ class SemiGapAlign : public dp::SmartPointer
 public:
 
     /** Constructor. */
-    SemiGapAlign () {}
+    SemiGapAlign (
+        algo::core::IScoreMatrix* scoreMatrix,
+        int openGapCost,
+        int extendGapCost,
+        int Xdropoff
+    );
 
     /** Destructor. */
-    virtual ~SemiGapAlign () {}
+    virtual ~SemiGapAlign ();
 
     /** */
     int compute (
@@ -56,43 +62,18 @@ public:
         int N,
         int* a_offset,
         int* b_offset,
-        int reverse_sequence,
-        int8_t** matrix,
-        int gap_open,
-        int gap_extend,
-        int x_dropoff
+        int reverse_sequence
     );
 
-    /** */
-    int compute2 (
-        char* A,
-        char* B,
-        int M,
-        int N,
-        int* a_offset,
-        int* b_offset,
-        int reverse_sequence,
-        int8_t** matrix,
-        int gap_open,
-        int gap_extend,
-        int x_dropoff
-    );
+private:
 
-    /** */
-    int computeblast (
-        char* A,
-        char* B,
-        int M,
-        int N,
-        int* a_offset,
-        int* b_offset,
-        int reverse_sequence,
-        int8_t** matrix,
-        int gap_open,
-        int gap_extend,
-        int x_dropoff
-    );
+    algo::core::IScoreMatrix* _scoreMatrix;
+    void setScoreMatrix (algo::core::IScoreMatrix* scoreMatrix)  { SP_SETATTR(scoreMatrix); }
 
+    int _openGapCost;
+    int _extendGapCost;
+    int _openExtendGapCost;
+    int _Xdropoff;
 };
 
 /********************************************************************************/

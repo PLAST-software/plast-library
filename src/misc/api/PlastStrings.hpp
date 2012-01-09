@@ -153,6 +153,12 @@ namespace misc {
  */
 #define STR_OPTION_STRANDS_LIST             "-strands-list"
 
+/** Command Line option giving the size of the allowed range between the last
+ *  invalid character and the next stop codon.
+ *  Integer value
+ */
+#define STR_OPTION_CODON_STOP_OPTIM         "-optim-codon-stop"
+
 /** Command Line option giving the factory name for creating commands dispatcher.
  *  String value, one of: SerialCommandDispatcher, ParallelCommandDispatcher
  */

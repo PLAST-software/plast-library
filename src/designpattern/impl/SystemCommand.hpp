@@ -14,40 +14,58 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-#ifdef __WINDOWS__
+/** \file SystemCommand.hpp
+ *  \date 07/11/2011
+ *  \author edrezen
+ *  \brief Command for launching system commands
+ */
 
-#include <os/impl/WindowsFile.hpp>
-#include <os/impl/CommonOsImpl.hpp>
+#ifndef _SYSTEM_COMMAND_HPP_
+#define _SYSTEM_COMMAND_HPP_
 
 /********************************************************************************/
-namespace os { namespace impl {
+
+#include <designpattern/api/ICommand.hpp>
+#include <os/api/IFile.hpp>
+
+/********************************************************************************/
+namespace dp {
+/** \brief Implementation of Design Pattern tools (Observer, SmartPointer, Command...) */
+namespace impl {
 /********************************************************************************/
 
-/** */
-class WindowsFile : public CommonFile
+/** \brief ICommand implementation for launching system commands (ie through 'system' calls).
+ */
+class SystemCommand : public ICommand
 {
 public:
 
-    WindowsFile (const char* path, const char* mode, bool temporary) : CommonFile(path,mode,temporary) {}
+    /** Constructor. */
+    SystemCommand (const char* format, ...);
 
-    int seeko (u_int64_t offset, int whence)  {  return (_handle==0 ? -1 : fseeko64 (_handle, offset, whence));  }
+    /** Constructor. */
+    SystemCommand (const std::string& cmd);
+
+    /** Constructor. */
+    SystemCommand (os::IFile* output, const char* format, ...);
+
+    /** Destructor. */
+    virtual ~SystemCommand ();
+
+    /** \copydoc ICommand::execute. */
+    void execute ();
+
+private:
+
+    os::IFile* _outputfile;
+
+    char _tmpFilename[128];
+
+    char _buffer[1024];
 };
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-IFile* WindowsFileFactory::newFile (const char* path, const char* mode, bool temporary)
-{
-    return new WindowsFile (path, mode, temporary);
-}
 
 /********************************************************************************/
 } } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /*  __LINUX__  */
+#endif /* _SYSTEM_COMMAND_HPP_ */

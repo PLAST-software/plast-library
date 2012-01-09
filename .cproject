@@ -42,7 +42,7 @@
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1220974519" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__LINUX__"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.debugging.prof.830190972" superClass="gnu.cpp.compiler.option.debugging.prof" value="true" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.debugging.prof.830190972" name="Generate prof information (-p)" superClass="gnu.cpp.compiler.option.debugging.prof" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1755057582" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool command="gcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.1438255439" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug">
@@ -115,7 +115,7 @@
 								<option id="gnu.cpp.compiler.option.preprocessor.def.650156252" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__LINUX__=1"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.optimization.flags.1805101323" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="-funroll-loops" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.optimization.flags.1805101323" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="-funroll-loops  -fomit-frame-pointer" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.973155241" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.release.1372791480" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.release">
@@ -124,7 +124,7 @@
 								<option id="gnu.c.compiler.option.include.paths.1047195631" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src}&quot;"/>
 								</option>
-								<option id="gnu.c.compiler.option.optimization.flags.959922629" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-funroll-loops" valueType="string"/>
+								<option id="gnu.c.compiler.option.optimization.flags.959922629" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-funroll-loops  -fomit-frame-pointer" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.258582111" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.584399322" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>

@@ -57,7 +57,11 @@ public:
      * \param[in] model : the seed model to be used for indexation
      * \param[in] params : holds parameters for customization
      * */
-    BasicIndexator (seed::ISeedModel* model, algo::core::IParameters* params);
+    BasicIndexator (
+        seed::ISeedModel* model,
+        algo::core::IParameters* params,
+        indexation::IDatabaseIndexFactory* factory
+    );
 
     /** Destructor. */
     virtual ~BasicIndexator ();
@@ -103,6 +107,12 @@ protected:
     /** Smart setter for the _params attribute. */
     void setParams (algo::core::IParameters* params)  {  SP_SETATTR(params); }
 
+    /** Factory for building IDatabaseIndex instances. */
+    indexation::IDatabaseIndexFactory* _factory;
+
+    /** Smart setter for the _factory attribute. */
+    void setFactory (indexation::IDatabaseIndexFactory* factory)  {  SP_SETATTR(factory); }
+
     /** Subject database. */
     database::ISequenceDatabase* _subjectDatabase;
 
@@ -138,7 +148,11 @@ class BasicSortedIndexator : public BasicIndexator
 public:
 
     /** \copydoc BasicIndexator::BasicIndexator */
-    BasicSortedIndexator (seed::ISeedModel* model, algo::core::IParameters* params);
+    BasicSortedIndexator (
+        seed::ISeedModel* model,
+        algo::core::IParameters* params,
+        indexation::IDatabaseIndexFactory* factory
+    );
 
     /** \copydoc BasicIndexator::createHitIterator */
     algo::hits::IHitIterator* createHitIterator ();

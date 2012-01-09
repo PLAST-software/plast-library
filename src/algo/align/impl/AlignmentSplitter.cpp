@@ -136,9 +136,9 @@ size_t AlignmentSplitter::splitAlign (
     int extendgap = _extendGapCost;
 
     /** We configure the matrix for the dynamic programming. */
-    short** H = 0;
-    short** E = 0;
-    short** F = 0;
+    int16_t** H = 0;
+    int16_t** E = 0;
+    int16_t** F = 0;
 
     if (qryLen >= _DefaultAlignSize ||  subLen >= _DefaultAlignSize)
     {
@@ -165,15 +165,15 @@ size_t AlignmentSplitter::splitAlign (
 
     for (i=1; i<=qryLen; i++)
     {
-        j1 = MAX (1, i-delta);
-        j2 = MIN (subLen,i+delta);
+        j1 = MAX (1,      i-delta);
+        j2 = MIN (subLen, i+delta);
 
         /** Shortcuts (and optimization) */
-        short* H0 = H[i];
-        short* H1 = H[i-1];
-        short* E0 = E[i];
-        short* F0 = F[i];
-        short* F1 = F[i-1];
+        int16_t* H0 = H[i];
+        int16_t* H1 = H[i-1];
+        int16_t* E0 = E[i];
+        int16_t* F0 = F[i];
+        int16_t* F1 = F[i-1];
 
         int8_t* matrixrow = MATRIX [(int)qryStr[i-1]];
 
@@ -182,14 +182,21 @@ size_t AlignmentSplitter::splitAlign (
         H1 [j2]   = -1000;
         F1 [j2]   = -1000;
 
+        /** We use some temporary variables in order to avoid some memory access
+         *  (which is time costly) and can't be easily optimized by compiler.
+         */
+        int16_t e0 = E0 [j1-1];
+        int16_t h0 = H0 [j1-1];
+        int16_t f0 = 0;
+
         for (j=j1; j<=j2; j++)
         {
-            E0[j] = MAX (H0[j-1] - opengap, E0[j-1] - extendgap);
-            F0[j] = MAX (H1[j]   - opengap, F1[j]   - extendgap);
+            E0[j] = e0 = MAX (h0    - opengap, e0    - extendgap);
+            F0[j] = f0 = MAX (H1[j] - opengap, F1[j] - extendgap);
 
             d = H1[j-1] + matrixrow [(int)subStr[j-1]];
 
-            H0[j] = MAX (MAX(E0[j],F0[j]),d);
+            H0[j] = h0 = MAX (MAX (e0,f0), d);
         }
     }
 
@@ -359,15 +366,15 @@ void AlignmentSplitter::computeInfo (Alignment& align)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-short** AlignmentSplitter::newMatrix (int nrows, int ncols)
+int16_t** AlignmentSplitter::newMatrix (int nrows, int ncols)
 {
     int i;             /* iteration index */
-    short ** mat;      /* the new matrix */
+    int16_t ** mat;      /* the new matrix */
 
-    mat = (short **) DefaultFactory::memory().calloc(nrows, sizeof(short *));
+    mat = (int16_t **) DefaultFactory::memory().calloc(nrows, sizeof(int16_t *));
     if (mat != NULL)
     {
-        mat[0] = (short *) DefaultFactory::memory().malloc((size_t) nrows * (size_t) ncols * sizeof(short));
+        mat[0] = (int16_t *) DefaultFactory::memory().malloc((size_t) nrows * (size_t) ncols * sizeof(int16_t));
         if (mat[0] != NULL)
         {
             for (i = 1;  i < nrows;  i++) {  mat[i] = &mat[0][i * ncols];  }
@@ -390,7 +397,7 @@ short** AlignmentSplitter::newMatrix (int nrows, int ncols)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void AlignmentSplitter::freeMatrix (short *** mat)
+void AlignmentSplitter::freeMatrix (int16_t *** mat)
 {
     if(*mat != NULL)
     {

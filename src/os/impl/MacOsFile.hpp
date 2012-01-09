@@ -45,7 +45,7 @@ public:
     virtual ~MacOsFileFactory () {}
 
     /** \copydoc IFileFactory::newFile */
-    IFile* newFile (const char *path, const char *mode);
+    IFile* newFile (const char *path, const char *mode, bool temporary);
 };
 
 /********************************************************************************/

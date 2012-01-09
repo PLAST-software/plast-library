@@ -48,7 +48,7 @@ class CommonFile : public IFile
 public:
 
     /** Constructor. */
-    CommonFile (const char* path, const char* mode) : _handle(0), _isStdout(false)
+    CommonFile (const char* path, const char* mode, bool temporary) : _path(path), _handle(0), _isStdout(false), _temporary(temporary)
     {
         _isStdout = path && strcmp(path,"stdout")==0;
         _handle   = _isStdout ? stdout : fopen (path, mode);
@@ -69,9 +69,14 @@ public:
     /** \copydoc IFile::println */
     void println (const char* buffer)  { if (_handle)  {  fprintf (_handle, "%s\n", buffer); } }
 
+    /** \copydoc IFile::flush */
+    void flush ()  { if (_handle)  {  fflush (_handle); } }
+
 protected:
-    FILE* _handle;
-    bool  _isStdout;
+    std::string _path;
+    FILE*       _handle;
+    bool        _isStdout;
+    bool        _temporary;
 };
 
 /********************************************************************************/
