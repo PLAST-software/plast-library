@@ -39,7 +39,7 @@ class LinuxThread : public IThread
 {
 public:
     LinuxThread (void* (mainloop) (void*), void* data)  { pthread_create (&_thread, NULL,  mainloop, data); }
-    ~LinuxThread ()  { pthread_detach (_thread);        }
+    ~LinuxThread ()  { /* pthread_detach (_thread); */  }
     void join ()     { pthread_join   (_thread, NULL);  }
 private:
     pthread_t  _thread;

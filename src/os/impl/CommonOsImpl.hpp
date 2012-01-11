@@ -27,6 +27,7 @@
 
 #include <os/api/IFile.hpp>
 #include <os/api/IMemory.hpp>
+#include <os/api/IThread.hpp>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -147,6 +148,54 @@ public:
 
      /** \copydoc IMemoryAllocator::getMemUsage */
      u_int32_t getMemUsage () { return 0; }
+};
+
+/********************************************************************************/
+
+/** \brief Factory that creates IThread instances in current context (ie. "null" thread).
+ *
+ */
+class SerialThreadFactory : public IThreadFactory
+{
+public:
+
+    /** Singleton. */
+    static SerialThreadFactory& singleton () { static SerialThreadFactory instance; return instance; }
+
+    /** Destructor. */
+    virtual ~SerialThreadFactory () {}
+
+    /** \copydoc IThreadFactory::newThread */
+    IThread* newThread (void* (*mainloop) (void*), void* data)
+    {
+        /** Just launch the mainloop. */
+        if (mainloop != 0)  {  mainloop (data);  }
+        return new SerialThread ();
+    }
+
+    /** \copydoc IThreadFactory::newSynchronizer */
+    ISynchronizer* newSynchronizer (void)
+    {
+        return new SerialSynchronizer ();
+    }
+
+    /** \copydoc IThreadFactory::getNbCores */
+    size_t getNbCores ()  { return 1; }
+
+private:
+
+    class SerialThread : public IThread
+    {
+    public:
+        void join () { /* do nothing */ }
+    };
+
+    class SerialSynchronizer : public ISynchronizer
+    {
+    public:
+        void   lock () { /* do nothing */ }
+        void unlock () { /* do nothing */ }
+    };
 };
 
 /********************************************************************************/

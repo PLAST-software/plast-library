@@ -68,6 +68,18 @@ public:
     );
 
     /** Tells whether or not an alignment is already known.
+     * \param[in] subjectOccur : occurrence in the subject database
+     * \param[in] queryOccur   : occurrence in the query database
+     * \param[in] bandSize     : if not 0, size to be considered to the right and to the left
+     * \return true if already existing, false otherwise
+     */
+    bool doesExist (
+        const indexation::ISeedOccurrence* subjectOccur,
+        const indexation::ISeedOccurrence* queryOccur,
+        size_t bandSize
+    ) { return false; }
+
+    /** Tells whether or not an alignment is already known.
      * \param[in] align : the alignment to be checked
      * \return always false
      */

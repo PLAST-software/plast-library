@@ -184,6 +184,9 @@ int SemiGapAlign::compute (
         if (reverse_sequence)   {  b_ptr = &B[N - first_b_index];   }
         else                    {  b_ptr = &B[first_b_index];       }
 
+//if (reverse_sequence)   {  printf ("    >>> M=%d  N=%d  A[%2d]=%2d  ", M,N, a_index, A[ M - a_index ]);  }
+//else                    {  printf ("    >>> M=%d  N=%d  A[%2d]=%2d  ", M,N, a_index, A[ a_index ]);  }
+
         /* initialize running-score variables */
         score         = MININT;
         score_gap_row = MININT;
@@ -192,6 +195,7 @@ int SemiGapAlign::compute (
         /**********************************************************************/
         /**                             LOOP  B                               */
         /**********************************************************************/
+//printf ("   >>>>>>>>> B (in [%2d..%2d]) : ", first_b_index, b_size-1);
         for (b_index = first_b_index; b_index < b_size; b_index++)
         {
             /** Shortcut (avoid several memory access). */
@@ -200,6 +204,8 @@ int SemiGapAlign::compute (
             b_ptr        += b_increment;
             score_gap_col = sc.best_gap;
             next_score    = sc.best + matrix_row [(int) *b_ptr];
+
+//printf ("%2d ", *b_ptr);
 
             /** We update the score as being Max (score, score_gap_col, score_gap_row) */
             if (score < score_gap_col)  {  score = score_gap_col;  }
@@ -240,6 +246,7 @@ int SemiGapAlign::compute (
         /**********************************************************************/
         } /* end of for (b_index =... */
         /**********************************************************************/
+//printf("\n");
 
         /* Finish aligning if the best scores for all positions of B will fail the X-dropoff test,
          * i.e. the inner loop bounds have converged to each other */

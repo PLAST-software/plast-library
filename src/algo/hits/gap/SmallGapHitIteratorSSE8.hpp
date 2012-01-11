@@ -59,7 +59,8 @@ public:
         ::seed::ISeedModel*             model,
         algo::core::IScoreMatrix*       scoreMatrix,
         algo::core::IParameters*        parameters,
-        algo::align::IAlignmentResult* ungapResult
+        algo::align::IAlignmentResult* ungapResult,
+        algo::align::IAlignmentResult* alignmentResult
     );
 
     /** Destructor. */
@@ -76,7 +77,7 @@ protected:
     /** \copydoc common::AbstractPipeHitIterator::clone */
     virtual AbstractPipeHitIterator* clone (algo::hits::IHitIterator* sourceIterator)
     {
-        return new SmallGapHitIteratorSSE8 (sourceIterator, _model, _scoreMatrix, _parameters, _ungapResult);
+        return new SmallGapHitIteratorSSE8 (sourceIterator, _model, _scoreMatrix, _parameters, _ungapResult, _alignmentResult);
     }
 
     /** \copydoc common::AbstractPipeHitIterator::iterateMethod */
@@ -117,6 +118,12 @@ protected:
 
     /* Statistics. */
     u_int64_t _lowScoreNumber;
+
+    /** Gap alignments. */
+    algo::align::IAlignmentResult* _alignmentResult;
+
+    /** Smart setter for _alignmentResult attribute. */
+    void setAlignmentResult (algo::align::IAlignmentResult* alignmentResult)  { SP_SETATTR (alignmentResult); }
 };
 
 /********************************************************************************/

@@ -67,11 +67,14 @@ SmallGapHitIteratorSSE8::SmallGapHitIteratorSSE8 (
     ISeedModel*           model,
     IScoreMatrix*         scoreMatrix,
     IParameters*          parameters,
-    IAlignmentResult*     ungapResult
+    IAlignmentResult*     ungapResult,
+    IAlignmentResult*     alignmentResult
 )
     : AbstractPipeHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult),
-      _lowScoreNumber(0)
+      _lowScoreNumber(0), _alignmentResult(0)
 {
+    setAlignmentResult (alignmentResult);
+
     DEBUG (("gap_open=%d  gap_extend=%d  scoremin=%d \n",
         _parameters->openGapCost, _parameters->extendGapCost, _parameters->smallGapThreshold
     ));
@@ -87,6 +90,7 @@ SmallGapHitIteratorSSE8::SmallGapHitIteratorSSE8 (
 *********************************************************************/
 SmallGapHitIteratorSSE8::~SmallGapHitIteratorSSE8 ()
 {
+    setAlignmentResult (0);
 }
 
 /*********************************************************************
@@ -192,6 +196,7 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
     LETTER* right2 = 0;
     LETTER* left2  = 0;
 
+    /** We prepare some neighbourhoods data in specific memory chunk. */
     for (list<IdxCouple>::iterator it = hit->indexes.begin();  it != hit->indexes.end();  it++)
     {
         /** We get references on neighbourhoods buffers to be extended. */
@@ -213,17 +218,29 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
     size_t k=0;
     for (list<IdxCouple>::iterator it = hit->indexes.begin();  it != hit->indexes.end();  k++)
     {
+        bool removable = true;
+
         int score = computedScores[2*k+0] + computedScores[2*k+1];
 
         if (score >= _parameters->smallGapThreshold)
         {
-            /** We just continue the iteration. */
-            it++;
+            /** We check that the alignment is not already known. */
+            removable = _alignmentResult->doesExist (
+                occur1Vector.data[it->first],
+                occur2Vector.data[it->second],
+                _parameters->smallGapBandLength
+            );
         }
-        else
+
+        if (removable)
         {
             /** We remove the current index couple. */
             it = hit->indexes.erase (it);
+        }
+        else
+        {
+            /** We just continue the iteration. */
+            it++;
         }
     }
 

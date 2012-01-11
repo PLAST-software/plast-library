@@ -147,9 +147,9 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
          * the right extension does not. */
         scoreLeft = _dynpro->compute (
             queryData,
-            subjectData + 1,
-            occurQuery->offsetInSequence + 1,
-            occurSubject->offsetInSequence,
+            subjectData,
+            occurQuery->offsetInSequence   + 1,
+            occurSubject->offsetInSequence + 1,
             & leftOffsetInQuery,
             & leftOffsetInSubject,
             1

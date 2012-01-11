@@ -22,6 +22,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
+#include <sys/types.h>
+#include <sys/sysctl.h>
 
 #define DEBUG(a)  //printf a
 
@@ -104,25 +106,27 @@ ISynchronizer* MacOsThreadFactory::newSynchronizer (void)
 *********************************************************************/
 size_t MacOsThreadFactory::getNbCores ()
 {
-    size_t result = 0;
+    int numCPU = 0;
 
-    /** We open the "/proc/cpuinfo" file. */
-    FILE* file = fopen ("/proc/cpuinfo", "r");
-    if (file)
+    int mib[4];
+    size_t len = sizeof(numCPU);
+
+    /* set the mib for hw.ncpu */
+    mib[0] = CTL_HW;
+    mib[1] = HW_AVAILCPU;  // alternatively, try HW_NCPU;
+
+    /* get the number of CPUs from the system */
+    sysctl (mib, 2, &numCPU, &len, NULL, 0);
+
+    if (numCPU < 1)
     {
-        char buffer[256];
-
-        while (fgets(buffer, sizeof(buffer), file))
-        {
-            if (strstr(buffer, "processor") != NULL)  { result ++;  }
-        }
-
-        fclose (file);
+        mib[1] = HW_NCPU;
+        sysctl (mib, 2, &numCPU, &len, NULL, 0 );
     }
 
-    if (result==0)  { result = 1; }
+    if (numCPU < 1)  {  numCPU = 1;  }
 
-    return result;
+    return numCPU;
 }
 
 /********************************************************************************/

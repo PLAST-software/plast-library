@@ -16,6 +16,7 @@
 
 #include <designpattern/impl/CommandDispatcher.hpp>
 #include <os/impl/DefaultOsFactory.hpp>
+#include <os/impl/CommonOsImpl.hpp>
 #include <misc/api/macros.hpp>
 
 using namespace std;
@@ -51,6 +52,7 @@ DefaultCommandInvoker::DefaultCommandInvoker (IThreadFactory* threadFactory)
 DefaultCommandInvoker::~DefaultCommandInvoker ()
 {
     if (_synchro != 0)  { delete _synchro; }
+    if (_thread  != 0)  { delete _thread;  }
 }
 
 /*********************************************************************
@@ -64,21 +66,13 @@ DefaultCommandInvoker::~DefaultCommandInvoker ()
 void DefaultCommandInvoker::executeCommand  (ICommand* command)
 {
     /** We check that we don't have already a running command. */
-    if (_command == 0)
+    if (_command == 0 && _threadFactory != 0)
     {
         /** We memorize the command. */
         _command = command;
 
-        if (CHECKPTR(_threadFactory))
-        {
-            /** We create a thread in which the command will be executed. */
-            _thread = _threadFactory->newThread (mainloop, this);
-        }
-        else
-        {
-            /** We have no thread factory, we launch directly the mainloop. */
-            mainloop (this);
-        }
+        /** We create a thread in which the command will be executed. */
+        _thread = _threadFactory->newThread (mainloop, this);
     }
 }
 
@@ -92,17 +86,8 @@ void DefaultCommandInvoker::executeCommand  (ICommand* command)
 *********************************************************************/
 void DefaultCommandInvoker::join ()
 {
-    bool isOk = false;
-
-    /** We retrieve the thread status in a synchronized way because of concurrent
-     *  access (see 'mainloop'). */
-    {
-        LocalSynchronizer s (_synchro);
-        isOk = _thread != 0;
-    }
-
     /** We delegate the work to the OS thread. */
-    if (isOk)  {  _thread->join();  }
+    _thread->join();
 }
 
 /*********************************************************************
@@ -115,28 +100,17 @@ void DefaultCommandInvoker::join ()
 *********************************************************************/
 void* DefaultCommandInvoker::mainloop (void* data)
 {
-    /** We recover the invoker instance. */
-    DefaultCommandInvoker* invoker = (DefaultCommandInvoker*) data;
+    /** We recover the THIS instance. */
+    DefaultCommandInvoker* THIS = (DefaultCommandInvoker*) data;
 
-    if (CHECKPTR(invoker))
+    if (CHECKPTR(THIS) && CHECKPTR(THIS->_command))
     {
-        if (CHECKPTR(invoker->_command))
-        {
-            /** We execute the command. */
-            (invoker->_command)->use     ();
-            (invoker->_command)->execute ();
-            (invoker->_command)->forget  ();
+        /** We execute the command. */
+        (THIS->_command)->use     ();
+        (THIS->_command)->execute ();
+        (THIS->_command)->forget  ();
 
-            invoker->_command = 0;
-        }
-
-        /** We suppress the thread. */
-        if (CHECKPTR(invoker->_thread))
-        {
-            LocalSynchronizer s (invoker->_synchro);
-            delete invoker->_thread;
-            invoker->_thread  = 0;
-        }
+        THIS->_command = 0;
     }
 
     return NULL;
@@ -205,7 +179,8 @@ void  ParallelCommandDispatcher::dispatchCommands (list<ICommand*> commands, ICo
     DEBUG (("ParallelCommandDispatcher::dispatchCommands  COMMANDS JOINED\n"));
 
     /** We may have to do some post treatment. Note that we do it in the current thread. */
-    DefaultCommandInvoker().executeCommand (postTreatment);
+    DefaultCommandInvoker invoker (& SerialThreadFactory::singleton());
+    invoker.executeCommand (postTreatment);
 
     DEBUG (("ParallelCommandDispatcher::dispatchCommands  FINISHED\n"));
 }
@@ -233,7 +208,7 @@ ICommandInvoker* ParallelCommandDispatcher::newCommandInvoker ()
 *********************************************************************/
 void SerialCommandDispatcher::dispatchCommands (std::list<ICommand*> commands, ICommand* postTreatment)
 {
-    DefaultCommandInvoker invoker;
+    DefaultCommandInvoker invoker (& SerialThreadFactory::singleton());
 
     for (list<ICommand*>::iterator it = commands.begin(); it != commands.end(); it++)
     {

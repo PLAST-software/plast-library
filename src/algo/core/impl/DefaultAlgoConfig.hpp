@@ -100,7 +100,8 @@ public:
         seed::ISeedModel*               model,
         algo::core::IScoreMatrix*       matrix,
         algo::core::IParameters*        params,
-        algo::align::IAlignmentResult* ungapResult
+        algo::align::IAlignmentResult* ungapResult,
+        algo::align::IAlignmentResult* alignmentResult
     );
 
     /** \copydoc IConfiguration::createFullGapHitIterator */

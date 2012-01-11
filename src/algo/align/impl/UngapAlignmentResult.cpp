@@ -162,7 +162,8 @@ bool UngapAlignmentResult::insert (Alignment& align, void* context)
 *********************************************************************/
 bool UngapAlignmentResult::doesExist (
     const indexation::ISeedOccurrence* subjectOccur,
-    const indexation::ISeedOccurrence* queryOccur
+    const indexation::ISeedOccurrence* queryOccur,
+    size_t bandSize
 )
 {
     u_int32_t d = 0;

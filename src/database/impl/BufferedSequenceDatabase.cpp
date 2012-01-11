@@ -152,9 +152,11 @@ ISequenceCache* BufferedSequenceDatabase::buildCache (ISequenceIterator* refIter
     if (result->dataSize == 0)  { return result; }
 
     /** We can resize the containers with true sizes. */
-    result->database.resize (result->dataSize);
+    result->database.resize (result->dataSize + 1);
     result->comments.resize (result->nbSequences);
     result->offsets.resize  (result->nbSequences + 1);
+
+    result->database.data [result->dataSize] = CODE_X;
 
     /** Note that we add an extra offset that matches the total size of the data.
      *  => useful for computing the last sequence size by difference of two offsets. */

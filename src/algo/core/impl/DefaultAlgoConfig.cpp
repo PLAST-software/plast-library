@@ -488,7 +488,8 @@ IHitIterator* DefaultConfiguration::createSmallGapHitIterator (
     ISeedModel*         model,
     IScoreMatrix*       matrix,
     IParameters*        params,
-    IAlignmentResult*   ungapResult
+    IAlignmentResult*   ungapResult,
+    IAlignmentResult*   alignmentResult
 )
 {
     IHitIterator* result = 0;
@@ -506,11 +507,11 @@ IHitIterator* DefaultConfiguration::createSmallGapHitIterator (
     }
     else if (prop && prop->value.compare("SmallGapHitIteratorSSE8")==0)
     {
-        result = new SmallGapHitIteratorSSE8 (source, model, matrix, params, ungapResult);
+        result = new SmallGapHitIteratorSSE8 (source, model, matrix, params, ungapResult, alignmentResult);
     }
     else
     {
-        result = new SmallGapHitIteratorSSE8 (source, model, matrix, params, ungapResult);
+        result = new SmallGapHitIteratorSSE8 (source, model, matrix, params, ungapResult, alignmentResult);
     }
 
     return result;

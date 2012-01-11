@@ -58,7 +58,7 @@ public:
     /** Constructor.
      * \param[in]  threadFactory : the OS factory used for creating threads, mutex,...
      */
-    DefaultCommandInvoker (os::IThreadFactory* threadFactory = 0);
+    DefaultCommandInvoker (os::IThreadFactory* threadFactory);
 
     /** Destructor. */
     virtual ~DefaultCommandInvoker ();

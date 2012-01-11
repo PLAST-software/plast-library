@@ -142,7 +142,7 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
         const ISeedOccurrence* occurQuery   = occur2Vector.data [idx.second];
 
         /** We check that the hit we are going to process is not already known. */
-        if (_ungapResult && _ungapResult->doesExist (occurSubject, occurQuery) == true)
+        if (_ungapResult && _ungapResult->doesExist (occurSubject, occurQuery, 0) == true)
         {
             HIT_STATS (_ungapKnownNumber ++;)
 
@@ -167,9 +167,9 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
          * the right extension does not. */
         scoreLeft = _dynpro->compute (
             queryData,
-            subjectData + 1,
-            occurQuery->offsetInSequence + 1,
-            occurSubject->offsetInSequence,
+            subjectData,
+            occurQuery->offsetInSequence   + 1,
+            occurSubject->offsetInSequence + 1,
             & leftOffsetInQuery,
             & leftOffsetInSubject,
             1

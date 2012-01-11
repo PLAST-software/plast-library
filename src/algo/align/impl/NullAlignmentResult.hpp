@@ -53,7 +53,9 @@ public:
      */
     bool doesExist (
         const indexation::ISeedOccurrence* subjectOccur,
-        const indexation::ISeedOccurrence* queryOccur) { return false; }
+        const indexation::ISeedOccurrence* queryOccur,
+        size_t bandSize
+    ) { return false; }
 
     /** Tells whether or not an alignment is already known.
      * \param[in] align : the alignment to be checked

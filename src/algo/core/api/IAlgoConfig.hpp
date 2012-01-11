@@ -160,7 +160,8 @@ public:
         seed::ISeedModel*               model,
         algo::core::IScoreMatrix*       matrix,
         algo::core::IParameters*        params,
-        algo::align::IAlignmentResult* ungapResult
+        algo::align::IAlignmentResult*  ungapResult,
+        algo::align::IAlignmentResult*  alignmentResult
     ) = 0;
 
     /** Create a Hit iterator used during the full gap part of the PLAST algorithm.

@@ -60,7 +60,9 @@ public:
     /** \copydoc IAlignmentResult::doesExist */
     bool doesExist (
         const indexation::ISeedOccurrence* subjectOccur,
-        const indexation::ISeedOccurrence* queryOccur);
+        const indexation::ISeedOccurrence* queryOccur,
+        size_t bandLength
+    );
 
     /** \copydoc AbstractAlignmentResult::insert */
     bool insert (Alignment& align, void* context);

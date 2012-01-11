@@ -50,6 +50,55 @@ namespace impl  {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+static inline bool isIncluded (const Alignment& a1, const Alignment& a2)
+{
+    char delta = 0; //MIN (a1._length, a2._length) / 100;
+
+    return (a1._subjectDb == a2._subjectDb)  &&  (a1._queryDb == a2._queryDb)  &&
+
+    (      a1._subjectStartInSeq >= (a2._subjectStartInSeq - delta)
+       &&  a1._subjectEndInSeq   <= (a2._subjectEndInSeq   + delta) ) &&
+
+    (      a1._queryStartInSeq   >= (a2._queryStartInSeq - delta)
+       &&  a1._queryEndInSeq     <= (a2._queryEndInSeq   + delta)
+    );
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+static inline bool isIncluded (
+    int32_t subjectStartInSeq,
+    int32_t queryStartInSeq,
+    int32_t subjectEndInSeq,
+    int32_t queryEndInSeq,
+    const Alignment& a2
+)
+{
+    char delta = 0; //MIN (a1._length, a2._length) / 100;
+
+    return
+    (      subjectStartInSeq >= (a2._subjectStartInSeq - delta)
+       &&  subjectEndInSeq   <= (a2._subjectEndInSeq   + delta) ) &&
+
+    (      queryStartInSeq   >= (a2._queryStartInSeq - delta)
+       &&  queryEndInSeq     <= (a2._queryEndInSeq   + delta)
+    );
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 BasicAlignmentResult::BasicAlignmentResult (ISequenceDatabase* subjectDb, ISequenceDatabase* queryDb)
     : _subjectDb(0), _queryDb(0), _nbAlignments(0),
       _shiftDivisor (20)
@@ -111,17 +160,7 @@ bool BasicAlignmentResult::doesExist (const Alignment& align)
     {
         Alignment& current = *itAlign;
 
-#if 1
-        found =
-            (align._subjectDb == current._subjectDb)  &&  (align._queryDb == current._queryDb)  &&
-            (align._subjectStartInSeq >= current._subjectStartInSeq  &&  align._subjectEndInSeq <= current._subjectEndInSeq)  &&
-            (align._queryStartInSeq   >= current._queryStartInSeq    &&  align._queryEndInSeq   <= current._queryEndInSeq);
-#else
-        found =
-            (align._subjectDb == current._subjectDb)  &&  (align._queryDb == current._queryDb)  &&
-            (align._subjectStartInSeq == current._subjectStartInSeq  &&  align._subjectEndInSeq == current._subjectEndInSeq)  &&
-            (align._queryStartInSeq   == current._queryStartInSeq    &&  align._queryEndInSeq   == current._queryEndInSeq);
-#endif
+        found = isIncluded (align, current);
     }
 
     return found;
@@ -136,22 +175,23 @@ bool BasicAlignmentResult::doesExist (const Alignment& align)
 ** REMARKS :
 *********************************************************************/
 bool BasicAlignmentResult::doesExist (
-    const indexation::ISeedOccurrence* subjectOccur,
-    const indexation::ISeedOccurrence* queryOccur
+    const indexation::ISeedOccurrence* subOccur,
+    const indexation::ISeedOccurrence* qryOccur,
+    size_t bandLength
 )
 {
     bool found = false;
 
-//    LocalSynchronizer local (_synchro);
+    LocalSynchronizer local (_synchro);
 
     /** We look for the instance corresponding to the current query sequence. */
-    SubjectEntries& queryEntry = _queryEntries [queryOccur->sequence.index];
+    SubjectEntries& queryEntry = _queryEntries [qryOccur->sequence.index];
 
     /** Optimization. */
     if (queryEntry.empty())  { return false; }
 
     /** We look for the subject entry. */
-    std::map<u_int32_t,AlignmentsContainer>::iterator it = queryEntry.find (subjectOccur->sequence.index);
+    std::map<u_int32_t,AlignmentsContainer>::iterator it = queryEntry.find (subOccur->sequence.index);
 
     /** Optimization. */
     if (it == queryEntry.end())  { return false; }
@@ -162,14 +202,17 @@ bool BasicAlignmentResult::doesExist (
     /** Optimization. */
     if (l.empty())  { return false; }
 
-    for (AlignmentsContainer::iterator itAlign = l.begin(); itAlign != l.end(); itAlign++)
+    size_t subLen = subOccur->sequence.data.letters.size;
+    size_t qryLen = qryOccur->sequence.data.letters.size;
+
+    int32_t subStartInSeq = (subOccur->offsetInSequence >= bandLength ? subOccur->offsetInSequence - bandLength : 0);
+    int32_t qryStartInSeq = (qryOccur->offsetInSequence >= bandLength ? qryOccur->offsetInSequence - bandLength : 0);
+    int32_t subEndInSeq   = (subOccur->offsetInSequence  + bandLength <  subLen ? subOccur->offsetInSequence + bandLength : subLen-1);
+    int32_t qryEndInSeq   = (qryOccur->offsetInSequence  + bandLength <  qryLen ? qryOccur->offsetInSequence + bandLength : qryLen-1);
+
+    for (AlignmentsContainer::iterator itAlign = l.begin();  !found &&  itAlign != l.end(); itAlign++)
     {
-#if 0
-        Alignment& current = *itAlign;
-        found =
-            (align._subjectStartInSeq >= current._subjectStartInSeq  &&  align._subjectEndInSeq <= current._subjectEndInSeq)  &&
-            (align._queryStartInSeq >= current._queryStartInSeq  &&  align._queryEndInSeq <= current._queryEndInSeq);
-#endif
+        found = isIncluded (subStartInSeq, qryStartInSeq, subEndInSeq, qryEndInSeq, *itAlign);
     }
 
     return found;
@@ -237,56 +280,9 @@ bool BasicAlignmentResult::insertInContainer (Alignment& a1, void* context, Alig
 {
     bool alreadyKnown = false;
 
-    for (AlignmentsContainer::iterator itAlign = container.begin(); !alreadyKnown && itAlign != container.end(); )
+    for (AlignmentsContainer::iterator itAlign = container.begin(); !alreadyKnown && itAlign != container.end(); itAlign++)
     {
-        Alignment& a2 = *itAlign;
-
-#if 0
-
-        size_t shift = MIN (a1._length, a2._length) / _shiftDivisor;
-
-        if ((a1._subjectEndInSeq   + shift >= a2._subjectEndInSeq   - shift) &&
-            (a1._subjectStartInSeq - shift <= a2._subjectStartInSeq + shift) &&
-            (a1._queryEndInSeq     + shift >= a2._queryEndInSeq     - shift) &&
-            (a1._queryStartInSeq   - shift <= a2._queryStartInSeq   + shift) )
-        {
-            itAlign = container.erase (itAlign);
-            _nbAlignments --;
-        }
-
-        else if ((a2._subjectEndInSeq  + shift >= a1._subjectEndInSeq   - shift) &&
-                (a2._subjectStartInSeq - shift <= a1._subjectStartInSeq + shift) &&
-                (a2._queryEndInSeq     + shift >= a1._queryEndInSeq     - shift) &&
-                (a2._queryStartInSeq   - shift <= a1._queryStartInSeq   + shift) )
-        {
-            alreadyKnown = true;
-        }
-        else
-        {
-            itAlign++;
-        }
-
-#else
-
-#if 0
-        alreadyKnown =
-            (       a1._subjectStartInSeq >= a2._subjectStartInSeq
-                &&  a1._subjectEndInSeq   <= a2._subjectEndInSeq   )  &&
-            (       a1._queryStartInSeq   >= a2._queryStartInSeq
-                &&  a1._queryEndInSeq     <= a2._queryEndInSeq
-            );
-
-#else
-        alreadyKnown =
-            (a1._subjectDb == a2._subjectDb)  &&  (a1._queryDb == a2._queryDb)  &&
-            (       a1._subjectStartInSeq == a2._subjectStartInSeq
-                &&  a1._subjectEndInSeq   == a2._subjectEndInSeq   )  &&
-            (       a1._queryStartInSeq   == a2._queryStartInSeq
-                &&  a1._queryEndInSeq     == a2._queryEndInSeq
-            );
-#endif
-        itAlign++;
-#endif
+        alreadyKnown =  isIncluded (a1, *itAlign);
 
     } /* end of for (AlignmentsList::iterator itAlign ... */
 
@@ -307,9 +303,6 @@ bool BasicAlignmentResult::mysortfunction (const Alignment& i, const Alignment& 
 {
     return (i._evalue <  j._evalue)  ||
            (i._evalue == j._evalue  &&  i._bitscore < j._bitscore);
-
-//    return (i._queryStartInDb< j._queryStartInDb) ||
-//           (i._queryStartInDb==j._queryStartInDb  &&  i._queryEndInDb<j._queryEndInDb);
 }
 
 /*********************************************************************
@@ -397,7 +390,6 @@ void BasicAlignmentResult::shrink (void)
             {
                 if (removeTable[idx] == 1)
                 {
-                    //printf ("remove\n");
                     count++;
                     _nbAlignments--;
                     it = container.erase (it);
@@ -421,10 +413,8 @@ void BasicAlignmentResult::shrink (void)
             AlignmentsContainer& container = it->second;
             sort (container.begin(), container.end(), mysortfunction);
         }
-    }
 
-//    printf ("BasicAlignmentResult::shrink  nbAlignments=%ld  count=%ld  diff=%ld \n",
-//        _nbAlignments, count, (_nbAlignments-count));
+    } /* end of for (size_t queryIdx=0; queryIdx<_queryEntries.size(); queryIdx++) */
 }
 
 /*********************************************************************

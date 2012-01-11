@@ -357,7 +357,6 @@ void AlignmentSplitter::computeInfo (Alignment& align)
     align._nbMis    = nbMis;
 }
 
-
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :

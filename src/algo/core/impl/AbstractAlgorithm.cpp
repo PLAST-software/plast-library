@@ -433,7 +433,7 @@ IHitIterator* AbstractAlgorithm::createHitIterator (
     DEBUG (("AbstractAlgorithm::createHitIterator => ungapHitIterator=%p\n", ungapHitIterator));
 
     IHitIterator* smallGapIterator = getConfig()->createSmallGapHitIterator (
-        ungapHitIterator, getSeedsModel(), getScoreMatrix(), getParams(), ungapAlignResult
+        ungapHitIterator, getSeedsModel(), getScoreMatrix(), getParams(), ungapAlignResult, alignResult
     );
     DEBUG (("AbstractAlgorithm::createHitIterator => smallGapIterator=%p\n", smallGapIterator));
 

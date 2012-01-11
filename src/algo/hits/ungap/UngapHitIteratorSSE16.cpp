@@ -223,7 +223,7 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
                 {
                     size_t idx = j+k;
 
-                    if (_ungapResult->doesExist(occur1ForIndexI, occur2Vector.data[idx]) == false)
+                    if (_ungapResult->doesExist(occur1ForIndexI, occur2Vector.data[idx], 0) == false)
                     {
                         /** We tag this hit to be used for further processing. */
                         currentNbHits = hit->addIndexes (i, idx);
