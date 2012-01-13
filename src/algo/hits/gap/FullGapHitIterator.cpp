@@ -119,7 +119,7 @@ FullGapHitIterator::~FullGapHitIterator ()
 *********************************************************************/
 void FullGapHitIterator::iterateMethod  (Hit* hit)
 {
-    HIT_STATS (_iterateMethodNbCalls++);
+    HIT_STATS_VERBOSE (_iterateMethodNbCalls++);
 
     /** Shortcuts. */
     const Vector<const ISeedOccurrence*>& occur1Vector = hit->occur1;
@@ -231,7 +231,7 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
 
     /** We are supposed to have computed scores for each hit,
      *  we can forward the information to the client.  */
-    (_client->*_method) (hit);
+    if (hit->indexes.empty() == false)      {  (_client->*_method) (hit);  }
 }
 
 /*********************************************************************

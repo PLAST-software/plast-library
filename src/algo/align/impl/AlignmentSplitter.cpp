@@ -150,7 +150,7 @@ size_t AlignmentSplitter::splitAlign (
         /** We set the default to the max size. */
         _DefaultAlignSize = _MaxAlignSize;
 
-        /** We reallocated our matrixes. */
+        /** We reallocate our matrixes. */
         _matrix_H = newMatrix (_DefaultAlignSize, _DefaultAlignSize);
         _matrix_E = newMatrix (_DefaultAlignSize, _DefaultAlignSize);
         _matrix_F = newMatrix (_DefaultAlignSize, _DefaultAlignSize);

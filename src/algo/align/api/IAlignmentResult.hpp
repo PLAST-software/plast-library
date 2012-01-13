@@ -94,7 +94,7 @@ public:
         int rightOffsetInQuery,
         int rightOffsetInSubject,
         int score
-    )  :   _occur1(occur1), _occur2(occur2),  _evalue(0), _bitscore(0), _nbGap(0), _identity(0), _nbMis(0)
+    )  :   _occur1(occur1), _occur2(occur2),  _evalue(0), _bitscore(score), _nbGap(0), _identity(0), _nbMis(0)
     {
         configure (occur1, occur2, leftOffsetInQuery, leftOffsetInSubject, rightOffsetInQuery, rightOffsetInSubject);
     }

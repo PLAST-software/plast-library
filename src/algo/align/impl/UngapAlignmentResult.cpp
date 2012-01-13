@@ -141,7 +141,7 @@ bool UngapAlignmentResult::insert (Alignment& align, void* context)
                 s_start = align._subjectStartInDb + splittab[i+3];
                 s_stop  = align._subjectStartInDb + splittab[i+1];
 
-                if (q_stop - q_start >= 4)  // TO BE MODIFIED: 4
+                if (q_stop - q_start >= 4)  // COULD BE MODIFIED: 4 ?
                 {
                     result = addDiag (q_start, q_stop, s_start, s_stop, align._occur2->sequence.index);
                 }
@@ -201,9 +201,9 @@ bool UngapAlignmentResult::doesExist (
         if (gl==NULL)   { return false;  }
     }
 
-    if (d>gl->diag)   { return false; }
+    if (d > gl->diag)   { return false; }
 
-    if ((gl->diag==d) && (queryOccur->offsetInDatabase<gl->start))    { return false;  }
+    if ((gl->diag == d) && (queryOccur->offsetInDatabase < gl->start))    { return false;  }
 
     /** Being here means that we found our item. */
     return true;

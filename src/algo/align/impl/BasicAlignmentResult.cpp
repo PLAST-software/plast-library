@@ -356,7 +356,7 @@ void BasicAlignmentResult::shrink (void)
                         (a1._queryEndInSeq     + shift >= a2._queryEndInSeq     - shift) &&
                         (a1._queryStartInSeq   - shift <= a2._queryStartInSeq   + shift) )
                     {
-                        if (a1._length > a2._length)
+                        if (a1._bitscore > a2._bitscore)
                         {
                             removeTable[l] = 1;
                         }
@@ -371,7 +371,7 @@ void BasicAlignmentResult::shrink (void)
                              (a2._queryEndInSeq     + shift >= a1._queryEndInSeq     - shift) &&
                              (a2._queryStartInSeq   - shift <= a1._queryStartInSeq   + shift) )
                     {
-                        if (a1._length > a2._length)
+                        if (a1._bitscore > a2._bitscore)
                         {
                             removeTable[l] = 1;
                         }

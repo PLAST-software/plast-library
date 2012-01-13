@@ -108,7 +108,7 @@ CompositionHitIterator::~CompositionHitIterator ()
 *********************************************************************/
 void CompositionHitIterator::iterateMethod  (Hit* hit)
 {
-    HIT_STATS (_iterateMethodNbCalls++);
+    HIT_STATS_VERBOSE (_iterateMethodNbCalls++);
 
     double ln2 = 0.69314718055994530941;
 
@@ -224,7 +224,7 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
 
     /** We are supposed to have computed scores for each hit,
      *  we can forward the information to the client.  */
-    (_client->*_method) (hit);
+    if (hit->indexes.empty() == false)      {  (_client->*_method) (hit);  }
 }
 
 /*********************************************************************

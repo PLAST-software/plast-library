@@ -219,7 +219,7 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
             for (u_int8_t k=0; k<NB; k++)
             {
                 /** If the value is 0, it means that the two comparisons failed the threshold test. */
-                if ( (maskTestThreshold >> k)  & 0x1)
+                if ( (maskTestThreshold >> k) & 0x1)
                 {
                     size_t idx = j+k;
 
@@ -227,37 +227,37 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
                     {
                         /** We tag this hit to be used for further processing. */
                         currentNbHits = hit->addIndexes (i, idx);
+
+                        /** We may want to go further in the algorithm with the currently found hits.
+                         *  The important consequence is that we can limit the number of hits processed by
+                         *  further iterators. Without such a threshold, these iterators may have to deal with
+                         *  thousands of hits, which can be prohibitive in terms of memory usage.
+                         */
+                        /** Note the "== 4" here; since the next step (likely small gaps) uses a SIMD scheme
+                         *  that vectorizes 8 scores computation at a time, we try to send to it blocks of 4 hits
+                         *  in order to compute 4 left and 4 right useful scores (and no fake score used to fill up
+                         *  to 8 the SIMD 128 bits variables).  */
+                        if (currentNbHits == 4)
+                        {
+                            HIT_STATS (_outputHitsNumber += currentNbHits;)
+                            (_client->*_method) (hit);
+                            currentNbHits = hit->resetIndexes();
+                        }
                     }
                 }
             }
 
         }  /* end of for (size_t i=0; i<nb1; i++) */
 
-        /** We may want to go further in the algorithm with the currently found hits.
-         *  The important consequence is that we can limit the number of hits processed by
-         *  further iterators. Without such a threshold, these iterators may have to deal with
-         *  thousands of hits, which can be prohibitive in terms of memory usage.
-         */
-
-        /** Note the modulo 8 here; since the next step (likely small gaps) uses a SIMD scheme
-         *  that vectorizes 8 scores computation at a time, we try to send to it blocks of 8 hits
-         *  in order to compute 8 useful scores (and no fake score used to fill up to 8 the SIMD
-         *  128 bits variables).
-         */
-        if (currentNbHits % 8 == 0  || currentNbHits >= maxHitsPerIteration)
-        {
-            HIT_STATS (_outputHitsNumber += currentNbHits;)
-            (_client->*_method) (hit);
-            currentNbHits = hit->resetIndexes();
-        }
-
     }  /* end of for (size_t j=0; j<nb2; j+=NB) */
 
-    /** We are supposed to have computed scores for each hit,
-     *  we can forward the information to the client.  */
-    HIT_STATS (_outputHitsNumber += currentNbHits;)
-    (_client->*_method) (hit);
-    currentNbHits = hit->resetIndexes();
+    /** We are supposed to have computed scores for each hit, we can forward the information to the client.  */
+    if (currentNbHits > 0)
+    {
+        HIT_STATS (_outputHitsNumber += currentNbHits;)
+        (_client->*_method) (hit);
+        currentNbHits = hit->resetIndexes();
+    }
 }
 
 /*********************************************************************

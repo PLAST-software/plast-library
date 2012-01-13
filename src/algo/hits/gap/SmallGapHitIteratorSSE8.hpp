@@ -107,6 +107,10 @@ protected:
         int* scores
     );
 
+    size_t getNeighbourLength () { return _parameters->smallGapBandLength; }
+    size_t getNeighbourWidth  () { return _parameters->smallGapBandWidth;  }
+    int    getGapThreshold    () { return _parameters->smallGapThreshold;  }
+
     misc::Vector<int> _computedScores;
     int* getComputedScores (size_t n);
 

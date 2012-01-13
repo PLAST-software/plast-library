@@ -117,7 +117,7 @@ private:
     LISTGAP* getItem (int q_start, int s_start, int seqIdx, u_int32_t& d)
     {
         if (q_start == s_start)  {  d = ((q_start - s_start) & _diagGlobal)  + (seqIdx % _DIVDIAG);  }
-        else                     {  d = (q_start - s_start) & _diagGlobal;  }
+        else                     {  d =  (q_start - s_start) & _diagGlobal;  }
 
         return _listGaplessAlign [d/_DIVDIAG];
     }

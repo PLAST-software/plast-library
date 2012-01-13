@@ -151,12 +151,7 @@ int* SmallGapHitIteratorSSE8::getComputedScores (size_t n)
 *********************************************************************/
 void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
 {
-    HIT_STATS (_iterateMethodNbCalls++);
-
-    /** We may have nothing to do. */
-    if (hit->indexes.empty())  {  return;  }
-
-    DEBUG (("SmallGapHitIteratorSSE8::iterateMethod \n"));
+    HIT_STATS_VERBOSE (_iterateMethodNbCalls++);
 
     /** Shortcuts. */
     const Vector<const ISeedOccurrence*>& occur1Vector = hit->occur1;
@@ -164,7 +159,7 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
 
     /** Shortcuts. */
     size_t nbActualHits = hit->indexes.size ();
-    size_t bandLength   = _parameters->smallGapBandLength;
+    size_t bandLength   = getNeighbourLength ();
 
     /** Statistics. */
     HIT_STATS (_inputHitsNumber += nbActualHits;)
@@ -183,7 +178,7 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
     memset (computedScores, 0, nb*sizeof (int));
 
     /** We retrieve two big buffers that will hold all neighbourhoods for subject and query. */
-    size_t neighbourhoodsSize = nb*_parameters->smallGapBandLength;
+    size_t neighbourhoodsSize = nb*bandLength;
     LETTER* neighboursBuf1 = getNeighbours1 (neighbourhoodsSize);
     LETTER* neighboursBuf2 = getNeighbours2 (neighbourhoodsSize);
 
@@ -222,13 +217,13 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
 
         int score = computedScores[2*k+0] + computedScores[2*k+1];
 
-        if (score >= _parameters->smallGapThreshold)
+        if (score >= getGapThreshold())
         {
             /** We check that the alignment is not already known. */
             removable = _alignmentResult->doesExist (
                 occur1Vector.data[it->first],
                 occur2Vector.data[it->second],
-                _parameters->smallGapBandLength
+                bandLength
             );
         }
 
@@ -249,7 +244,7 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
 
     /** We are supposed to have computed scores for each hit,
      *  we can forward the information to the client.  */
-    (_client->*_method) (hit);
+    if (hit->indexes.empty() == false)      {  (_client->*_method) (hit);  }
 }
 
 /*********************************************************************
@@ -263,7 +258,7 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
 void SmallGapHitIteratorSSE8::extendNeighbourhood (const ISeedOccurrence* occur, LETTER* right, LETTER* left)
 {
     /** Shortcut. */
-    size_t neighbourLength = _parameters->smallGapBandLength;
+    size_t neighbourLength = getNeighbourLength ();
 
     /** Shortcuts. */
     database::LETTER* bufIn  = occur->sequence.data.letters.data + occur->offsetInSequence;
@@ -293,8 +288,8 @@ void SmallGapHitIteratorSSE8::computeScores (
 )
 {
     /** Shortcuts. */
-    size_t neighbourLength = _parameters->smallGapBandLength;
-    size_t neighbourWidth  = _parameters->smallGapBandWidth;
+    size_t neighbourLength = getNeighbourLength ();
+    size_t neighbourWidth  = getNeighbourWidth  ();
 
     __m128i vscore_gap_col;
     __m128i vscore_gap_row;
