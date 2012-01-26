@@ -68,6 +68,8 @@ public:
 
     size_t getOccurrenceNumber (const seed::ISeed* seed)  { return 0; }
 
+    u_int64_t getTotalOccurrenceNumber () { return 0; }
+
     void merge (void);
 
 private:

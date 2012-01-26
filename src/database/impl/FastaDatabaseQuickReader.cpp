@@ -144,8 +144,16 @@ IDatabaseQuickReader::DatabaseKind_e FastaDatabaseQuickReader::getKind ()
     {
         float ratio = (float) _nbNucleotids / (float) (_nbAminoAcids + _nbNucleotids);
 
+        DEBUG (("FastaDatabaseQuickReader::getKind : _nbAminoAcids=%ld  _nbNucleotids=%ld => ratio=%.1f\n",
+            _nbAminoAcids, _nbNucleotids, ratio
+        ));
+
         result = ratio > 0.8 ? ENUM_NUCLOTID : ENUM_AMINO_ACID;
     }
+
+    DEBUG (("FastaDatabaseQuickReader::getKind : _nbAminoAcids=%ld  _nbNucleotids=%ld => result=%d\n",
+        _nbAminoAcids, _nbNucleotids, result
+    ));
 
     return result;
 }

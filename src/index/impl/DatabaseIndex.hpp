@@ -91,6 +91,9 @@ public:
     /** \copydoc AbstractDatabaseIndex::getOccurrenceNumber */
     size_t getOccurrenceNumber (const seed::ISeed* seed);
 
+    /** \copydoc AbstractDatabaseIndex::getTotalOccurrenceNumber */
+    u_int64_t getTotalOccurrenceNumber ();
+
     /** \copydoc AbstractDatabaseIndex::merge */
     void merge (void);
 

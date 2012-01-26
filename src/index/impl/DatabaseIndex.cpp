@@ -308,6 +308,26 @@ size_t DatabaseIndex::getOccurrenceNumber (const seed::ISeed* seed)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+u_int64_t DatabaseIndex::getTotalOccurrenceNumber ()
+{
+    u_int64_t result = 0;
+
+    for (size_t i=0; i<_index.size(); i++)
+    {
+        result += _index[i].size();
+    }
+
+    return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 void DatabaseIndex::merge (void)
 {
     DEBUG (("DatabaseIndex::merge : BEGIN (nbChildren=%ld) \n", _children.size() ));

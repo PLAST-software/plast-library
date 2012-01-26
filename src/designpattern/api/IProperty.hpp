@@ -189,6 +189,11 @@ public:
      * \return the IProperty instance if found, 0 otherwise.
      */
     virtual IProperty* getProperty (const std::string& key) = 0;
+
+    /** Clone the instance
+     * \return the cloned instance.
+     */
+    virtual IProperties* clone () = 0;
 };
 
 /********************************************************************************/

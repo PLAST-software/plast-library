@@ -55,6 +55,9 @@ public:
     /** \copydoc ICommand::execute. */
     void execute ();
 
+    /** */
+    u_int32_t getEllapsedTime () { return _ellapsedTime; }
+
 private:
 
     os::IFile* _outputfile;
@@ -62,6 +65,9 @@ private:
     char _tmpFilename[128];
 
     char _buffer[1024];
+
+    /** */
+    u_int32_t _ellapsedTime;
 };
 
 /********************************************************************************/

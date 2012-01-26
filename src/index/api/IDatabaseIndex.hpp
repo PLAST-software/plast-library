@@ -118,6 +118,11 @@ public:
      */
     virtual size_t getOccurrenceNumber (const seed::ISeed* seed) = 0;
 
+    /** Returns the number of occurrences for all seeds.
+     * \return the seed occurrences number
+     */
+    virtual u_int64_t getTotalOccurrenceNumber () = 0;
+
     /** Add a child index (Design Pattern Composite).
      * \param[in] child : the child to be added to the current index
      */

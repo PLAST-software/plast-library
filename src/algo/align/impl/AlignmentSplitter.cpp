@@ -114,7 +114,7 @@ size_t AlignmentSplitter::splitAlign (
     subLen = subjectEndInSeq - subjectStartInSeq + 1;
 
     /** A little check. */
-    if (qryLen > _MaxAlignSize  ||  subLen > _MaxAlignSize)
+    if (qryLen >= _MaxAlignSize  ||  subLen >= _MaxAlignSize)
     {
         /** Alignments are too big for computing information. */
         return 0;

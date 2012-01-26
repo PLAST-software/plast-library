@@ -65,6 +65,9 @@ public:
     /** \copydoc IProperties::getProperty  */
     IProperty* getProperty (const std::string& key);
 
+    /** \copydoc IProperties::clone  */
+    IProperties* clone ()   {  return new Properties (*this);  }
+
 private:
 
     /** List of IProperty instances. */

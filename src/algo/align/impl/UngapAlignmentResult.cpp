@@ -124,14 +124,14 @@ bool UngapAlignmentResult::insert (Alignment& align, void* context)
 
     if (splitter != 0)
     {
-        int  splittab[1000];  //memset (splittab, 0, sizeof(splittab));
+        int  splittab[10000];  //memset (splittab, 0, sizeof(splittab));
 
         int q_start=0, q_stop=0, s_start=0, s_stop=0;
 
         size_t nbAlign = splitter->splitAlign (align, splittab);
 
         /** A little check. */
-        if (nbAlign%4 == 0)
+        if ( (nbAlign<ARRAYSIZE(splittab)) &&  (nbAlign%4 == 0) )
         {
             for (size_t i=0; i<nbAlign; i=i+4)
             {
