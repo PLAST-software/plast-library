@@ -131,14 +131,23 @@ public:
      * \param[in] current
      * \param[in] total
      */
-    AlgorithmConfigurationEvent (size_t current, size_t total)
-    :  dp::EventInfo(0), _current(current), _total(total) {}
+    AlgorithmConfigurationEvent (dp::IProperties* props, size_t current, size_t total)
+    :  dp::EventInfo(0), _props(0), _current(current), _total(total) {  setProps(props); }
+
+    /** */
+    ~AlgorithmConfigurationEvent ()  { setProps(0); }
+
+    /** */
+    dp::IProperties* _props;
 
     /** Index of the current running algorithm part. */
     size_t _current;
 
     /** Number of algorithm parts. */
     size_t _total;
+
+private:
+    void setProps (dp::IProperties* props)  { SP_SETATTR (props); }
 };
 
 /********************************************************************************/

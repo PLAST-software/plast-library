@@ -86,6 +86,7 @@ void DefaultEnvironment::run (dp::IProperties* properties)
     u_int64_t  maxblocksize = 20*1000*1000;
     IProperty* maxBlockProp = properties->getProperty(STR_OPTION_MAX_DATABASE_SIZE);
     if (maxBlockProp != 0)  {  maxblocksize = maxBlockProp->getInt();  }
+    else  { properties->add (0, STR_OPTION_MAX_DATABASE_SIZE, "%lld", maxblocksize); }
 
     /** We need to read the subject database to get its data size and the number of sequences.
      *  This information will be used for computing cutoffs for the query sequences. */
@@ -148,7 +149,7 @@ void DefaultEnvironment::run (dp::IProperties* properties)
         list<ICommand*> algorithms;
 
         /** We send a notification to potential listeners. */
-        this->notify (new AlgorithmConfigurationEvent (i, parametersList.size()));
+        this->notify (new AlgorithmConfigurationEvent (properties, i, parametersList.size()));
 
         /** We create an Algorithm instance. */
         IAlgorithm* algo = this->createAlgorithm (config, quickSubjectDbReader, parametersList[i], resultVisitor);
@@ -169,7 +170,7 @@ void DefaultEnvironment::run (dp::IProperties* properties)
     }
 
     /** We send a notification telling we are done (ie. current==total). */
-    this->notify (new AlgorithmConfigurationEvent (parametersList.size(), parametersList.size()));
+    this->notify (new AlgorithmConfigurationEvent (properties, parametersList.size(), parametersList.size()));
 }
 
 /*********************************************************************

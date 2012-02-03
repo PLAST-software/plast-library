@@ -233,9 +233,17 @@ ICommandDispatcher* DefaultConfiguration::createDispatcher ()
 {
     ICommandDispatcher* result = 0;
 
+    /** We get the default number of usable cores. */
+    size_t nbProc = DefaultFactory::thread().getNbCores();
+
     /** We try to get the property giving the number of wanted processors to be used. */
     IProperty* propNbProcessors = _properties->getProperty (STR_OPTION_NB_PROCESSORS);
-    size_t nbProc = (propNbProcessors ? atoi(propNbProcessors->value.c_str()) : 0);
+
+    if (propNbProcessors != 0)  {  nbProc = propNbProcessors->getInt(); }
+    else
+    {
+        _properties->add (0, STR_OPTION_NB_PROCESSORS, "%d", nbProc);
+    }
 
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_DISPATCHER);

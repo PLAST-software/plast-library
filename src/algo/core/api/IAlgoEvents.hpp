@@ -228,7 +228,7 @@ public:
     /** Getter on the decorated event
      * \return the decorated event.
      */
-    dp::IterationStatusEvent*       getIterateEvent ()  { return _iterateEvent;   }
+    dp::IterationStatusEvent*      getIterateEvent ()  { return _iterateEvent;   }
 
     /** Getter on the ungap alignments list.
      * \return the ungap alignments list.
