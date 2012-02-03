@@ -62,11 +62,23 @@ public:
     /** \copydoc IProperties::add(size_t,IProperties*)  */
     void add (size_t depth, IProperties* prop);
 
+    /** \copydoc IProperties::merge  */
+    void  merge (IProperties* prop);
+
     /** \copydoc IProperties::getProperty  */
     IProperty* getProperty (const std::string& key);
 
     /** \copydoc IProperties::clone  */
-    IProperties* clone ()   {  return new Properties (*this);  }
+    IProperties* clone ();
+
+    /** \copydoc IProperties::map  */
+    std::list<IProperties*> map (const char* separator);
+
+    /** \copydoc IProperties::getKeys  */
+    std::set<std::string> getKeys ();
+
+    /** \copydoc IProperties::setToFront  */
+    void setToFront (const std::string& key);
 
 private:
 
@@ -127,6 +139,39 @@ private:
 
     /** Method for writing into the file. */
     void safeprintf (const char* format, ...);
+};
+
+/********************************************************************************/
+
+/** \brief Raw dump of a IProperties instance.
+ */
+class RawDumpPropertiesVisitor : public IPropertiesVisitor
+{
+public:
+
+    /** Constructor.
+     * \param filename : uri of the file where to serialiaze the instance. */
+    RawDumpPropertiesVisitor (FILE* file = stdout) : _file(file),_fileToClose(false) {}
+
+    /** Constructor.
+     * \param filename : uri of the file where to serialiaze the instance. */
+    RawDumpPropertiesVisitor (const std::string& filename);
+
+    /** Desctructor. */
+    virtual ~RawDumpPropertiesVisitor ();
+
+    /** \copydoc IPropertiesVisitor::visitBegin */
+    void visitBegin () {}
+
+    /** \copydoc IPropertiesVisitor::visitEnd */
+    void visitEnd   () {}
+
+    /** \copydoc IPropertiesVisitor::visitProperty */
+    void visitProperty (IProperty* prop);
+
+private:
+    FILE* _file;
+    bool _fileToClose;
 };
 
 /********************************************************************************/

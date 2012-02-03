@@ -58,16 +58,21 @@ public:
     /** */
     u_int32_t getEllapsedTime () { return _ellapsedTime; }
 
+    /** */
+    int getStatus ()  { return _status; }
+
 private:
 
     os::IFile* _outputfile;
 
     char _tmpFilename[128];
 
-    char _buffer[1024];
+    char _buffer[4*1024];
 
     /** */
     u_int32_t _ellapsedTime;
+
+    int _status;
 };
 
 /********************************************************************************/

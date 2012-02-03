@@ -33,6 +33,9 @@
 
 #include <string>
 #include <list>
+#include <set>
+#include <iostream>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -81,6 +84,14 @@ struct IProperty
      * \return the value
      */
     const char*         getString ()  { return value.c_str();        }
+
+    /** */
+    std::string toString ()
+    {
+        std::stringstream ss;
+        ss << "[PROPERTY " << depth << ": " << key << " : " << value;
+        return ss.str();
+    }
 };
 
 /********************************************************************************/
@@ -184,6 +195,11 @@ public:
      */
     virtual void       add (size_t depth, IProperties* prop) = 0;
 
+    /** Merge the IProperty instances contained in the provided IProperties instance.
+     * \param[in] prop  : instance holding IProperty instances to be added
+     */
+    virtual void  merge (IProperties* prop) = 0;
+
     /** Returns the IProperty instance given a key.
      * \param[in] key : the key
      * \return the IProperty instance if found, 0 otherwise.
@@ -194,6 +210,21 @@ public:
      * \return the cloned instance.
      */
     virtual IProperties* clone () = 0;
+
+    /** Distribute arguments that are comma separated list.
+     * \return the list of distributed IProperties instances.
+     */
+    virtual std::list<IProperties*> map (const char* separator) = 0;
+
+    /** Get the know keys.
+     * \return the set of keys
+     */
+    virtual std::set<std::string> getKeys () = 0;
+
+    /** Move the item (given its key) to the front of the container.
+     * \param[in] key : the key of the item to be moved.
+     */
+    virtual void setToFront (const std::string& key) = 0;
 };
 
 /********************************************************************************/

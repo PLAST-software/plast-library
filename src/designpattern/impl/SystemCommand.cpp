@@ -39,7 +39,7 @@ namespace dp { namespace impl {
 ** REMARKS :
 *********************************************************************/
 SystemCommand::SystemCommand (const char* format, ...)
-    : _outputfile(0),_ellapsedTime(0)
+    : _outputfile(0),_ellapsedTime(0), _status(0)
 {
     va_list ap;
     va_start  (ap, format);
@@ -58,7 +58,7 @@ SystemCommand::SystemCommand (const char* format, ...)
 ** REMARKS :
 *********************************************************************/
 SystemCommand::SystemCommand (const std::string& request)
-    : _outputfile(0), _ellapsedTime(0)
+    : _outputfile(0), _ellapsedTime(0), _status(0)
 {
     strcpy (_buffer, request.c_str());
 }
@@ -72,7 +72,7 @@ SystemCommand::SystemCommand (const std::string& request)
 ** REMARKS :
 *********************************************************************/
 SystemCommand::SystemCommand (os::IFile* output, const char* format, ...)
-    : _outputfile(output),_ellapsedTime(0)
+    : _outputfile(output),_ellapsedTime(0), _status(0)
 {
     /** */
     *_tmpFilename = 0;
@@ -133,7 +133,7 @@ void SystemCommand::execute ()
     u_int32_t t0 = os::impl::DefaultFactory::time().gettime();
 
     /** We execute the command. */
-    system (_buffer);
+    _status = system (_buffer);
 
     u_int32_t t1 = os::impl::DefaultFactory::time().gettime();
 

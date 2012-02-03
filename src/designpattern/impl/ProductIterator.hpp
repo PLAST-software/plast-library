@@ -25,6 +25,7 @@
 
 #include <designpattern/api/Iterator.hpp>
 #include <utility>
+#include <list>
 
 /********************************************************************************/
 namespace dp {
@@ -119,6 +120,75 @@ private:
     std::pair<T1,T2> _current;
 
     /** Tells whether the iteration is finished or not. */
+    bool _isDone;
+};
+
+/********************************************************************************/
+
+/** \brief Iterator over several iterators of same type.
+ *
+ * We define a "product" iterator for several iterators that iterate the same kind of objects.
+ *
+ *  It is useful for having only one loop instead of two loops.
+ */
+
+template <typename T1, typename T2> class CartesianIterator : public dp::Iterator <std::list<T2>& >
+{
+public:
+
+    CartesianIterator (std::list<Iterator<T1>*>& itList) : _itList (itList), _isDone(false)
+    {
+    }
+
+    void first()
+    {
+        _isDone = false;
+
+        for (typename std::list<Iterator<T1>*>::iterator it=_itList.begin(); it!=_itList.end(); it++)
+        {
+            (*it)->first ();
+        }
+    }
+
+    IteratorStatus next()
+    {
+        typename std::list<Iterator<T1>*>::iterator it;
+
+        for (it=_itList.begin(); it!=_itList.end(); it++)
+        {
+            (*it)->next ();
+
+            if ((*it)->isDone())  {  (*it)->first ();  }
+            else  {  break;  }
+        }
+
+        _isDone = (it == _itList.end());
+
+        return ITER_UNKNOWN;
+    }
+
+    bool isDone()
+    {
+        return _isDone;
+    }
+
+    std::list<T2>& currentItem()
+    {
+        _currentItem.clear ();
+
+        for (typename std::list<Iterator<T1>*>::iterator it=_itList.begin(); it!=_itList.end(); it++)
+        {
+            _currentItem.push_back ((*it)->currentItem() );
+        }
+
+        return _currentItem;
+    }
+
+private:
+   std::list<Iterator<T1>*>& _itList;
+
+    std::list<T2> _currentItem;
+
     bool _isDone;
 };
 
