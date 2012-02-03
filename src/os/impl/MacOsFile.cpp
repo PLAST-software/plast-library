@@ -35,6 +35,8 @@ public:
         /* MacOs is supposed to handle 64 bits file system by default, so no need to use fseeko64  */
         return (_handle==0 ? -1 : fseeko (_handle, offset, whence));
     }
+
+    u_int64_t tell ()  { return (_handle==0 ? 0 : ftello (_handle)); }
 };
 
 /*********************************************************************

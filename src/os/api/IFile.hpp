@@ -57,6 +57,11 @@ public:
      */
     virtual int seeko (u_int64_t offset, int whence) = 0;
 
+    /** Get the position in a file.
+     * \return the current position
+     */
+    virtual u_int64_t tell () = 0;
+
     /** Reads a line in the file.
      *  \param[in] s : buffer where to put the read line.
      *  \param[in] size : maximum number of characters to be read
@@ -78,6 +83,11 @@ public:
      */
     virtual void flush () = 0;
 
+    /** Get the size of a file.
+     * \param[in] filename : the name of the file
+     * \return the size of the file.
+     */
+    virtual u_int64_t getSize () = 0;
 };
 
 /********************************************************************************/

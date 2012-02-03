@@ -31,6 +31,8 @@ public:
     WindowsFile (const char* path, const char* mode, bool temporary) : CommonFile(path,mode,temporary) {}
 
     int seeko (u_int64_t offset, int whence)  {  return (_handle==0 ? -1 : fseeko64 (_handle, offset, whence));  }
+
+    u_int64_t tell ()  { return (_handle==0 ? 0 : ftello64 (_handle)); }
 };
 
 /*********************************************************************

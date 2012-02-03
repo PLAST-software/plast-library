@@ -73,6 +73,18 @@ public:
     /** \copydoc IFile::flush */
     void flush ()  { if (_handle)  {  fflush (_handle); } }
 
+    /** \copydoc IFile::getSize */
+    u_int64_t getSize ()
+    {
+        u_int64_t result = 0;
+        if (_handle)
+        {
+            seeko (0L, SEEK_END);
+            return tell ();
+        }
+        return result;
+    }
+
 protected:
     std::string _path;
     FILE*       _handle;
