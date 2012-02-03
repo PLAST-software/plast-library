@@ -374,6 +374,37 @@ bool BufferedSequenceDatabase::getSequenceByOffset (
 }
 
 /*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+bool BufferedSequenceDatabase::getSequenceByName (
+    const std::string& id,
+    ISequence& sequence
+)
+{
+    bool result = false;
+
+    /** Shortcut. */
+    vector<string>& comments = _cache->comments;
+
+    size_t i=0;
+    for (i=0; i<comments.size(); i++)
+    {
+        result = comments[i].find (id) != string::npos;
+        if (result)  { break; }
+    }
+
+    if (result)  {  result = getSequenceByIndex (i, sequence);  }
+
+    /** We return the result. */
+    return result;
+}
+
+/*********************************************************************
 ** METHOD  : CacheIterator::changeSequence
 ** PURPOSE : fill the attributes of the sequence returned by 'currentItem'
 ** INPUT   :

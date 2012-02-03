@@ -84,6 +84,16 @@ public:
         u_int64_t& offsetInDatabase
     ) = 0;
 
+    /** Returns a sequence given a part of its string identifer (in the database).
+     *  \param[in] id : part of the identifier
+     *  \param[in] sequence : the filled sequence if successful
+     * \return true if the sequence has been retrieved, false otherwise.
+     */
+    virtual bool getSequenceByName (
+        const std::string& id,
+        ISequence& sequence
+    ) = 0;
+
     /** Creates a Sequence iterator.
      * \return the created iterator.
      */

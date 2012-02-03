@@ -108,6 +108,13 @@ public:
         u_int64_t& offsetInDatabase
     );
 
+    /** \copydoc ISequenceDatabase::getSequenceByOffset
+     * The cache is supposed to be already built. */
+    bool getSequenceByName (
+        const std::string& id,
+        ISequence& sequence
+    );
+
     /** \copydoc ISequenceDatabase::createSequenceIterator
      * The cache is supposed to be already built. */
     ISequenceIterator* createSequenceIterator () { return new BufferedSequenceIterator (this, getCache(), _firstIdx, _lastIdx); }

@@ -115,7 +115,28 @@ bool CompositeSequenceDatabase::getSequenceByIndex (size_t index, ISequence& seq
         result = _children[i]->getSequenceByIndex (index - _sequencesOffsets[i], sequence);
     }
 
-if (!result)  { printf ("CompositeSequenceDatabase::getSequenceByIndex: AAAAAAAARGGG\n"); }
+    return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+bool CompositeSequenceDatabase::getSequenceByName (
+    const std::string& id,
+    ISequence& sequence
+)
+{
+    bool result = false;
+
+    for (size_t i=0; !result && i<_children.size(); i++)
+    {
+        result = _children[i]->getSequenceByName (id, sequence);
+    }
 
     return result;
 }
