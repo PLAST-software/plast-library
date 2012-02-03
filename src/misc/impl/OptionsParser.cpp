@@ -20,9 +20,12 @@
 
 #include <misc/impl/OptionsParser.hpp>
 #include <designpattern/impl/Property.hpp>
+#include <designpattern/impl/TokenizerIterator.hpp>
+#include <os/impl/DefaultOsFactory.hpp>
 
 using namespace std;
 using namespace dp::impl;
+using namespace os::impl;
 
 #define DEBUG(a)  //printf a
 
@@ -105,6 +108,8 @@ int OptionsParser::parse (int argc, char* argv[])
     char* txt=0;
     while ( (txt = nextArg ()) != 0)
     {
+        DEBUG (("CheckOption::proceed:  _currentArg=%d  txt=%p \n", _currentArg, txt));
+
         /* We look if is matches one of the recognized options. */
         Option* optionMatch = lookForOption (txt);
         DEBUG (("CheckOption::proceed:  txt='%s'  optionMatch=%p \n", txt, optionMatch));
@@ -140,8 +145,12 @@ int OptionsParser::parse (int argc, char* argv[])
                 }
                 else
                 {
-                    optionMatch->proceed (optionArgs);
+                    int res = optionMatch->proceed (optionArgs);
                     _seenOptions.push_back (optionMatch);
+
+                    DEBUG (("CheckOption::proceed:  proceed the option => res=%ld  seenOptions=%ld  _currentArg=%d\n",
+                        res, _seenOptions.size(), _currentArg
+                    ));
                 }
             }
         }
@@ -176,6 +185,53 @@ int OptionsParser::parse (int argc, char* argv[])
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
+int OptionsParser::parse (const std::string& s)
+{
+    int    result = 0;
+    int    argc   = 0;
+    size_t idx    = 0;
+
+    /** We tokenize the string and count the number of tokens. */
+    TokenizerIterator it1 (s.c_str(), " ");
+    for (it1.first(); !it1.isDone(); it1.next())  { argc++; }
+
+    argc++;
+
+    /** We allocate a table of char* */
+    char** argv = (char**) DefaultFactory::memory().calloc (argc, sizeof(char*));
+
+    argv[idx++] = DefaultFactory::memory().strdup ("foo");
+
+    /** We fill the table with the tokens. */
+    TokenizerIterator it2 (s.c_str(), " ");
+    for (it2.first(); !it2.isDone(); it2.next())
+    {
+        argv[idx++] = DefaultFactory::memory().strdup (it2.currentItem());
+    }
+
+    for (int i=0; i<argc; i++)  {  DEBUG (("   item='%s' \n", argv[i]));  }
+
+    /** We parse the arguments. */
+    result = parse (argc, argv);
+
+    DEBUG (("OptionsParser::parse  argc=%d => idx=%ld  result=%d  seenOptions=%ld\n", argc, idx, result, _seenOptions.size() ));
+
+    /** Some clean up. */
+    for (int i=0; i<argc; i++)  {  DefaultFactory::memory().free (argv[i]);  }
+    DefaultFactory::memory().free (argv);
+
+    /** We return the result. */
+    return result;
+}
+
+/*********************************************************************
+ ** METHOD  :
+ ** PURPOSE :
+ ** INPUT   :
+ ** OUTPUT  :
+ ** RETURN  :
+ ** REMARKS :
+ *********************************************************************/
 void OptionsParser::buildProperties ()
 {
     for (std::list<Option*>::iterator it = _seenOptions.begin();  it != _seenOptions.end();  it++)
@@ -194,7 +250,9 @@ void OptionsParser::buildProperties ()
  *********************************************************************/
 char* OptionsParser::nextArg ()
 {
-    return (_currentArg > _argc ? (char*)0 : _argv[_currentArg++]);
+    DEBUG (("\nCheckOption::nextArg:  _currentArg=%d  _argc=%d \n", _currentArg, _argc));
+
+    return (_currentArg >= _argc ? (char*)0 : _argv[_currentArg++]);
 }
 
 /*********************************************************************

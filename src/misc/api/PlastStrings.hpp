@@ -222,12 +222,15 @@ namespace misc {
 /** Command Line option giving the file path for statistics information about the algorithm execution.
  *  String.
  */
-#define STR_OPTION_INFO_STATS               "-stats"
+#define STR_OPTION_INFO_FULL_STATS          "-full-stats"
 
 /** Command Line option giving the file path for statistics information about the hits iterators information.
  *  String.
  */
-#define STR_OPTION_INFO_HITS_STATS          "-hits-stats"
+#define STR_OPTION_INFO_STATS               "-stats"
+
+/** Format of the stats: 'raw' (default) or 'xml' */
+#define STR_OPTION_INFO_STATS_FORMAT        "-stats-fmt"
 
 /** Command Line option giving the path of the file holding the algorithm execution percentage.
  *  String.
