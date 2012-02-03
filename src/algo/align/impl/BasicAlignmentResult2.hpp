@@ -77,6 +77,13 @@ public:
     /** \copydoc IAlignmentResult::accept */
     void accept (IAlignmentResultVisitor* visitor);
 
+    /** \copydoc IAlignmentResult::readFromFile */
+    void readFromFile (
+        const char* fileuri,
+        std::map<std::string,int>& subjectComments,
+        std::map<std::string,int>& queryComments
+    );
+
     /** \copydoc IAlignmentResult::getAlignments */
     std::list<Alignment> getAlignments (const database::ISequence* querySeq, const database::ISequence* subjectSeq);
 
@@ -85,6 +92,9 @@ public:
     typedef std::map <QuerySubjectIndexes, AlignmentsContainer> Entries;
 
     Entries& getEntries () { return  _entries;  }
+
+    std::vector<std::string>&  getSubjectComments ()  { return _subjectComments; }
+    std::vector<std::string>&  getQueryComments   ()  { return _queryComments;   }
 
 private:
 

@@ -341,6 +341,43 @@ void BasicAlignmentResult2::accept (IAlignmentResultVisitor* visitor)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+void BasicAlignmentResult2::readFromFile (
+    const char* fileuri,
+    std::map<std::string,int>& subjectComments,
+    std::map<std::string,int>& queryComments
+)
+{
+    AbstractAlignmentResult::readFromFile (fileuri, subjectComments, queryComments);
+
+    if (_subjectComments.empty ())
+    {
+        _subjectComments.resize (subjectComments.size());
+
+        for (map<string,int>::iterator it = subjectComments.begin(); it != subjectComments.end(); it++)
+        {
+            _subjectComments [it->second] = it->first;
+        }
+    }
+
+    if (_queryComments.empty ())
+    {
+        _queryComments.resize (queryComments.size());
+
+        for (map<string,int>::iterator it = queryComments.begin(); it != queryComments.end(); it++)
+        {
+            _queryComments [it->second] = it->first;
+        }
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 list<Alignment> BasicAlignmentResult2::getAlignments (const ISequence* querySeq, const ISequence* subjectSeq)
 {
     list<Alignment> result;

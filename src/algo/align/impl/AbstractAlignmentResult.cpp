@@ -101,7 +101,6 @@ void AbstractAlignmentResult::readFromFile (
     std::map<std::string,int>& queryComments
 )
 {
-#if 1
     int queryIdx   = 0;
     int subjectIdx = 0;
 
@@ -158,102 +157,17 @@ void AbstractAlignmentResult::readFromFile (
             else if (idx==11)  {  align._bitscore           = atof (token);   }
         }
 
+        /** We read from a human readable file that counts range with a 1 starting position.
+         *  We convert back to a 0 starting position. */
+        align._queryStartInSeq    --;
+        align._queryEndInSeq      --;
+        align._subjectStartInSeq  --;
+        align._subjectEndInSeq    --;
+
         align._identity *= align._length / 100.0;
 
         this->insert (align, NULL);
     }
-#else
-
-    FILE* file = fopen (fileuri, "r");
-    if (file != 0)
-    {
-        char buffer[256];
-        char* loop = 0;
-        const char* sep = "\t ";
-
-        int queryIdx   = 0;
-        int subjectIdx = 0;
-
-        while (fgets(buffer, sizeof(buffer), file) != NULL)
-        {
-            Alignment align;
-
-            /** query comment. */
-            loop = strtok (buffer, sep);  if (!loop)  { ERR; continue; }
-            map<string,int>::iterator qsearch = queryComments.find (loop);
-            if (qsearch == queryComments.end())
-            {
-                queryComments[loop] = queryIdx;
-                align._queryIdx     = queryIdx;
-                queryIdx++;
-            }
-            else
-            {
-                align._queryIdx = qsearch->second;
-            }
-
-            /** subject comment. */
-            loop = strtok (NULL, sep);   if (!loop)  { ERR; continue; }
-            map<string,int>::iterator ssearch = subjectComments.find (loop);
-            if (ssearch == subjectComments.end())
-            {
-                subjectComments[loop] = subjectIdx;
-                align._subjectIdx     = subjectIdx;
-                subjectIdx++;
-            }
-            else
-            {
-                align._subjectIdx = ssearch->second;
-            }
-
-            /** Identity. */
-            loop = strtok (NULL, sep);   if (!loop)  { ERR; continue; }
-            align._identity = atof (loop);
-
-            /** Length align. */
-            loop = strtok (NULL, sep);   if (!loop)  { ERR; continue; }
-            align._length = atoi (loop);
-
-            /** WARNING !!! the 'identity' column in the file is actually  nbIdenticalResidues / nbTotalResidues.
-             *  The Alignment::_identity is the number of identical residues, so we have to rescale it from the length.
-             */
-            align._identity *= align._length / 100.0;
-
-            /** Nb miss. */
-            loop = strtok (NULL, sep);   if (!loop)  { ERR; continue; }
-            align._nbMis = atoi (loop);
-
-            /** Nb gaps. */
-            loop = strtok (NULL, sep);   if (!loop)  { ERR; continue; }
-            align._nbGap = atoi (loop);
-
-            /** Query bounds. */
-            loop = strtok (NULL, sep);   if (!loop)  { ERR; continue; }
-            align._queryStartInSeq = atoi (loop) - 1;
-            loop = strtok (NULL, sep);   if (!loop)  { ERR; continue; }
-            align._queryEndInSeq = atoi (loop) - 1;
-
-            /** Subject bounds. */
-            loop = strtok (NULL, sep);   if (!loop)  { ERR; continue; }
-            align._subjectStartInSeq = atoi (loop) - 1;
-            loop = strtok (NULL, sep);   if (!loop)  { ERR; continue; }
-            align._subjectEndInSeq = atoi (loop) - 1;
-
-            /** Evalue. */
-            loop = strtok (NULL, sep);   if (!loop)  { ERR; continue; }
-            align._evalue = atof (loop);
-
-            /** Bitscore. */
-            loop = strtok (NULL, sep);   if (!loop)  { ERR; continue; }
-            align._bitscore = atof (loop);
-
-            /** We add the alignment to the result. */
-            this->insert (align, NULL);
-        }
-
-        fclose (file);
-    }
-#endif
 }
 
 /********************************************************************************/
