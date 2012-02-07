@@ -109,6 +109,12 @@ void DefaultEnvironment::run (dp::IProperties* properties)
         quickQueryDbReader->read (maxblocksize);
     }
 
+    /** We may launch an event with information about the two databases. */
+    if (quickSubjectDbReader != 0  &&  quickQueryDbReader != 0)
+    {
+        this->notify (new DatabasesInformationEvent (quickSubjectDbReader, quickQueryDbReader) );
+    }
+
     /** We may have to infer the kind of algorithm (plastp, plastx...) if no one is provided. */
     if (algoProp == 0)
     {

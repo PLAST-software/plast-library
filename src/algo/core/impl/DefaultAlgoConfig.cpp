@@ -744,10 +744,14 @@ IAlignmentResultVisitor* DefaultConfiguration::createResultVisitor ()
             break;
 
         case 2:
-            result = new  AlignmentResultRawDumpVisitor (uri);
+            result = new  AlignmentResultOutputTabulatedExtendedVisitor (uri);
             break;
 
         case 3:
+            result = new  AlignmentResultRawDumpVisitor (uri);
+            break;
+
+        case 4:
             result = new  AlignmentResultXmlDumpVisitor (uri);
             break;
 

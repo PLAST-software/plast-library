@@ -151,6 +151,33 @@ private:
 };
 
 /********************************************************************************/
+
+/** \brief Provides information about the two compared databases.
+ *
+ * This class provides notification information about the subject and query databases.
+ */
+class DatabasesInformationEvent : public dp::EventInfo
+{
+public:
+
+    /** Constructor.
+     * \param[in] subjectDb : subject database information
+     * \param[in] queryDb   : query database information
+     * */
+    DatabasesInformationEvent (
+        database::IDatabaseQuickReader* subjectDb,
+        database::IDatabaseQuickReader* queryDb
+    )
+    :  dp::EventInfo(0), _subjectDb(subjectDb), _queryDb(queryDb)  {}
+
+    /** Subject database */
+    database::IDatabaseQuickReader* _subjectDb;
+
+    /** Query database */
+    database::IDatabaseQuickReader* _queryDb;
+};
+
+/********************************************************************************/
 }} /* end of namespaces. */
 /********************************************************************************/
 
