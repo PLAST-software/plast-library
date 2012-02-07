@@ -93,10 +93,12 @@ public:
         int leftOffsetInSubject,
         int rightOffsetInQuery,
         int rightOffsetInSubject,
+        size_t queryLength,
+        size_t subjectLength,
         int score
     )  :   _occur1(occur1), _occur2(occur2),  _evalue(0), _bitscore(score), _nbGap(0), _identity(0), _nbMis(0)
     {
-        configure (occur1, occur2, leftOffsetInQuery, leftOffsetInSubject, rightOffsetInQuery, rightOffsetInSubject);
+        configure (occur1, occur2, leftOffsetInQuery, leftOffsetInSubject, rightOffsetInQuery, rightOffsetInSubject, queryLength, subjectLength);
     }
 
     /** Define some way to compare two alignments. It returns the overlap ratio of the two provided alignments.
@@ -176,6 +178,11 @@ public:
     /** Length of the alignment. */
     u_int32_t _length;
 
+    /** Ratio of the align length in subject by the length of the subject sequence. */
+    double _subjectCoverage;
+    /** Ratio of the align length in query by the length of the query sequence. */
+    double _queryCoverage;
+
     /** Expected value. */
     double _evalue;
 
@@ -217,7 +224,9 @@ private:
         u_int32_t leftOffsetInQuery,
         u_int32_t leftOffsetInSubject,
         u_int32_t rightOffsetInQuery,
-        u_int32_t rightOffsetInSubject
+        u_int32_t rightOffsetInSubject,
+        size_t queryLength,
+        size_t subjectLength
     )
     {
         /** Shortcuts. */
@@ -244,6 +253,10 @@ private:
         _queryEndInDb     = occur2->offsetInDatabase + rightOffsetInQuery;
 
         _length = MAX (_subjectEndInSeq - _subjectStartInSeq + 1, _queryEndInSeq - _queryStartInSeq + 1);
+
+        /** We compute the coverages in both sequences. */
+        _queryCoverage   = (double) (_queryEndInSeq   - _queryStartInSeq   + 1) / queryLength;
+        _subjectCoverage = (double) (_subjectEndInSeq - _subjectStartInSeq + 1) / subjectLength;
     }
 };
 
@@ -394,6 +407,10 @@ public:
      * \param[in] align : the visited alignment.
      */
     virtual void visitAlignment       (const Alignment* align) = 0;
+
+    /** Called at the end of the 'accept' method.
+     */
+    virtual void finish () = 0;
 };
 
 /********************************************************************************/

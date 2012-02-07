@@ -153,13 +153,13 @@ AlignmentResultOutputTabulatedVisitor::AlignmentResultOutputTabulatedVisitor (co
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void AlignmentResultOutputTabulatedVisitor::visitAlignment (const Alignment* align)
+void AlignmentResultOutputTabulatedVisitor::fillBuffer (const Alignment* align, char* buffer, size_t size)
 {
     char* locate = 0;  // used for truncating comments to the first space character.
 
-    DEBUG (("AlignmentResultOutputTabulatedVisitor::visitAlignment  align=%p\n", align));
+    DEBUG (("AlignmentResultOutputTabulatedVisitor::fillBuffer  align=%p\n", align));
 
-    if (_file == 0  ||  _currentQuery==0  ||  _currentSubject==0) { return ; }
+    if (buffer == 0  ||  _currentQuery==0  ||  _currentSubject==0) { return ; }
 
     char queryName[32];
     snprintf (queryName,   sizeof(queryName),   "%s", _currentQuery->comment);
@@ -179,7 +179,7 @@ void AlignmentResultOutputTabulatedVisitor::visitAlignment (const Alignment* ali
     else if (ev < 10.0)     {   sprintf (evalueStr, "%2.1lf", ev);  }
     else                    {   sprintf (evalueStr, "%5.0lf", ev);  }
 
-    safeprintf ("%s\t%s\t%.2f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%.1lf\n",
+    snprintf (buffer, size, "%s\t%s\t%.2f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%.1lf",
         queryName, subjectName,
         (100.0* (float)align->_identity / (float) align->_length),
         align->_length,
@@ -190,6 +190,50 @@ void AlignmentResultOutputTabulatedVisitor::visitAlignment (const Alignment* ali
         evalueStr,
         align->_bitscore
     );
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AlignmentResultOutputTabulatedVisitor::visitAlignment (const Alignment* align)
+{
+    DEBUG (("AlignmentResultOutputTabulatedVisitor::visitAlignment  align=%p\n", align));
+
+    /** We fill the buffer. */
+    char buffer[1024];
+    fillBuffer (align, buffer, sizeof(buffer));
+
+    /** We serialize the buffer into the file. */
+    safeprintf ("%s\n", buffer);
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AlignmentResultOutputTabulatedExtendedVisitor::fillBuffer (const Alignment* align, char* buffer, size_t size)
+{
+    /** We first call the parent method. */
+    AlignmentResultOutputTabulatedVisitor::fillBuffer (align, buffer, size);
+
+    /** We format extra information. */
+    char extra[128];
+    snprintf (extra, sizeof(extra), "\t%.1lf\t%.1lf",
+        100.0 * align->_queryCoverage,
+        100.0 * align->_subjectCoverage
+    );
+
+    /** We add some information at the end of the buffer. */
+    strcat (buffer, extra);
 }
 
 /*********************************************************************

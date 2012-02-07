@@ -331,6 +331,9 @@ void BasicAlignmentResult2::accept (IAlignmentResultVisitor* visitor)
             visitor->visitAlignment (&a);
         }
     }
+
+    /** We may want to have extra process to be done by the visitor at the end of the visit. */
+    visitor->finish();
 }
 
 /*********************************************************************

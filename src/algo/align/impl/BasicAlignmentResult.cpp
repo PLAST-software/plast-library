@@ -518,6 +518,9 @@ void BasicAlignmentResult::accept (IAlignmentResultVisitor* visitor)
         } /* end of for (SubjectEntries::iterator itSubjects = ... */
 
     }  /* end of for (size_t i=0; i<_queryEntries.size(); i++) */
+
+    /** We may want to have extra process to be done by the visitor at the end of the visit. */
+    visitor->finish();
 }
 
 /********************************************************************************/

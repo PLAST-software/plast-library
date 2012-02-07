@@ -87,6 +87,9 @@ public:
     /** \copydoc IAlignmentResultVisitor::visitAlignment */
     void visitAlignment       (const Alignment* align);
 
+    /** \copydoc IAlignmentResultVisitor::finish */
+    void finish ()  {}
+
 protected:
 
     /** Proxied visitor. */
@@ -118,6 +121,9 @@ public:
 
     /** Destructor. */
     virtual ~AbstractAlignmentResultVisitor();
+
+    /** \copydoc IAlignmentResultVisitor::finish */
+    void finish ()  {  if (_file)  { _file->flush(); } }
 
 protected:
 
@@ -174,10 +180,31 @@ public:
     /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */
     void visitAlignment       (const Alignment* align);
 
-private:
+protected:
 
     const database::ISequence* _currentQuery;
     const database::ISequence* _currentSubject;
+
+    virtual void fillBuffer (const Alignment* align, char* buffer, size_t size);
+};
+
+/********************************************************************************/
+/** \brief Alignments file dump in tabulated format
+ *  Extends the AlignmentResultOutputTabulatedVisitor implementation by adding two columns:
+ *      - query coverage
+ *      - subject coverage
+ */
+class AlignmentResultOutputTabulatedExtendedVisitor : public AlignmentResultOutputTabulatedVisitor
+{
+public:
+
+    /** \copydoc AbstractAlignmentResultVisitor::AbstractAlignmentResultVisitor */
+    AlignmentResultOutputTabulatedExtendedVisitor (const std::string& uri)
+        : AlignmentResultOutputTabulatedVisitor (uri)  {}
+
+protected:
+
+    void fillBuffer (const Alignment* align, char* buffer, size_t size);
 };
 
 /********************************************************************************/
@@ -264,14 +291,17 @@ public:
     /** Destructor. */
     virtual ~AlignmentResultListVisitor () {}
 
-    /** \copydoc AbstractAlignmentResultVisitor::visitQuerySequence */
+    /** \copydoc IAlignmentResultVisitor::visitQuerySequence */
     void visitQuerySequence   (const database::ISequence* seq) {}
 
-    /** \copydoc AbstractAlignmentResultVisitor::visitSubjectSequence */
+    /** \copydoc IAlignmentResultVisitor::visitSubjectSequence */
     void visitSubjectSequence (const database::ISequence* seq) {}
 
-    /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */
+    /** \copydoc IAlignmentResultVisitor::visitAlignment */
     void visitAlignment  (const Alignment* align)  { _alignList.push_back (*align);  }
+
+    /** \copydoc IAlignmentResultVisitor::finish */
+    void finish ()  {}
 
 private:
     std::list<Alignment>& _alignList;
