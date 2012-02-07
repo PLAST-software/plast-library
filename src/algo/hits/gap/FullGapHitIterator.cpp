@@ -160,6 +160,10 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
         LETTER* subjectData = subjectSeq.data.letters.data;
         LETTER* queryData   = querySeq.data.letters.data;
 
+        /** Shortcuts. */
+        size_t subjectLength = subjectSeq.data.letters.size;
+        size_t queryLength   = querySeq.data.letters.size;
+
         /** By default, we don't want to keep this current hit. */
         shouldKeep = false;
 
@@ -201,6 +205,8 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
                 leftOffsetInSubject - 1,
                 rightOffsetInQuery,
                 rightOffsetInSubject,
+                queryLength ,
+                subjectLength,
                 score
             );
 
