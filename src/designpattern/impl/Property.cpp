@@ -367,14 +367,24 @@ void Properties::setToFront (const std::string& key)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-XmlDumpPropertiesVisitor::XmlDumpPropertiesVisitor (const std::string& filename)
-    : _file (0), _name ("properties")
+XmlDumpPropertiesVisitor::XmlDumpPropertiesVisitor (
+    const std::string& filename,
+    bool propertiesAsRoot,
+    bool shouldIndent
+)
+    : _file (0), _name (propertiesAsRoot ? "properties" : ""), _deltaDepth(0), _firstIndent(true), _shouldIndent(shouldIndent)
 {
     /** We open the file. */
     _file = fopen (filename.c_str(), "w");
 
     /** We add the initial tag. */
-    safeprintf ("<%s>", _name.c_str());
+    if (_name.empty() == false)
+    {
+        indent (0);
+        safeprintf ("<%s>", _name.c_str());
+    }
+
+    _deltaDepth = _name.empty() == false ? 0 : 1;
 }
 
 /*********************************************************************
@@ -388,7 +398,13 @@ XmlDumpPropertiesVisitor::XmlDumpPropertiesVisitor (const std::string& filename)
 XmlDumpPropertiesVisitor::~XmlDumpPropertiesVisitor ()
 {
     /** We add the final tag. */
-    safeprintf ("</%s>", _name.c_str());
+    if (_name.empty() == false)
+    {
+        indent (0);
+        safeprintf ("</%s>", _name.c_str());
+    }
+
+    safeprintf ("\n");
 
     /** Some clean up. */
     if (_file != 0)    {  fclose (_file);  }
@@ -432,11 +448,14 @@ void XmlDumpPropertiesVisitor::visitProperty (IProperty* prop)
 {
     if (prop != 0)
     {
-        size_t actualDepth = prop->depth + 2;
+        size_t actualDepth = prop->depth + 1;
+
+        DEBUG (("XmlDumpPropertiesVisitor::visitProperty:  actualDepth=%ld stack.size=%ld '%s' \n",
+            actualDepth, _stack.size(), prop->toString().c_str()
+        ));
 
         if (actualDepth > _stack.size())
         {
-            safeprintf ("\n");
             indent (actualDepth);
             safeprintf ("<%s>%s", prop->key.c_str(), prop->value.c_str());
             _stack.push (prop->key);
@@ -444,7 +463,7 @@ void XmlDumpPropertiesVisitor::visitProperty (IProperty* prop)
 
         else if (actualDepth == _stack.size())
         {
-            safeprintf ("</%s>\n", _stack.top().c_str());
+            safeprintf ("</%s>", _stack.top().c_str());
             _stack.pop();
 
             indent (actualDepth);
@@ -473,13 +492,13 @@ void XmlDumpPropertiesVisitor::visitProperty (IProperty* prop)
 *********************************************************************/
 void XmlDumpPropertiesVisitor::pop (size_t depth)
 {
-    safeprintf ("</%s>\n", _stack.top().c_str());
+    safeprintf ("</%s>", _stack.top().c_str());
     _stack.pop();
 
     while (_stack.size() >= depth && !_stack.empty())
     {
         indent (_stack.size());
-        safeprintf ("</%s>\n", _stack.top().c_str());
+        safeprintf ("</%s>", _stack.top().c_str());
         _stack.pop();
     }
 }
@@ -494,7 +513,13 @@ void XmlDumpPropertiesVisitor::pop (size_t depth)
 *********************************************************************/
 void XmlDumpPropertiesVisitor::indent (size_t n)
 {
-    for (size_t i=1; i<=n; i++)  {  safeprintf ("   ");  }
+    if (!_shouldIndent)  { return; }
+
+    if (!_firstIndent)  {  safeprintf ("\n");  }
+
+    for (size_t i=1; i<=(n-_deltaDepth); i++)  {  safeprintf ("   ");  }
+
+    _firstIndent = false;
 }
 
 /*********************************************************************

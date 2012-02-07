@@ -89,7 +89,7 @@ struct IProperty
     std::string toString ()
     {
         std::stringstream ss;
-        ss << "[PROPERTY " << depth << ": " << key << " : " << value;
+        ss << "[PROPERTY " << depth << ": " << key << " : " << value << "]";
         return ss.str();
     }
 };

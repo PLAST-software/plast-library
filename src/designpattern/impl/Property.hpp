@@ -106,7 +106,7 @@ public:
 
     /** Constructor.
      * \param filename : uri of the file where to serialiaze the instance. */
-    XmlDumpPropertiesVisitor (const std::string& filename);
+    XmlDumpPropertiesVisitor (const std::string& filename, bool propertiesAsRoot=true, bool shouldIndent = true);
 
     /** Desctructor. */
     virtual ~XmlDumpPropertiesVisitor ();
@@ -131,11 +131,17 @@ private:
     /** Some stack for XML production. */
     std::stack<std::string> _stack;
 
+    /** */
+    int _deltaDepth;
+
     /** Internals. */
     void pop    (size_t depth);
 
     /** Indentation of the XML file. */
     void indent (size_t n);
+
+    bool _firstIndent;
+    bool _shouldIndent;
 
     /** Method for writing into the file. */
     void safeprintf (const char* format, ...);
