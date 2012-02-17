@@ -88,6 +88,9 @@ class IThreadFactory : public IResource
 {
 public:
 
+    /** Destructor. */
+    virtual ~IThreadFactory ()  {}
+
     /** Creates a new thread.
      * \param[in] mainloop : the function the thread shall execute
      * \param[in] data :  data provided to the mainloop when launched
