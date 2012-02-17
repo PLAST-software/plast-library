@@ -57,7 +57,10 @@ class ISequenceDatabase;
 struct ISequence
 {
     /** Constructor. */
-    ISequence () : database(0), comment(""), index(0) {}
+    ISequence () : database(0), comment(""), index(0), offsetInDb(0) {}
+
+    /** Constructor. */
+    ISequence (const char* comment) : database(0), comment(comment), index(0), offsetInDb(0) {}
 
     /** Reference to the database that holds this sequence. */
     ISequenceDatabase*  database;
@@ -69,7 +72,13 @@ struct ISequence
     IWord               data;
 
     /** Index of the sequence in its containing database. Has sense in ordered databases. */
-    size_t              index;
+    u_int32_t           index;
+
+    /** Global offset of the sequence in the containing database. */
+    u_int64_t           offsetInDb;
+
+    /** */
+    u_int32_t getLength ()  const {  return data.letters.size;  }
 
     /** Tool for dumping a sequence content. Useful for debug purpose.
      * \return the string representing the sequence.
@@ -77,7 +86,8 @@ struct ISequence
     std::string toString () const
     {
         std::stringstream ss;
-        ss << "[SEQUENCE " << index << "  " << data.toString() << "]";
+        //ss << "[SEQUENCE #" << index << "  offsetInDb=" << offsetInDb << "  " << data.toString() << "]";
+        ss << "[SEQUENCE #" << index << "  offsetInDb=" << offsetInDb << "  len=" << getLength() << "]";
         return ss.str ();
     }
 };
