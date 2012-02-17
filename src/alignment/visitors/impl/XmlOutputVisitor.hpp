@@ -1,0 +1,77 @@
+/*****************************************************************************
+ *                                                                           *
+ *   PLAST : Parallel Local Alignment Search Tool                            *
+ *   Version 2.0, released July  2011                                        *
+ *   Copyright (c) 2011                                                      *
+ *                                                                           *
+ *   PLAST is free software; you can redistribute it and/or modify it under  *
+ *   the CECILL version 2 License, that is compatible with the GNU General   *
+ *   Public License                                                          *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the            *
+ *   CECILL version 2 License for more details.                              *
+ *****************************************************************************/
+
+/** \file XmlOutputVisitor.hpp
+ *  \brief A few implementations of IAlignmentResultVisitor interface.
+ *  \date 07/11/2011
+ *  \author edrezen
+ */
+
+#ifndef _XML_OUTPUT_ALIGNMENT_CONTAINER_VISITOR_HPP_
+#define _XML_OUTPUT_ALIGNMENT_CONTAINER_VISITOR_HPP_
+
+/********************************************************************************/
+
+#include <alignment/visitors/impl/OstreamVisitor.hpp>
+
+/********************************************************************************/
+namespace alignment {
+namespace visitors  {
+namespace impl      {
+/********************************************************************************/
+
+/** \brief Alignments file dump in XML format
+ *
+ * This visitor dumps alignments into a file in XML format.
+ */
+class XmlOutputVisitor : public OstreamVisitor
+{
+public:
+
+    /** \copydoc AbstractAlignmentResultVisitor::AbstractAlignmentResultVisitor */
+    XmlOutputVisitor (std::ostream* ostream);
+
+    /** */
+    XmlOutputVisitor (const std::string& uri);
+
+    /** Destructor. */
+    virtual ~XmlOutputVisitor ();
+
+    /** \copydoc AbstractAlignmentResultVisitor::visitQuerySequence */
+    void visitQuerySequence   (const database::ISequence* seq);
+
+    /** \copydoc AbstractAlignmentResultVisitor::visitSubjectSequence */
+    void visitSubjectSequence (const database::ISequence* seq);
+
+    /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */
+    void visitAlignment (core::Alignment* align);
+
+private:
+    void printline (size_t depth, const char* format, ...);
+
+    const database::ISequence* _currentQuery;
+    const database::ISequence* _currentSubject;
+
+    u_int32_t _nbQuery;
+    u_int32_t _nbSubject;
+    u_int32_t _nbAlign;
+};
+
+/********************************************************************************/
+}}} /* end of namespaces. */
+/********************************************************************************/
+
+#endif /* _XML_OUTPUT_ALIGNMENT_CONTAINER_VISITOR_HPP_ */
