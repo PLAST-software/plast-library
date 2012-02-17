@@ -55,6 +55,40 @@ typedef u_int32_t Size;
 namespace misc {
 /********************************************************************************/
 
+/** \brief Definition of an interval (inspired by std::pair).
+ */
+template <class T> struct Range
+{
+    typedef T type;
+
+    T begin;
+    T end;
+    Range() : begin(T()), end(T()) {}
+    Range(const T& x, const T& y) : begin(x), end(y) {}
+    template <class U>  Range (const Range<U> &p) : begin(p.begin), end(p.end) { }
+    T getLength ()  const  { return end - begin + 1; }
+
+    /** Tells whether the provided 'r' range is included into the 'this' instance. */
+    bool includes (const Range<T>& r, u_int8_t delta=0) const
+    {
+        return ((r.begin + delta) >= this->begin)  &&  (r.end <= (this->end + delta));
+    }
+
+    /** Dilatation  of a range by some factor. */
+    Range inflate (float factor)
+    {
+        T delta = (T) ( (1-factor)/2.0 * (float)getLength());
+        return Range (begin+delta, end-delta);
+    }
+
+    /** Shift. */
+    Range shift (T t)  {  return Range (begin+t, end+t);  }
+};
+
+/** Some shortcuts. */
+typedef Range<int32_t>  Range32;
+typedef Range<u_int64_t>  Range64;
+
 /** */
 enum ReadingFrame_e
 {
