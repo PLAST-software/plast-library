@@ -69,6 +69,9 @@ public:
     {
     }
 
+    /** Desctructor. */
+    virtual ~Option() {}
+
     /** Label of the option (example "-log").
      * \return the label
      */
