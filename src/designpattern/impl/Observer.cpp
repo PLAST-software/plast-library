@@ -1,20 +1,18 @@
-/*******************************************************************************
- * 
- * @file /vobs/th_comp/util_design_pattern/src/dp_observer.cpp
- *
- * @brief this file contains the definition of the EventInfoLocator class
- *
- * Copyright (C) 2009-2010 Thomson
- * All Rights Reserved
- *
- * This program contains proprietary information which is a trade
- * secret of THOMSON and/or its affiliates and also is protected as
- * an unpublished work under applicable Copyright laws. Recipient is
- * to retain this program in confidence and is not permitted to use or
- * make copies thereof other than as permitted in a written agreement
- * with THOMSON, unless otherwise expressly allowed by applicable laws
- *
- ******************************************************************************/
+/*****************************************************************************
+ *                                                                           *
+ *   PLAST : Parallel Local Alignment Search Tool                            *
+ *   Version 2.0, released July  2011                                        *
+ *   Copyright (c) 2011                                                      *
+ *                                                                           *
+ *   PLAST is free software; you can redistribute it and/or modify it under  *
+ *   the CECILL version 2 License, that is compatible with the GNU General   *
+ *   Public License                                                          *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the            *
+ *   CECILL version 2 License for more details.                              *
+ *****************************************************************************/
 
 #include <designpattern/impl/Observer.hpp>
 
