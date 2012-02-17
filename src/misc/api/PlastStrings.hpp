@@ -232,6 +232,10 @@ namespace misc {
 /** Format of the stats: 'raw' (default) or 'xml' */
 #define STR_OPTION_INFO_STATS_FORMAT        "-stats-fmt"
 
+/** Command Line option for automatic statistics creation
+ */
+#define STR_OPTION_INFO_STATS_AUTO          "-stats-auto"
+
 /** Command Line option giving the path of the file holding the algorithm execution percentage.
  *  String.
  */
@@ -246,6 +250,11 @@ namespace misc {
  *  String.
  */
 #define STR_OPTION_INFO_CONFIG_FILE         "-plastrc"
+
+/** Command Line option giving the uri of a XML filter file
+ *  String.
+ */
+#define STR_OPTION_XML_FILTER_FILE         "-xmlfilter"
 
 /** Command Line option for displaying help.
  *  No associated value.
