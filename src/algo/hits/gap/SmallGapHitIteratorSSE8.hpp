@@ -55,12 +55,12 @@ public:
 
     /** \copydoc common::AbstractPipeHitIterator::AbstractPipeHitIterator */
     SmallGapHitIteratorSSE8 (
-        algo::hits::IHitIterator*       sourceIterator,
-        ::seed::ISeedModel*             model,
-        algo::core::IScoreMatrix*       scoreMatrix,
-        algo::core::IParameters*        parameters,
-        algo::align::IAlignmentResult* ungapResult,
-        algo::align::IAlignmentResult* alignmentResult
+        algo::hits::IHitIterator*               sourceIterator,
+        ::seed::ISeedModel*                     model,
+        algo::core::IScoreMatrix*               scoreMatrix,
+        algo::core::IParameters*                parameters,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        alignment::core::IAlignmentContainer*   alignmentResult
     );
 
     /** Destructor. */
@@ -124,10 +124,10 @@ protected:
     u_int64_t _lowScoreNumber;
 
     /** Gap alignments. */
-    algo::align::IAlignmentResult* _alignmentResult;
+    alignment::core::IAlignmentContainer* _alignmentResult;
 
     /** Smart setter for _alignmentResult attribute. */
-    void setAlignmentResult (algo::align::IAlignmentResult* alignmentResult)  { SP_SETATTR (alignmentResult); }
+    void setAlignmentResult (alignment::core::IAlignmentContainer* alignmentResult)  { SP_SETATTR (alignmentResult); }
 };
 
 /********************************************************************************/

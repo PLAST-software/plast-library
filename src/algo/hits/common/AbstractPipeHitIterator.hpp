@@ -32,7 +32,7 @@
 #include <algo/core/api/IScoreMatrix.hpp>
 #include <algo/core/api/IAlgoParameters.hpp>
 
-#include <algo/align/api/IAlignmentResult.hpp>
+#include <alignment/core/api/IAlignmentContainer.hpp>
 
 /********************************************************************************/
 namespace algo   {
@@ -77,11 +77,11 @@ public:
      * \param[out] ungapResult    : list of ungap alignments filled during algorithm execution
      */
     AbstractPipeHitIterator (
-        IHitIterator*                   sourceIterator,
-        ::seed::ISeedModel*             model,
-        algo::core::IScoreMatrix*       scoreMatrix,
-        algo::core::IParameters*        parameters,
-        algo::align::IAlignmentResult* ungapResult
+        IHitIterator*                           sourceIterator,
+        ::seed::ISeedModel*                     model,
+        algo::core::IScoreMatrix*               scoreMatrix,
+        algo::core::IParameters*                parameters,
+        alignment::core::IAlignmentContainer*   ungapResult
     );
 
     /** Destructor. */
@@ -131,7 +131,7 @@ protected:
     algo::core::IParameters*        _parameters;
 
     /** Ungap alignments list to be filled throughout the algorithm execution. */
-    algo::align::IAlignmentResult* _ungapResult;
+    alignment::core::IAlignmentContainer* _ungapResult;
 
     /* Shortcuts. */
     int8_t** _matrix;

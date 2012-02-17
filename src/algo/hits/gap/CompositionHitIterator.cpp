@@ -23,10 +23,10 @@
 
 #include <algo/hits/gap/CompositionHitIterator.hpp>
 
-#include <algo/align/impl/BasicAlignmentResult.hpp>
-#include <algo/align/impl/UngapAlignmentResult.hpp>
-#include <algo/align/impl/AlignmentSplitter.hpp>
-#include <algo/align/impl/SemiGappedAlign.hpp>
+#include <alignment/core/impl/BasicAlignmentContainer.hpp>
+#include <alignment/core/impl/UngapAlignmentContainer.hpp>
+#include <alignment/tools/impl/AlignmentSplitter.hpp>
+#include <alignment/tools/impl/SemiGappedAlign.hpp>
 
 #include <math.h>
 
@@ -39,8 +39,8 @@ using namespace seed;
 using namespace indexation;
 using namespace statistics;
 using namespace algo::core;
-using namespace algo::align;
-using namespace algo::align::impl;
+using namespace alignment::core;
+using namespace alignment::tools::impl;
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -68,14 +68,14 @@ namespace gapped {
 ** REMARKS :
 *********************************************************************/
 CompositionHitIterator::CompositionHitIterator (
-    IHitIterator*       realIterator,
-    ISeedModel*         model,
-    IScoreMatrix*       scoreMatrix,
-    IParameters*        parameters,
-    IAlignmentResult*   ungapResult,
-    IQueryInformation*  queryInfo,
-    IGlobalParameters*  globalStats,
-    IAlignmentResult*   alignmentResult
+    IHitIterator*           realIterator,
+    ISeedModel*             model,
+    IScoreMatrix*           scoreMatrix,
+    IParameters*            parameters,
+    IAlignmentContainer*    ungapResult,
+    IQueryInformation*      queryInfo,
+    IGlobalParameters*      globalStats,
+    IAlignmentContainer*    alignmentResult
 )
     : FullGapHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult, queryInfo, globalStats, alignmentResult)
 {
@@ -140,10 +140,6 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
         LETTER* subjectData = subjectSeq.data.letters.data;
         LETTER* queryData   = querySeq.data.letters.data;
 
-        /** Shortcuts. */
-        size_t subjectLength = subjectSeq.data.letters.size;
-        size_t queryLength   = querySeq.data.letters.size;
-
         /** By default, we don't want to keep this current hit. */
         shouldKeep = false;
 
@@ -179,15 +175,10 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
         {
             /** We create a new alignment. */
             Alignment align (
-                occurSubject,
-                occurQuery,
-                leftOffsetInQuery   - 1,
-                leftOffsetInSubject - 1,
-                rightOffsetInQuery,
-                rightOffsetInSubject,
-                queryLength ,
-                subjectLength,
-                score
+                &querySeq,                      &subjectSeq,
+                occurQuery->offsetInSequence,   occurSubject->offsetInSequence,
+                leftOffsetInQuery   - 1,        leftOffsetInSubject - 1,
+                rightOffsetInQuery,             rightOffsetInSubject
             );
 
             /** We check that the alignment is not already known. */
@@ -197,8 +188,9 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
                 HIT_STATS (_outputHitsNumber ++;)
 
                 /** We complete missing alignment information. */
-                align._evalue   = (double) info.eff_searchsp * exp((-_globalStats->lambda * (double) score) + _globalStats->logK);
-                align._bitscore = (_globalStats->lambda * (double)score - _globalStats->logK) / ln2;
+                align.setEvalue   ((double) info.eff_searchsp * exp((-_globalStats->lambda * (double) score) + _globalStats->logK));
+                align.setBitScore ((_globalStats->lambda * (double)score - _globalStats->logK) / ln2);
+                align.setScore    (score);
 
                 /** This will compute identity, nb gaps, ... */
                 _splitter->computeInfo (align);

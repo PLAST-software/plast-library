@@ -27,7 +27,7 @@ using namespace database;
 using namespace seed;
 using namespace indexation;
 using namespace algo::core;
-using namespace algo::align;
+using namespace alignment::core;
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -50,11 +50,11 @@ namespace gapped {
 ** REMARKS :
 *********************************************************************/
 SmallGapHitIterator::SmallGapHitIterator (
-    IHitIterator*       realIterator,
-    ISeedModel*         model,
-    IScoreMatrix*       scoreMatrix,
-    IParameters*        parameters,
-    IAlignmentResult*   ungapResult
+    IHitIterator*           realIterator,
+    ISeedModel*             model,
+    IScoreMatrix*           scoreMatrix,
+    IParameters*            parameters,
+    IAlignmentContainer*    ungapResult
 )
     : AbstractPipeHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult)
 {

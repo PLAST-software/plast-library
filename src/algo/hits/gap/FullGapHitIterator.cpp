@@ -23,9 +23,9 @@
 
 #include <algo/hits/gap/FullGapHitIterator.hpp>
 
-#include <algo/align/impl/BasicAlignmentResult.hpp>
-#include <algo/align/impl/UngapAlignmentResult.hpp>
-#include <algo/align/impl/AlignmentSplitter.hpp>
+#include <alignment/core/impl/BasicAlignmentContainer.hpp>
+#include <alignment/core/impl/UngapAlignmentContainer.hpp>
+#include <alignment/tools/impl/AlignmentSplitter.hpp>
 
 #include <math.h>
 
@@ -39,8 +39,8 @@ using namespace seed;
 using namespace indexation;
 using namespace statistics;
 using namespace algo::core;
-using namespace algo::align;
-using namespace algo::align::impl;
+using namespace alignment::core;
+using namespace alignment::tools::impl;
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -68,14 +68,14 @@ namespace gapped {
 ** REMARKS :
 *********************************************************************/
 FullGapHitIterator::FullGapHitIterator (
-    IHitIterator*       realIterator,
-    ISeedModel*         model,
-    IScoreMatrix*       scoreMatrix,
-    IParameters*        parameters,
-    IAlignmentResult*   ungapResult,
-    IQueryInformation*  queryInfo,
-    IGlobalParameters*  globalStats,
-    IAlignmentResult*   alignmentResult
+    IHitIterator*           realIterator,
+    ISeedModel*             model,
+    IScoreMatrix*           scoreMatrix,
+    IParameters*            parameters,
+    IAlignmentContainer*    ungapResult,
+    IQueryInformation*      queryInfo,
+    IGlobalParameters*      globalStats,
+    IAlignmentContainer*    alignmentResult
 )
     : AbstractPipeHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult),
       _queryInfo(0), _globalStats(0), _alignmentResult(0), _splitter(0), _dynpro(0),
@@ -160,10 +160,6 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
         LETTER* subjectData = subjectSeq.data.letters.data;
         LETTER* queryData   = querySeq.data.letters.data;
 
-        /** Shortcuts. */
-        size_t subjectLength = subjectSeq.data.letters.size;
-        size_t queryLength   = querySeq.data.letters.size;
-
         /** By default, we don't want to keep this current hit. */
         shouldKeep = false;
 
@@ -199,20 +195,14 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
         {
             /** We create a new alignment. */
             Alignment align (
-                occurSubject,
-                occurQuery,
-                leftOffsetInQuery   - 1,
-                leftOffsetInSubject - 1,
-                rightOffsetInQuery,
-                rightOffsetInSubject,
-                queryLength ,
-                subjectLength,
-                score
+                &querySeq,                      &subjectSeq,
+                occurQuery->offsetInSequence,   occurSubject->offsetInSequence,
+                leftOffsetInQuery   - 1,        leftOffsetInSubject - 1,
+                rightOffsetInQuery,             rightOffsetInSubject
             );
 
             /** We add this alignment as ungap alignments (ie the gapped alignment will be split in ungap ones). */
             _ungapResult->insert (align, _splitter);
-
             shouldKeep = _alignmentResult->doesExist (align) == false;
         }
 

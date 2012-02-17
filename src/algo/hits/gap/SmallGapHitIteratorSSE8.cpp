@@ -37,7 +37,7 @@ using namespace database;
 using namespace seed;
 using namespace indexation;
 using namespace algo::core;
-using namespace algo::align;
+using namespace alignment::core;
 
 #include <stdio.h>
 #define DEBUG(a)   //printf a
@@ -67,8 +67,8 @@ SmallGapHitIteratorSSE8::SmallGapHitIteratorSSE8 (
     ISeedModel*           model,
     IScoreMatrix*         scoreMatrix,
     IParameters*          parameters,
-    IAlignmentResult*     ungapResult,
-    IAlignmentResult*     alignmentResult
+    IAlignmentContainer*  ungapResult,
+    IAlignmentContainer*  alignmentResult
 )
     : AbstractPipeHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult),
       _lowScoreNumber(0), _alignmentResult(0)

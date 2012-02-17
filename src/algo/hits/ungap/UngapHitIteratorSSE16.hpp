@@ -57,12 +57,12 @@ public:
      * \param[in] maxHitsPerIteration : maximum hits to be processed per seed iteration.
      */
     UngapHitIteratorSSE16 (
-        algo::hits::IHitIterator*       sourceIterator,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       scoreMatrix,
-        algo::core::IParameters*        parameters,
-        algo::align::IAlignmentResult* ungapResult,
-        u_int32_t                       maxHitsPerIteration
+        algo::hits::IHitIterator*               sourceIterator,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               scoreMatrix,
+        algo::core::IParameters*                parameters,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        u_int32_t                               maxHitsPerIteration
     );
 
     /** Destructor. */

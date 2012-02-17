@@ -49,11 +49,11 @@ public:
 
     /** \copydoc common::AbstractPipeHitIterator::AbstractPipeHitIterator */
     UngapHitIteratorNull (
-        algo::hits::IHitIterator*       sourceIterator,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       scoreMatrix,
-        algo::core::IParameters*        parameters,
-        algo::align::IAlignmentResult* ungapResult
+        algo::hits::IHitIterator*               sourceIterator,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               scoreMatrix,
+        algo::core::IParameters*                parameters,
+        alignment::core::IAlignmentContainer*   ungapResult
     );
 
     /** \copydoc common::AbstractPipeHitIterator::getName */

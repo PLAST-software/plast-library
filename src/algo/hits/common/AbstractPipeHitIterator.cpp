@@ -25,7 +25,7 @@ using namespace database;
 using namespace seed;
 using namespace indexation;
 using namespace algo::core;
-using namespace algo::align;
+using namespace alignment::core;
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -45,11 +45,11 @@ namespace common {
 ** REMARKS :
 *********************************************************************/
 AbstractPipeHitIterator::AbstractPipeHitIterator (
-    IHitIterator*     sourceIterator,
-    ISeedModel*       model,
-    IScoreMatrix*     scoreMatrix,
-    IParameters*      parameters,
-    IAlignmentResult* ungapResult
+    IHitIterator*        sourceIterator,
+    ISeedModel*          model,
+    IScoreMatrix*        scoreMatrix,
+    IParameters*         parameters,
+    IAlignmentContainer* ungapResult
 )
     : _sourceIterator (sourceIterator), _model(model), _scoreMatrix(scoreMatrix),  _parameters(parameters), _ungapResult(ungapResult),
       _matrix(0), _matrixAsVector(0),

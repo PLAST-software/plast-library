@@ -39,7 +39,7 @@ using namespace database;
 using namespace seed;
 using namespace indexation;
 using namespace algo::core;
-using namespace algo::align;
+using namespace alignment::core;
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -59,12 +59,12 @@ namespace ungapped {
 ** REMARKS :
 *********************************************************************/
 UngapHitIteratorSSE16::UngapHitIteratorSSE16 (
-    IHitIterator*       realIterator,
-    ISeedModel*         model,
-    IScoreMatrix*       scoreMatrix,
-    IParameters*        parameters,
-    IAlignmentResult*   ungapResult,
-    u_int32_t           maxHitsPerIteration
+    IHitIterator*        realIterator,
+    ISeedModel*          model,
+    IScoreMatrix*        scoreMatrix,
+    IParameters*         parameters,
+    IAlignmentContainer* ungapResult,
+    u_int32_t            maxHitsPerIteration
 )
     : AbstractPipeHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult),
       _ungapKnownNumber(0), _databk(0)
@@ -120,7 +120,6 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
     u_int8_t sizeHalfNeighbour = _span + 1*_parameters->ungapNeighbourLength;
 
     u_int32_t currentNbHits = hit->size();
-    u_int32_t maxHitsPerIteration = _maxHitsPerIteration;
 
     char* databk = _databk;
 

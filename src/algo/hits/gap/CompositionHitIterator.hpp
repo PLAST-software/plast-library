@@ -35,10 +35,10 @@
 #include <algo/hits/common/AbstractPipeHitIterator.hpp>
 #include <algo/hits/gap/FullGapHitIterator.hpp>
 
-#include <algo/align/api/IAlignmentResult.hpp>
-#include <algo/align/api/IAlignmentSplitter.hpp>
+#include <alignment/core/api/IAlignmentContainer.hpp>
+#include <alignment/tools/api/IAlignmentSplitter.hpp>
 
-#include <algo/align/impl/UngapAlignmentResult.hpp>
+#include <alignment/core/impl/UngapAlignmentContainer.hpp>
 
 #include <set>
 
@@ -66,14 +66,14 @@ public:
      * \param[out] alignmentResult : list of gap alignments to be filled during algorithm execution
      */
         CompositionHitIterator (
-        algo::hits::IHitIterator*       sourceIterator,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       scoreMatrix,
-        algo::core::IParameters*        parameters,
-        algo::align::IAlignmentResult* ungapResult,
-        statistics::IQueryInformation*  queryInfo,
-        statistics::IGlobalParameters*  globalStats,
-        algo::align::IAlignmentResult* alignmentResult
+        algo::hits::IHitIterator*               sourceIterator,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               scoreMatrix,
+        algo::core::IParameters*                parameters,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        statistics::IQueryInformation*          queryInfo,
+        statistics::IGlobalParameters*          globalStats,
+        alignment::core::IAlignmentContainer*   alignmentResult
     );
 
     /** Destructor. */
@@ -111,14 +111,14 @@ public:
      * \param[out] alignmentResult : list of gap alignments to be filled during algorithm execution
      */
     CompositionHitIteratorNull (
-        algo::hits::IHitIterator*       sourceIterator,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       scoreMatrix,
-        algo::core::IParameters*        parameters,
-        algo::align::IAlignmentResult* ungapResult,
-        statistics::IQueryInformation*  queryInfo,
-        statistics::IGlobalParameters*  globalStats,
-        algo::align::IAlignmentResult* alignmentResult
+        algo::hits::IHitIterator*               sourceIterator,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               scoreMatrix,
+        algo::core::IParameters*                parameters,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        statistics::IQueryInformation*          queryInfo,
+        statistics::IGlobalParameters*          globalStats,
+        alignment::core::IAlignmentContainer*   alignmentResult
     ) :  common::AbstractPipeHitIterator (sourceIterator, model, scoreMatrix, parameters, ungapResult) {}
 
     /** Destructor. */

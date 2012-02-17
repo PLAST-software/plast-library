@@ -18,7 +18,7 @@
 
 using namespace seed;
 using namespace algo::core;
-using namespace algo::align;
+using namespace alignment::core;
 
 /********************************************************************************/
 namespace algo     {
@@ -39,7 +39,7 @@ UngapHitIteratorNull::UngapHitIteratorNull (
     ISeedModel*           model,
     IScoreMatrix*         scoreMatrix,
     IParameters*          parameters,
-    IAlignmentResult*     ungapResult
+    IAlignmentContainer*  ungapResult
 )
     : AbstractPipeHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult)
 {

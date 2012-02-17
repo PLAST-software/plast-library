@@ -34,11 +34,11 @@
 
 #include <algo/hits/common/AbstractPipeHitIterator.hpp>
 
-#include <algo/align/api/IAlignmentResult.hpp>
-#include <algo/align/api/IAlignmentSplitter.hpp>
+#include <alignment/core/api/IAlignmentContainer.hpp>
+#include <alignment/core/impl/UngapAlignmentContainer.hpp>
 
-#include <algo/align/impl/UngapAlignmentResult.hpp>
-#include <algo/align/impl/SemiGappedAlign.hpp>
+#include <alignment/tools/api/IAlignmentSplitter.hpp>
+#include <alignment/tools/impl/SemiGappedAlign.hpp>
 
 #include <set>
 
@@ -66,14 +66,14 @@ public:
      * \param[out] alignmentResult : list of gap alignments to be filled during algorithm execution
      */
     FullGapHitIterator (
-        algo::hits::IHitIterator*       sourceIterator,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       scoreMatrix,
-        algo::core::IParameters*        parameters,
-        algo::align::IAlignmentResult* ungapResult,
-        statistics::IQueryInformation*  queryInfo,
-        statistics::IGlobalParameters*  globalStats,
-        algo::align::IAlignmentResult* alignmentResult
+        algo::hits::IHitIterator*               sourceIterator,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               scoreMatrix,
+        algo::core::IParameters*                parameters,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        statistics::IQueryInformation*          queryInfo,
+        statistics::IGlobalParameters*          globalStats,
+        alignment::core::IAlignmentContainer*   alignmentResult
     );
 
     /** Destructor. */
@@ -109,20 +109,20 @@ protected:
     void setGlobalStats (statistics::IGlobalParameters*  globalStats)  { SP_SETATTR(globalStats); }
 
     /** Gap alignments. */
-    algo::align::IAlignmentResult* _alignmentResult;
+    alignment::core::IAlignmentContainer* _alignmentResult;
 
     /** Smart setter for _alignmentResult attribute. */
-    void setAlignmentResult (algo::align::IAlignmentResult* alignmentResult)  { SP_SETATTR (alignmentResult); }
+    void setAlignmentResult (alignment::core::IAlignmentContainer* alignmentResult)  { SP_SETATTR (alignmentResult); }
 
     /** Tool that knows how to split an gap alignment into several ungap alignments. */
-    algo::align::IAlignmentSplitter* _splitter;
+    alignment::tools::IAlignmentSplitter* _splitter;
 
     /** Smart setter for _splitter attribute. */
-    void setAlignmentSplitter (algo::align::IAlignmentSplitter* splitter)  { SP_SETATTR (splitter); }
+    void setAlignmentSplitter (alignment::tools::IAlignmentSplitter* splitter)  { SP_SETATTR (splitter); }
 
     /** Object that computes score through dynamic programming. Ref NCBI. */
-    algo::align::impl::SemiGapAlign* _dynpro;
-    void setDynPro (algo::align::impl::SemiGapAlign* dynpro)  {  SP_SETATTR (dynpro); }
+    alignment::tools::impl::SemiGapAlign* _dynpro;
+    void setDynPro (alignment::tools::impl::SemiGapAlign* dynpro)  {  SP_SETATTR (dynpro); }
 
     u_int64_t _ungapKnownNumber;
     u_int64_t _gapKnownNumber;
@@ -142,14 +142,14 @@ public:
      * \param[out] alignmentResult : list of gap alignments to be filled during algorithm execution
      */
     FullGapHitIteratorNull (
-        algo::hits::IHitIterator*       sourceIterator,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       scoreMatrix,
-        algo::core::IParameters*        parameters,
-        algo::align::IAlignmentResult* ungapResult,
-        statistics::IQueryInformation*  queryInfo,
-        statistics::IGlobalParameters*  globalStats,
-        algo::align::IAlignmentResult* alignmentResult
+        algo::hits::IHitIterator*               sourceIterator,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               scoreMatrix,
+        algo::core::IParameters*                parameters,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        statistics::IQueryInformation*          queryInfo,
+        statistics::IGlobalParameters*          globalStats,
+        alignment::core::IAlignmentContainer*   alignmentResult
     ) :  common::AbstractPipeHitIterator (sourceIterator, model, scoreMatrix, parameters, ungapResult) {}
 
     /** Destructor. */
