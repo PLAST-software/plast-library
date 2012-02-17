@@ -39,6 +39,8 @@
 
 #include <algo/core/api/IAlgorithm.hpp>
 
+#include <alignment/core/api/IAlignmentContainer.hpp>
+
 /********************************************************************************/
 /** \brief PLAST algorithm concepts. */
 namespace algo {
@@ -109,14 +111,15 @@ public:
      * \param[in] alignmentResult : list of gap alignments
      */
     AlgorithmReportEvent (
-        algo::core::IAlgorithm*         algo,
-        database::ISequenceDatabase*    subjectDb,
-        database::ISequenceDatabase*    queryDb,
-        os::impl::TimeInfo*             timeInfo,
-        algo::align::IAlignmentResult* ungapResult,
-        algo::align::IAlignmentResult* alignmentResult
+        algo::core::IAlgorithm*                 algo,
+        database::ISequenceDatabase*            subjectDb,
+        database::ISequenceDatabase*            queryDb,
+        os::impl::TimeInfo*                     timeInfo,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        alignment::core::IAlignmentContainer*   alignmentResult,
+        alignment::filter::IAlignmentFilter*    alignmentFilter
     )
-        : dp::EventInfo(0), _algo(0), _subjectDb(0), _queryDb(0), _timeInfo (0), _ungapResult(0), _alignmentResult(0)
+        : dp::EventInfo(0), _algo(0), _subjectDb(0), _queryDb(0), _timeInfo (0), _ungapResult(0), _alignmentResult(0), _alignmentFilter(0)
     {
         setAlgo             (algo);
         setSubjectDb        (subjectDb);
@@ -124,6 +127,7 @@ public:
         setTimeInfo         (timeInfo);
         setUngapResult      (ungapResult);
         setAlignmentResult  (alignmentResult);
+        setAlignmentFilter  (alignmentFilter);
     }
 
     /** Destructor. */
@@ -160,12 +164,17 @@ public:
     /** Getter for the list of ungap alignments.
      *  \return list of ungap alignments
      */
-    algo::align::IAlignmentResult* getUngapResult     ()  { return _ungapResult;      }
+    alignment::core::IAlignmentContainer* getUngapContainer     ()  { return _ungapResult;      }
 
     /** Getter for the list of gap alignments.
      * \return list of ungap alignments
      */
-    algo::align::IAlignmentResult* getAlignmentResult ()  { return _alignmentResult;  }
+    alignment::core::IAlignmentContainer* getAlignmentContainer ()  { return _alignmentResult;  }
+
+    /** Getter for the alignments filter (if any)
+     * \return the filter
+     */
+    alignment::filter::IAlignmentFilter* getAlignmentFilter ()  { return _alignmentFilter;  }
 
 private:
     algo::core::IAlgorithm* _algo;
@@ -180,11 +189,14 @@ private:
     os::impl::TimeInfo* _timeInfo;
     void setTimeInfo (os::impl::TimeInfo* timeInfo)  { SP_SETATTR (timeInfo); }
 
-    algo::align::IAlignmentResult* _ungapResult;
-    void setUngapResult (algo::align::IAlignmentResult* ungapResult)  { SP_SETATTR(ungapResult); }
+    alignment::core::IAlignmentContainer* _ungapResult;
+    void setUngapResult (alignment::core::IAlignmentContainer* ungapResult)  { SP_SETATTR(ungapResult); }
 
-    algo::align::IAlignmentResult* _alignmentResult;
-    void setAlignmentResult (algo::align::IAlignmentResult* alignmentResult)  { SP_SETATTR(alignmentResult); }
+    alignment::core::IAlignmentContainer* _alignmentResult;
+    void setAlignmentResult (alignment::core::IAlignmentContainer* alignmentResult)  { SP_SETATTR(alignmentResult); }
+
+    alignment::filter::IAlignmentFilter* _alignmentFilter;
+    void setAlignmentFilter (alignment::filter::IAlignmentFilter* alignmentFilter)  { SP_SETATTR(alignmentFilter); }
 };
 
 /********************************************************************************/
@@ -207,8 +219,8 @@ public:
      */
     AlignmentProgressionEvent (
         dp::IterationStatusEvent*       iterateEvent,
-        algo::align::IAlignmentResult* ungapResult,
-        algo::align::IAlignmentResult* gapResult
+        alignment::core::IAlignmentContainer* ungapResult,
+        alignment::core::IAlignmentContainer* gapResult
     )
         : dp::EventInfo(0), _iterateEvent(0), _ungapResult(0), _gapResult(0)
     {
@@ -233,22 +245,22 @@ public:
     /** Getter on the ungap alignments list.
      * \return the ungap alignments list.
      */
-    algo::align::IAlignmentResult* getUngapResult  ()  { return _ungapResult;    }
+    alignment::core::IAlignmentContainer* getUngapResult  ()  { return _ungapResult;    }
 
     /** Getter on the gap alignments list.
      * \return the gap alignments list.
      */
-    algo::align::IAlignmentResult* getGapResult    ()  { return _gapResult;      }
+    alignment::core::IAlignmentContainer* getGapResult    ()  { return _gapResult;      }
 
 private:
     dp::IterationStatusEvent* _iterateEvent;
     void setIterateEvent (dp::IterationStatusEvent* iterateEvent)  { SP_SETATTR(iterateEvent); }
 
-    algo::align::IAlignmentResult* _ungapResult;
-    void setUngapResult (algo::align::IAlignmentResult* ungapResult)  { SP_SETATTR(ungapResult); }
+    alignment::core::IAlignmentContainer* _ungapResult;
+    void setUngapResult (alignment::core::IAlignmentContainer* ungapResult)  { SP_SETATTR(ungapResult); }
 
-    algo::align::IAlignmentResult* _gapResult;
-    void setGapResult (algo::align::IAlignmentResult* gapResult)  { SP_SETATTR(gapResult); }
+    alignment::core::IAlignmentContainer* _gapResult;
+    void setGapResult (alignment::core::IAlignmentContainer* gapResult)  { SP_SETATTR(gapResult); }
 };
 
 /********************************************************************************/

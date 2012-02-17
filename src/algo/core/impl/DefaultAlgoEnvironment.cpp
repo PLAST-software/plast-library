@@ -26,13 +26,23 @@
 #include <algo/core/impl/DefaultAlgoConfig.hpp>
 #include <algo/core/impl/AbstractAlgorithm.hpp>
 
+#include <alignment/filter/api/IAlignmentFilter.hpp>
+#include <alignment/filter/impl/AlignmentFilterXML.hpp>
+
+#include <alignment/visitors/impl/XmlOutputVisitor.hpp>
+#include <alignment/visitors/impl/NucleotidConversionVisitor.hpp>
+
 using namespace std;
 using namespace dp;
 using namespace dp::impl;
 using namespace misc;
 using namespace database;
 using namespace database::impl;
-using namespace algo::align;
+
+using namespace alignment::core;
+using namespace alignment::filter;
+using namespace alignment::filter::impl;
+using namespace alignment::visitors::impl;
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -78,9 +88,18 @@ void DefaultEnvironment::run (dp::IProperties* properties)
     IProperty* algoProp = properties->getProperty (STR_OPTION_ALGO_TYPE);
     bool inferType = (algoProp == 0);
 
+    /** We may have a defined XML file URI. */
+    IAlignmentFilter* filter = 0;
+    IProperty* filterProp = properties->getProperty (STR_OPTION_XML_FILTER_FILE);
+    if (filterProp != 0)
+    {
+        filter = AlignmentFilterFactoryXML().createFilter (filterProp->getValue());
+    }
+    LOCAL (filter);
+
     /** We create a visitor for visiting the resulting alignments. Note that we use only one visitor even if
      *  we have to run several algorithm; in such a case, the results are 'concatenated' by the same visitor. */
-    IAlignmentResultVisitor* resultVisitor = config->createResultVisitor ();
+    IAlignmentContainerVisitor* resultVisitor = config->createResultVisitor ();
     LOCAL (resultVisitor);
 
     u_int64_t  maxblocksize = 20*1000*1000;
@@ -144,7 +163,7 @@ void DefaultEnvironment::run (dp::IProperties* properties)
     LOCAL (quickQueryDbReader);
 
     /** We build a list of uri for subject/query databases. */
-    vector<pair<Range,Range> > uriList = buildUri (quickSubjectDbReader, quickQueryDbReader);
+    vector<pair<Range64,Range64> > uriList = buildUri (quickSubjectDbReader, quickQueryDbReader);
 
     /** We build a list of Parameters. We will launch the algorithm for each item of this list. */
     vector<IParameters*> parametersList = createParametersList (config, properties, uriList);
@@ -158,7 +177,7 @@ void DefaultEnvironment::run (dp::IProperties* properties)
         this->notify (new AlgorithmConfigurationEvent (properties, i, parametersList.size()));
 
         /** We create an Algorithm instance. */
-        IAlgorithm* algo = this->createAlgorithm (config, quickSubjectDbReader, parametersList[i], resultVisitor);
+        IAlgorithm* algo = this->createAlgorithm (config, quickSubjectDbReader, parametersList[i], filter, resultVisitor);
         if (algo == 0)  { continue; }
 
         /** We can register ourself to be notified by execution events. */
@@ -188,10 +207,11 @@ void DefaultEnvironment::run (dp::IProperties* properties)
 ** REMARKS :
 *********************************************************************/
 IAlgorithm* DefaultEnvironment::createAlgorithm (
-    IConfiguration*         config,
-    IDatabaseQuickReader*   reader,
-    IParameters*            params,
-    IAlignmentResultVisitor* resultVisitor
+    IConfiguration*             config,
+    IDatabaseQuickReader*       reader,
+    IParameters*                params,
+    IAlignmentFilter*           filter,
+    IAlignmentContainerVisitor* resultVisitor
 )
 {
     IAlgorithm* result = 0;
@@ -203,6 +223,7 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 config,
                 reader,
                 params,
+                filter,
                 resultVisitor
             );
             break;
@@ -212,7 +233,8 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 config,
                 new AminoAcidDatabaseQuickReader (reader),
                 params,
-                resultVisitor
+                filter,
+                new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT)
             );
             break;
 
@@ -221,7 +243,8 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 config,
                 reader,
                 params,
-                resultVisitor
+                filter,
+                new NucleotidConversionVisitor (resultVisitor, Alignment::QUERY)
             );
             break;
 
@@ -255,12 +278,12 @@ void DefaultEnvironment::update (dp::EventInfo* evt, dp::ISubject* subject)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-vector<pair<Range,Range> > DefaultEnvironment::buildUri (
+vector<pair<Range64,Range64> > DefaultEnvironment::buildUri (
     IDatabaseQuickReader* subjectReader,
     IDatabaseQuickReader* queryReader
 )
 {
-    vector<pair<Range,Range> > result;
+    vector<pair<Range64,Range64> > result;
 
     /** Shortcuts. */
     vector<u_int64_t>& subjectOffsets = subjectReader->getOffsets();
@@ -270,10 +293,10 @@ vector<pair<Range,Range> > DefaultEnvironment::buildUri (
     {
         for (size_t j=0; j<queryOffsets.size()-1; j++)
         {
-            Range s (subjectOffsets[i], subjectOffsets[i+1]-1);
-            Range q (queryOffsets[j],   queryOffsets  [j+1]-1);
+            Range64 s (subjectOffsets[i], subjectOffsets[i+1]-1);
+            Range64 q (queryOffsets[j],   queryOffsets  [j+1]-1);
 
-            result.push_back (pair<Range,Range> (s,q));
+            result.push_back (pair<Range64,Range64> (s,q));
         }
     }
 
@@ -291,7 +314,7 @@ vector<pair<Range,Range> > DefaultEnvironment::buildUri (
 vector<IParameters*> DefaultEnvironment::createParametersList (
     IConfiguration* config,
     dp::IProperties* properties,
-    vector <pair <Range,Range> >& uri
+    vector <pair <Range64,Range64> >& uri
 )
 {
     vector<IParameters*> result;

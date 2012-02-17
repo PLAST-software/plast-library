@@ -68,10 +68,11 @@ protected:
 
     /** \copydoc IEnvironment::createAlgorithm */
     IAlgorithm* createAlgorithm (
-        IConfiguration*                         config,
-        database::IDatabaseQuickReader*         reader,
-        IParameters*                            params,
-        algo::align::IAlignmentResultVisitor*   resultVisitor
+        IConfiguration*                                 config,
+        database::IDatabaseQuickReader*                 reader,
+        IParameters*                                    params,
+        alignment::filter::IAlignmentFilter*            filter,
+        alignment::core::IAlignmentContainerVisitor*    resultVisitor
     );
 
     /** \copydoc IEnvironment::update */
@@ -82,7 +83,7 @@ protected:
      * \param[in] queryReader : information about query database
      * \return vector of offsets partitions for further databases reading
      */
-    std::vector <std::pair <Range,Range> > buildUri (
+    std::vector <std::pair <misc::Range64,misc::Range64> > buildUri (
         database::IDatabaseQuickReader* subjectReader,
         database::IDatabaseQuickReader* queryReader
     );
@@ -96,7 +97,7 @@ protected:
     std::vector<IParameters*> createParametersList (
         IConfiguration* config,
         dp::IProperties* properties,
-        std::vector <std::pair <Range,Range> >& uri
+        std::vector <std::pair <misc::Range64,misc::Range64> >& uri
     );
 };
 

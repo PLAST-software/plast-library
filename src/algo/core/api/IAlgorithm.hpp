@@ -41,7 +41,7 @@
 
 #include <algo/hits/api/IHitIterator.hpp>
 
-#include <algo/align/api/IAlignmentResult.hpp>
+#include <alignment/core/api/IAlignmentContainer.hpp>
 
 #include <vector>
 #include <string>
@@ -94,8 +94,11 @@ public:
     /** Getter for the IParameters instance. */
     virtual IParameters*                            getParams           () = 0;
 
+    /** Getter for the IAlignmentFilter instance. */
+    virtual alignment::filter::IAlignmentFilter*    getFilter           () = 0;
+
     /** Getter for the IAlignmentResultVisitor instance. */
-    virtual algo::align::IAlignmentResultVisitor*  getResultVisitor    () = 0;
+    virtual alignment::core::IAlignmentContainerVisitor*  getResultVisitor    () = 0;
 
     /** Getter for the ISeedModel instance. */
     virtual seed::ISeedModel*                       getSeedsModel       () = 0;
@@ -124,8 +127,11 @@ public:
     /** Setter for the IParameters attribute. */
     virtual void setParams           (IParameters*                    params) = 0;
 
+    /** Setter for the IAlignmentFilter instance. */
+    virtual void setFilter           (alignment::filter::IAlignmentFilter* filter)  = 0;
+
     /** Setter for the IAlignmentResultVisitor attribute. */
-    virtual void setResultVisitor    (algo::align::IAlignmentResultVisitor* visitor) = 0;
+    virtual void setResultVisitor    (alignment::core::IAlignmentContainerVisitor* visitor) = 0;
 
     /** Setter for the ISeedModel attribute. */
     virtual void setSeedsModel       (seed::ISeedModel*               model)  = 0;
@@ -167,10 +173,10 @@ protected:
      *  \result a list of ISequenceDatabase instances.
      */
     virtual dp::impl::ListIterator<database::ISequenceDatabase*> createDatabaseIterator (
-        IConfiguration*     config,
-        const std::string&  uri,
-        const Range&        range,
-        bool                filtering,
+        IConfiguration*      config,
+        const std::string&   uri,
+        const misc::Range64& range,
+        bool                 filtering,
         const std::vector<misc::ReadingFrame_e>& frames
     ) = 0;
 
@@ -189,10 +195,10 @@ protected:
      * \result the IHitIterator instance to be used by the PLAST algorithm
      */
     virtual algo::hits::IHitIterator* createHitIterator (
-        IConfiguration*                 config,
-        algo::hits::IHitIterator*       sourceHits,
-        algo::align::IAlignmentResult* ungapAlignResult,
-        algo::align::IAlignmentResult* alignResult
+        IConfiguration*                         config,
+        algo::hits::IHitIterator*               sourceHits,
+        alignment::core::IAlignmentContainer*   ungapAlignResult,
+        alignment::core::IAlignmentContainer*   alignResult
     ) = 0;
 
     /** Define (for subject and query) the list of reading frames to be used. This is the way

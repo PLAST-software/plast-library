@@ -29,6 +29,9 @@
 
 #include <algo/core/api/IAlgoConfig.hpp>
 
+#include <alignment/core/api/IAlignmentContainer.hpp>
+#include <alignment/filter/api/IAlignmentFilter.hpp>
+
 /********************************************************************************/
 namespace algo {
 namespace core {
@@ -62,7 +65,7 @@ public:
     dp::ICommandDispatcher* createDispatcher ();
 
     /** \copydoc IConfiguration::createDatabase */
-    database::ISequenceDatabase*  createDatabase (const std::string& uri, const Range& range, bool filtering);
+    database::ISequenceDatabase*  createDatabase (const std::string& uri, const misc::Range64& range, bool filtering);
 
     /** \copydoc IConfiguration::createQueryInformation */
     statistics::IQueryInformation* createQueryInformation (
@@ -87,55 +90,59 @@ public:
 
     /** \copydoc IConfiguration::createUngapHitIterator */
     algo::hits::IHitIterator* createUngapHitIterator (
-        algo::hits::IHitIterator*       source,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       matrix,
-        algo::core::IParameters*        params,
-        algo::align::IAlignmentResult* ungapResult
+        algo::hits::IHitIterator*               source,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               matrix,
+        algo::core::IParameters*                params,
+        alignment::core::IAlignmentContainer*   ungapResult
     );
 
     /** \copydoc IConfiguration::createSmallGapHitIterator */
     algo::hits::IHitIterator* createSmallGapHitIterator (
-        algo::hits::IHitIterator*       source,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       matrix,
-        algo::core::IParameters*        params,
-        algo::align::IAlignmentResult* ungapResult,
-        algo::align::IAlignmentResult* alignmentResult
+        algo::hits::IHitIterator*               source,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               matrix,
+        algo::core::IParameters*                params,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        alignment::core::IAlignmentContainer*   alignmentResult
     );
 
     /** \copydoc IConfiguration::createFullGapHitIterator */
     algo::hits::IHitIterator* createFullGapHitIterator  (
-        algo::hits::IHitIterator*       source,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       matrix,
-        algo::core::IParameters*        params,
-        statistics::IQueryInformation*  queryInfo,
-        statistics::IGlobalParameters*  globalStats,
-        algo::align::IAlignmentResult* ungapResult,
-        algo::align::IAlignmentResult* alignmentResult
+        algo::hits::IHitIterator*               source,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               matrix,
+        algo::core::IParameters*                params,
+        statistics::IQueryInformation*          queryInfo,
+        statistics::IGlobalParameters*          globalStats,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        alignment::core::IAlignmentContainer*   alignmentResult
     );
 
     /** \copydoc IConfiguration::createCompositionHitIterator */
     algo::hits::IHitIterator* createCompositionHitIterator  (
-        algo::hits::IHitIterator*       source,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       matrix,
-        algo::core::IParameters*        params,
-        statistics::IQueryInformation*  queryInfo,
-        statistics::IGlobalParameters*  globalStats,
-        algo::align::IAlignmentResult* ungapResult,
-        algo::align::IAlignmentResult* alignmentResult
+        algo::hits::IHitIterator*               source,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               matrix,
+        algo::core::IParameters*                params,
+        statistics::IQueryInformation*          queryInfo,
+        statistics::IGlobalParameters*          globalStats,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        alignment::core::IAlignmentContainer*   alignmentResult
     );
 
     /** \copydoc IConfiguration::createGapAlignmentResult */
-    algo::align::IAlignmentResult* createGapAlignmentResult  (database::ISequenceDatabase* subject, database::ISequenceDatabase* query);
+    alignment::core::IAlignmentContainer* createGapAlignmentResult  (
+        database::ISequenceDatabase*    subject,
+        database::ISequenceDatabase*    query,
+        alignment::filter::IAlignmentFilter*  filter
+    );
 
     /** \copydoc IConfiguration::createUnapAlignmentResult */
-    algo::align::IAlignmentResult* createUnapAlignmentResult (size_t querySize);
+    alignment::core::IAlignmentContainer* createUnapAlignmentResult (size_t querySize);
 
     /** \copydoc IConfiguration::createResultVisitor */
-    algo::align::IAlignmentResultVisitor* createResultVisitor ();
+    alignment::core::IAlignmentContainerVisitor* createResultVisitor ();
 
 private:
 

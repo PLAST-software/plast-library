@@ -41,10 +41,6 @@ namespace algo {
 namespace core {
 /********************************************************************************/
 
-/** \brief Definition of an interval.
- */
-typedef std::pair<u_int64_t,u_int64_t>  Range;
-
 /********************************************************************************/
 
 /** \brief Define several piece of information used for parameterizing the algorithm.
@@ -87,13 +83,13 @@ public:
     std::string   subjectUri;
 
     /** [begin,end] offsets  as range to be read in the subject database file. */
-    Range         subjectRange;
+    misc::Range64 subjectRange;
 
     /** URI (filepath) of the query database. */
     std::string   queryUri;
 
     /** [begin,end] offsets  as range to be read in the query database file. */
-    Range         queryRange;
+    misc::Range64 queryRange;
 
     /** Tells whether low information regions have to be filtered out from the query database. */
     bool    filterQuery;
@@ -162,14 +158,14 @@ public:
         result->add (1, "subject", "");
         result->add (2, "uri",   subjectUri);
         result->add (3, "range", "");
-        result->add (4, "begin", "%ld", subjectRange.first);
-        result->add (4, "end",   "%ld", subjectRange.second);
+        result->add (4, "begin", "%ld", subjectRange.begin);
+        result->add (4, "end",   "%ld", subjectRange.end);
 
         result->add (1, "subject", "");
         result->add (2, "uri",   queryUri);
         result->add (3, "range", "");
-        result->add (4, "begin", "%ld", queryRange.first);
-        result->add (4, "end",   "%ld", queryRange.second);
+        result->add (4, "begin", "%ld", queryRange.begin);
+        result->add (4, "end",   "%ld", queryRange.end);
 
         result->add (1, "filterQuery", "%d", filterQuery);
 

@@ -39,6 +39,10 @@
 #include <algo/core/api/IAlgoConfig.hpp>
 #include <algo/core/api/IAlgoParameters.hpp>
 
+#include <alignment/core/api/IAlignmentContainer.hpp>
+#include <alignment/core/api/IAlignmentContainerVisitor.hpp>
+#include <alignment/filter/api/IAlignmentFilter.hpp>
+
 #include <vector>
 
 /********************************************************************************/
@@ -89,10 +93,11 @@ public:
      * \param[in] resultVisitor : the visitor used for visiting the resulting gap alignments list.
      */
     AbstractAlgorithm (
-        IConfiguration*                         config,
-        database::IDatabaseQuickReader*         reader,
-        IParameters*                            params,
-        algo::align::IAlignmentResultVisitor*   resultVisitor
+        IConfiguration*                               config,
+        database::IDatabaseQuickReader*               reader,
+        IParameters*                                  params,
+        alignment::filter::IAlignmentFilter*          filter,
+        alignment::core::IAlignmentContainerVisitor*  resultVisitor
     );
 
     /** Destructor. */
@@ -112,8 +117,11 @@ public:
     /** \copydoc IAlgorithm::getParams */
     IParameters*                            getParams           ()  { return _params;           }
 
+    /** \copydoc IAlgorithm::getFilter */
+    alignment::filter::IAlignmentFilter*    getFilter           ()  { return _filter;           }
+
     /** \copydoc IAlgorithm::getResultVisitor */
-    algo::align::IAlignmentResultVisitor*   getResultVisitor    ()  { return _resultVisitor;    }
+    alignment::core::IAlignmentContainerVisitor* getResultVisitor    ()  { return _resultVisitor;    }
 
     /** \copydoc IAlgorithm::getSeedsModel */
     seed::ISeedModel*                       getSeedsModel       ()  { return _seedsModel;       }
@@ -142,8 +150,11 @@ public:
     /** \copydoc IAlgorithm::setParams */
     void setParams           (IParameters*                          params)             { SP_SETATTR (params);          }
 
+    /** \copydoc IAlgorithm::setFilter */
+    void setFilter           (alignment::filter::IAlignmentFilter*  filter)             { SP_SETATTR (filter);          }
+
     /** \copydoc IAlgorithm::setResultVisitor */
-    void setResultVisitor    (algo::align::IAlignmentResultVisitor* resultVisitor)      { SP_SETATTR (resultVisitor);   }
+    void setResultVisitor    (alignment::core::IAlignmentContainerVisitor* resultVisitor) { SP_SETATTR (resultVisitor);   }
 
     /** \copydoc IAlgorithm::setSeedsModel */
     void setSeedsModel       (seed::ISeedModel*                     seedsModel)         { SP_SETATTR (seedsModel);      }
@@ -167,19 +178,19 @@ protected:
 
     /** \copydoc IAlgorithm::createDatabaseIterator */
     dp::impl::ListIterator<database::ISequenceDatabase*> createDatabaseIterator (
-        IConfiguration*     config,
-        const std::string&  uri,
-        const Range&        range,
-        bool                filtering,
+        IConfiguration*      config,
+        const std::string&   uri,
+        const misc::Range64& range,
+        bool                 filtering,
         const std::vector<misc::ReadingFrame_e>& frames
     );
 
     /** \copydoc IAlgorithm::createHitIterator */
     algo::hits::IHitIterator* createHitIterator (
-        IConfiguration*                 config,
-        algo::hits::IHitIterator*       sourceHits,
-        algo::align::IAlignmentResult* ungapAlignResult,
-        algo::align::IAlignmentResult* alignResult
+        IConfiguration*                         config,
+        algo::hits::IHitIterator*               sourceHits,
+        alignment::core::IAlignmentContainer*   ungapAlignResult,
+        alignment::core::IAlignmentContainer*   alignResult
     );
 
     std::vector<misc::ReadingFrame_e>  _subjectFrames;
@@ -203,24 +214,25 @@ protected:
      */
     void update (dp::EventInfo* evt, dp::ISubject* subject);
 
-    IConfiguration*                         _config;
-    database::IDatabaseQuickReader*         _reader;
-    IParameters*                            _params;
-    algo::align::IAlignmentResultVisitor*   _resultVisitor;
-    seed::ISeedModel*                       _seedsModel;
-    IScoreMatrix*                           _scoreMatrix;
-    statistics::IGlobalParameters*          _globalStats;
-    statistics::IQueryInformation*          _queryInfo;
-    IIndexator*                             _indexator;
-    algo::hits::IHitIterator*               _hitIterator;
+    IConfiguration*                                 _config;
+    database::IDatabaseQuickReader*                 _reader;
+    IParameters*                                    _params;
+    alignment::filter::IAlignmentFilter*            _filter;
+    alignment::core::IAlignmentContainerVisitor*    _resultVisitor;
+    seed::ISeedModel*                               _seedsModel;
+    IScoreMatrix*                                   _scoreMatrix;
+    statistics::IGlobalParameters*                  _globalStats;
+    statistics::IQueryInformation*                  _queryInfo;
+    IIndexator*                                     _indexator;
+    algo::hits::IHitIterator*                       _hitIterator;
 
     /** */
-    algo::align::IAlignmentResult* _ungapAlignmentResult;
-    void setUngapAlignmentResult (algo::align::IAlignmentResult* ungapAlignmentResult)  { SP_SETATTR(ungapAlignmentResult); }
+    alignment::core::IAlignmentContainer* _ungapAlignmentResult;
+    void setUngapAlignmentResult (alignment::core::IAlignmentContainer* ungapAlignmentResult)  { SP_SETATTR(ungapAlignmentResult); }
 
     /** */
-    algo::align::IAlignmentResult* _gapAlignmentResult;
-    void setGapAlignmentResult (algo::align::IAlignmentResult* gapAlignmentResult)  { SP_SETATTR(gapAlignmentResult); }
+    alignment::core::IAlignmentContainer* _gapAlignmentResult;
+    void setGapAlignmentResult (alignment::core::IAlignmentContainer* gapAlignmentResult)  { SP_SETATTR(gapAlignmentResult); }
 
     /** */
     void readReadingFrameDatabases (
@@ -258,12 +270,13 @@ public:
 
     /** \copydoc AbstractAlgorithm */
     AlgorithmPlastp (
-        IConfiguration*                         config,
-        database::IDatabaseQuickReader*         reader,
-        IParameters*                            params,
-        algo::align::IAlignmentResultVisitor*   resultVisitor
+        IConfiguration*                                 config,
+        database::IDatabaseQuickReader*                 reader,
+        IParameters*                                    params,
+        alignment::filter::IAlignmentFilter*            filter,
+        alignment::core::IAlignmentContainerVisitor*    resultVisitor
     )
-    : AbstractAlgorithm (config, reader, params, resultVisitor) {}
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor) {}
 };
 
 /********************************************************************************/
@@ -279,12 +292,13 @@ public:
 
     /** \copydoc AbstractAlgorithm */
     AlgorithmPlastx (
-        IConfiguration*                         config,
-        database::IDatabaseQuickReader*         reader,
-        IParameters*                            params,
-        algo::align::IAlignmentResultVisitor*   resultVisitor
+        IConfiguration*                                 config,
+        database::IDatabaseQuickReader*                 reader,
+        IParameters*                                    params,
+        alignment::filter::IAlignmentFilter*            filter,
+        alignment::core::IAlignmentContainerVisitor*    resultVisitor
     )
-    : AbstractAlgorithm (config, reader, params, resultVisitor)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor)
     {
         if (params->strands.empty() )
         {
@@ -310,12 +324,13 @@ public:
 
     /** \copydoc AbstractAlgorithm */
     AlgorithmTplastn (
-        IConfiguration*                         config,
-        database::IDatabaseQuickReader*         reader,
-        IParameters*                            params,
-        algo::align::IAlignmentResultVisitor*   resultVisitor
+        IConfiguration*                                 config,
+        database::IDatabaseQuickReader*                 reader,
+        IParameters*                                    params,
+        alignment::filter::IAlignmentFilter*            filter,
+        alignment::core::IAlignmentContainerVisitor*    resultVisitor
     )
-    : AbstractAlgorithm (config, reader, params, resultVisitor)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor)
     {
         if (params->strands.empty() )
         {

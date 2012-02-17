@@ -113,10 +113,11 @@ protected:
      * \return a new IAlgorithm instance
      */
     virtual IAlgorithm* createAlgorithm (
-        IConfiguration*                         config,
-        database::IDatabaseQuickReader*         reader,
-        IParameters*                            params,
-        algo::align::IAlignmentResultVisitor*   resultVisitor
+        IConfiguration*                                 config,
+        database::IDatabaseQuickReader*                 reader,
+        IParameters*                                    params,
+        alignment::filter::IAlignmentFilter*            filter,
+        alignment::core::IAlignmentContainerVisitor*    resultVisitor
     ) = 0;
 };
 

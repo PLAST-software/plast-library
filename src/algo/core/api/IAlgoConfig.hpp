@@ -42,7 +42,8 @@
 
 #include <algo/hits/api/IHitIterator.hpp>
 
-#include <algo/align/api/IAlignmentResult.hpp>
+#include <alignment/core/api/IAlignmentContainer.hpp>
+#include <alignment/filter/api/IAlignmentFilter.hpp>
 
 #include <string>
 #include <vector>
@@ -94,7 +95,7 @@ public:
      *  \param[in] filtering : tells whether low informative regions have to be filtered out from the database
      *  \return a new ISequenceDatabase instance
      */
-    virtual database::ISequenceDatabase*  createDatabase (const std::string& uri, const Range& range, bool filtering) = 0;
+    virtual database::ISequenceDatabase*  createDatabase (const std::string& uri, const misc::Range64& range, bool filtering) = 0;
 
     /** Create statistical information for the query database that will be used by the algorithm for getting cutoffs.
      * \param[in] globalStats : global statistics for the algorithm
@@ -145,70 +146,74 @@ public:
      * \return a new IHitIterator instance
      */
     virtual algo::hits::IHitIterator* createUngapHitIterator (
-        algo::hits::IHitIterator*       source,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       matrix,
-        algo::core::IParameters*        params,
-        algo::align::IAlignmentResult* ungapResult
+        algo::hits::IHitIterator*               source,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               matrix,
+        algo::core::IParameters*                params,
+        alignment::core::IAlignmentContainer*   ungapResult
     ) = 0;
 
     /** Create a Hit iterator used during the small gap part of the PLAST algorithm.
      * \return a new IHitIterator instance
      */
     virtual algo::hits::IHitIterator* createSmallGapHitIterator (
-        algo::hits::IHitIterator*       source,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       matrix,
-        algo::core::IParameters*        params,
-        algo::align::IAlignmentResult*  ungapResult,
-        algo::align::IAlignmentResult*  alignmentResult
+        algo::hits::IHitIterator*               source,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               matrix,
+        algo::core::IParameters*                params,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        alignment::core::IAlignmentContainer*   alignmentResult
     ) = 0;
 
     /** Create a Hit iterator used during the full gap part of the PLAST algorithm.
      * \return a new IHitIterator instance
      */
     virtual algo::hits::IHitIterator* createFullGapHitIterator  (
-        algo::hits::IHitIterator*       source,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       matrix,
-        algo::core::IParameters*        params,
-        statistics::IQueryInformation*  queryInfo,
-        statistics::IGlobalParameters*  globalStats,
-        algo::align::IAlignmentResult* ungapResult,
-        algo::align::IAlignmentResult* alignmentResult
+        algo::hits::IHitIterator*               source,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               matrix,
+        algo::core::IParameters*                params,
+        statistics::IQueryInformation*          queryInfo,
+        statistics::IGlobalParameters*          globalStats,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        alignment::core::IAlignmentContainer*   alignmentResult
     ) = 0;
 
     /** Create a Hit iterator used during the composition part of the PLAST algorithm.
      * \return a new IHitIterator instance
      */
     virtual algo::hits::IHitIterator* createCompositionHitIterator  (
-        algo::hits::IHitIterator*       source,
-        seed::ISeedModel*               model,
-        algo::core::IScoreMatrix*       matrix,
-        algo::core::IParameters*        params,
-        statistics::IQueryInformation*  queryInfo,
-        statistics::IGlobalParameters*  globalStats,
-        algo::align::IAlignmentResult* ungapResult,
-        algo::align::IAlignmentResult* alignmentResult
+        algo::hits::IHitIterator*               source,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               matrix,
+        algo::core::IParameters*                params,
+        statistics::IQueryInformation*          queryInfo,
+        statistics::IGlobalParameters*          globalStats,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        alignment::core::IAlignmentContainer*   alignmentResult
     ) = 0;
 
     /** Create a IAlignmentResult instance for holding generated ungap alignments.
      * \param[in] querySize
      * \return a new IAlignmentResult instance
      */
-    virtual algo::align::IAlignmentResult* createUnapAlignmentResult (size_t querySize) = 0;
+    virtual alignment::core::IAlignmentContainer* createUnapAlignmentResult (size_t querySize) = 0;
 
     /** Create a IAlignmentResult instance for holding generated gap alignments (which are of interest for the end user).
      * \param[in] subject : the subject database
      * \param[in] query   : the query database
      * \return a new IAlignmentResult instance
      */
-    virtual algo::align::IAlignmentResult* createGapAlignmentResult  (database::ISequenceDatabase* subject, database::ISequenceDatabase* query) = 0;
+    virtual alignment::core::IAlignmentContainer* createGapAlignmentResult  (
+        database::ISequenceDatabase*          subject,
+        database::ISequenceDatabase*          query,
+        alignment::filter::IAlignmentFilter*  filter
+    ) = 0;
 
     /** Create a visitor for the gap alignments (likely a visitor that dump the alignments into a file).
      * \return a new AlignmentResultVisitor instance
      */
-    virtual algo::align::IAlignmentResultVisitor* createResultVisitor () = 0;
+    virtual alignment::core::IAlignmentContainerVisitor* createResultVisitor () = 0;
 };
 
 /********************************************************************************/

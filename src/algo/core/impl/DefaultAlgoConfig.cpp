@@ -45,11 +45,18 @@
 #include <algo/hits/gap/FullGapHitIterator.hpp>
 #include <algo/hits/gap/CompositionHitIterator.hpp>
 
-#include <algo/align/impl/BasicAlignmentResult.hpp>
-#include <algo/align/impl/BasicAlignmentResult2.hpp>
-#include <algo/align/impl/BasicAlignmentResult3.hpp>
-#include <algo/align/impl/AlignmentResultVisitors.hpp>
-#include <algo/align/impl/NullAlignmentResult.hpp>
+#include <alignment/core/impl/BasicAlignmentContainer.hpp>
+#include <alignment/core/impl/NullAlignmentContainer.hpp>
+
+#include <alignment/visitors/impl/MaxHitsPerQueryVisitor.hpp>
+#include <alignment/visitors/impl/OstreamVisitor.hpp>
+#include <alignment/visitors/impl/TabulatedOutputVisitor.hpp>
+#include <alignment/visitors/impl/RawOutputVisitor.hpp>
+#include <alignment/visitors/impl/XmlOutputVisitor.hpp>
+#include <alignment/visitors/impl/ShrinkContainerVisitor.hpp>
+#include <alignment/visitors/impl/FilterContainerVisitor.hpp>
+#include <alignment/visitors/impl/ProxyVisitor.hpp>
+#include <alignment/visitors/impl/NucleotidConversionVisitor.hpp>
 
 using namespace std;
 using namespace misc;
@@ -69,8 +76,12 @@ using namespace statistics::impl;
 using namespace algo::hits;
 using namespace algo::hits::ungapped;
 using namespace algo::hits::gapped;
-using namespace algo::align;
-using namespace algo::align::impl;
+
+using namespace alignment::core;
+using namespace alignment::core::impl;
+using namespace alignment::filter;
+using namespace alignment::visitors;
+using namespace alignment::visitors::impl;
 
 #include <iostream>
 #include <sstream>
@@ -138,9 +149,9 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
 
         params->matrixKind           = ENUM_BLOSUM62;
         params->subjectUri           = string ("foo");
-        params->subjectRange         = Range(0,0);
+        params->subjectRange         = Range64(0,0);
         params->queryUri             = string ("bar");
-        params->queryRange           = Range(0,0);
+        params->queryRange           = Range64(0,0);
         params->filterQuery          = true;
         params->ungapNeighbourLength = 22;
         params->ungapScoreThreshold  = 38;
@@ -167,9 +178,9 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
 
         params->matrixKind           = ENUM_BLOSUM62;
         params->subjectUri           = string ("foo");
-        params->subjectRange         = Range(0,0);
+        params->subjectRange         = Range64(0,0);
         params->queryUri             = string ("bar");
-        params->queryRange           = Range(0,0);
+        params->queryRange           = Range64(0,0);
         params->filterQuery          = true;
         params->ungapNeighbourLength = 22;
         params->ungapScoreThreshold  = 38;
@@ -196,9 +207,9 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
 
         params->matrixKind           = ENUM_BLOSUM62;
         params->subjectUri           = string ("foo");
-        params->subjectRange         = Range(0,0);
+        params->subjectRange         = Range64(0,0);
         params->queryUri             = string ("bar");
-        params->queryRange           = Range(0,0);
+        params->queryRange           = Range64(0,0);
         params->filterQuery          = true;
         params->ungapNeighbourLength = 22;
         params->ungapScoreThreshold  = 38;
@@ -272,12 +283,12 @@ ICommandDispatcher* DefaultConfiguration::createDispatcher ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-ISequenceDatabase*  DefaultConfiguration::createDatabase (const string& uri, const Range& range, bool filtering)
+ISequenceDatabase*  DefaultConfiguration::createDatabase (const string& uri, const Range64& range, bool filtering)
 {
     database::ISequenceDatabase* result = 0;
 
     result = new BufferedSequenceDatabase (
-        new FastaSequenceIterator (uri.c_str(), 100, range.first, range.second),
+        new FastaSequenceIterator (uri.c_str(), 100, range.begin, range.end),
         filtering
     );
 
@@ -348,7 +359,7 @@ ISeedModel* DefaultConfiguration::createSeedModel (SeedModelKind_e modelKind, co
 }
 
 /*********************************************************************
-** METHOD  :
+** METHOD  :IAlignmentContainer
 ** PURPOSE :
 ** INPUT   :
 ** OUTPUT  :
@@ -443,16 +454,16 @@ IScoreMatrix* DefaultConfiguration::createScoreMatrix (ScoreMatrixKind_e kind, d
 ** REMARKS :
 *********************************************************************/
 IHitIterator* DefaultConfiguration::createUngapHitIterator (
-    IHitIterator*       source,
-    ISeedModel*         model,
-    IScoreMatrix*       matrix,
-    IParameters*        params,
-    IAlignmentResult*   ungapResult
+    IHitIterator*           source,
+    ISeedModel*             model,
+    IScoreMatrix*           matrix,
+    IParameters*            params,
+    IAlignmentContainer*    ungapResult
 )
 {
     IHitIterator* result = 0;
 
-    IAlignmentResult* actualUngapResult = ungapResult;
+    IAlignmentContainer* actualUngapResult = ungapResult;
 
     IProperty* optimProp = _properties->getProperty (STR_OPTION_OPTIM_FILTER_UNGAP);
     if (optimProp && optimProp->value.compare("F")==0)  { actualUngapResult = new NullAlignmentResult(); }
@@ -492,12 +503,12 @@ IHitIterator* DefaultConfiguration::createUngapHitIterator (
 ** REMARKS :
 *********************************************************************/
 IHitIterator* DefaultConfiguration::createSmallGapHitIterator (
-    IHitIterator*       source,
-    ISeedModel*         model,
-    IScoreMatrix*       matrix,
-    IParameters*        params,
-    IAlignmentResult*   ungapResult,
-    IAlignmentResult*   alignmentResult
+    IHitIterator*           source,
+    ISeedModel*             model,
+    IScoreMatrix*           matrix,
+    IParameters*            params,
+    IAlignmentContainer*    ungapResult,
+    IAlignmentContainer*    alignmentResult
 )
 {
     IHitIterator* result = 0;
@@ -540,8 +551,8 @@ IHitIterator* DefaultConfiguration::createFullGapHitIterator (
     IParameters*            params,
     IQueryInformation*      queryInfo,
     IGlobalParameters*      globalStats,
-    IAlignmentResult*       ungapResult,
-    IAlignmentResult*       alignmentResult
+    IAlignmentContainer*    ungapResult,
+    IAlignmentContainer*    alignmentResult
 )
 {
     IHitIterator* result = 0;
@@ -601,14 +612,14 @@ IHitIterator* DefaultConfiguration::createFullGapHitIterator (
 ** REMARKS :
 *********************************************************************/
 IHitIterator* DefaultConfiguration::createCompositionHitIterator  (
-    IHitIterator*       source,
-    ISeedModel*         model,
-    IScoreMatrix*       matrix,
-    IParameters*        params,
-    IQueryInformation*  queryInfo,
-    IGlobalParameters*  globalStats,
-    IAlignmentResult*   ungapResult,
-    IAlignmentResult*   alignmentResult
+    IHitIterator*           source,
+    ISeedModel*             model,
+    IScoreMatrix*           matrix,
+    IParameters*            params,
+    IQueryInformation*      queryInfo,
+    IGlobalParameters*      globalStats,
+    IAlignmentContainer*    ungapResult,
+    IAlignmentContainer*    alignmentResult
 )
 {
     IHitIterator* result = 0;
@@ -667,24 +678,25 @@ IHitIterator* DefaultConfiguration::createCompositionHitIterator  (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IAlignmentResult* DefaultConfiguration::createGapAlignmentResult  (ISequenceDatabase* subject, ISequenceDatabase* query)
+IAlignmentContainer* DefaultConfiguration::createGapAlignmentResult  (
+    ISequenceDatabase* subject,
+    ISequenceDatabase* query,
+    IAlignmentFilter*  filter
+)
 {
-    IAlignmentResult* result = 0;
+    IAlignmentContainer* result = 0;
 
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_GAP_RESULT);
 
     if (prop && prop->value.compare("BasicAlignmentResult")==0)
     {
-        result = new BasicAlignmentResult (subject, query);
-    }
-    else if (prop && prop->value.compare("BasicAlignmentResult3")==0)
-    {
-        result = new BasicAlignmentResult3 (subject, query);
+        result = new BasicAlignmentContainer ();
     }
     else
     {
-        result = new BasicAlignmentResult (subject, query);
+        //result = new BasicAlignmentResult (subject, query, 0);
+        result = new BasicAlignmentContainer ();
     }
 
     return result;
@@ -698,9 +710,9 @@ IAlignmentResult* DefaultConfiguration::createGapAlignmentResult  (ISequenceData
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IAlignmentResult* DefaultConfiguration::createUnapAlignmentResult (size_t querySize)
+IAlignmentContainer* DefaultConfiguration::createUnapAlignmentResult (size_t querySize)
 {
-    IAlignmentResult* result = 0;
+    IAlignmentContainer* result = 0;
 
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_UNGAP_RESULT);
@@ -725,11 +737,11 @@ IAlignmentResult* DefaultConfiguration::createUnapAlignmentResult (size_t queryS
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IAlignmentResultVisitor* DefaultConfiguration::createResultVisitor ()
+IAlignmentContainerVisitor* DefaultConfiguration::createResultVisitor ()
 {
     IProperty* prop = 0;
 
-    IAlignmentResultVisitor* result = 0;
+    IAlignmentContainerVisitor* result = 0;
 
     /** We need an uri. We take the one provided by the properties. */
     string uri ("stdout");
@@ -740,29 +752,29 @@ IAlignmentResultVisitor* DefaultConfiguration::createResultVisitor ()
         switch (atoi (prop->value.c_str()))
         {
         case 1:
-            result = new  AlignmentResultOutputTabulatedVisitor (uri);
+            result = new  TabulatedOutputVisitor (uri);
             break;
 
         case 2:
-            result = new  AlignmentResultOutputTabulatedExtendedVisitor (uri);
+            result = new  TabulatedOutputExtendedVisitor (uri);
             break;
 
         case 3:
-            result = new  AlignmentResultRawDumpVisitor (uri);
+            result = new  RawOutputVisitor (uri);
             break;
 
         case 4:
-            result = new  AlignmentResultXmlDumpVisitor (uri);
+            result = new  XmlOutputVisitor (uri);
             break;
 
         default:
-            result = new  AlignmentResultOutputTabulatedVisitor (uri);
+            result = new  TabulatedOutputVisitor (uri);
             break;
         }
     }
     else
     {
-        result = new  AlignmentResultOutputTabulatedVisitor (uri);
+        result = new  TabulatedOutputVisitor (uri);
     }
 
     /** We may want to restrict the number of dumped alingments. We use a Proxy (see [GOF94]) for
@@ -774,7 +786,7 @@ IAlignmentResultVisitor* DefaultConfiguration::createResultVisitor ()
         size_t maxHitsPerQuery = atoi (maxHitsPerQueryProp->value.c_str());
         if (maxHitsPerQuery > 0)
         {
-            result = new MaxHitsPerQueryAlignmentResultVisitor (result, maxHitsPerQuery);
+            result = new MaxHitsPerQueryVisitor (result, maxHitsPerQuery);
         }
     }
 
