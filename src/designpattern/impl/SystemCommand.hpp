@@ -61,6 +61,9 @@ public:
     /** */
     int getStatus ()  { return _status; }
 
+    /** */
+    std::string toString () { return _buffer; }
+
 private:
 
     os::IFile* _outputfile;
