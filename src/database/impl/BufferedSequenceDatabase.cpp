@@ -235,11 +235,17 @@ void BufferedSequenceDatabase::updateSequence (size_t idx, ISequence& sequence)
     /** Shortcut. */
     ISequenceCache* cache = getCache ();
 
+    /** We set the index of the sequence in the database. */
+    sequence.index = idx;
+
     /** A little shortcut (avoid two memory accesses). */
     Offset currentOffset = cache->offsets.data [idx];
 
     /** We set 'database' attribute. */
     sequence.database = this;
+
+    /** We set the offset in database attribute. */
+    sequence.offsetInDb = currentOffset;
 
     /** We get a pointer to the comment of the current sequence. */
     sequence.comment  = cache->comments[idx].c_str();
@@ -357,6 +363,9 @@ bool BufferedSequenceDatabase::getSequenceByOffset (
 
     /** We set the database field. */
     sequence.database = this;
+
+    /** We set the offset in database attribute. */
+    sequence.offsetInDb = off0;
 
     /** We get a pointer to the comment of the current sequence. */
     sequence.comment  = cache->comments[idx].c_str();
