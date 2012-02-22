@@ -69,12 +69,18 @@ public:
     /** Called when a new query sequence is visited.
      * \param[in] seq : the visited query sequence.
      */
-    virtual void visitQuerySequence   (const database::ISequence* seq)    = 0;
+    virtual void visitQuerySequence   (
+        const database::ISequence*  seq,
+        const misc::ProgressInfo&   progress
+    ) = 0;
 
     /** Called when a new subject sequence is visited for the currently visited query sequence
      * \param[in] seq : the visited subject sequence.
      */
-    virtual void visitSubjectSequence (const database::ISequence* seq)    = 0;
+    virtual void visitSubjectSequence (
+        const database::ISequence*  seq,
+        const misc::ProgressInfo&   progress
+    ) = 0;
 
     /** Called for a list of alignments for the currently visited [query,subject] pair.
      * \param[in] align : the visited alignments list.
@@ -88,7 +94,10 @@ public:
     /** Called when a new alignment is visited for the currenlyt visited query and subject sequences.
      * \param[in] align : the visited alignment.
      */
-    virtual void visitAlignment (Alignment* align) = 0;
+    virtual void visitAlignment (
+        Alignment*                  align,
+        const misc::ProgressInfo&   progress
+    ) = 0;
 
     /** Called at the end of the 'accept' method.
      */
