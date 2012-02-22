@@ -93,7 +93,7 @@ void DefaultEnvironment::run (dp::IProperties* properties)
     IProperty* filterProp = properties->getProperty (STR_OPTION_XML_FILTER_FILE);
     if (filterProp != 0)
     {
-        filter = AlignmentFilterFactoryXML().createFilter (filterProp->getValue());
+        filter = AlignmentFilterFactoryXML().createFilter (filterProp->getString());
     }
     LOCAL (filter);
 
