@@ -261,10 +261,10 @@ protected:
 /********************************************************************************/
 
 /** Now, we define a bunch of filter classes */
-DEFINE_ALIGNMENT_EXP_FILTER ("HSP hit from",            HitFrom,            u_int32_t,  1+a.getRange(alignment::core::Alignment::SUBJECT).begin);
-DEFINE_ALIGNMENT_EXP_FILTER ("HSP hit to",              HitTo,              u_int32_t,  1+a.getRange(alignment::core::Alignment::SUBJECT).end);
-DEFINE_ALIGNMENT_EXP_FILTER ("HSP query from",          QueryFrom,          u_int32_t,  1+a.getRange(alignment::core::Alignment::QUERY).begin);
-DEFINE_ALIGNMENT_EXP_FILTER ("HSP query to",            QueryTo,            u_int32_t,  1+a.getRange(alignment::core::Alignment::QUERY).end);
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP hit from",            HitFrom,            int32_t,  1+a.getRange(alignment::core::Alignment::SUBJECT).begin);
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP hit to",              HitTo,              int32_t,  1+a.getRange(alignment::core::Alignment::SUBJECT).end);
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP query from",          QueryFrom,          int32_t,  1+a.getRange(alignment::core::Alignment::QUERY).begin);
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP query to",            QueryTo,            int32_t,  1+a.getRange(alignment::core::Alignment::QUERY).end);
 
 DEFINE_ALIGNMENT_EXP_FILTER ("HSP alignment length",    Length,             u_int32_t,  a.getLength());
 
@@ -272,16 +272,16 @@ DEFINE_ALIGNMENT_EXP_FILTER ("HSP E­‐Value",             Evalue,             
 DEFINE_ALIGNMENT_EXP_FILTER ("HSP bit score",           Bitscore,           double,     a.getBitScore());
 DEFINE_ALIGNMENT_EXP_FILTER ("HSP score",               Score,              u_int16_t,  a.getScore());
 
-DEFINE_ALIGNMENT_EXP_FILTER ("HSP # of identities",     NbIdentities,       int32_t,    a.getNbIdentities());
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP # of identities",     NbIdentities,       u_int32_t,  a.getNbIdentities());
 DEFINE_ALIGNMENT_EXP_FILTER ("HSP % of identities",     PercentIdentities,  double,     a.getPercentIdentities() * 100.0);
 
-DEFINE_ALIGNMENT_EXP_FILTER ("HSP # of positive",       NbPositives,        int32_t,    a.getNbPositives());
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP # of positive",       NbPositives,        u_int32_t,  a.getNbPositives());
 DEFINE_ALIGNMENT_EXP_FILTER ("HSP % of positives",      PercentPositives,   double,     a.getPercentPositives() * 100.0);
 
-DEFINE_ALIGNMENT_EXP_FILTER ("HSP # of misses",         NbMissses,          int32_t,    a.getNbMisses());
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP # of misses",         NbMissses,          u_int32_t,  a.getNbMisses());
 DEFINE_ALIGNMENT_EXP_FILTER ("HSP % of misses",         PercentMisses,      double,     a.getPercentMisses() * 100.0);
 
-DEFINE_ALIGNMENT_EXP_FILTER ("HSP # of gaps",           NbGaps,             int32_t,    a.getNbGaps());
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP # of gaps",           NbGaps,             u_int32_t,  a.getNbGaps());
 DEFINE_ALIGNMENT_EXP_FILTER ("HSP % of gaps",           PercentGaps,        double,     a.getPercentGaps()   * 100.0);
 
 DEFINE_ALIGNMENT_EXP_FILTER ("Query Coverage",          QueryCoverage,      double,     a.getCoverage(alignment::core::Alignment::QUERY)       * 100.0);
@@ -299,14 +299,14 @@ DEFINE_ALIGNMENT_EXP_FILTER ("HSP query gaps",          QueryGaps,          u_in
 DEFINE_ALIGNMENT_EXP_FILTER ("HSP hit frame",           HitFrame,           int16_t,    a.getFrame (alignment::core::Alignment::SUBJECT));
 DEFINE_ALIGNMENT_EXP_FILTER ("HSP query frame",         QueryFrame,         int16_t,    a.getFrame (alignment::core::Alignment::QUERY));
 
-DEFINE_ALIGNMENT_EXP_FILTER ("Number of HSPs",          HSPNumber,          int32_t,    a.getAlignProgress().number);
-DEFINE_ALIGNMENT_EXP_FILTER ("HSP rank",                HSPRank,            int32_t,    a.getAlignProgress().rank);
+DEFINE_ALIGNMENT_EXP_FILTER ("Number of HSPs",          HSPNumber,          u_int32_t,  a.getAlignProgress().number);
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP rank",                HSPRank,            u_int32_t,  a.getAlignProgress().rank);
 
-DEFINE_ALIGNMENT_EXP_FILTER ("Number of hits",          HitsNumber,         int32_t,    a.getSbjProgress().number);
-DEFINE_ALIGNMENT_EXP_FILTER ("Hit rank",                HitRank,            int32_t,    a.getSbjProgress().rank);
+DEFINE_ALIGNMENT_EXP_FILTER ("Number of hits",          HitsNumber,         u_int32_t,  a.getSbjProgress().number);
+DEFINE_ALIGNMENT_EXP_FILTER ("Hit rank",                HitRank,            u_int32_t,  a.getSbjProgress().rank);
 
-DEFINE_ALIGNMENT_EXP_FILTER ("Number of queries",       QueryNumber,        int32_t,    a.getQryProgress().number);
-DEFINE_ALIGNMENT_EXP_FILTER ("Query rank",              QueryRank,          int32_t,    a.getQryProgress().rank);
+DEFINE_ALIGNMENT_EXP_FILTER ("Number of queries",       QueryNumber,        u_int32_t,  a.getQryProgress().number);
+DEFINE_ALIGNMENT_EXP_FILTER ("Query rank",              QueryRank,          u_int32_t,  a.getQryProgress().rank);
 
 DEFINE_ALIGNMENT_REGEXP_FILTER ("Query definition",     QueryDefinition,    a.getSequence(alignment::core::Alignment::QUERY)->comment);
 DEFINE_ALIGNMENT_REGEXP_FILTER ("Hit definition",       HitDefinition,      a.getSequence(alignment::core::Alignment::SUBJECT)->comment);
