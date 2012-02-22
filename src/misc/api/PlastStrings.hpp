@@ -246,6 +246,11 @@ namespace misc {
  */
 #define STR_OPTION_INFO_ALIGNMENT_PROGRESS  "-alignment-progress"
 
+/** Command Line option giving the path of the file holding statistics data about resources.
+ *  String.
+ */
+#define STR_OPTION_INFO_RESOURCES_PROGRESS  "-resources-progress"
+
 /** Command Line option giving the path of the configuration file.
  *  String.
  */
