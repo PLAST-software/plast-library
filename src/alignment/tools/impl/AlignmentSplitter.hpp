@@ -55,24 +55,13 @@ public:
     size_t splitAlign (
         const database::LETTER* subjectSeq,
         const database::LETTER* querySeq,
-        u_int32_t  subjectStartInSeq,
-        u_int32_t  subjectEndInSeq,
-        u_int32_t  queryStartInSeq,
-        u_int32_t  queryEndInSeq,
-        u_int32_t* splittab,
-        u_int32_t& identity,
-        u_int32_t& nbGap,
-        u_int32_t& nbMis,
-        u_int32_t& alignSize,
-        database::LETTER* subjectAlign,
-        database::LETTER* queryAlign
+        const misc::Range32&    sbjRange,
+        const misc::Range32&    qryRange,
+        SplitOutput& output
     );
 
     /** \copydoc IAlignmentSplitter::splitAlign(Alignment&,int*) */
-    size_t splitAlign (core::Alignment& align,  u_int32_t* splittab);
-
-    /** \copydoc IAlignmentSplitter::computeInfo */
-    void computeInfo (core::Alignment& align);
+    size_t splitAlign (core::Alignment& align,  SplitOutput& output);
 
 private:
 

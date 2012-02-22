@@ -88,31 +88,23 @@ AlignmentSplitter::~AlignmentSplitter ()
 ** REMARKS :
 *********************************************************************/
 size_t AlignmentSplitter::splitAlign (
-    const database::LETTER* subjectSeq,
-    const database::LETTER* querySeq,
-    u_int32_t  subjectStartInSeq,
-    u_int32_t  subjectEndInSeq,
-    u_int32_t  queryStartInSeq,
-    u_int32_t  queryEndInSeq,
-    u_int32_t* splittab,
-    u_int32_t& identity,
-    u_int32_t& nbGap,
-    u_int32_t& nbMis,
-    u_int32_t& alignSize,
-    database::LETTER* subjectAlign,
-    database::LETTER* queryAlign
+    const database::LETTER* sbjSeq,
+    const database::LETTER* qrySeq,
+    const misc::Range32&    sbjRange,
+    const misc::Range32&    qryRange,
+    SplitOutput& output
 )
 {
     int s,x,y,i,j,d,lg,nbg,nbi,qryLen,subLen;
     int  j1,j2;
 
-    int jj = queryStartInSeq - subjectStartInSeq;
-    jj = jj - (queryEndInSeq - subjectEndInSeq);
+    int jj = qryRange.begin - sbjRange.begin;
+    jj = jj - (qryRange.end - sbjRange.end);
 
     int delta = (jj>=0 ? (jj + 2) : (-jj + 2));
 
-    qryLen = queryEndInSeq   - queryStartInSeq   + 1;
-    subLen = subjectEndInSeq - subjectStartInSeq + 1;
+    qryLen = qryRange.getLength();
+    subLen = sbjRange.getLength();
 
     /** A little check. */
     if (qryLen >= _MaxAlignSize  ||  subLen >= _MaxAlignSize)
@@ -124,8 +116,8 @@ size_t AlignmentSplitter::splitAlign (
     /** Shortcuts. */
     int8_t** MATRIX = _scoreMatrix->getMatrix();
 
-    const char* qryStr = querySeq   + queryStartInSeq;
-    const char* subStr = subjectSeq + subjectStartInSeq;
+    const char* qryStr = qrySeq + qryRange.begin;
+    const char* subStr = sbjSeq + sbjRange.begin;
 
 #if 0
     const LETTER* convert = EncodingManager::singleton().getEncodingConversion(SUBSEED, ASCII);
@@ -204,21 +196,25 @@ size_t AlignmentSplitter::splitAlign (
     i=qryLen;  j=subLen;  x=0;  y=0;
     lg=0; nbg=0; nbi=0;
 
-    if (splittab)  {  splittab[y++] = qryLen - 1;  }
-    if (splittab)  {  splittab[y++] = subLen - 1;  }
+    if (output.splittab)  {  (output.splittab)[y++] = qryLen - 1;  }
+    if (output.splittab)  {  (output.splittab)[y++] = subLen - 1;  }
 
     char qryLocal [10000];
     char subLocal [10000];
     int status = 0;
 
     /** We reset some alignments fields to be completed. */
-    identity = 0;
-    nbGap    = 0;
-    nbMis    = 0;
+    output.identity = 0;
+    output.positive = 0;
+    output.nbGapQry = 0;
+    output.nbGapSbj = 0;
+    output.nbMis    = 0;
 
     while ( (i>0) && (j>0) )
     {
         s = MATRIX [(int)qryStr[i-1]] [(int)subStr[j-1]];
+
+        if (s > 0)  { output.positive++; }
 
         if ((H[i-1][j-1] + s) >= MAX (E[i][j],F[i][j]))
         {
@@ -233,8 +229,8 @@ size_t AlignmentSplitter::splitAlign (
 
             if (lg == 1)
             {
-                if (splittab)  {  splittab[y++]=i;  }
-                if (splittab)  {  splittab[y++]=j;  }
+                if (output.splittab)  {  (output.splittab)[y++]=i;  }
+                if (output.splittab)  {  (output.splittab)[y++]=j;  }
             }
 
             lg=0;
@@ -249,13 +245,16 @@ size_t AlignmentSplitter::splitAlign (
 
                 if (lg==0)
                 {
-                    if (splittab)  {  splittab[y++]=i;  }
-                    if (splittab)  {  splittab[y++]=j;  }
+                    if (output.splittab)  {  (output.splittab)[y++]=i;  }
+                    if (output.splittab)  {  (output.splittab)[y++]=j;  }
                     nbg++;
                     lg=1;
                 }
                 j--;
+
+                if  (status ==0)  {  output.nbGapQry ++;  }
             }
+
             else
             {
                 qryLocal[x] = qryStr[i-1];
@@ -264,15 +263,16 @@ size_t AlignmentSplitter::splitAlign (
 
                 if (lg==0)
                 {
-                    if (splittab)  {  splittab[y++]=i;  }
-                    if (splittab)  {  splittab[y++]=j;  }
+                    if (output.splittab)  {  (output.splittab)[y++]=i;  }
+                    if (output.splittab)  {  (output.splittab)[y++]=j;  }
                     nbg++;
                     lg=1;
                 }
                 i--;
+
+                if  (status ==0)  {  output.nbGapSbj ++;  }
             }
 
-            if  (status ==0)  {  nbGap ++;  }
             status = 1;
         }
 
@@ -284,17 +284,25 @@ size_t AlignmentSplitter::splitAlign (
         char l1 = qryLocal[i];
         char l2 = subLocal[i];
 
-             if (l1==l2)                        {  identity ++;  }
-        else if (l1==CODE_X  ||  l2==CODE_X)    {  identity ++;  }
-        else                                    {  nbMis++;      }
+             if (l1==l2         &&  l1!=CODE_X)       {  output.identity ++;  }
+        else if (l1!=CODE_DASH  &&  l2!=CODE_DASH)    {  output.nbMis++;      }
     }
 
-    if (splittab)  {  splittab[y++]=0;  }
-    if (splittab)  {  splittab[y++]=0;  }
+    if (output.splittab)  {  (output.splittab)[y++]=0;  }
+    if (output.splittab)  {  (output.splittab)[y++]=0;  }
 
-    alignSize = x;
-    if (subjectAlign != 0)  { memcpy (subjectAlign, subLocal, alignSize); }
-    if (queryAlign   != 0)  { memcpy (queryAlign,   qryLocal, alignSize); }
+    output.alignSize = x;
+
+    if (output.subjectAlign != 0)  { memcpy (output.subjectAlign, subLocal, output.alignSize); }
+    if (output.queryAlign   != 0)  { memcpy (output.queryAlign,   qryLocal, output.alignSize); }
+
+#if 0
+    printf ("\nALIGN: nbGapQry=%d   nbGapSbj=%d   \n", output.nbGapQry, output.nbGapSbj);
+    const LETTER* convert = EncodingManager::singleton().getEncodingConversion(SUBSEED, ASCII);
+    for (u_int32_t ii=0; ii<x; ii++)  { printf ("%c", convert[(int)qryLocal[ii]]);  }  printf("\n");
+    for (u_int32_t ii=0; ii<x; ii++)  { printf ("%c", (qryLocal[ii]==subLocal[ii] && qryLocal[ii] != CODE_X ? '|' : ' '));  }  printf("\n");
+    for (u_int32_t ii=0; ii<x; ii++)  { printf ("%c", convert[(int)subLocal[ii]]);  }  printf("\n");
+#endif
 
     /** We return the result. */
     return y;
@@ -308,75 +316,20 @@ size_t AlignmentSplitter::splitAlign (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-size_t AlignmentSplitter::splitAlign (Alignment& align,  u_int32_t* splittab)
+size_t AlignmentSplitter::splitAlign (Alignment& align,  SplitOutput& output)
 {
     size_t result = 0;
 
-    u_int32_t identity;
-    u_int32_t nbGap;
-    u_int32_t nbMis;
-    u_int32_t alignSize;
-
     result = splitAlign (
-        align.getSbjSequence()->data.letters.data,
-        align.getQrySequence()->data.letters.data,
-        align.getSbjRange().begin,
-        align.getSbjRange().end,
-        align.getQryRange().begin,
-        align.getQryRange().end,
-        splittab,
-        identity, nbGap, nbMis, alignSize,
-        0, 0
+        align.getSequence(Alignment::SUBJECT)->data.letters.data,
+        align.getSequence(Alignment::QUERY)->data.letters.data,
+        align.getRange(Alignment::SUBJECT),
+        align.getRange(Alignment::QUERY),
+        output
     );
-
-    /** We update some alignment information. */
-    align.setNbIdentities (identity);
-    align.setNbGaps       (nbGap);
-    align.setNbMisses     (nbMis);
-
-#if 0
-    const LETTER* convert = EncodingManager::singleton().getEncodingConversion(SUBSEED, ASCII);
-    printf ("\nAlignmentSplitter::splitAlign:  nbAlign=%ld\n", result);
-    for (u_int32_t ii=0; ii<alignSize; ii++)  { printf ("%c", convert[(int)b1[ii]]);  }  printf("\n");
-    for (u_int32_t ii=0; ii<alignSize; ii++)  { printf ("%c", (b1[ii]==b2[ii] && b1[ii] != CODE_X ? '|' : ' ');  }  printf("\n");
-    for (u_int32_t ii=0; ii<alignSize; ii++)  { printf ("%c", convert[(int)b2[ii]]);  }  printf("\n");
-#endif
 
     /** We return the result. */
     return result;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-void AlignmentSplitter::computeInfo (Alignment& align)
-{
-    u_int32_t identity  = 0;
-    u_int32_t nbGap     = 0;
-    u_int32_t nbMis     = 0;
-    u_int32_t alignSize = 0;
-
-    splitAlign (
-        align.getSbjSequence()->data.letters.data,
-        align.getQrySequence()->data.letters.data,
-        align.getSbjRange().begin,
-        align.getSbjRange().end,
-        align.getQryRange().begin,
-        align.getQryRange().end,
-        0,
-        identity, nbGap, nbMis, alignSize,
-        0, 0
-    );
-
-    /** We update some alignment information. */
-    align.setNbIdentities (identity);
-    align.setNbGaps       (nbGap);
-    align.setNbMisses     (nbMis);
 }
 
 /*********************************************************************

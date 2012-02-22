@@ -90,11 +90,16 @@ void AlignmentContainerShrinkCmd::execute ()
 
             size_t shift = MIN (a1.getLength(), a2.getLength()) / _shiftDivisor;
 
+            /** Shortcuts. */
+            const misc::Range32& sbjR1 = a1.getRange(Alignment::SUBJECT);
+            const misc::Range32& sbjR2 = a2.getRange(Alignment::SUBJECT);
+            const misc::Range32& qryR1 = a1.getRange(Alignment::QUERY);
+            const misc::Range32& qryR2 = a2.getRange(Alignment::QUERY);
 
-            if ((a1.getSbjRange().end     + shift >= a2.getSbjRange().end     - shift) &&
-                (a1.getSbjRange().begin   - shift <= a2.getSbjRange().begin   + shift) &&
-                (a1.getQryRange().end     + shift >= a2.getQryRange().end     - shift) &&
-                (a1.getQryRange().begin   - shift <= a2.getQryRange().begin   + shift) )
+            if ((sbjR1.end     + shift >= sbjR2.end     - shift) &&
+                (sbjR1.begin   - shift <= sbjR2.begin   + shift) &&
+                (qryR1.end     + shift >= qryR2.end     - shift) &&
+                (qryR1.begin   - shift <= qryR2.begin   + shift) )
             {
                 if (a1.getBitScore() > a2.getBitScore())
                 {
@@ -106,10 +111,10 @@ void AlignmentContainerShrinkCmd::execute ()
                 }
             }
 
-            else if ((a2.getSbjRange().end     + shift >= a1.getSbjRange().end     - shift) &&
-                     (a2.getSbjRange().begin   - shift <= a1.getSbjRange().begin   + shift) &&
-                     (a2.getQryRange().end     + shift >= a1.getQryRange().end     - shift) &&
-                     (a2.getQryRange().begin   - shift <= a1.getQryRange().begin   + shift) )
+            if ((sbjR2.end     + shift >= sbjR1.end     - shift) &&
+                (sbjR2.begin   - shift <= sbjR1.begin   + shift) &&
+                (qryR2.end     + shift >= qryR1.end     - shift) &&
+                (qryR2.begin   - shift <= qryR1.begin   + shift) )
             {
 
                 if (a1.getBitScore() > a2.getBitScore())

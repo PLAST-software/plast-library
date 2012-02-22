@@ -47,6 +47,23 @@ class IAlignmentSplitter : public dp::SmartPointer
 {
 public:
 
+    /** Result information of a dynamic prog. */
+    struct SplitOutput
+    {
+        u_int32_t*          splittab;
+        u_int32_t           identity;
+        u_int32_t           positive;
+        u_int32_t           nbGapQry;
+        u_int32_t           nbGapSbj;
+        u_int32_t           nbMis;
+        u_int32_t           alignSize;
+        database::LETTER*   subjectAlign;
+        database::LETTER*   queryAlign;
+
+        SplitOutput (u_int32_t* tab=0, database::LETTER* sbjAlign=0, database::LETTER* qryAlign=0)
+            : splittab(tab), subjectAlign(sbjAlign), queryAlign(qryAlign) {}
+    };
+
     /** Split a gap alignment into ungap alignments.
      * \param[in] subjectSeq        : buffer holding the subject sequence
      * \param[in] querySeq          : buffer holding the query sequence
@@ -65,17 +82,9 @@ public:
     virtual size_t splitAlign (
         const database::LETTER* subjectSeq,
         const database::LETTER* querySeq,
-        u_int32_t  subjectStartInSeq,
-        u_int32_t  subjectEndInSeq,
-        u_int32_t  queryStartInSeq,
-        u_int32_t  queryEndInSeq,
-        u_int32_t* splittab,
-        u_int32_t& identity,
-        u_int32_t& nbGap,
-        u_int32_t& nbMis,
-        u_int32_t& alignSize,
-        database::LETTER* subjectAlign = 0,
-        database::LETTER* queryAlign   = 0
+        const misc::Range32&    sbjRange,
+        const misc::Range32&    qryRange,
+        SplitOutput& output
     ) = 0;
 
     /** Returns the split ungap parts from a (gap) alignment.
@@ -83,12 +92,7 @@ public:
      * \param[out] splittab : concatenated offsets of the ungap split
      * \return the number of splits
      */
-    virtual size_t splitAlign (core::Alignment& align,  u_int32_t* splittab) = 0;
-
-    /** Modify the provided alignment by computing some information (nb gap, identity...)
-     * \param[out] align : alignment instance to be updated.
-     */
-    virtual void computeInfo (core::Alignment& align) = 0;
+    virtual size_t splitAlign (core::Alignment& align,  SplitOutput& output) = 0;
 };
 
 /********************************************************************************/
