@@ -89,6 +89,19 @@ template <class T> struct Range
 typedef Range<int32_t>  Range32;
 typedef Range<u_int64_t>  Range64;
 
+/** Define a pair for [rank;number] that gives information about iteration progression. */
+struct ProgressInfo
+{
+    u_int32_t rank;
+    u_int32_t number;
+
+    ProgressInfo (u_int32_t rk=0, u_int32_t nb=0) : rank(rk), number(nb) {}
+    void set (u_int32_t rk, u_int32_t nb)  { rank = rk;  number = nb; }
+    ProgressInfo& operator++()  { rank++;  return *this; }
+
+    static ProgressInfo& null ()  { static ProgressInfo instance; return instance; }
+};
+
 /** */
 enum ReadingFrame_e
 {
