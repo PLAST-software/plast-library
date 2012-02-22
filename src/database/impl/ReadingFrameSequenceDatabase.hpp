@@ -103,7 +103,7 @@ public:
     /** Returns the frame shift.
      * \return the frame shift
      */
-    size_t getFrameShift ()  {  return isTopFrame() ? (_frame - 0) : (_frame -3);  }
+    int8_t getFrameShift ()  {  return isTopFrame() ? (_frame +1) : (2 - _frame);  }
 
     /** Return the referenced nucleotid database.
      * \return the nucleotid database.
