@@ -68,46 +68,59 @@ public:
     /** Structure that links alignment and sequence information.  */
     struct AlignSequenceInfo
     {
-        AlignSequenceInfo () : _sequence(0), _nbGaps(0) {}
+        AlignSequenceInfo () : _sequence(0), _nbGaps(0), _frame(1) {}
 
         AlignSequenceInfo (
             database::ISequence* sequence,
             misc::Range32        range,
-            u_int16_t            nbGaps=0)
-            : _sequence(sequence), _range(range), _nbGaps(nbGaps) {}
+            u_int16_t            nbGaps = 0,
+            int8_t               frame  = 1
+        )  : _sequence(sequence), _range(range), _nbGaps(nbGaps), _frame(1)  {}
 
         database::ISequence* _sequence;
         misc::Range32        _range;
         u_int16_t            _nbGaps;
+
+        /** Frame for the alignment. +1, +2, +3 ,-1, -2 ,-3 according to the frame. */
+        int8_t _frame;
+
         u_int64_t getOffsetInDb () const { return _range.begin + _sequence->offsetInDb; }
     };
 
+    /** Structure that provides transient information.  */
+    struct AlignExtraInfo
+    {
+        misc::ProgressInfo qryProgress;
+        misc::ProgressInfo sbjProgress;
+        misc::ProgressInfo alignProgress;
+    };
+
     /**********************************************************************/
-    enum DbKind { QUERY, SUBJECT };
+    enum DbKind { QUERY=0, SUBJECT=1 };
 
     /**********************************************************************
      * Default constructor.
      **********************************************************************/
-    Alignment ()  :  _length(0), _evalue(0), _bitscore(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0)  {}
+    Alignment ()  :  _length(0), _evalue(0), _bitscore(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)  {}
 
     /**********************************************************************
      * Constructor that just define query and subject ranges (mainly for test purpose).
      **********************************************************************/
     Alignment (const misc::Range32& sbjRange, const misc::Range32& qryRange)
-        :  _length(0), _evalue(0), _bitscore(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0)
+        :  _length(0), _evalue(0), _bitscore(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)
     {
-        setSbjRange (sbjRange);
-        setQryRange (qryRange);
+        setRange (SUBJECT, sbjRange);
+        setRange (QUERY,   qryRange);
     }
 
     /**********************************************************************
      * Constructor that just define query and subject ranges (mainly for test purpose).
      **********************************************************************/
     Alignment (const AlignSequenceInfo& sbjInfo, const AlignSequenceInfo& qryInfo)
-        :  _length(0), _evalue(0), _bitscore(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0)
+        :  _length(0), _evalue(0), _bitscore(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)
     {
-        _sbjInfo = sbjInfo;
-        _qryInfo = qryInfo;
+        _info[QUERY]   = qryInfo;
+        _info[SUBJECT] = sbjInfo;
     }
 
     /**********************************************************************
@@ -126,18 +139,23 @@ public:
         u_int32_t qryRightOffset,
         u_int32_t sbjRightOffset
     )
-        : _length(0), _evalue(0), _bitscore(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0)
+        : _length(0), _evalue(0), _bitscore(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)
     {
-        _qryInfo._sequence     = (database::ISequence*)qrySequence;
-        _qryInfo._range.begin  = qryOffset - qryLeftOffset;
-        _qryInfo._range.end    = qryOffset + qryRightOffset;
+        _info[QUERY]._sequence     = (database::ISequence*)qrySequence;
+        _info[QUERY]._range.begin  = qryOffset - qryLeftOffset;
+        _info[QUERY]._range.end    = qryOffset + qryRightOffset;
 
-        _sbjInfo._sequence     = (database::ISequence*)sbjSequence;
-        _sbjInfo._range.begin  = sbjOffset - sbjLeftOffset;
-        _sbjInfo._range.end    = sbjOffset + sbjRightOffset;
+        _info[SUBJECT]._sequence     = (database::ISequence*)sbjSequence;
+        _info[SUBJECT]._range.begin  = sbjOffset - sbjLeftOffset;
+        _info[SUBJECT]._range.end    = sbjOffset + sbjRightOffset;
 
         _length = 1 + MAX (sbjRightOffset + sbjLeftOffset,  qryRightOffset + qryLeftOffset);
     }
+
+    /**********************************************************************
+     * Constructor that configure an alignment from some string source (mainly for test purpose).
+     **********************************************************************/
+    Alignment (const std::string& source, const std::string& format="tabulated");
 
     /**********************************************************************
      * Define some way to compare two alignments. It returns the overlap ratio
@@ -182,21 +200,6 @@ public:
     /**********************************************************************
      * Getters.
      **********************************************************************/
-    const AlignSequenceInfo& getSbjInfo () const { return _sbjInfo; }
-    const AlignSequenceInfo& getQryInfo () const { return _qryInfo; }
-
-    const database::ISequence* getSbjSequence () const { return _sbjInfo._sequence; }
-    const database::ISequence* getQrySequence () const { return _qryInfo._sequence; }
-
-    const misc::Range32& getSbjRange ()  const { return _sbjInfo._range; }
-    const misc::Range32& getQryRange ()  const { return _qryInfo._range; }
-
-    u_int16_t getSbjNbGaps () const { return _sbjInfo._nbGaps; }
-    u_int16_t getQryNbGaps () const { return _qryInfo._nbGaps; }
-
-    double getSbjCoverage () const  {  return (double)(getSbjRange().getLength()) / (double) (getSbjSequence()->getLength());  }
-    double getQryCoverage () const  { return (double)(getQryRange().getLength()) / (double) (getQrySequence()->getLength());  }
-
     u_int32_t getLength ()  const { return _length; }
 
     double    getEvalue   ()  const { return _evalue;    }
@@ -212,25 +215,34 @@ public:
     u_int32_t getNbMisses ()           const { return _nbMisses; }
     double    getPercentMisses ()      const { return (double)getNbMisses() / (double)getLength(); }
 
-    u_int32_t getNbGaps ()        const { return getSbjNbGaps() + getQryNbGaps(); }
+    u_int32_t getNbGaps ()        const { return getNbGaps(QUERY) + getNbGaps(SUBJECT); }
     double    getPercentGaps ()   const { return (double)getNbGaps() / (double)getLength(); }
+
+    const misc::ProgressInfo& getQryProgress () const
+    {
+        if (_extraInfo != 0)  { return _extraInfo->qryProgress;     }
+        else                  { return misc::ProgressInfo::null (); }
+    }
+
+    const misc::ProgressInfo& getSbjProgress () const
+    {
+        if (_extraInfo != 0)  { return _extraInfo->sbjProgress;     }
+        else                  { return misc::ProgressInfo::null (); }
+    }
+
+    const misc::ProgressInfo& getAlignProgress () const
+    {
+        if (_extraInfo != 0)  { return _extraInfo->alignProgress;     }
+        else                  { return misc::ProgressInfo::null (); }
+    }
 
     /**********************************************************************
      * Setters.
      **********************************************************************/
-    void setSbjSequence  (database::ISequence* seq) { _sbjInfo._sequence = seq; }
-    void setQrySequence  (database::ISequence* seq) { _qryInfo._sequence = seq; }
-
-    void setSbjRange     (const misc::Range32& range) { _sbjInfo._range = range; }
-    void setQryRange     (const misc::Range32& range) { _qryInfo._range = range; }
-
-    void setSbjNbGaps    (u_int16_t nb)  { _sbjInfo._nbGaps = nb; }
-    void setQryNbGaps    (u_int16_t nb)  { _qryInfo._nbGaps = nb; }
-
     void setNbGaps       (u_int16_t nb)
     {
-        _qryInfo._nbGaps = (nb%2==0 ? nb/2 : (nb-1)/2);
-        _sbjInfo._nbGaps = (nb%2==0 ? nb/2 : (nb+1)/2);
+        setNbGaps (QUERY,   (nb%2==0 ? nb/2 : (nb-1)/2));
+        setNbGaps (SUBJECT, (nb%2==0 ? nb/2 : (nb+1)/2));
     }
 
     void setLength       (u_int32_t nb)  { _length = nb; }
@@ -239,35 +251,26 @@ public:
     void setBitScore     (double    value)  { _bitscore = value;  }
     void setScore        (u_int16_t value)  { _score    = value;  }
 
-    void setNbIdentities (u_int32_t nb)  { _nbIdentities = nb; }
-    void setNbPositives  (u_int32_t nb)  { _nbPositives  = nb; }
-    void setNbMisses     (u_int32_t nb)  { _nbMisses     = nb; }
+    void setNbIdentities (u_int32_t nb)             { _nbIdentities = nb;   }
+    void setNbPositives  (u_int32_t nb)             { _nbPositives  = nb;   }
+    void setNbMisses     (u_int32_t nb)             { _nbMisses     = nb;   }
+    void setExtraInfo    (AlignExtraInfo* info)     { _extraInfo    = info; }
 
     /**********************************************************************
      * Getters and setters (generic).
      **********************************************************************/
-    const database::ISequence*  getSequence   (DbKind kind) const  { return kind==SUBJECT ? getSbjSequence()  : getQrySequence();  }
-    const misc::Range32&        getRange      (DbKind kind) const  { return kind==SUBJECT ? getSbjRange()     : getQryRange();     }
-    u_int16_t                   getNbGaps     (DbKind kind) const  { return kind==SUBJECT ? getSbjNbGaps()    : getQryNbGaps();    }
-    double                      getCoverage   (DbKind kind) const  { return kind==SUBJECT ? getSbjCoverage()  : getQryCoverage();  }
+    const AlignSequenceInfo&    getInfo       (DbKind kind) const  { return _info[kind]; }
 
-    void setSequence  (DbKind kind, database::ISequence* seq)
-    {
-        if (kind==SUBJECT)  { setSbjSequence (seq); }
-        else                { setQrySequence (seq); }
-    }
+    const database::ISequence*  getSequence   (DbKind kind) const  { return getInfo(kind)._sequence;  }
+    const misc::Range32&        getRange      (DbKind kind) const  { return getInfo(kind)._range;     }
+    u_int16_t                   getNbGaps     (DbKind kind) const  { return getInfo(kind)._nbGaps;    }
+    double                      getCoverage   (DbKind kind) const  { return  (double)(getRange(kind).getLength()) / (double) (getSequence(kind)->getLength());  }
+    int8_t                      getFrame      (DbKind kind) const  { return getInfo(kind)._frame; }
 
-    void setRange  (DbKind kind, const misc::Range32& range)
-    {
-        if (kind==SUBJECT)  { setSbjRange (range); }
-        else                { setQryRange (range); }
-    }
-
-    void setNbGaps (DbKind kind, u_int16_t nb)
-    {
-        if (kind==SUBJECT)  { setSbjNbGaps (nb); }
-        else                { setQryNbGaps (nb); }
-    }
+    void setSequence  (DbKind kind, database::ISequence* seq)    {  _info[kind]._sequence = seq;    }
+    void setRange     (DbKind kind, const misc::Range32& range)  {  _info[kind]._range    = range;  }
+    void setNbGaps    (DbKind kind, u_int16_t nb)                {  _info[kind]._nbGaps   = nb;     }
+    void setFrame     (DbKind kind, int8_t frame)                {  _info[kind]._frame    = frame;  }
 
     /**********************************************************************
      * Debug string.
@@ -277,17 +280,15 @@ public:
     {
         std::stringstream ss;
         ss << "ALIGN  "
-           << "sbj [" << getSbjRange().begin << ":" << getSbjRange().end << "]  "
-           << "qry [" << getQryRange().begin << ":" << getQryRange().end << "]  ";
+           << "sbj [" << getRange(SUBJECT).begin << ":" << getRange(SUBJECT).end << "]  "
+           << "qry [" << getRange(QUERY).begin   << ":" << getRange(QUERY).end   << "]  ";
         return ss.str ();
     }
 
 private:
 
     /** */
-    AlignSequenceInfo _sbjInfo;
-    /** */
-    AlignSequenceInfo _qryInfo;
+    AlignSequenceInfo _info[2];
 
     /** Length of the alignment. */
     u_int32_t _length;
@@ -309,6 +310,9 @@ private:
 
     /** Number of missed residues alignments. */
     u_int32_t _nbMisses;
+
+    /** Extra information. */
+    AlignExtraInfo* _extraInfo;
 };
 
 /********************************************************************************/
