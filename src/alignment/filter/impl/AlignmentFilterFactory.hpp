@@ -14,61 +14,46 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/** \file IAlignmentFilter.hpp
+/** \file AlignmentFilterXML.hpp
  *  \brief Concepts about alignments filtering.
  *  \date 07/11/2011
  *  \author edrezen
  */
 
-#ifndef _IALIGNMENT_FILTER_HPP_
-#define _IALIGNMENT_FILTER_HPP_
+#ifndef _ALIGNMENT_FILTER_FACTORY_HPP_
+#define _ALIGNMENT_FILTER_FACTORY_HPP_
 
 /********************************************************************************/
 
-#include <designpattern/api/SmartPointer.hpp>
-#include <designpattern/api/IProperty.hpp>
-#include <alignment/core/api/Alignment.hpp>
-
-#include <string>
-#include <vector>
+#include <alignment/filter/impl/AbstractAlignmentFilterFactory.hpp>
 
 /********************************************************************************/
 namespace alignment {
 namespace filter    {
+namespace impl      {
 /********************************************************************************/
 
-/** \brief Definition of an alignment filtering
- */
-class IAlignmentFilter : public dp::SmartPointer
-{
-public:
-
-    virtual bool isOk (const core::Alignment& align) const = 0;
-
-    virtual IAlignmentFilter* clone (const std::vector<std::string>& args) = 0;
-
-    virtual dp::IProperties* getProperties () = 0;
-
-    virtual std::string getName () = 0;
-
-    virtual std::string toString () = 0;
-
-    virtual std::string getTitle () = 0;
-    virtual void setTitle (const std::string& title) = 0;
-};
-
-/********************************************************************************/
 /** \brief Definition of an alignment filtering manager
  */
-class IAlignmentFilterFactory : public dp::SmartPointer
+class AlignmentFilterFactory : public AbstractAlignmentFilterFactory
 {
 public:
 
-    virtual IAlignmentFilter* createFilter (const char* name, ...) = 0;
+    /** */
+    AlignmentFilterFactory () {}
+
+    /** */
+    virtual ~AlignmentFilterFactory () {}
+
+    /** */
+    IAlignmentFilter* createFilter (const char* name, ...);
+
+private:
+
 };
 
 /********************************************************************************/
-}}; /* end of namespaces. */
+}}}; /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* _IALIGNMENT_FILTER_HPP_ */
+#endif /* _ALIGNMENT_FILTER_FACTORY_HPP_ */

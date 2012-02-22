@@ -46,29 +46,6 @@ namespace impl      {
 *********************************************************************/
 AlignmentFilterFactoryXML::AlignmentFilterFactoryXML ()
 {
-    /** We create some filters. */
-    _filtersList.push_back (new AlignmentFilter_HitFrom());
-    _filtersList.push_back (new AlignmentFilter_HitTo());
-    _filtersList.push_back (new AlignmentFilter_QueryFrom());
-    _filtersList.push_back (new AlignmentFilter_QueryTo());
-    _filtersList.push_back (new AlignmentFilter_Length());
-    _filtersList.push_back (new AlignmentFilter_Evalue());
-    _filtersList.push_back (new AlignmentFilter_Bitscore());
-    _filtersList.push_back (new AlignmentFilter_NbIdentities());
-    _filtersList.push_back (new AlignmentFilter_PercentIdentities());
-    _filtersList.push_back (new AlignmentFilter_QueryCoverage());
-    _filtersList.push_back (new AlignmentFilter_SubjectCoverage());
-
-    /** We build the map of [name,filter] couples from the list. */
-    for (list<IAlignmentFilter*>::iterator it = _filtersList.begin(); it != _filtersList.end(); it++)
-    {
-        _filtersMap [(*it)->getName()] = *it;
-        DEBUG (("AlignmentFilterFactoryXML::AlignmentFilterFactoryXML  add filter '%s'\n",
-            (*it)->getName().c_str ()
-        ));
-    }
-
-    DEBUG (("AlignmentFilterFactoryXML::AlignmentFilterFactoryXML  map.size=%ld \n", _filtersMap.size ()));
 }
 
 /*********************************************************************
@@ -81,13 +58,6 @@ AlignmentFilterFactoryXML::AlignmentFilterFactoryXML ()
 *********************************************************************/
 AlignmentFilterFactoryXML::~AlignmentFilterFactoryXML ()
 {
-    /** We delete all prototype instances from the filters map. */
-    for (map<string,IAlignmentFilter*>::iterator it = _filtersMap.begin(); it != _filtersMap.end(); it++)
-    {
-        delete it->second;
-    }
-
-    _filtersMap.clear ();
 }
 
 /*********************************************************************
@@ -128,7 +98,7 @@ void AlignmentFilterFactoryXML::parseXmlFile (const string& xmlFileUri, XmlFilte
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IAlignmentFilter* AlignmentFilterFactoryXML::createFilter (const std::string& xmlFileUri)
+IAlignmentFilter* AlignmentFilterFactoryXML::createFilter (const char* name, ...)
 {
     IAlignmentFilter* result = 0;
 
@@ -138,7 +108,7 @@ IAlignmentFilter* AlignmentFilterFactoryXML::createFilter (const std::string& xm
     XmlFilterListener listener;
 
     /** We parse the XML file. */
-    parseXmlFile (xmlFileUri, listener);
+    parseXmlFile (name, listener);
 
     DEBUG (("AlignmentFilterFactoryXML::createFilter : found %ld rules\n", listener.getRules().size() ));
 
@@ -153,6 +123,9 @@ IAlignmentFilter* AlignmentFilterFactoryXML::createFilter (const std::string& xm
     DEBUG (("AlignmentFilterFactoryXML::createFilter :  filters.size=%ld\n", filters.size() ));
 
     result = getFilter (filters, listener.isExclusive());
+
+    /** We may have to set the title. */
+    if (result != 0)  { result->setTitle (listener.getTitle()); }
 
     DEBUG (("AlignmentFilterFactoryXML::createFilter : result=%p\n", result));
 
@@ -174,7 +147,11 @@ IAlignmentFilter* AlignmentFilterFactoryXML::createFilterFromRule (const Rule& r
 
     std::vector<std::string> args;
     args.push_back (rule._operator);
-    args.push_back (rule._value);
+
+    for (size_t i=0; i<rule._values.size(); i++)
+    {
+        args.push_back (rule._values[i]);
+    }
 
     /** We try to get an entry from the filters map given a name. */
     map<string,IAlignmentFilter*>::iterator lookup = _filtersMap.find (rule._accessor);
@@ -185,13 +162,19 @@ IAlignmentFilter* AlignmentFilterFactoryXML::createFilterFromRule (const Rule& r
         result = (lookup->second)->clone (args);
     }
 
-    DEBUG (("AlignmentFilterFactoryXML::createFilterFromRule  access='%s'  op='%s'  val='%s'  => result=%p \n",
+    DEBUG (("AlignmentFilterFactoryXML::createFilterFromRule  access='%s'  op='%s'  nbValues=%ld  => result=%p \n",
         rule._accessor.c_str(),
         rule._operator.c_str(),
-        rule._value.c_str(),
+        rule._values.size(),
         result
     ));
 
+    for (size_t i=0; i<args.size(); i++)
+    {
+        DEBUG (("AlignmentFilterFactoryXML::createFilterFromRule        args[%ld]='%s'\n", i, args[i].c_str() ));
+    }
+
+    /** We return the result. */
     return result;
 }
 
@@ -203,25 +186,15 @@ IAlignmentFilter* AlignmentFilterFactoryXML::createFilterFromRule (const Rule& r
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IAlignmentFilter* AlignmentFilterFactoryXML::getFilter (list<IAlignmentFilter*> filters, bool isExclusive)
+IAlignmentFilter* AlignmentFilterFactoryXML::getFilter (const list<IAlignmentFilter*>& filters, bool isExclusive)
 {
     if (filters.empty())  { return 0; }
 
-    IAlignmentFilter* first = filters.front();
-
-    if (filters.size() == 1)  { return first; }
+    if (filters.size() == 1)  { return filters.front(); }
     else
     {
-        filters.pop_front();
-
-        if (isExclusive)
-        {
-            return new AlignmentFilterAnd (first, getFilter (filters, isExclusive));
-        }
-        else
-        {
-            return new AlignmentFilterOr (first, getFilter (filters, isExclusive));
-        }
+        if (isExclusive)    {  return new AlignmentFilterAnd (filters);  }
+        else                {  return new AlignmentFilterOr  (filters);  }
     }
 }
 
@@ -238,6 +211,8 @@ void AlignmentFilterFactoryXML::XmlFilterListener::update (EventInfo* evt, ISubj
     XmlTagOpenEvent* open = dynamic_cast<XmlTagOpenEvent*> (evt);
     if (open)
     {
+              if (open->_name.compare ("BRule") == 0)  {  _currentRule.reset ();   }
+        else  if (open->_name.compare ("value") == 0)  {  _isReadingValue = true;  }
         return;
     }
 
@@ -249,12 +224,22 @@ void AlignmentFilterFactoryXML::XmlFilterListener::update (EventInfo* evt, ISubj
             /** We add the rule into the list. */
             _rules.push_back (_currentRule);
         }
+        else if (close->_name.compare ("name")      == 0)  {  _title                 = _lastText;  }
         else if (close->_name.compare ("accessor")  == 0)  {  _currentRule._accessor = _lastText;  }
         else if (close->_name.compare ("operator")  == 0)  {  _currentRule._operator = _lastText;  }
-        else if (close->_name.compare ("value")     == 0)  {  _currentRule._value    = _lastText;  }
-        else if (close->_name.compare ("exclusive") == 0)
+        else if (close->_name.compare ("exclusive") == 0)  {  _exclusive = _lastText.compare ("true") == 0;  }
+        else if (close->_name.compare ("value")     == 0)
         {
-            _exclusive = _lastText.compare ("true") == 0;
+            _isReadingValue = false;
+
+            if (_currentRule._values.empty())
+            {
+                _currentRule._values.push_back (_lastText);
+            }
+        }
+        else if (_isReadingValue == true)
+        {
+            _currentRule._values.push_back (_lastText);
         }
 
         return;

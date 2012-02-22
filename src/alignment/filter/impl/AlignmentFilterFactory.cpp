@@ -14,61 +14,54 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/** \file IAlignmentFilter.hpp
- *  \brief Concepts about alignments filtering.
- *  \date 07/11/2011
- *  \author edrezen
- */
+#include <alignment/filter/impl/AlignmentFilterFactory.hpp>
 
-#ifndef _IALIGNMENT_FILTER_HPP_
-#define _IALIGNMENT_FILTER_HPP_
-
-/********************************************************************************/
-
-#include <designpattern/api/SmartPointer.hpp>
-#include <designpattern/api/IProperty.hpp>
-#include <alignment/core/api/Alignment.hpp>
+#include <designpattern/impl/XmlReader.hpp>
 
 #include <string>
-#include <vector>
+#include <iostream>
+#include <fstream>
+
+#include <stdarg.h>
+
+#include <stdio.h>
+#define DEBUG(a)  //printf a
+
+using namespace std;
+using namespace dp;
+using namespace dp::impl;
 
 /********************************************************************************/
 namespace alignment {
 namespace filter    {
+namespace impl      {
 /********************************************************************************/
 
-/** \brief Definition of an alignment filtering
- */
-class IAlignmentFilter : public dp::SmartPointer
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+IAlignmentFilter* AlignmentFilterFactory::createFilter (const char* name, ...)
 {
-public:
+    IAlignmentFilter* result = 0;
 
-    virtual bool isOk (const core::Alignment& align) const = 0;
+    /** We build the arguments as a vector from the ellipsis. */
+    std::vector<std::string> args;
+    va_list ap;
+    va_start(ap, name);
+    for (const char* val=0; (val = va_arg(ap, const char*)) != 0 ; )  { args.push_back (val); }
 
-    virtual IAlignmentFilter* clone (const std::vector<std::string>& args) = 0;
+    /** We get a new filter from the provided name and the arguments. */
+    result = clone (name, args);
 
-    virtual dp::IProperties* getProperties () = 0;
-
-    virtual std::string getName () = 0;
-
-    virtual std::string toString () = 0;
-
-    virtual std::string getTitle () = 0;
-    virtual void setTitle (const std::string& title) = 0;
-};
-
-/********************************************************************************/
-/** \brief Definition of an alignment filtering manager
- */
-class IAlignmentFilterFactory : public dp::SmartPointer
-{
-public:
-
-    virtual IAlignmentFilter* createFilter (const char* name, ...) = 0;
-};
+    /** We return the result. */
+    return result;
+}
 
 /********************************************************************************/
-}}; /* end of namespaces. */
+}}}; /* end of namespaces. */
 /********************************************************************************/
-
-#endif /* _IALIGNMENT_FILTER_HPP_ */

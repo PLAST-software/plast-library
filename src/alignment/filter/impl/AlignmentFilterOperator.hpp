@@ -26,6 +26,9 @@
 /********************************************************************************/
 
 #include <alignment/filter/api/IAlignmentFilter.hpp>
+#include <designpattern/impl/Property.hpp>
+#include <regex.h>
+#include <stdarg.h>
 
 /********************************************************************************/
 namespace alignment {
@@ -33,16 +36,134 @@ namespace filter    {
 namespace impl      {
 /********************************************************************************/
 
-/** We define a class only for naming filters with one unary operator. */
-template <typename T> class AlignmentFilterUnaryOperator: public IAlignmentFilter
+/** Some factorization. */
+class AbstractAlignmentFilter : public IAlignmentFilter
+{
+public:
+    std::string getTitle () { return _title; }
+    void setTitle (const std::string& title)  { _title = title; }
+
+private:
+    std::string _title;
+};
+
+/********************************************************************************/
+
+/** \brief Definition of an alignment filtering
+ */
+class AlignmentFilterBinaryOperator : public AbstractAlignmentFilter
 {
 public:
 
-    AlignmentFilterUnaryOperator () : _operator(UNKNOWN), _value(0)  {}
+    AlignmentFilterBinaryOperator (std::list<IAlignmentFilter*>& filters) : _filters(filters) {}
+    virtual ~AlignmentFilterBinaryOperator () {}
 
-    AlignmentFilterUnaryOperator (const std::vector<std::string>& args) : _operator(UNKNOWN), _value(0)
+    bool isOk (const core::Alignment& align) const;
+
+    dp::IProperties* getProperties ();
+
+    std::string toString ();
+
+protected:
+    std::list<IAlignmentFilter*> _filters;
+
+    virtual bool getResult (bool currentResult, IAlignmentFilter* currentFilter, const core::Alignment& align) const = 0;
+};
+
+/********************************************************************************/
+/** \brief Definition of an alignment filtering
+ */
+class AlignmentFilterAnd : public AlignmentFilterBinaryOperator
+{
+public:
+    AlignmentFilterAnd (std::list<IAlignmentFilter*> filters) : AlignmentFilterBinaryOperator (filters)  {}
+    IAlignmentFilter* clone (const std::vector<std::string>& args) { return new AlignmentFilterAnd (_filters); }
+    virtual std::string getName  () { return "AND"; }
+
+protected:
+    bool getResult (bool result, IAlignmentFilter* currentFilter, const core::Alignment& align) const
     {
-        static const char* convert[] = { "?", "=", "!=", "<", ">", "<=", ">=", 0 };
+        return result && currentFilter->isOk(align);
+    }
+};
+
+/********************************************************************************/
+/** \brief Definition of an alignment filtering
+ */
+class AlignmentFilterOr : public AlignmentFilterBinaryOperator
+{
+public:
+    AlignmentFilterOr (std::list<IAlignmentFilter*> filters) : AlignmentFilterBinaryOperator (filters)  {}
+    IAlignmentFilter* clone (const std::vector<std::string>& args) { return new AlignmentFilterOr (_filters); }
+    virtual std::string getName  () { return "OR"; }
+protected:
+    bool getResult (bool result, IAlignmentFilter* currentFilter, const core::Alignment& align) const
+    {
+        return result || currentFilter->isOk(align);
+    }
+};
+
+/********************************************************************************/
+
+/** We define a class only for naming filters with one unary operator. */
+template <typename T> class AlignmentFilterUnaryOperator : public AbstractAlignmentFilter
+{
+public:
+
+    /** */
+    AlignmentFilterUnaryOperator () : _operator(UNKNOWN) {}
+
+    /** */
+    AlignmentFilterUnaryOperator (const std::vector<std::string>& args) : _operator(UNKNOWN)//, _value(0)
+    {
+        configure (args);
+    }
+
+    /** */
+    dp::IProperties* getProperties ()
+    {
+        dp::IProperties* result = new dp::impl::Properties ();
+        result->add (0, "filter", toString ());
+        return result;
+    }
+
+    /** */
+    std::string toString ()
+    {
+        std::stringstream ss;
+
+        ss << getName () << " " << _operatorStr << " ";
+        for (size_t i=0; i<_values.size(); i++)  {  ss << _values[i] << " ";  }
+
+        return ss.str ();
+    }
+
+protected:
+
+    /** Define an enumeration for basic operators.  */
+    enum OP  {  UNKNOWN, EQ, DIFF, LT, GT, LTE, GTE, IN_RANGE, NOT_IN_RANGE, HOLD, NO_HOLD };
+
+    OP            _operator;
+    T             _value;
+    std::vector<T>  _values;
+
+    std::string _operatorStr;
+
+    /** */
+    void configure (const char* op, va_list ap)
+    {
+        std::vector<std::string> args;
+        args.push_back (op);
+        for (const char* val=0; (val = va_arg(ap, const char*)) != 0 ; )  { args.push_back (val); }
+        configure (args);
+    }
+
+    /** */
+    void configure (const std::vector<std::string>& args)
+    {
+        static const char* convert[] = {
+            "?", "=", "!=", "<", ">", "<=", ">=", "[]", "][", "::", "!:", 0
+        };
 
         for (size_t i=0; (_operator==UNKNOWN) && (convert[i] != 0); i++)
         {
@@ -53,26 +174,35 @@ public:
             }
         }
 
-        std::stringstream ss (args[1]);
-        ss >> _value;
-    }
+        T tmp;
+        for (size_t i=1; i<args.size(); i++)
+        {
+            std::stringstream ss (args[i], std::stringstream::in);
+            ss >> tmp;
+            _values.push_back (tmp);
+        }
 
-    std::string toString ()
-    {
-        std::stringstream ss;
-        ss << getName () << " " << _operatorStr << " " << _value;
-        return ss.str ();
+        if (_values.empty() == false)  {  _value = _values[0];  }
     }
+};
+
+/********************************************************************************/
+
+/**  */
+class AlignmentFilterRegexOperator : public AlignmentFilterUnaryOperator<std::string>
+{
+public:
+
+    /** */
+    AlignmentFilterRegexOperator (const std::vector<std::string>& args);
+
+    AlignmentFilterRegexOperator () : AlignmentFilterUnaryOperator<std::string>()  {}
+
+    ~AlignmentFilterRegexOperator ();
 
 protected:
-
-    /** Define an enumeration for basic operators.  */
-    enum OP  {  UNKNOWN, EQ, DIFF, LT, GT, LTE, GTE };
-
-    OP _operator;
-    T  _value;
-
-    std::string _operatorStr;
+    regex_t     _preg;
+    int         _err;
 };
 
 /********************************************************************************/
@@ -85,6 +215,8 @@ protected:
     { \
     public: \
         AlignmentFilter_##name ()   {} \
+        AlignmentFilter_##name (const char* op, ...) \
+        {   va_list ap;   va_start(ap, op);   configure (op,ap);   va_end(ap);   } \
         AlignmentFilter_##name (const std::vector<std::string>& args) : AlignmentFilterUnaryOperator<type>(args)  {} \
         bool isOk (const core::Alignment& a) const { \
             switch(_operator) \
@@ -95,6 +227,8 @@ protected:
                 case GT:    return (exp) >  _value; \
                 case LTE:   return (exp) <= _value; \
                 case GTE:   return (exp) >= _value; \
+                case IN_RANGE:      return ((exp) >= _values[0])  &&  ((exp) <= _values[1]) ; \
+                case NOT_IN_RANGE:  return ((exp) <  _values[0])  ||  ((exp) >  _values[1]) ; \
                 default:    return false; \
             } \
         } \
@@ -102,12 +236,35 @@ protected:
         std::string getName() {  return std::string(tag); } \
     };
 
+/********************************************************************************/
+
+#define DEFINE_ALIGNMENT_REGEXP_FILTER(tag,name,regexp)  \
+    class AlignmentFilter_##name : public AlignmentFilterRegexOperator   \
+    { \
+    public: \
+        AlignmentFilter_##name ()   {} \
+        AlignmentFilter_##name (const std::vector<std::string>& args) : AlignmentFilterRegexOperator (args)  {} \
+        bool isOk (const core::Alignment& a) const { \
+            if ( (_err != 0) || ((regexp) == 0) )  { return false; } \
+            switch(_operator) \
+            { \
+                case HOLD:      return regexec (&_preg, (regexp), 0, NULL, 0) == 0 ; \
+                case NO_HOLD:   return regexec (&_preg, (regexp), 0, NULL, 0) != 0 ; \
+                default:        return false; \
+            } \
+        } \
+        IAlignmentFilter* clone (const std::vector<std::string>& args) { return new AlignmentFilter_##name (args); } \
+        std::string getName() {  return std::string(tag); } \
+    };
+
+
+/********************************************************************************/
 
 /** Now, we define a bunch of filter classes */
-DEFINE_ALIGNMENT_EXP_FILTER ("HSP hit from",            HitFrom,            u_int32_t,  a.getSbjRange().begin);
-DEFINE_ALIGNMENT_EXP_FILTER ("HSP hit to",              HitTo,              u_int32_t,  a.getSbjRange().end);
-DEFINE_ALIGNMENT_EXP_FILTER ("HSP query from",          QueryFrom,          u_int32_t,  a.getQryRange().begin);
-DEFINE_ALIGNMENT_EXP_FILTER ("HSP query to",            QueryTo,            u_int32_t,  a.getQryRange().end);
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP hit from",            HitFrom,            u_int32_t,  1+a.getRange(alignment::core::Alignment::SUBJECT).begin);
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP hit to",              HitTo,              u_int32_t,  1+a.getRange(alignment::core::Alignment::SUBJECT).end);
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP query from",          QueryFrom,          u_int32_t,  1+a.getRange(alignment::core::Alignment::QUERY).begin);
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP query to",            QueryTo,            u_int32_t,  1+a.getRange(alignment::core::Alignment::QUERY).end);
 
 DEFINE_ALIGNMENT_EXP_FILTER ("HSP alignment length",    Length,             u_int32_t,  a.getLength());
 
@@ -118,91 +275,41 @@ DEFINE_ALIGNMENT_EXP_FILTER ("HSP score",               Score,              u_in
 DEFINE_ALIGNMENT_EXP_FILTER ("HSP # of identities",     NbIdentities,       int32_t,    a.getNbIdentities());
 DEFINE_ALIGNMENT_EXP_FILTER ("HSP % of identities",     PercentIdentities,  double,     a.getPercentIdentities() * 100.0);
 
-DEFINE_ALIGNMENT_EXP_FILTER ("Query Coverage",          QueryCoverage,      double,     a.getQryCoverage()       * 100.0);
-DEFINE_ALIGNMENT_EXP_FILTER ("Hit Coverage",            SubjectCoverage,    double,     a.getSbjCoverage()       * 100.0);
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP # of positive",       NbPositives,        int32_t,    a.getNbPositives());
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP % of positives",      PercentPositives,   double,     a.getPercentPositives() * 100.0);
 
-//DEFINE_ALIGNMENT_EXP_FILTER ("HSP # of misses",         NbMissses,          int32_t,    a.getNbMisses());
-//DEFINE_ALIGNMENT_EXP_FILTER ("HSP % of gaps",           PercentGaps,        double,     a.getPercentGaps()       * 100.0);
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP # of misses",         NbMissses,          int32_t,    a.getNbMisses());
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP % of misses",         PercentMisses,      double,     a.getPercentMisses() * 100.0);
 
-/********************************************************************************/
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP # of gaps",           NbGaps,             int32_t,    a.getNbGaps());
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP % of gaps",           PercentGaps,        double,     a.getPercentGaps()   * 100.0);
 
-/** \brief Definition of an alignment filtering
+DEFINE_ALIGNMENT_EXP_FILTER ("Query Coverage",          QueryCoverage,      double,     a.getCoverage(alignment::core::Alignment::QUERY)       * 100.0);
+DEFINE_ALIGNMENT_EXP_FILTER ("Hit Coverage",            SubjectCoverage,    double,     a.getCoverage(alignment::core::Alignment::SUBJECT)       * 100.0);
+
+DEFINE_ALIGNMENT_EXP_FILTER ("Hit Length",              HitLength,          u_int32_t,  a.getSequence(alignment::core::Alignment::SUBJECT)->getLength() );
+
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP hit gaps",            HitsGaps,           u_int32_t,  a.getNbGaps(alignment::core::Alignment::SUBJECT));
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP query gaps",          QueryGaps,          u_int32_t,  a.getNbGaps(alignment::core::Alignment::QUERY));
+
+/** IMPORTANT ! since we use stringstream, we must use other type than char, otherwise a string holding one digit (like "1") will
+ *  be read as its ASCII code (ie. 49 for "1") and won't have the desired value. The trick is so to use a type that will not be
+ *  interpreted as ASCII string.
  */
-class AlignmentFilterLogical : public IAlignmentFilter
-{
-public:
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP hit frame",           HitFrame,           int16_t,    a.getFrame (alignment::core::Alignment::SUBJECT));
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP query frame",         QueryFrame,         int16_t,    a.getFrame (alignment::core::Alignment::QUERY));
 
-    AlignmentFilterLogical (IAlignmentFilter* f1, IAlignmentFilter* f2) : _f1(f1), _f2(f2)  {}
+DEFINE_ALIGNMENT_EXP_FILTER ("Number of HSPs",          HSPNumber,          int32_t,    a.getAlignProgress().number);
+DEFINE_ALIGNMENT_EXP_FILTER ("HSP rank",                HSPRank,            int32_t,    a.getAlignProgress().rank);
 
-    virtual ~AlignmentFilterLogical () {}
+DEFINE_ALIGNMENT_EXP_FILTER ("Number of hits",          HitsNumber,         int32_t,    a.getSbjProgress().number);
+DEFINE_ALIGNMENT_EXP_FILTER ("Hit rank",                HitRank,            int32_t,    a.getSbjProgress().rank);
 
-    std::string toString () {
-        std::stringstream ss;
-        ss << "(" << _f1->toString()   << ")"
-           << " " << operatorString()  << " "
-           << "(" << _f2->toString()   << ")";
-        return ss.str();
-    }
+DEFINE_ALIGNMENT_EXP_FILTER ("Number of queries",       QueryNumber,        int32_t,    a.getQryProgress().number);
+DEFINE_ALIGNMENT_EXP_FILTER ("Query rank",              QueryRank,          int32_t,    a.getQryProgress().rank);
 
-protected:
-    virtual std::string operatorString () = 0;
-    IAlignmentFilter* _f1;
-    IAlignmentFilter* _f2;
-};
-
-/********************************************************************************/
-/** \brief Definition of an alignment filtering
- */
-class AlignmentFilterAnd : public AlignmentFilterLogical
-{
-public:
-    AlignmentFilterAnd (IAlignmentFilter* f1, IAlignmentFilter* f2) : AlignmentFilterLogical (f1,f2)  {}
-    bool isOk (const core::Alignment& align) const { return _f1->isOk(align) && _f2->isOk(align);  }
-    IAlignmentFilter* clone (const std::vector<std::string>& args) { return new AlignmentFilterAnd (_f1, _f2); }
-    virtual std::string getName  () { return "FilterAnd"; }
-protected:
-    std::string operatorString () { return std::string("AND"); }
-};
-
-/********************************************************************************/
-/** \brief Definition of an alignment filtering
- */
-class AlignmentFilterOr : public AlignmentFilterLogical
-{
-public:
-    AlignmentFilterOr (IAlignmentFilter* f1, IAlignmentFilter* f2) : AlignmentFilterLogical (f1,f2)  {}
-    bool isOk (const core::Alignment& align) const  { return _f1->isOk(align) || _f2->isOk(align);  }
-    IAlignmentFilter* clone (const std::vector<std::string>& args) { return new AlignmentFilterOr (_f1, _f2); }
-    virtual std::string getName  () { return "FilterOr"; }
-protected:
-    std::string operatorString () { return std::string("OR"); }
-};
-
-/********************************************************************************/
-
-/** \brief Definition of an alignment filtering
- */
-class AlignmentFilterFalse : public IAlignmentFilter
-{
-public:
-    bool isOk (const core::Alignment& align) const  { return false; }
-    IAlignmentFilter* clone (const std::vector<std::string>& args) { return new AlignmentFilterFalse (); }
-    virtual std::string toString () { return "FALSE"; }
-    virtual std::string getName  () { return "FilterFalse"; }
-};
-
-/********************************************************************************/
-
-/** \brief Definition of an alignment filtering
- */
-class AlignmentFilterTrue : public IAlignmentFilter
-{
-public:
-    bool isOk (const core::Alignment& align) const  { return true; }
-    IAlignmentFilter* clone (const std::vector<std::string>& args) { return new AlignmentFilterTrue (); }
-    virtual std::string toString () { return "TRUE"; }
-    virtual std::string getName  () { return "FilterTrue"; }
-};
+DEFINE_ALIGNMENT_REGEXP_FILTER ("Query definition",     QueryDefinition,    a.getSequence(alignment::core::Alignment::QUERY)->comment);
+DEFINE_ALIGNMENT_REGEXP_FILTER ("Hit definition",       HitDefinition,      a.getSequence(alignment::core::Alignment::SUBJECT)->comment);
 
 /********************************************************************************/
 }}}; /* end of namespaces. */
