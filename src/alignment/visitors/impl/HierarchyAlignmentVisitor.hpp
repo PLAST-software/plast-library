@@ -47,10 +47,12 @@ public:
         std::list<core::Alignment>& alignments
     )
     {
+        misc::ProgressInfo progress (1, alignments.size ());
+
         /** The default implementation just visit each alignment of the given list. */
-        for (std::list<core::Alignment>::iterator it = alignments.begin(); it != alignments.end(); it++)
+        for (std::list<core::Alignment>::iterator it = alignments.begin(); it != alignments.end(); it++, ++progress)
         {
-            this->visitAlignment (& (*it) );
+            this->visitAlignment (& (*it), progress);
         }
     }
 };

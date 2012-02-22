@@ -15,8 +15,10 @@
  *****************************************************************************/
 
 #include <alignment/visitors/impl/TabulatedOutputVisitor.hpp>
+#include <alignment/core/api/Alignment.hpp>
 
 using namespace std;
+using namespace alignment::core;
 
 /********************************************************************************/
 namespace alignment {
@@ -58,7 +60,7 @@ TabulatedOutputVisitor::TabulatedOutputVisitor (const std::string& uri)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void TabulatedOutputVisitor::visitAlignment (core::Alignment* align)
+void TabulatedOutputVisitor::visitAlignment (Alignment* align, const misc::ProgressInfo& progress)
 {
     DEBUG (("TabulatedOutputVisitor::visitAlignment  align=%p\n", align));
 
@@ -111,10 +113,10 @@ void TabulatedOutputVisitor::fillBuffer (core::Alignment* align, char* buffer, s
         align->getLength(),                     _sep,
         align->getNbMisses(),                   _sep,
         align->getNbGaps(),                     _sep,
-        align->getQryRange().begin   + 1,       _sep,  // add +1 because real people count from 1...
-        align->getQryRange().end     + 1,       _sep,
-        align->getSbjRange().begin   + 1,       _sep,
-        align->getSbjRange().end     + 1,       _sep,
+        align->getRange(Alignment::QUERY).begin   + 1,     _sep,  // add +1 because real people count from 1...
+        align->getRange(Alignment::QUERY).end     + 1,     _sep,
+        align->getRange(Alignment::SUBJECT).begin + 1,     _sep,
+        align->getRange(Alignment::SUBJECT).end   + 1,     _sep,
         evalueStr,                              _sep,
         align->getBitScore()
     );
@@ -137,9 +139,9 @@ void TabulatedOutputExtendedVisitor::fillBuffer (core::Alignment* align, char* b
     char extra[128];
     snprintf (extra, sizeof(extra), "%c%.1lf%c%.1lf",
         _sep,
-        100.0 * align->getQryCoverage(),
+        100.0 * align->getCoverage(Alignment::QUERY),
         _sep,
-        100.0 * align->getSbjCoverage()
+        100.0 * align->getCoverage(Alignment::SUBJECT)
     );
 
     /** We add some information at the end of the buffer. */

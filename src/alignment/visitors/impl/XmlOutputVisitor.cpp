@@ -98,7 +98,10 @@ XmlOutputVisitor::~XmlOutputVisitor ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void XmlOutputVisitor::visitQuerySequence (const database::ISequence* seq)
+void XmlOutputVisitor::visitQuerySequence (
+    const database::ISequence* seq,
+    const misc::ProgressInfo& progress
+)
 {
     if (_nbSubject > 0)
     {
@@ -131,7 +134,10 @@ void XmlOutputVisitor::visitQuerySequence (const database::ISequence* seq)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void XmlOutputVisitor::visitSubjectSequence (const database::ISequence* seq)
+void XmlOutputVisitor::visitSubjectSequence (
+    const database::ISequence* seq,
+    const misc::ProgressInfo& progress
+)
 {
     if (_nbSubject > 0)
     {
@@ -157,7 +163,10 @@ void XmlOutputVisitor::visitSubjectSequence (const database::ISequence* seq)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void XmlOutputVisitor::visitAlignment (Alignment* align)
+void XmlOutputVisitor::visitAlignment (
+    core::Alignment* align,
+    const misc::ProgressInfo& progress
+)
 {
     _nbAlign++;
 
@@ -166,10 +175,10 @@ void XmlOutputVisitor::visitAlignment (Alignment* align)
     printline (7, "<Hsp_num>%d</Hsp_num>",                  _nbAlign);
     printline (7, "<Hsp_bit-score>%g</Hsp_bit-score>",      align->getBitScore());
     printline (7, "<Hsp_evalue>%g</Hsp_evalue>",            align->getEvalue());
-    printline (7, "<Hsp_query-from>%d</Hsp_query-from>",    align->getQryRange().begin + 1);
-    printline (7, "<Hsp_query-to>%d</Hsp_query-to>",        align->getQryRange().end   + 1);
-    printline (7, "<Hsp_hit-from>%d</Hsp_hit-from>",        align->getSbjRange().begin + 1);
-    printline (7, "<Hsp_hit-to>%d</Hsp_hit-to>",            align->getSbjRange().end   + 1);
+    printline (7, "<Hsp_query-from>%d</Hsp_query-from>",    align->getRange(Alignment::QUERY).begin + 1);
+    printline (7, "<Hsp_query-to>%d</Hsp_query-to>",        align->getRange(Alignment::QUERY).end   + 1);
+    printline (7, "<Hsp_hit-from>%d</Hsp_hit-from>",        align->getRange(Alignment::SUBJECT).begin + 1);
+    printline (7, "<Hsp_hit-to>%d</Hsp_hit-to>",            align->getRange(Alignment::SUBJECT).end   + 1);
     printline (7, "<Hsp_identity>%d</Hsp_identity>",        align->getNbIdentities());
     printline (7, "<Hsp_gaps>%d</Hsp_gaps>",                align->getNbGaps());
     printline (7, "<Hsp_align-len>%d</Hsp_align-len>",      align->getLength());

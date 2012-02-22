@@ -60,10 +60,10 @@ NucleotidConversionVisitor::NucleotidConversionVisitor (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void NucleotidConversionVisitor::visitAlignment  (Alignment* align)
+void NucleotidConversionVisitor::visitAlignment  (Alignment* align, const misc::ProgressInfo& progress)
 {
     ISequence nucleotidSequence;
-    size_t    frameShift;
+    int8_t    frameShift;
     bool      isTopFrame;
 
     /** We retrieve the nucleotid sequence. */
@@ -84,8 +84,9 @@ void NucleotidConversionVisitor::visitAlignment  (Alignment* align)
             newRange.end   = nucleotidSequence.getLength() - newRange.end   - 1;
         }
 
-        /** We update the range in the alignment. */
+        /** We update some information of the alignment. */
         align->setRange (_kind, newRange);
+        align->setFrame (_kind, frameShift);
     }
 }
 
@@ -100,7 +101,7 @@ void NucleotidConversionVisitor::visitAlignment  (Alignment* align)
 bool NucleotidConversionVisitor::getNucleotidSequence (
     ISequence&  nuclotidSequence,
     Alignment*  align,
-    size_t&     frameShift,
+    int8_t&     frameShift,
     bool&       isTopFrame
 )
 {

@@ -46,7 +46,7 @@ public:
     /** \copydoc IAlignmentResultVisitor::finish */
     void postVisit (core::IAlignmentContainer* result)
     {
-        /** Not pretty but avoid to recompute the alignments number after the shrink process. */
+        /** Not pretty but avoid to recompute the alignments number after the modification process. */
         core::impl::AbstractAlignmentContainer* res = dynamic_cast<core::impl::AbstractAlignmentContainer*> (result);
         if (res != 0)  {  res->setSize (res->getSize() - _nbRemoved);  }
     }

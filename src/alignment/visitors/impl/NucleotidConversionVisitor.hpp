@@ -47,7 +47,7 @@ public:
     NucleotidConversionVisitor (core::IAlignmentContainerVisitor* ref, core::Alignment::DbKind kind);
 
     /** \copydoc IAlignmentResultVisitor::visitAlignment */
-    void visitAlignment (core::Alignment* align);
+    void visitAlignment (core::Alignment* align, const misc::ProgressInfo& progress);
 
 protected:
 
@@ -62,7 +62,7 @@ protected:
     virtual  bool getNucleotidSequence (
         database::ISequence& sequence,
         core::Alignment*     align,
-        size_t&              frameShift,
+        int8_t&              frameShift,
         bool&                isTopFrame
     );
 };

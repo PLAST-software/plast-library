@@ -57,19 +57,19 @@ public:
     RawOutputVisitor (const std::string& uri) : OstreamVisitor(uri) {}
 
     /** \copydoc AbstractAlignmentResultVisitor::visitQuerySequence */
-    void visitQuerySequence   (const database::ISequence* seq)
+    void visitQuerySequence   (const database::ISequence* seq, const misc::ProgressInfo& progress)
     {
         getStream() << std::endl << "QUERY SEQUENCE " << seq->comment << std::endl;
     }
 
     /** \copydoc AbstractAlignmentResultVisitor::visitSubjectSequence */
-    void visitSubjectSequence (const database::ISequence* seq)
+    void visitSubjectSequence (const database::ISequence* seq, const misc::ProgressInfo& progress)
     {
         getStream() << "   SUBJECT SEQUENCE " << seq->comment << std::endl;
     }
 
     /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */
-    void visitAlignment  (core::Alignment* align)
+    void visitAlignment  (core::Alignment* align, const misc::ProgressInfo& progress)
     {
         getStream() << "         ALIGNMENT " << align->toString() << std::endl;
     }

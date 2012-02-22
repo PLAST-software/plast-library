@@ -51,13 +51,13 @@ public:
     virtual ~XmlOutputVisitor ();
 
     /** \copydoc AbstractAlignmentResultVisitor::visitQuerySequence */
-    void visitQuerySequence   (const database::ISequence* seq);
+    void visitQuerySequence   (const database::ISequence* seq, const misc::ProgressInfo& progress);
 
     /** \copydoc AbstractAlignmentResultVisitor::visitSubjectSequence */
-    void visitSubjectSequence (const database::ISequence* seq);
+    void visitSubjectSequence (const database::ISequence* seq, const misc::ProgressInfo& progress);
 
     /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */
-    void visitAlignment (core::Alignment* align);
+    void visitAlignment (core::Alignment* align, const misc::ProgressInfo& progress);
 
 private:
     void printline (size_t depth, const char* format, ...);

@@ -47,13 +47,19 @@ public:
         : _filter (filter)  {}
 
     /** \copydoc IAlignmentResultVisitor::visitQuerySequence */
-    void visitQuerySequence   (const database::ISequence* seq) {}
+    void visitQuerySequence   (const database::ISequence* seq, const misc::ProgressInfo& progress)
+    {
+        _extraInfo.qryProgress = progress;
+    }
 
     /** \copydoc IAlignmentResultVisitor::visitSubjectSequence */
-    void visitSubjectSequence (const database::ISequence* seq) {}
+    void visitSubjectSequence (const database::ISequence* seq, const misc::ProgressInfo& progress)
+    {
+        _extraInfo.sbjProgress = progress;
+    }
 
     /** \copydoc IAlignmentResultVisitor::visitAlignment */
-    void visitAlignment  (core::Alignment* align)  {}
+    void visitAlignment  (core::Alignment* align, const misc::ProgressInfo& progress) {}
 
     /** \copydoc IAlignmentResultVisitor::visitAlignmentsList */
     void visitAlignmentsList (
@@ -63,7 +69,12 @@ public:
     );
 
 private:
+
+    /** Reference on the filter to be used for visiting each alignment. */
     filter::IAlignmentFilter* _filter;
+
+    /** We need to add some transient information to each visited alignment. */
+    alignment::core::Alignment::AlignExtraInfo _extraInfo;
 };
 
 /********************************************************************************/

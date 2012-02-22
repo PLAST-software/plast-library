@@ -74,13 +74,15 @@ public:
     virtual ~TabulatedOutputVisitor () {}
 
     /** \copydoc AbstractAlignmentResultVisitor::visitQuerySequence */
-    void visitQuerySequence   (const database::ISequence* seq)  { _currentQuery   = seq;  }
+    void visitQuerySequence   (const database::ISequence* seq, const misc::ProgressInfo& progress)
+    { _currentQuery   = seq;  }
 
     /** \copydoc AbstractAlignmentResultVisitor::visitSubjectSequence */
-    void visitSubjectSequence (const database::ISequence* seq)  { _currentSubject = seq;  }
+    void visitSubjectSequence (const database::ISequence* seq, const misc::ProgressInfo& progress)
+    { _currentSubject = seq;  }
 
     /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */
-    void visitAlignment       (core::Alignment* align);
+    void visitAlignment (core::Alignment* align, const misc::ProgressInfo& progress);
 
 protected:
 

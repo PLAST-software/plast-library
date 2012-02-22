@@ -46,10 +46,12 @@ public:
     ~AlignmentsProxyVisitor ()   { setRef (0); }
 
     /** \copydoc IAlignmentResultVisitor::visitQuerySequence */
-    void visitQuerySequence   (const database::ISequence* seq)  { _ref->visitQuerySequence(seq);  }
+    void visitQuerySequence (const database::ISequence* seq, const misc::ProgressInfo& progress)
+    { _ref->visitQuerySequence (seq, progress);  }
 
     /** \copydoc IAlignmentResultVisitor::visitSubjectSequence */
-    void visitSubjectSequence (const database::ISequence* seq)  { _ref->visitSubjectSequence(seq);  }
+    void visitSubjectSequence (const database::ISequence* seq, const misc::ProgressInfo& progress)
+    { _ref->visitSubjectSequence (seq, progress);  }
 
     /** \copydoc IAlignmentResultVisitor::visitAlignmentsList */
     void visitAlignmentsList (
@@ -58,9 +60,10 @@ public:
         std::list<core::Alignment>& alignments
     )
     {
-        for (std::list<core::Alignment>::iterator it = alignments.begin(); it != alignments.end(); it++)
+        misc::ProgressInfo progress (1, alignments.size());
+        for (std::list<core::Alignment>::iterator it = alignments.begin(); it != alignments.end(); it++, ++progress)
         {
-            this->visitAlignment (& (*it) );
+            this->visitAlignment (& (*it), progress);
         }
 
         _ref->visitAlignmentsList (qry, sbj, alignments);

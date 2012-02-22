@@ -40,9 +40,12 @@ namespace impl      {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void MaxHitsPerQueryVisitor::visitQuerySequence   (const database::ISequence* seq)
+void MaxHitsPerQueryVisitor::visitQuerySequence (
+    const database::ISequence*  seq,
+    const misc::ProgressInfo&   progress
+)
 {
-    if (_ref)  { _ref->visitQuerySequence (seq); }
+    if (_ref)  { _ref->visitQuerySequence (seq, progress); }
 }
 
 /*********************************************************************
@@ -53,11 +56,14 @@ void MaxHitsPerQueryVisitor::visitQuerySequence   (const database::ISequence* se
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void MaxHitsPerQueryVisitor::visitSubjectSequence (const database::ISequence* seq)
+void MaxHitsPerQueryVisitor::visitSubjectSequence (
+    const database::ISequence*  seq,
+    const misc::ProgressInfo&   progress
+)
 {
     _currentHitsNb = 0;
 
-    if (_ref)  { _ref->visitSubjectSequence (seq); }
+    if (_ref)  { _ref->visitSubjectSequence (seq, progress); }
 }
 
 /*********************************************************************
@@ -68,11 +74,17 @@ void MaxHitsPerQueryVisitor::visitSubjectSequence (const database::ISequence* se
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void MaxHitsPerQueryVisitor::visitAlignment (Alignment* align)
+void MaxHitsPerQueryVisitor::visitAlignment (
+    core::Alignment*            align,
+    const misc::ProgressInfo&   progress
+)
 {
     _currentHitsNb ++;
 
-    if (_currentHitsNb <= _maxHitsPerQuery  &&  _ref)  { _ref->visitAlignment (align); }
+    if (_currentHitsNb <= _maxHitsPerQuery  &&  _ref)
+    {
+        _ref->visitAlignment (align, progress);
+    }
 }
 
 /********************************************************************************/

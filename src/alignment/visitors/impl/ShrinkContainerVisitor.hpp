@@ -46,13 +46,13 @@ public:
         : _sort_cbk (sort_cbk) {}
 
     /** \copydoc IAlignmentResultVisitor::visitQuerySequence */
-    void visitQuerySequence   (const database::ISequence* seq) {}
+    void visitQuerySequence   (const database::ISequence* seq, const misc::ProgressInfo& progress) {}
 
     /** \copydoc IAlignmentResultVisitor::visitSubjectSequence */
-    void visitSubjectSequence (const database::ISequence* seq) {}
+    void visitSubjectSequence (const database::ISequence* seq, const misc::ProgressInfo& progress) {}
 
     /** \copydoc IAlignmentResultVisitor::visitAlignment */
-    void visitAlignment  (core::Alignment* align)  {}
+    void visitAlignment  (core::Alignment* align, const misc::ProgressInfo& progress)  {}
 
     /** \copydoc IAlignmentResultVisitor::visitAlignmentsList */
     void visitAlignmentsList (

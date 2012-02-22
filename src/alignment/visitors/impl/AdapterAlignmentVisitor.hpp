@@ -40,10 +40,11 @@ class AdapterAlignmentResultVisitor : public core::IAlignmentContainerVisitor
 {
 public:
 
-    void visitQuerySequence   (const database::ISequence* seq)          {}
-    void visitSubjectSequence (const database::ISequence* seq)          {}
-    void visitAlignment       (core::Alignment* align)                  {}
-    void postVisit            (core::IAlignmentContainer* result)       {}
+    void visitQuerySequence   (const database::ISequence* seq,   const misc::ProgressInfo& progress)  {}
+    void visitSubjectSequence (const database::ISequence* seq,   const misc::ProgressInfo& progress)  {}
+    void visitAlignment       (core::Alignment*           align, const misc::ProgressInfo& progress)  {}
+
+    void postVisit  (core::IAlignmentContainer* result)       {}
 
     void visitAlignmentsList (
         const database::ISequence* qry,
