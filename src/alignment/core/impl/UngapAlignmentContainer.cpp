@@ -124,15 +124,16 @@ bool UngapAlignmentResult::insert (Alignment& align, void* context)
 
     if (splitter != 0)
     {
-        u_int32_t  splittab[10000];  //memset (splittab, 0, sizeof(splittab));
+        u_int32_t  splittab[10000];
+        IAlignmentSplitter::SplitOutput output (splittab);
 
-        u_int32_t q_start=0, q_stop=0, s_start=0, s_stop=0;
-
-        size_t nbAlign = splitter->splitAlign (align, splittab);
+        size_t nbAlign = splitter->splitAlign (align, output);
 
         /** A little check. */
         if (nbAlign < ARRAYSIZE(splittab))
         {
+            u_int32_t q_start=0, q_stop=0, s_start=0, s_stop=0;
+
             /** Note that we can have a range (in subject or query) that finishes by one or more '-'.
              *  In such a case, nbAlign won't divide 4, so we have to skip the split holding
              *  the '-'. We achieve this by taking the nearest lower integer modulo 4.
@@ -141,8 +142,8 @@ bool UngapAlignmentResult::insert (Alignment& align, void* context)
 
             for (size_t i=0; i<nbAlign; i=i+4)
             {
-                u_int64_t qryOffset = align.getQryInfo().getOffsetInDb();
-                u_int64_t sbjOffset = align.getSbjInfo().getOffsetInDb();
+                u_int64_t qryOffset = align.getInfo(Alignment::QUERY).getOffsetInDb();
+                u_int64_t sbjOffset = align.getInfo(Alignment::SUBJECT).getOffsetInDb();
 
                 q_start = qryOffset + splittab[i+2];
                 q_stop  = qryOffset + splittab[i+0];
@@ -157,7 +158,7 @@ bool UngapAlignmentResult::insert (Alignment& align, void* context)
                         q_stop,
                         s_start,
                         s_stop,
-                        align.getQrySequence()->index
+                        align.getSequence(Alignment::QUERY)->index
                     );
                 }
             }

@@ -150,9 +150,9 @@ IAlignmentContainer* AlignmentContainerFactory::createContainerFromUri (const st
         sbjRange.end    --;
 
         /** We finalize the alignment. */
-        align.setQryRange     (qryRange);
-        align.setSbjRange     (sbjRange);
-        align.setNbGaps       (nbGaps);
+        align.setRange     (Alignment::QUERY,   qryRange);
+        align.setRange     (Alignment::SUBJECT, sbjRange);
+        align.setNbGaps    (nbGaps);
         align.setNbIdentities ((u_int32_t) round (identitiesPercent * align.getLength() / 100.0));
 
         /** We insert the alignment. */

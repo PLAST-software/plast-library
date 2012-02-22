@@ -98,9 +98,9 @@ bool BasicAlignmentContainer::doesExist (const Alignment& align)
     LocalSynchronizer local (_synchro);
 
     /** We retrieve the list of alignments for the [query,subject] pair of the alignment. */
-    ContainerLevel3* containerLevel3 = getContainer (align.getQrySequence(), align.getSbjSequence());
+    ContainerLevel3* containerLevel3 = getContainer (align.getSequence(Alignment::QUERY), align.getSequence(Alignment::SUBJECT));
 
-    found = isInContainer (containerLevel3, align.getSbjRange(), align.getQryRange());
+    found = isInContainer (containerLevel3, align.getRange(Alignment::SUBJECT), align.getRange(Alignment::QUERY));
 
     /** We return true if we found the provided alignment, false otherwise. */
     return found;
@@ -167,8 +167,8 @@ bool BasicAlignmentContainer::insert (Alignment& align, void* context)
     LocalSynchronizer local (_synchro);
 
     /** We determine first and second level sequences for the search. */
-    ISequence* firstLevelSeq  = (ISequence*) align.getQrySequence();
-    ISequence* secondLevelSeq = (ISequence*) align.getSbjSequence();
+    ISequence* firstLevelSeq  = (ISequence*) align.getSequence(Alignment::QUERY);
+    ISequence* secondLevelSeq = (ISequence*) align.getSequence(Alignment::SUBJECT);
 
     /** Some check. */
     if (firstLevelSeq == 0  ||  secondLevelSeq == 0)  { return false; }
@@ -231,11 +231,11 @@ bool BasicAlignmentContainer::insert (Alignment& align, void* context)
      *  'isInContainer' result is, since the current ISequence references in the alignment
      *  may be lost later.
      */
-    align.setQrySequence (firstLevelSeq);
-    align.setSbjSequence (secondLevelSeq);
+    align.setSequence (Alignment::QUERY, firstLevelSeq);
+    align.setSequence (Alignment::SUBJECT, secondLevelSeq);
 
     /** Now, we have the list of alignments for the first and second levels entries. */
-    bool found = isInContainer (containerLevel3, align.getSbjRange(), align.getQryRange());
+    bool found = isInContainer (containerLevel3, align.getRange(Alignment::SUBJECT), align.getRange(Alignment::QUERY));
 
     if (!found)
     {
@@ -263,23 +263,27 @@ void BasicAlignmentContainer::accept (IAlignmentContainerVisitor* visitor)
     /** We need to be protected against concurrent accesses. */
     LocalSynchronizer local (_synchro);
 
-    for (ContainerLevel1::iterator itLevel1 = _containerLevel1.begin(); itLevel1 != _containerLevel1.end();  itLevel1++)
+    misc::ProgressInfo level1Progress (1, _containerLevel1.size ());
+
+    for (ContainerLevel1::iterator itLevel1 = _containerLevel1.begin(); itLevel1 != _containerLevel1.end();  itLevel1++, ++level1Progress)
     {
         /** Shortcuts. */
         ISequence*        seqLevel1        = (*itLevel1).second.first;
         ContainerLevel2&  containerLevel2  = (*itLevel1).second.second;
 
         /** We call the visitor. */
-        visitor->visitQuerySequence (seqLevel1);
+        visitor->visitQuerySequence (seqLevel1, level1Progress);
 
-        for (ContainerLevel2::iterator itLevel2 = containerLevel2.begin(); itLevel2 != containerLevel2.end(); itLevel2++)
+        misc::ProgressInfo level2Progress (1, containerLevel2.size ());
+
+        for (ContainerLevel2::iterator itLevel2 = containerLevel2.begin(); itLevel2 != containerLevel2.end(); itLevel2++, ++level2Progress)
         {
             /** Shortcuts. */
             ISequence*       seqLevel2       = (*itLevel2).second.first;
             ContainerLevel3& containerLevel3 = (*itLevel2).second.second;
 
             /** We call the visitor for the subject. */
-            visitor->visitSubjectSequence (seqLevel2);
+            visitor->visitSubjectSequence (seqLevel2, level2Progress);
 
             /** We call the visitor for the list of alignments. */
             visitor->visitAlignmentsList (seqLevel1, seqLevel2, containerLevel3);
