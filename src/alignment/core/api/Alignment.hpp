@@ -85,6 +85,20 @@ public:
         int8_t _frame;
 
         u_int64_t getOffsetInDb () const { return _range.begin + _sequence->offsetInDb; }
+
+        /** */
+        friend std::ostream& operator<< (std::ostream& s, const AlignSequenceInfo& o)
+        {
+            char c = ' ';
+            return s << o._range << c << o._nbGaps;
+        }
+
+        /** */
+        friend std::istream& operator>> (std::istream& s, AlignSequenceInfo& o)
+        {
+            char c;
+            return s >> o._range >> c >> o._nbGaps;
+        }
     };
 
     /** Structure that provides transient information.  */
@@ -285,6 +299,38 @@ public:
         return ss.str ();
     }
 
+    /**********************************************************************
+     **********************************************************************/
+    friend std::ostream& operator<< (std::ostream& s, const Alignment& o)
+    {
+        char c = ' ';
+        s << o._info[QUERY]       << c
+          << o._info[SUBJECT]     << c
+          << o._length            << c
+          << o._evalue            << c
+          << o._bitscore          << c
+          << o._nbIdentities      << c
+          << o._nbPositives       << c
+          << o._nbMisses;
+        return s;
+    }
+
+    /**********************************************************************
+     **********************************************************************/
+    friend std::istream& operator>> (std::istream& s, Alignment& o)
+    {
+        char c = ' ';
+        s >> o._info[QUERY]       >> c
+          >> o._info[SUBJECT]     >> c
+          >> o._length            >> c
+          >> o._evalue            >> c
+          >> o._bitscore          >> c
+          >> o._nbIdentities      >> c
+          >> o._nbPositives       >> c
+          >> o._nbMisses;
+        return s;
+    }
+
 private:
 
     /** */
@@ -311,7 +357,7 @@ private:
     /** Number of missed residues alignments. */
     u_int32_t _nbMisses;
 
-    /** Extra information. */
+    /** Extra information. Can be transient (ie reference may change during Alignment instance life). */
     AlignExtraInfo* _extraInfo;
 };
 

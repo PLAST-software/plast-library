@@ -59,19 +59,19 @@ public:
     /** \copydoc AbstractAlignmentResultVisitor::visitQuerySequence */
     void visitQuerySequence   (const database::ISequence* seq, const misc::ProgressInfo& progress)
     {
-        getStream() << std::endl << "QUERY SEQUENCE " << seq->comment << std::endl;
+        getStream() << "Q " << (*seq) <<  std::endl;
     }
 
     /** \copydoc AbstractAlignmentResultVisitor::visitSubjectSequence */
     void visitSubjectSequence (const database::ISequence* seq, const misc::ProgressInfo& progress)
     {
-        getStream() << "   SUBJECT SEQUENCE " << seq->comment << std::endl;
+        getStream() << "S " << (*seq) <<  std::endl;
     }
 
     /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */
     void visitAlignment  (core::Alignment* align, const misc::ProgressInfo& progress)
     {
-        getStream() << "         ALIGNMENT " << align->toString() << std::endl;
+        getStream() << "A " << (*align) <<  std::endl;
     }
 };
 
