@@ -25,6 +25,8 @@
 #ifndef _TYPES_HPP_
 #define _TYPES_HPP_
 
+#include <iostream>
+
 #if defined(__LINUX__) or defined (__DARWIN__)
     #include <sys/types.h>
 #else
@@ -83,6 +85,19 @@ template <class T> struct Range
 
     /** Shift. */
     Range shift (T t)  {  return Range (begin+t, end+t);  }
+
+    /** */
+    friend std::ostream& operator<< (std::ostream& s, const Range& o)
+    {
+        return s << '[' << o.begin << ':' << o.end << ']';
+    }
+
+    /** */
+    friend std::istream& operator>> (std::istream& s, Range& o)
+    {
+        char c;
+        return s >> c >> o.begin >> c >> o.end >> c;
+    }
 };
 
 /** Some shortcuts. */
@@ -100,6 +115,19 @@ struct ProgressInfo
     ProgressInfo& operator++()  { rank++;  return *this; }
 
     static ProgressInfo& null ()  { static ProgressInfo instance; return instance; }
+
+    /** */
+    friend std::ostream& operator<< (std::ostream& s, const ProgressInfo& o)
+    {
+        return s << '[' << o.rank << '/' << o.number << ']';
+    }
+
+    /** */
+    friend std::istream& operator>> (std::istream& s, ProgressInfo& o)
+    {
+        char c;
+        return s >> c >> o.rank >> c >> o.number >> c;
+    }
 };
 
 /** */
