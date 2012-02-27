@@ -112,6 +112,13 @@ public:
      * \return a created IProperties instance
      */
     virtual dp::IProperties* getProperties (const std::string& root) = 0;
+
+    /** Returns some unique identifier for the database.
+     *  For instance, implementations can rely on the uri of the database and the range
+     *  used within it.
+     * \return the identifier
+     */
+    virtual std::string getId () = 0;
 };
 
 /********************************************************************************/

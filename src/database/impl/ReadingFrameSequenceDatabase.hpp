@@ -110,6 +110,9 @@ public:
      */
     ISequenceDatabase* getNucleotidDatabase ()  { return _nucleotidDatabase; }
 
+    /** */
+    std::string getId ();
+
 protected:
 
     /** The nucleotid database. */

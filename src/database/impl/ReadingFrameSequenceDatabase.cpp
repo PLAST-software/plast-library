@@ -64,6 +64,21 @@ ReadingFrameSequenceDatabase::~ReadingFrameSequenceDatabase ()
     setNucleotidDatabase (0);
 }
 
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+string ReadingFrameSequenceDatabase::getId ()
+{
+    stringstream ss;
+    ss << _nucleotidDatabase->getId() << "frame" << _frame;
+    return ss.str();
+}
+
 /********************************************************************************/
 } } /* end of namespaces. */
 /********************************************************************************/

@@ -126,6 +126,9 @@ public:
     /** \copydoc ISequenceDatabase::getProperties */
     dp::IProperties* getProperties (const std::string& root);
 
+    /** \copydoc ISequenceDatabase::getId */
+    std::string getId ()  { return _id; }
+
 private:
 
     /** Constructor that uses a provided cache and an index range for iterating the cache.
@@ -133,7 +136,16 @@ private:
      * \param[in] firstIdx : first index to be used in the cache
      * \param[in] lastIdx  : last index to be used in the cache
      */
-    BufferedSequenceDatabase (ISequenceCache* cache, size_t firstIdx, size_t lastIdx);
+    BufferedSequenceDatabase (
+        const std::string& id,
+        ISequenceCache* cache,
+        size_t firstIdx,
+        size_t lastIdx
+    );
+
+    /** Identifier */
+    std::string _id;
+    void setId (const std::string& id)  { _id=id; }
 
     /** Number of sequences of the database. */
     size_t _nbSequences;

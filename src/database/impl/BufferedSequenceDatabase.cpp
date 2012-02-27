@@ -57,6 +57,9 @@ BufferedSequenceDatabase::BufferedSequenceDatabase (ISequenceIterator* refIterat
     /** We just keep a reference on the provided sequence iterator. The cache should be built on the first call
      * to some public API method. */
     setRefSequenceIterator (refIterator);
+
+    /** We get the same id of the iterator used for building the database. */
+    setId (_refIterator->getId());
 }
 
 /*********************************************************************
@@ -67,8 +70,13 @@ BufferedSequenceDatabase::BufferedSequenceDatabase (ISequenceIterator* refIterat
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-BufferedSequenceDatabase::BufferedSequenceDatabase (ISequenceCache* cache, size_t firstIdx, size_t lastIdx)
-    : _nbSequences(0), _refIterator(0), _cache(0), _firstIdx(firstIdx), _lastIdx(lastIdx)
+BufferedSequenceDatabase::BufferedSequenceDatabase (
+    const string& id,
+    ISequenceCache* cache,
+    size_t firstIdx,
+    size_t lastIdx
+)
+    : _id(id), _nbSequences(0), _refIterator(0), _cache(0), _firstIdx(firstIdx), _lastIdx(lastIdx)
 {
     DEBUG (("BufferedSequenceDatabase::BufferedSequenceDatabase  this=%p  [%ld,%ld] \n", this, _firstIdx, _lastIdx));
 
@@ -477,7 +485,7 @@ vector<ISequenceDatabase*> BufferedSequenceDatabase::split (size_t nbSplit)
             last = min (first + averageNbSequences - 1, cache->nbSequences-1);
 
             /** We create a new iterator. */
-            ISequenceDatabase* it = new BufferedSequenceDatabase (cache, first, last);
+            ISequenceDatabase* it = new BufferedSequenceDatabase (_id, cache, first, last);
 
             /** We add it into the list of split iterators. */
             result.push_back (it);

@@ -70,10 +70,16 @@ public:
      */
     Encoding getEncoding ()                     { return _encoding; }
 
+    /** \copydoc ISequenceIterator::getId */
+    std::string getId () { return _id; }
+
 protected:
 
     /** \copydoc ISequenceIterator::getBuilder */
     ISequenceBuilder* getBuilder ()  const  { return _sequenceBuilder; }
+
+    /** */
+    void setId (const std::string& id)  { _id = id; }
 
 private:
     /** Reference to the associated sequence builder (if any). */
@@ -81,6 +87,9 @@ private:
 
     /** Encoding scheme. */
     Encoding          _encoding;
+
+    /** */
+    std::string _id;
 };
 
 /********************************************************************************/

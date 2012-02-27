@@ -17,11 +17,16 @@
 #include <database/impl/FastaSequenceIterator.hpp>
 #include <database/impl/BasicSequenceBuilder.hpp>
 
+#include <iostream>
+#include <sstream>
+
 #include <string.h>
 #include <stdlib.h>
 
 #define DEBUG(a)  //printf a
 #define INFO(a)   printf a
+
+using namespace std;
 
 /********************************************************************************/
 namespace database { namespace impl  {
@@ -48,6 +53,11 @@ FastaSequenceIterator::FastaSequenceIterator (
     ));
 
     setBuilder (new BasicSequenceBuilder(SUBSEED));
+
+    /** We set the id for the iterator. */
+    stringstream ss;
+    ss << filename << ":" << offset0 << ":" << offset1;
+    setId (ss.str());
 }
 
 /*********************************************************************

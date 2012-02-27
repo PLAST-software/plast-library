@@ -104,6 +104,9 @@ public:
     /** \copydoc ISequenceDatabase::getProperties */
     dp::IProperties* getProperties (const std::string& root);
 
+    /** \copydoc ISequenceDatabase::getId */
+    std::string getId ();
+
 private:
 
     /** Vector of children ISequenceDatabase instances. */

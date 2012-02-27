@@ -29,6 +29,7 @@
 
 #include <database/api/IWord.hpp>
 
+#include <string>
 #include <iostream>
 #include <sstream>
 
@@ -89,6 +90,33 @@ struct ISequence
         //ss << "[SEQUENCE #" << index << "  offsetInDb=" << offsetInDb << "  " << data.toString() << "]";
         ss << "[SEQUENCE #" << index << "  offsetInDb=" << offsetInDb << "  len=" << getLength() << "]";
         return ss.str ();
+    }
+
+    /********************************************************************************/
+    friend std::istream& operator>> (std::istream& is, ISequence& seq)
+    {
+        char c;
+        u_int32_t   len = 0;
+        std::string str;
+
+        /** We read from the stream. */
+        is >> len >> c >> str;
+
+        /** We set a fake reference (just interested in size). */
+        seq.data.setReference (len, 0);
+
+        /** We set a dummy comment. */
+        seq.comment = 0;
+
+        return is;
+    }
+
+    /********************************************************************************/
+    friend std::ostream& operator<< (std::ostream& os, const ISequence& seq)
+    {
+        char c = ' ';
+        os << seq.getLength() << c << seq.comment;
+        return os;
     }
 };
 

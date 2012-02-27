@@ -257,6 +257,25 @@ IProperties* CompositeSequenceDatabase::getProperties (const std::string& root)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+string CompositeSequenceDatabase::getId ()
+{
+    stringstream ss;
+
+    for (std::vector<ISequenceDatabase*>::iterator it = _children.begin(); it != _children.end(); it++)
+    {
+        ss << (*it)->getId() << " ";
+    }
+    return ss.str();
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 CompositeSequenceIterator::CompositeSequenceIterator (std::list<ISequenceIterator*>& itList)
     : _itList (itList)
 {

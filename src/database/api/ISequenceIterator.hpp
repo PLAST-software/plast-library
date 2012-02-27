@@ -69,6 +69,11 @@ public:
      */
     virtual ISequenceIterator* clone () = 0;
 
+    /** Get some unique identifier for the iterator
+     * \return the identifier.
+     */
+    virtual std::string getId () = 0;
+
 protected:
 
     /** Get the builder used for creating ISequence instances during iteration.
