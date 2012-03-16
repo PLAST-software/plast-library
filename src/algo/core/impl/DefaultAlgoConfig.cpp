@@ -366,7 +366,11 @@ ISeedModel* DefaultConfiguration::createSeedModel (SeedModelKind_e modelKind, co
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IIndexator*  DefaultConfiguration::createIndexator (seed::ISeedModel* seedsModel, algo::core::IParameters* params)
+IIndexator*  DefaultConfiguration::createIndexator (
+    seed::ISeedModel*           seedsModel,
+    algo::core::IParameters*    params,
+    bool&                       isRunning
+)
 {
     IIndexator* result = 0;
     IProperty* prop = 0;
@@ -399,15 +403,15 @@ IIndexator*  DefaultConfiguration::createIndexator (seed::ISeedModel* seedsModel
 
     if (prop && prop->value.compare("BasicIndexator")==0)
     {
-        result = new BasicIndexator (seedsModel, params, dbIndexFactory);
+        result = new BasicIndexator (seedsModel, params, dbIndexFactory, isRunning);
     }
     else if (prop && prop->value.compare("BasicSortedIndexator")==0)
     {
-        result = new BasicSortedIndexator (seedsModel, params, dbIndexFactory);
+        result = new BasicSortedIndexator (seedsModel, params, dbIndexFactory, isRunning);
     }
     else
     {
-        result = new BasicSortedIndexator (seedsModel, params, dbIndexFactory);
+        result = new BasicSortedIndexator (seedsModel, params, dbIndexFactory, isRunning);
     }
 
     return result;

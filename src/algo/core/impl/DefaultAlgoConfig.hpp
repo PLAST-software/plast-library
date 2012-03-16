@@ -83,7 +83,11 @@ public:
     seed::ISeedModel* createSeedModel (misc::SeedModelKind_e modelKind, const std::vector<std::string>& subseedStrings);
 
     /** \copydoc IConfiguration::createIndexator */
-    IIndexator*  createIndexator (seed::ISeedModel* seedsModel, algo::core::IParameters* params);
+    IIndexator*  createIndexator (
+        seed::ISeedModel*        seedsModel,
+        algo::core::IParameters* params,
+        bool&                    isRunning
+    );
 
     /** \copydoc IConfiguration::createScoreMatrix */
     IScoreMatrix* createScoreMatrix (misc::ScoreMatrixKind_e kind, database::Encoding encoding);

@@ -60,7 +60,8 @@ public:
     BasicIndexator (
         seed::ISeedModel* model,
         algo::core::IParameters* params,
-        indexation::IDatabaseIndexFactory* factory
+        indexation::IDatabaseIndexFactory* factory,
+        bool& isRunning
     );
 
     /** Destructor. */
@@ -125,6 +126,9 @@ protected:
     /** Query database index. */
     indexation::IDatabaseIndex* _queryIndex;
 
+    /** */
+    bool& _isRunning;
+
     /** Build an index for the some database.
      * \param[in] database : the database to be indexed
      * \param[in] model : the seed model used for the indexation
@@ -151,7 +155,8 @@ public:
     BasicSortedIndexator (
         seed::ISeedModel* model,
         algo::core::IParameters* params,
-        indexation::IDatabaseIndexFactory* factory
+        indexation::IDatabaseIndexFactory* factory,
+        bool& isRunning
     );
 
     /** \copydoc BasicIndexator::createHitIterator */

@@ -16,6 +16,7 @@
 
 #include <designpattern/api/ICommand.hpp>
 #include <designpattern/impl/TokenizerIterator.hpp>
+#include <designpattern/impl/CommandDispatcher.hpp>
 
 #include <misc/api/PlastStrings.hpp>
 
@@ -169,7 +170,7 @@ void DefaultEnvironment::run (dp::IProperties* properties)
     vector<IParameters*> parametersList = createParametersList (config, properties, uriList);
 
     /** We iterate each parameters. */
-    for (size_t i=0; i<parametersList.size(); i++)
+    for (size_t i=0; _isRunning && i<parametersList.size(); i++)
     {
         list<ICommand*> algorithms;
 
@@ -177,7 +178,14 @@ void DefaultEnvironment::run (dp::IProperties* properties)
         this->notify (new AlgorithmConfigurationEvent (properties, i, parametersList.size()));
 
         /** We create an Algorithm instance. */
-        IAlgorithm* algo = this->createAlgorithm (config, quickSubjectDbReader, parametersList[i], filter, resultVisitor);
+        IAlgorithm* algo = this->createAlgorithm (
+            config,
+            quickSubjectDbReader,
+            parametersList[i],
+            filter,
+            resultVisitor,
+            _isRunning
+        );
         if (algo == 0)  { continue; }
 
         /** We can register ourself to be notified by execution events. */
@@ -187,7 +195,11 @@ void DefaultEnvironment::run (dp::IProperties* properties)
         algorithms.push_back (algo);
 
         /** We create a commands dispatcher. */
+#if 0
         ICommandDispatcher* dispatcher = config->createDispatcher ();
+#else
+        ICommandDispatcher* dispatcher = new SerialCommandDispatcher ();
+#endif
         LOCAL (dispatcher);
 
         /** We execute the algorithms through the dispatcher. */
@@ -211,7 +223,8 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
     IDatabaseQuickReader*       reader,
     IParameters*                params,
     IAlignmentFilter*           filter,
-    IAlignmentContainerVisitor* resultVisitor
+    IAlignmentContainerVisitor* resultVisitor,
+    bool&                       isRunning
 )
 {
     IAlgorithm* result = 0;
@@ -224,7 +237,8 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 reader,
                 params,
                 filter,
-                resultVisitor
+                resultVisitor,
+                isRunning
             );
             break;
 
@@ -234,7 +248,8 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 new AminoAcidDatabaseQuickReader (reader),
                 params,
                 filter,
-                new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT)
+                new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT),
+                isRunning
             );
             break;
 
@@ -244,7 +259,8 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 reader,
                 params,
                 filter,
-                new NucleotidConversionVisitor (resultVisitor, Alignment::QUERY)
+                new NucleotidConversionVisitor (resultVisitor, Alignment::QUERY),
+                isRunning
             );
             break;
 

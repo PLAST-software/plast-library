@@ -50,13 +50,11 @@ class DefaultEnvironment : public IEnvironment
 {
 public:
 
+    /** Constructor. */
+    DefaultEnvironment (bool& isRunning) : _isRunning(isRunning)  {}
+
     /** Destructor. */
     virtual ~DefaultEnvironment ()  {}
-
-    /** Singleton.
-     * \return the singleton instance.
-     */
-    static DefaultEnvironment& singleton ()  { static DefaultEnvironment instance;  return instance; }
 
     /** \copydoc IEnvironment::createConfiguration */
     IConfiguration* createConfiguration (dp::IProperties* properties);
@@ -66,13 +64,17 @@ public:
 
 protected:
 
+    /** */
+    bool& _isRunning;
+
     /** \copydoc IEnvironment::createAlgorithm */
     IAlgorithm* createAlgorithm (
         IConfiguration*                                 config,
         database::IDatabaseQuickReader*                 reader,
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
-        alignment::core::IAlignmentContainerVisitor*    resultVisitor
+        alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        bool&                                           isRunning
     );
 
     /** \copydoc IEnvironment::update */

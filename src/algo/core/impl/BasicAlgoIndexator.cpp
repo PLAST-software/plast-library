@@ -74,11 +74,13 @@ private:
 BasicIndexator::BasicIndexator (
     ISeedModel* model,
     algo::core::IParameters* params,
-    indexation::IDatabaseIndexFactory* factory
+    indexation::IDatabaseIndexFactory* factory,
+    bool& isRunning
 )
     : _model(0), _params(0), _factory(0),
       _subjectDatabase(0),  _queryDatabase(0),
-      _subjectIndex(0),     _queryIndex(0)
+      _subjectIndex(0),     _queryIndex(0),
+      _isRunning (isRunning)
 {
     /** We use some resources. */
     setModel   (model);
@@ -249,7 +251,8 @@ IHitIterator* BasicIndexator::createHitIterator ()
     result =  new SeedHitIteratorCached (
         _subjectIndex,
         _queryIndex,
-        _params->ungapNeighbourLength
+        _params->ungapNeighbourLength,
+        _isRunning
     );
 
     return result;
@@ -283,8 +286,13 @@ IProperties* BasicIndexator::getProperties ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-BasicSortedIndexator::BasicSortedIndexator (ISeedModel* model, IParameters* params, IDatabaseIndexFactory* factory)
-    : BasicIndexator (model, params, factory)
+BasicSortedIndexator::BasicSortedIndexator (
+    ISeedModel* model,
+    IParameters* params,
+    IDatabaseIndexFactory* factory,
+    bool& isRunning
+)
+    : BasicIndexator (model, params, factory, isRunning)
 {
 }
 
@@ -303,7 +311,8 @@ IHitIterator* BasicSortedIndexator::createHitIterator ()
     result =  new SeedHitIteratorCachedWithSortedSeeds (
         _subjectIndex,
         _queryIndex,
-        _params->ungapNeighbourLength
+        _params->ungapNeighbourLength,
+        _isRunning
     );
 
     return result;

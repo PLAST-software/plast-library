@@ -97,7 +97,8 @@ public:
         database::IDatabaseQuickReader*               reader,
         IParameters*                                  params,
         alignment::filter::IAlignmentFilter*          filter,
-        alignment::core::IAlignmentContainerVisitor*  resultVisitor
+        alignment::core::IAlignmentContainerVisitor*  resultVisitor,
+        bool&                                         isRunning
     );
 
     /** Destructor. */
@@ -234,6 +235,9 @@ protected:
     alignment::core::IAlignmentContainer* _gapAlignmentResult;
     void setGapAlignmentResult (alignment::core::IAlignmentContainer* gapAlignmentResult)  { SP_SETATTR(gapAlignmentResult); }
 
+    /**  */
+    bool& _isRunning;
+
     /** */
     void readReadingFrameDatabases (
         const std::vector<misc::ReadingFrame_e>& frames,
@@ -274,9 +278,10 @@ public:
         database::IDatabaseQuickReader*                 reader,
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
-        alignment::core::IAlignmentContainerVisitor*    resultVisitor
+        alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor) {}
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, isRunning) {}
 };
 
 /********************************************************************************/
@@ -296,9 +301,10 @@ public:
         database::IDatabaseQuickReader*                 reader,
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
-        alignment::core::IAlignmentContainerVisitor*    resultVisitor
+        alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, isRunning)
     {
         if (params->strands.empty() )
         {
@@ -328,9 +334,10 @@ public:
         database::IDatabaseQuickReader*                 reader,
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
-        alignment::core::IAlignmentContainerVisitor*    resultVisitor
+        alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, isRunning)
     {
         if (params->strands.empty() )
         {

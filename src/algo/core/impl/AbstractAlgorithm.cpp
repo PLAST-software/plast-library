@@ -89,12 +89,14 @@ AbstractAlgorithm::AbstractAlgorithm (
     IDatabaseQuickReader*       reader,
     IParameters*                params,
     IAlignmentFilter*           filter,
-    IAlignmentContainerVisitor* resultVisitor
+    IAlignmentContainerVisitor* resultVisitor,
+    bool&                       isRunning
 )
     : _config(0), _reader(0), _params(0), _filter(0), _resultVisitor(0),
       _seedsModel(0), _scoreMatrix(0), _globalStats(0), _queryInfo(0),
       _indexator(0), _hitIterator(0),
-      _ungapAlignmentResult(0), _gapAlignmentResult(0)
+      _ungapAlignmentResult(0), _gapAlignmentResult(0),
+      _isRunning (isRunning)
 {
     /** We use the provided arguments. */
     setConfig        (config);
@@ -209,7 +211,7 @@ void AbstractAlgorithm::execute (void)
      * charge to feed the algorithm with the source Hit Iterator, ie the one that provides for
      * a given seed all the occurrences in subject and query databases.
      */
-    setIndexator (getConfig()->createIndexator (getSeedsModel(), getParams()));
+    setIndexator (getConfig()->createIndexator (getSeedsModel(), getParams(), _isRunning) );
 
     /** Now, we have two loops that loop on 1) query databases and 2) subject databases.
      *  The reason why we can have more than query database for instance is that the algorithm works
