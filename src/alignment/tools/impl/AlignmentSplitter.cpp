@@ -284,8 +284,13 @@ size_t AlignmentSplitter::splitAlign (
         char l1 = qryLocal[i];
         char l2 = subLocal[i];
 
+#if 1
+             if (l1==l2         || (l1==CODE_X || l2==CODE_X))       {  output.identity ++;  }
+        else if (l1!=CODE_DASH  &&  l2!=CODE_DASH)    {  output.nbMis++;      }
+#else
              if (l1==l2         &&  l1!=CODE_X)       {  output.identity ++;  }
         else if (l1!=CODE_DASH  &&  l2!=CODE_DASH)    {  output.nbMis++;      }
+#endif
     }
 
     if (output.splittab)  {  (output.splittab)[y++]=0;  }
