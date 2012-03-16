@@ -28,6 +28,8 @@
 #include <designpattern/api/ICommand.hpp>
 #include <designpattern/api/IProperty.hpp>
 
+#include <designpattern/impl/Observer.hpp>
+
 #include <launcher/observers/AbstractObserver.hpp>
 
 /********************************************************************************/
@@ -41,9 +43,12 @@ namespace core     {
  * We just assemble the dp::IObserver and the dp::SmartPointer interfaces as skeleton
  * for the concrete observers we want to implement.
  */
-class PlastCmd : public dp::ICommand
+class PlastCmd : public dp::ICommand, public dp::impl::Subject, public dp::IObserver
 {
 public:
+
+    /** Constructor. */
+    PlastCmd () : _properties(0)  {}
 
     /** Constructor. */
     PlastCmd (dp::IProperties* properties);
@@ -54,10 +59,22 @@ public:
     /** \copydoc dp::ICommand::update*/
     void execute ();
 
+    /** */
+    void cancel ();
+
+    /** */
+    void update (dp::EventInfo* evt, dp::ISubject* subject);
+
+    /** */
+    bool isRunning ()  { return _isRunning; }
+
 private:
 
     dp::IProperties* _properties;
     void setProperties (dp::IProperties* properties)  { SP_SETATTR(properties); }
+
+    /** */
+    bool _isRunning;
 
     /** */
     void configureObservers (

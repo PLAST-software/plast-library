@@ -25,12 +25,17 @@
 #include <launcher/observers/AlgoResultObserver.hpp>
 #include <launcher/observers/AlgoHitsResultObserver.hpp>
 
+#include <algo/core/api/IAlgoEvents.hpp>
+
 using namespace std;
 
 using namespace dp;
 using namespace dp::impl;
 
+using namespace algo::core;
 using namespace algo::core::impl;
+
+using namespace alignment::core;
 
 using namespace launcher::observers;
 
@@ -76,6 +81,16 @@ PlastCmd::~PlastCmd ()
  *********************************************************************/
 void PlastCmd::execute ()
 {
+    _isRunning = true;
+
+    /** We create an environment for the request and provide the 'this' instance
+     *  as a potential cancel subject. */
+    IEnvironment* env = new DefaultEnvironment (_isRunning);
+    LOCAL (env);
+
+    /** We subscribe ourself as listener. */
+    env->addObserver (this);
+
     /** We may have to configure some observers according to the options provided by the user. */
     list<AbstractObserver*> observers;
     configureObservers (_properties, observers);
@@ -83,18 +98,23 @@ void PlastCmd::execute ()
     /** We may attach listeners to the algo environment. */
     for (list<AbstractObserver*>::iterator it = observers.begin(); it != observers.end(); it++)
     {
-        DefaultEnvironment::singleton().addObserver (*it);
+        env->addObserver (*it);
     }
 
     /** We run the algorithm through the environment instance. */
-    DefaultEnvironment::singleton().run (_properties);
+    env->run (_properties);
 
     /** We may remove listeners from the algo environment. */
     for (list<AbstractObserver*>::iterator it = observers.begin(); it != observers.end(); it++)
     {
-        DefaultEnvironment::singleton().removeObserver (*it);
+        env->removeObserver (*it);
         delete *it;
     }
+
+    /** We unsubscribe ourself as listener. */
+    env->removeObserver (this);
+
+    _isRunning = false;
 }
 
 /*********************************************************************
@@ -213,6 +233,33 @@ IPropertiesVisitor* PlastCmd::getPropertiesVisitor (IProperties* props, const st
     }
 
     return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void PlastCmd::update (dp::EventInfo* evt, dp::ISubject* subject)
+{
+    /** We just forward the notification to potential listener. */
+    if (subject != this  &&  _isRunning==true)  {  notify (evt);  }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void PlastCmd::cancel ()
+{
+    _isRunning = false;
 }
 
 /********************************************************************************/
