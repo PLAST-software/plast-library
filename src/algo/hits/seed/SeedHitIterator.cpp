@@ -45,10 +45,12 @@ SeedHitIterator::SeedHitIterator (
     IDatabaseIndex* indexDb,
     IDatabaseIndex* indexQuery,
     size_t          neighbourhoodSize,
+    bool&           isRunning,
     ISeedIterator*  seedIterator
 )
     : _indexDb1(indexDb), _indexDb2(indexQuery),  _model(0),
       _neighbourhoodSize (neighbourhoodSize),
+      _isRunning (isRunning),
       _seedIterator (0),
       _isLocalDone(true), _isGlobalDone(true),
       _nbOccurMaxDb(0), _nbOccurMaxQuery(0),

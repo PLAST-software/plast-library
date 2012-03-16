@@ -66,6 +66,7 @@ public:
         indexation::IDatabaseIndex* indexSubject,
         indexation::IDatabaseIndex* indexQuery,
         size_t                      neighbourhoodSize,
+        bool&                       isRunning,
         ::seed::ISeedIterator*      seedIterator=0
     );
 
@@ -92,7 +93,7 @@ private:
     /** \copydoc SeedHitIterator::clone */
     SeedHitIterator* clone (::seed::ISeedIterator* seedIterator)
     {
-        return new SeedHitIteratorCached (_indexDb1, _indexDb2, _neighbourhoodSize, seedIterator);
+        return new SeedHitIteratorCached (_indexDb1, _indexDb2, _neighbourhoodSize, _isRunning, seedIterator);
     }
 };
 
@@ -126,8 +127,9 @@ public:
     SeedHitIteratorCachedWithSortedSeeds (
         indexation::IDatabaseIndex* indexSubject,
         indexation::IDatabaseIndex* indexQuery,
-        size_t neighbourhoodSize,
-        ::seed::ISeedIterator* seedIterator=0
+        size_t                      neighbourhoodSize,
+        bool&                       isRunning,
+        ::seed::ISeedIterator*      seedIterator=0
     );
 
     /** \copydoc SeedHitIteratorCached::getName */
@@ -143,7 +145,7 @@ private:
     /** \copydoc SeedHitIteratorCached::clone */
     SeedHitIterator* clone (::seed::ISeedIterator* seedIterator)
     {
-        return new SeedHitIteratorCachedWithSortedSeeds (_indexDb1, _indexDb2, _neighbourhoodSize, seedIterator);
+        return new SeedHitIteratorCachedWithSortedSeeds (_indexDb1, _indexDb2, _neighbourhoodSize, _isRunning, seedIterator);
     }
 };
 

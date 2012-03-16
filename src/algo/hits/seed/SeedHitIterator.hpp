@@ -71,6 +71,7 @@ public:
         indexation::IDatabaseIndex* indexSubject,
         indexation::IDatabaseIndex* indexQuery,
         size_t                      neighbourhoodSize,
+        bool&                       isRunning,
         ::seed::ISeedIterator*      seedIterator=0
     );
 
@@ -120,6 +121,9 @@ protected:
     /** We may need to get neighbourhoods. */
     size_t _neighbourhoodSize;
 
+    /** */
+    bool& _isRunning;
+
     /** The iterator that loops over seeds.
      * \return the seeds iterator
      */
@@ -154,7 +158,7 @@ protected:
     /** Clone the instance with a specific seeds iterator. */
     virtual SeedHitIterator* clone (::seed::ISeedIterator* seedIterator)
     {
-        return new SeedHitIterator (_indexDb1, _indexDb2, _neighbourhoodSize, seedIterator);
+        return new SeedHitIterator (_indexDb1, _indexDb2, _neighbourhoodSize, _isRunning, seedIterator);
     }
 
     size_t _nbOccurMaxDb;

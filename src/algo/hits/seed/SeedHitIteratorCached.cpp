@@ -17,6 +17,7 @@
 #include <os/impl/DefaultOsFactory.hpp>
 
 #include <algo/hits/seed/SeedHitIteratorCached.hpp>
+#include <algo/core/api/IAlgoEvents.hpp>
 
 using namespace std;
 using namespace misc;
@@ -49,9 +50,10 @@ SeedHitIteratorCached::SeedHitIteratorCached (
     IDatabaseIndex* indexDb,
     IDatabaseIndex* indexQuery,
     size_t          neighbourhoodSize,
+    bool&           isRunning,
     ISeedIterator*  seedIterator
 )
-    : SeedHitIterator (indexDb, indexQuery, neighbourhoodSize, seedIterator)
+    : SeedHitIterator (indexDb, indexQuery, neighbourhoodSize, isRunning, seedIterator)
 {
 }
 
@@ -99,7 +101,7 @@ void SeedHitIteratorCached::iterate (void* aClient, Method method)
 
     /** We loop over the possible seeds. Note that we use the 'retrieve' method that is protected from
      *  concurrent access by different threads. */
-    for (ISeed seed; _seedIterator->retrieve (seed, nbRetrieved);  nbSeeds++)
+    for (ISeed seed; _isRunning && _seedIterator->retrieve (seed, nbRetrieved);  nbSeeds++)
     {
         _hit.setSeedHashCode (seed.code);
 
@@ -153,11 +155,11 @@ void SeedHitIteratorCached::iterate (void* aClient, Method method)
             LOCAL (itOccurBlockDb2);
 
             /** We loop over ISeedOccurrence instances (both from subject and query db). */
-            for (itOccurBlockDb1->first(); !itOccurBlockDb1->isDone(); itOccurBlockDb1->next())
+            for (itOccurBlockDb1->first(); _isRunning &&  !itOccurBlockDb1->isDone(); itOccurBlockDb1->next())
             {
                 Vector<const ISeedOccurrence*>& table1 = itOccurBlockDb1->currentItem ();
 
-                for (itOccurBlockDb2->first(); !itOccurBlockDb2->isDone(); itOccurBlockDb2->next())
+                for (itOccurBlockDb2->first(); _isRunning && !itOccurBlockDb2->isDone(); itOccurBlockDb2->next())
                 {
                     Vector<const ISeedOccurrence*>& table2 = itOccurBlockDb2->currentItem ();
 
@@ -234,9 +236,10 @@ SeedHitIteratorCachedWithSortedSeeds::SeedHitIteratorCachedWithSortedSeeds (
     IDatabaseIndex* indexDb,
     IDatabaseIndex* indexQuery,
     size_t          neighbourhoodSize,
+    bool&           isRunning,
     ISeedIterator*  seedIterator
 )
-    : SeedHitIteratorCached (indexDb, indexQuery, neighbourhoodSize, seedIterator)
+    : SeedHitIteratorCached (indexDb, indexQuery, neighbourhoodSize, isRunning, seedIterator)
 {
 }
 
