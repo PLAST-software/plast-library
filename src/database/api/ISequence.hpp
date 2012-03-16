@@ -81,6 +81,34 @@ struct ISequence
     /** */
     u_int32_t getLength ()  const {  return data.letters.size;  }
 
+    /** Get id of the sequence.
+     * \return the id
+     */
+    char* getId (char* buffer, size_t& length) const
+    {
+        if (comment != 0)
+        {
+            const char* lookup = strchr (comment, ' ');
+            if (lookup != 0)
+            {
+                size_t l = (size_t) (lookup-comment);
+                length = length > l ? l : length;
+                strncpy (buffer, comment, length);
+                buffer[length] = 0;
+            }
+            else
+            {
+                *buffer = 0;
+                length  = 0;
+            }
+        }
+        else
+        {
+            length = 0;
+        }
+        return buffer;
+    }
+
     /** Tool for dumping a sequence content. Useful for debug purpose.
      * \return the string representing the sequence.
      */
