@@ -122,7 +122,7 @@ dp::IProperties* AlignmentFilterBinaryOperator::getProperties ()
 AlignmentFilterRegexOperator::AlignmentFilterRegexOperator (const std::vector<std::string>& args)
     : AlignmentFilterUnaryOperator<std::string>(args), _err(0)
 {
-    _err = regcomp (&_preg, _value.c_str(), REG_NOSUB | REG_EXTENDED | REG_ICASE);
+    //TO BE DONE _err = regcomp (&_preg, _value.c_str(), REG_NOSUB | REG_EXTENDED | REG_ICASE);
 
     DEBUG (("AlignmentFilterRegexOperator::AlignmentFilterRegexOperator   _value='%s'   _err=%d \n", _value.c_str(), _err ));
 }
@@ -137,7 +137,7 @@ AlignmentFilterRegexOperator::AlignmentFilterRegexOperator (const std::vector<st
 *********************************************************************/
 AlignmentFilterRegexOperator::~AlignmentFilterRegexOperator ()
 {
-    regfree (&_preg);
+    //TO BE DONE regfree (&_preg);
 }
 
 /********************************************************************************/

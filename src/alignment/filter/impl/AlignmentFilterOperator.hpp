@@ -27,7 +27,7 @@
 
 #include <alignment/filter/api/IAlignmentFilter.hpp>
 #include <designpattern/impl/Property.hpp>
-#include <regex.h>
+// TO BE DONE #include <regex.h>
 #include <stdarg.h>
 
 /********************************************************************************/
@@ -201,7 +201,7 @@ public:
     ~AlignmentFilterRegexOperator ();
 
 protected:
-    regex_t     _preg;
+    // TO BE DONE regex_t     _preg;
     int         _err;
 };
 
@@ -248,8 +248,8 @@ protected:
             if ( (_err != 0) || ((regexp) == 0) )  { return false; } \
             switch(_operator) \
             { \
-                case HOLD:      return regexec (&_preg, (regexp), 0, NULL, 0) == 0 ; \
-                case NO_HOLD:   return regexec (&_preg, (regexp), 0, NULL, 0) != 0 ; \
+                /** TO BE DONE  case HOLD:      return regexec (&_preg, (regexp), 0, NULL, 0) == 0 ;*/ \
+                /** TO BE DONE  case NO_HOLD:   return regexec (&_preg, (regexp), 0, NULL, 0) != 0 ;*/ \
                 default:        return false; \
             } \
         } \
