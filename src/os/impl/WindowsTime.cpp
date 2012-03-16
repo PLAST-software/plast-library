@@ -35,9 +35,7 @@ namespace os { namespace impl {
 *********************************************************************/
 u_int32_t WindowsTime::gettime ()
 {
-    u_int32_t result = 0;
-
-    return result;
+    return (u_int32_t) (float)(1000.0*clock()) / (float)CLOCKS_PER_SEC;
 }
 
 /*********************************************************************
@@ -50,10 +48,7 @@ u_int32_t WindowsTime::gettime ()
 *********************************************************************/
 u_int32_t WindowsTime::getclock()
 {
-    u_int32_t result = 0;
-
-
-    return result;
+    return (u_int32_t) (float)(1000.0*clock()) / (float)CLOCKS_PER_SEC;
 }
 
 /********************************************************************************/

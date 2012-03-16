@@ -17,9 +17,9 @@
 #ifdef __LINUX__
 
 #include <os/impl/LinuxTime.hpp>
-#include <time.h>
-
-#define CLOCK_REALTIME 0
+#include <ctime>
+#include <unistd.h>
+#include <sys/time.h>
 
 /********************************************************************************/
 namespace os { namespace impl {
@@ -37,14 +37,11 @@ u_int32_t LinuxTime::gettime ()
 {
     u_int32_t result = 0;
 
-    struct timespec tp;
+    timeval t;
 
-    int err = clock_gettime (CLOCK_REALTIME, &tp);
+    int err = gettimeofday (&t, NULL);
 
-    if (err == 0)
-    {
-        result = tp.tv_sec * 1000  +  tp.tv_nsec / 1000000;
-    }
+    if (err == 0)  {  result = 1000*t.tv_sec +  t.tv_usec / 1000;  }
 
     return result;
 }
@@ -61,14 +58,11 @@ u_int32_t LinuxTime::getclock()
 {
     u_int32_t result = 0;
 
-    struct timespec tp;
+    timeval t;
 
-    int err = clock_gettime (CLOCK_REALTIME, &tp);
+    int err = gettimeofday (&t, NULL);
 
-    if (err == 0)
-    {
-        result = tp.tv_sec * 1000000  +  tp.tv_nsec / 1000;
-    }
+    if (err == 0)  {  result = 1000*t.tv_sec +  t.tv_usec / 1000;  }
 
     return result;
 }
