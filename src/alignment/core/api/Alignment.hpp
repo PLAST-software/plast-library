@@ -68,14 +68,14 @@ public:
     /** Structure that links alignment and sequence information.  */
     struct AlignSequenceInfo
     {
-        AlignSequenceInfo () : _sequence(0), _nbGaps(0), _frame(1) {}
+        AlignSequenceInfo () : _sequence(0), _nbGaps(0), _frame(0) {}
 
         AlignSequenceInfo (
             database::ISequence* sequence,
             misc::Range32        range,
             u_int16_t            nbGaps = 0,
-            int8_t               frame  = 1
-        )  : _sequence(sequence), _range(range), _nbGaps(nbGaps), _frame(1)  {}
+            int8_t               frame  = 0
+        )  : _sequence(sequence), _range(range), _nbGaps(nbGaps), _frame(0)  {}
 
         database::ISequence* _sequence;
         misc::Range32        _range;
@@ -278,8 +278,18 @@ public:
     const database::ISequence*  getSequence   (DbKind kind) const  { return getInfo(kind)._sequence;  }
     const misc::Range32&        getRange      (DbKind kind) const  { return getInfo(kind)._range;     }
     u_int16_t                   getNbGaps     (DbKind kind) const  { return getInfo(kind)._nbGaps;    }
-    double                      getCoverage   (DbKind kind) const  { return  (double)(getRange(kind).getLength()) / (double) (getSequence(kind)->getLength());  }
     int8_t                      getFrame      (DbKind kind) const  { return getInfo(kind)._frame; }
+
+    double getCoverage   (DbKind kind) const
+    {
+        u_int32_t seqLen = getSequence(kind)->getLength();
+
+        int8_t frame = getFrame(kind);
+
+        if (frame != 0)  { seqLen *= 3; }
+
+        return  (double)(getRange(kind).getLength()) / (double) seqLen;
+    }
 
     void setSequence  (DbKind kind, database::ISequence* seq)    {  _info[kind]._sequence = seq;    }
     void setRange     (DbKind kind, const misc::Range32& range)  {  _info[kind]._range    = range;  }
