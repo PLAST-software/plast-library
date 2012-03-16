@@ -117,7 +117,8 @@ protected:
         database::IDatabaseQuickReader*                 reader,
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
-        alignment::core::IAlignmentContainerVisitor*    resultVisitor
+        alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        bool&                                           isRunning
     ) = 0;
 };
 
