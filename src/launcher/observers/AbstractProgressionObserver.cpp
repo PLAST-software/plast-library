@@ -25,6 +25,7 @@
 
 #include <launcher/observers/AbstractProgressionObserver.hpp>
 
+#include <stdio.h>
 #include <string.h>
 #include <iostream>
 #include <sstream>
@@ -57,7 +58,7 @@ AbstractProgressionObserver::AbstractProgressionObserver ()
       _currentPercentage(0), _globalPercentage(0),
       _currentAlgo (0), _totalAlgo(0),
       _ellapsedTime(0), _remainingTime(0),
-      _nbAlignments(0),
+      _currentNbAlignments(0), _nbAlignments(0),
       _usedMemory(0), _maxUsedMemory(0), _totalUsedMemory(0),
       _currentFrame(0), _nbSubjectFrames(1), _nbQueryFrames(1)
 {
@@ -132,7 +133,11 @@ void AbstractProgressionObserver::update (dp::EventInfo* evt, dp::ISubject* subj
         }
 
         IAlignmentContainer*  alignmentResult  = e3->getAlignmentContainer();
-        if (e3 != 0)  {  _nbAlignments += alignmentResult->getSize();  }
+        if (e3 != 0)
+        {
+            _currentNbAlignments = alignmentResult->getSize();
+            _nbAlignments += _currentNbAlignments;
+        }
 
         /** We get an approximation of the used memory at the end of the algorithm. */
         _usedMemory = DefaultFactory::memory().getMemUsage();

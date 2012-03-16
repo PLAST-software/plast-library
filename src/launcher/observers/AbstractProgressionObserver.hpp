@@ -124,6 +124,10 @@ protected:
     u_int32_t _remainingTime;
 
     /** Gives the number of found alignments for the IAlgorithm instance that just finished.
+     */
+    u_int64_t _currentNbAlignments;
+
+    /** Gives the number of found alignments for the IAlgorithm instance that just finished.
      * Retrieved from AlgorithmReportEvent event.
      */
     u_int64_t _nbAlignments;
