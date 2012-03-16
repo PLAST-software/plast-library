@@ -124,6 +124,21 @@ public:
 
 /********************************************************************************/
 
+/** Iterators that can return the number of items it can iterate.
+ */
+template <class Item> class SmartIterator : public Iterator<Item>
+{
+public:
+
+    /** */
+    virtual ~SmartIterator () {}
+
+    /** */
+    virtual u_int32_t size () = 0;
+};
+
+/********************************************************************************/
+
 /** \brief Null implementation of the Iterator interface.
  *
  * This iterator iterates no item at all.
