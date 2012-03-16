@@ -294,6 +294,17 @@ public:
 };
 
 /********************************************************************************/
+
+/** \brief Notification that a cancel is requested.
+ */
+class CancelRequestedEvent : public dp::EventInfo
+{
+public:
+
+    /** Constructor.  */
+    CancelRequestedEvent () :  dp::EventInfo(1) {}
+};
+/********************************************************************************/
 }} /* end of namespaces. */
 /********************************************************************************/
 
