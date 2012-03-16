@@ -19,7 +19,8 @@
 #include <seg/impl/lnfac.pri>
 
 int window = 12;
-int downset, upset;
+int downset = 0;
+int upset   = 0;
 double locut = 2.2;
 double hicut = 2.5;
 
