@@ -69,9 +69,35 @@ public:
     }
 
     /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */
-    void visitAlignment  (core::Alignment* align, const misc::ProgressInfo& progress)
+    void visitAlignment  (core::Alignment* a, const misc::ProgressInfo& progress)
     {
-        getStream() << "A " << (*align) <<  std::endl;
+        char sep = ' ';
+
+        getStream() << "H "
+
+            << (int)a->getRange(alignment::core::Alignment::QUERY).begin     << sep
+            << (int)a->getRange(alignment::core::Alignment::QUERY).end       << sep
+            << (int)a->getNbGaps(alignment::core::Alignment::QUERY)          << sep
+            << (int)a->getFrame(alignment::core::Alignment::QUERY)           << sep
+            << a->getCoverage(alignment::core::Alignment::QUERY)        << sep
+
+            << (int)a->getRange(alignment::core::Alignment::SUBJECT).begin   << sep
+            << (int)a->getRange(alignment::core::Alignment::SUBJECT).end     << sep
+            << (int)a->getNbGaps(alignment::core::Alignment::SUBJECT)        << sep
+            << (int)a->getFrame(alignment::core::Alignment::SUBJECT)         << sep
+            << a->getCoverage(alignment::core::Alignment::SUBJECT)      << sep
+
+            << a->getEvalue()       << sep
+            << a->getBitScore()     << sep
+            << a->getScore()        << sep
+
+            << (int)a->getLength()       << sep
+
+            << (int)a->getNbIdentities() << sep
+            << (int)a->getNbPositives()  << sep
+            << (int)a->getNbMisses()     << sep
+
+            <<  std::endl;
     }
 };
 
