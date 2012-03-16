@@ -133,7 +133,11 @@ public:
      *  \param[in] params : for parameterizing the instance creation
      *  \return a new IIndexator instance
      */
-    virtual algo::core::IIndexator*  createIndexator (seed::ISeedModel* seedsModel, algo::core::IParameters* params) = 0;
+    virtual algo::core::IIndexator*  createIndexator (
+        seed::ISeedModel*        seedsModel,
+        algo::core::IParameters* params,
+        bool&                    isRunning
+    ) = 0;
 
     /** Create a score matrix (BLOSUM50, BLOSUM62...)
      * \param[in] kind : kind of the matrix; likely to be BLOSUM62
