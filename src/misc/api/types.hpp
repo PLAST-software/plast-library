@@ -68,7 +68,7 @@ template <class T> struct Range
     Range() : begin(T()), end(T()) {}
     Range(const T& x, const T& y) : begin(x), end(y) {}
     template <class U>  Range (const Range<U> &p) : begin(p.begin), end(p.end) { }
-    T getLength ()  const  { return end - begin + 1; }
+    T getLength ()  const  { return (end >= begin ? end - begin + 1 : begin - end + 1); }
 
     /** Tells whether the provided 'r' range is included into the 'this' instance. */
     bool includes (const Range<T>& r, u_int8_t delta=0) const
