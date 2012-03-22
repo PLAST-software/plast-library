@@ -17,9 +17,7 @@
 #ifdef __DARWIN__
 
 #include <os/impl/MacOsTime.hpp>
-#include <time.h>
-
-#define CLOCK_REALTIME 0
+#include <sys/time.h>
 
 /********************************************************************************/
 namespace os { namespace impl {
@@ -37,6 +35,12 @@ u_int32_t MacOsTime::gettime ()
 {
     u_int32_t result = 0;
 
+    timeval t;
+
+    int err = gettimeofday (&t, NULL);
+
+    if (err == 0)  {  result = 1000*t.tv_sec +  t.tv_usec / 1000;  }
+
     return result;
 }
 
@@ -51,6 +55,12 @@ u_int32_t MacOsTime::gettime ()
 u_int32_t MacOsTime::getclock()
 {
     u_int32_t result = 0;
+
+    timeval t;
+
+    int err = gettimeofday (&t, NULL);
+
+    if (err == 0)  {  result = 1000*t.tv_sec +  t.tv_usec / 1000;  }
 
     return result;
 }
