@@ -162,7 +162,7 @@ protected:
     void configure (const std::vector<std::string>& args)
     {
         static const char* convert[] = {
-            "?", "=", "!=", "<", ">", "<=", ">=", "[]", "][", "::", "!:", 0
+            "?", "==", "!=", "<", ">", "<=", ">=", "[]", "][", "::", "!:", 0
         };
 
         for (size_t i=0; (_operator==UNKNOWN) && (convert[i] != 0); i++)
