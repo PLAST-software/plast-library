@@ -136,7 +136,7 @@ namespace misc {
  *  "best" ones are kept)
  *  Integer value
  */
-#define STR_OPTION_MAX_HIT_PER_QUERY        "-max-hit-per-query"
+#define STR_OPTION_MAX_HSP_PER_HIT        "-max-hsp-per-hit"
 
 /** Command Line option giving the maximum number of hits handled in a row for one seed.
  *  By default, for one seed, all possible matches between subject and query are handled in a row.
