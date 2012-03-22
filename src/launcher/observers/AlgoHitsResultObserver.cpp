@@ -314,7 +314,7 @@ void AlgoHitsPropertiesObserver::fillParamsInfo (IProperties* props, IProperties
         STR_OPTION_SCORE_MATRIX,
 //        STR_OPTION_OUTPUT_FORMAT,
         STR_OPTION_MAX_DATABASE_SIZE,
-        STR_OPTION_MAX_HIT_PER_QUERY,
+        STR_OPTION_MAX_HSP_PER_HIT,
         STR_OPTION_MAX_HIT_PER_ITERATION,
         STR_OPTION_STRANDS_LIST,
         STR_OPTION_CODON_STOP_OPTIM,
