@@ -88,9 +88,8 @@ class IEnvironment : public dp::SmartPointer, public dp::impl::Subject, public d
 public:
 
     /** Entry point method for plasting (given some properties).
-     *  \param[in] properties : properties used for configuring PLAST
      */
-    virtual void run (dp::IProperties* properties) = 0;
+    virtual void run () = 0;
 
 protected:
 

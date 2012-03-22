@@ -62,6 +62,132 @@ namespace impl {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+DefaultEnvironment::DefaultEnvironment (IProperties* properties, bool& isRunning)
+    : _properties(0), _isRunning(isRunning),
+      _config(0), _filter(0), _quickSubjectDbReader(0), _quickQueryDbReader(0), _resultVisitor(0)
+{
+    setProperties (properties);
+
+    /** We may have to configure default parameters. */
+    configure ();
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+DefaultEnvironment::~DefaultEnvironment ()
+{
+    setProperties           (0);
+    setConfig               (0);
+    setFilter               (0);
+    setQuickSubjectDbReader (0);
+    setQuickQueryDbReader   (0);
+    setResultVisitor        (0);
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void DefaultEnvironment::configure ()
+{
+    /** We create a configuration object for the provided program name (plastp, tplasn...) */
+    setConfig (createConfiguration (_properties));
+
+    /** We retrieve the type of algorithm (may be not set). */
+    IProperty* algoProp = _properties->getProperty (STR_OPTION_ALGO_TYPE);
+    bool inferType = (algoProp == 0);
+
+    /** We may have a defined XML file URI. */
+    IProperty* filterProp = _properties->getProperty (STR_OPTION_XML_FILTER_FILE);
+    if (filterProp != 0)
+    {
+        setFilter (AlignmentFilterFactoryXML().createFilter (filterProp->getString()));
+    }
+
+    /** We create a visitor for visiting the resulting alignments. Note that we use only one visitor even if
+     *  we have to run several algorithm; in such a case, the results are 'concatenated' by the same visitor. */
+    setResultVisitor (_config->createResultVisitor ());
+
+    u_int64_t  maxblocksize = 20*1000*1000;
+    IProperty* maxBlockProp = _properties->getProperty(STR_OPTION_MAX_DATABASE_SIZE);
+    if (maxBlockProp != 0)  {  maxblocksize = maxBlockProp->getInt();  }
+    else  { _properties->add (0, STR_OPTION_MAX_DATABASE_SIZE, "%lld", maxblocksize); }
+
+    /** We need to read the subject database to get its data size and the number of sequences.
+     *  This information will be used for computing cutoffs for the query sequences. */
+    IProperty* subjectProp = _properties->getProperty (STR_OPTION_SUBJECT_URI);
+    if (subjectProp == 0)  {  subjectProp = _properties->add (0, STR_OPTION_SUBJECT_URI, "foo"); }
+    if (subjectProp != 0)
+    {
+        setQuickSubjectDbReader (new FastaDatabaseQuickReader (subjectProp->value, inferType));
+        _quickSubjectDbReader->read (maxblocksize);
+    }
+
+    /** We need to read the subject database to get its data size and the number of sequences. */
+    IProperty* queryProp = _properties->getProperty (STR_OPTION_QUERY_URI);
+    if (queryProp == 0)  {  queryProp = _properties->add (0, STR_OPTION_QUERY_URI, "foo"); }
+    if (queryProp != 0)
+    {
+        setQuickQueryDbReader (new FastaDatabaseQuickReader (queryProp->value, inferType));
+        _quickQueryDbReader->read (maxblocksize);
+    }
+
+    /** We may launch an event with information about the two databases. */
+    if (_quickSubjectDbReader != 0  &&  _quickQueryDbReader != 0)
+    {
+        this->notify (new DatabasesInformationEvent (_quickSubjectDbReader, _quickQueryDbReader) );
+    }
+
+    /** We may have to infer the kind of algorithm (plastp, plastx...) if no one is provided. */
+    if (algoProp == 0)
+    {
+        /** Shortcuts. */
+        IDatabaseQuickReader::DatabaseKind_e subjectKind = _quickSubjectDbReader->getKind();
+        IDatabaseQuickReader::DatabaseKind_e queryKind   = _quickQueryDbReader->getKind();
+
+        if (subjectKind == IDatabaseQuickReader::ENUM_AMINO_ACID &&  queryKind == IDatabaseQuickReader::ENUM_AMINO_ACID)
+        {
+            _properties->add (0, STR_OPTION_ALGO_TYPE, "plastp");
+        }
+        else if (subjectKind == IDatabaseQuickReader::ENUM_AMINO_ACID &&  queryKind == IDatabaseQuickReader::ENUM_NUCLOTID)
+        {
+            _properties->add (0, STR_OPTION_ALGO_TYPE, "plastx");
+        }
+        else if (subjectKind == IDatabaseQuickReader::ENUM_NUCLOTID &&  queryKind == IDatabaseQuickReader::ENUM_AMINO_ACID)
+        {
+            _properties->add (0, STR_OPTION_ALGO_TYPE, "tplastn");
+        }
+        else
+        {
+            /** We should not be there. Should throw an exception ?*/
+        }
+    }
+
+    /** We build a list of uri for subject/query databases. */
+    vector<pair<Range64,Range64> > uriList = buildUri (_quickSubjectDbReader, _quickQueryDbReader);
+
+    /** We build a list of Parameters. We will launch the algorithm for each item of this list. */
+    _parametersList = createParametersList (_config, _properties, uriList);
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 IConfiguration* DefaultEnvironment::createConfiguration (dp::IProperties* properties)
 {
     IConfiguration* result = 0;
@@ -79,111 +205,23 @@ IConfiguration* DefaultEnvironment::createConfiguration (dp::IProperties* proper
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void DefaultEnvironment::run (dp::IProperties* properties)
+void DefaultEnvironment::run ()
 {
-    /** We create a configuration object for the provided program name (plastp, tplasn...) */
-    IConfiguration* config = createConfiguration (properties);
-    LOCAL (config);
-
-    /** We retrieve the type of algorithm (may be not set). */
-    IProperty* algoProp = properties->getProperty (STR_OPTION_ALGO_TYPE);
-    bool inferType = (algoProp == 0);
-
-    /** We may have a defined XML file URI. */
-    IAlignmentFilter* filter = 0;
-    IProperty* filterProp = properties->getProperty (STR_OPTION_XML_FILTER_FILE);
-    if (filterProp != 0)
-    {
-        filter = AlignmentFilterFactoryXML().createFilter (filterProp->getString());
-    }
-    LOCAL (filter);
-
-    /** We create a visitor for visiting the resulting alignments. Note that we use only one visitor even if
-     *  we have to run several algorithm; in such a case, the results are 'concatenated' by the same visitor. */
-    IAlignmentContainerVisitor* resultVisitor = config->createResultVisitor ();
-    LOCAL (resultVisitor);
-
-    u_int64_t  maxblocksize = 20*1000*1000;
-    IProperty* maxBlockProp = properties->getProperty(STR_OPTION_MAX_DATABASE_SIZE);
-    if (maxBlockProp != 0)  {  maxblocksize = maxBlockProp->getInt();  }
-    else  { properties->add (0, STR_OPTION_MAX_DATABASE_SIZE, "%lld", maxblocksize); }
-
-    /** We need to read the subject database to get its data size and the number of sequences.
-     *  This information will be used for computing cutoffs for the query sequences. */
-    IDatabaseQuickReader* quickSubjectDbReader = 0;
-    IProperty* subjectProp = properties->getProperty (STR_OPTION_SUBJECT_URI);
-    if (subjectProp == 0)  {  subjectProp = properties->add (0, STR_OPTION_SUBJECT_URI, "foo"); }
-    if (subjectProp != 0)
-    {
-        quickSubjectDbReader = new FastaDatabaseQuickReader (subjectProp->value, inferType);
-        quickSubjectDbReader->read (maxblocksize);
-    }
-
-    /** We need to read the subject database to get its data size and the number of sequences. */
-    IDatabaseQuickReader* quickQueryDbReader = 0;
-    IProperty* queryProp = properties->getProperty (STR_OPTION_QUERY_URI);
-    if (queryProp == 0)  {  queryProp = properties->add (0, STR_OPTION_QUERY_URI, "foo"); }
-    if (queryProp != 0)
-    {
-        quickQueryDbReader = new FastaDatabaseQuickReader (queryProp->value, inferType);
-        quickQueryDbReader->read (maxblocksize);
-    }
-
-    /** We may launch an event with information about the two databases. */
-    if (quickSubjectDbReader != 0  &&  quickQueryDbReader != 0)
-    {
-        this->notify (new DatabasesInformationEvent (quickSubjectDbReader, quickQueryDbReader) );
-    }
-
-    /** We may have to infer the kind of algorithm (plastp, plastx...) if no one is provided. */
-    if (algoProp == 0)
-    {
-        /** Shortcuts. */
-        IDatabaseQuickReader::DatabaseKind_e subjectKind = quickSubjectDbReader->getKind();
-        IDatabaseQuickReader::DatabaseKind_e queryKind   = quickQueryDbReader->getKind();
-
-        if (subjectKind == IDatabaseQuickReader::ENUM_AMINO_ACID &&  queryKind == IDatabaseQuickReader::ENUM_AMINO_ACID)
-        {
-            properties->add (0, STR_OPTION_ALGO_TYPE, "plastp");
-        }
-        else if (subjectKind == IDatabaseQuickReader::ENUM_AMINO_ACID &&  queryKind == IDatabaseQuickReader::ENUM_NUCLOTID)
-        {
-            properties->add (0, STR_OPTION_ALGO_TYPE, "plastx");
-        }
-        else if (subjectKind == IDatabaseQuickReader::ENUM_NUCLOTID &&  queryKind == IDatabaseQuickReader::ENUM_AMINO_ACID)
-        {
-            properties->add (0, STR_OPTION_ALGO_TYPE, "tplastn");
-        }
-        else
-        {
-            /** We should not be there. Should throw an exception ?*/
-        }
-    }
-
-    LOCAL (quickSubjectDbReader);
-    LOCAL (quickQueryDbReader);
-
-    /** We build a list of uri for subject/query databases. */
-    vector<pair<Range64,Range64> > uriList = buildUri (quickSubjectDbReader, quickQueryDbReader);
-
-    /** We build a list of Parameters. We will launch the algorithm for each item of this list. */
-    vector<IParameters*> parametersList = createParametersList (config, properties, uriList);
-
     /** We iterate each parameters. */
-    for (size_t i=0; _isRunning && i<parametersList.size(); i++)
+    for (size_t i=0; _isRunning && i<_parametersList.size(); i++)
     {
         list<ICommand*> algorithms;
 
         /** We send a notification to potential listeners. */
-        this->notify (new AlgorithmConfigurationEvent (properties, i, parametersList.size()));
+        this->notify (new AlgorithmConfigurationEvent (_properties, i, _parametersList.size()));
 
         /** We create an Algorithm instance. */
         IAlgorithm* algo = this->createAlgorithm (
-            config,
-            quickSubjectDbReader,
-            parametersList[i],
-            filter,
-            resultVisitor,
+            _config,
+            _quickSubjectDbReader,
+            _parametersList[i],
+            _filter,
+            _resultVisitor,
             _isRunning
         );
         if (algo == 0)  { continue; }
@@ -207,7 +245,7 @@ void DefaultEnvironment::run (dp::IProperties* properties)
     }
 
     /** We send a notification telling we are done (ie. current==total). */
-    this->notify (new AlgorithmConfigurationEvent (properties, parametersList.size(), parametersList.size()));
+    this->notify (new AlgorithmConfigurationEvent (_properties, _parametersList.size(), _parametersList.size()));
 }
 
 /*********************************************************************

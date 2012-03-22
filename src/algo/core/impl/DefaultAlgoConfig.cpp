@@ -784,10 +784,10 @@ IAlignmentContainerVisitor* DefaultConfiguration::createResultVisitor ()
     /** We may want to restrict the number of dumped alingments. We use a Proxy (see [GOF94]) for
      *  controlling this aspect.
      */
-    IProperty* maxHitsPerQueryProp = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY);
-    if (maxHitsPerQueryProp != 0)
+    IProperty* maxHspPerHitProp = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT);
+    if (maxHspPerHitProp != 0)
     {
-        size_t maxHitsPerQuery = atoi (maxHitsPerQueryProp->value.c_str());
+        size_t maxHitsPerQuery = atoi (maxHspPerHitProp->value.c_str());
         if (maxHitsPerQuery > 0)
         {
             result = new MaxHitsPerQueryVisitor (result, maxHitsPerQuery);

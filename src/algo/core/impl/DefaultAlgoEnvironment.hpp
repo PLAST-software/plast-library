@@ -51,21 +51,46 @@ class DefaultEnvironment : public IEnvironment
 public:
 
     /** Constructor. */
-    DefaultEnvironment (bool& isRunning) : _isRunning(isRunning)  {}
+    DefaultEnvironment (dp::IProperties* properties, bool& isRunning);
 
     /** Destructor. */
-    virtual ~DefaultEnvironment ()  {}
+    virtual ~DefaultEnvironment ();
 
     /** \copydoc IEnvironment::createConfiguration */
     IConfiguration* createConfiguration (dp::IProperties* properties);
 
     /** \copydoc IEnvironment::run */
-    void run (dp::IProperties* properties);
+    void run ();
 
 protected:
 
     /** */
+    dp::IProperties* _properties;
+    void setProperties (dp::IProperties* properties)  { SP_SETATTR (properties); }
+
+    /** */
     bool& _isRunning;
+
+    /** */
+    void configure ();
+
+    /** */
+    std::vector<IParameters*> _parametersList;
+
+    IConfiguration* _config;
+    void setConfig (IConfiguration* config)  { SP_SETATTR(config); }
+
+    alignment::filter::IAlignmentFilter* _filter;
+    void setFilter (alignment::filter::IAlignmentFilter* filter)  { SP_SETATTR(filter); }
+
+    database::IDatabaseQuickReader* _quickSubjectDbReader;
+    void setQuickSubjectDbReader (database::IDatabaseQuickReader* quickSubjectDbReader)  { SP_SETATTR(quickSubjectDbReader); }
+
+    database::IDatabaseQuickReader* _quickQueryDbReader;
+    void setQuickQueryDbReader (database::IDatabaseQuickReader* quickQueryDbReader)  { SP_SETATTR(quickQueryDbReader); }
+
+    alignment::core::IAlignmentContainerVisitor* _resultVisitor;
+    void setResultVisitor (alignment::core::IAlignmentContainerVisitor* resultVisitor)  { SP_SETATTR(resultVisitor); }
 
     /** \copydoc IEnvironment::createAlgorithm */
     IAlgorithm* createAlgorithm (

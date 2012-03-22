@@ -181,16 +181,16 @@ int16_t SmallGapHitIterator::computeScore (const database::LETTER* a, const data
         score          -= _parameters->extendGapCost;
     }
 
-    int    best_score = 0;
-    size_t first_b    = 0;
-    size_t last_b     = _parameters->smallGapBandWidth / 2;
+    int   best_score = 0;
+    int   first_b    = 0;
+    int   last_b     = _parameters->smallGapBandWidth / 2;
 
     for (int i=0; i<_parameters->smallGapBandLength; i++)
     {
         score_gap_row = score_min;
         score         = score_min;
 
-        for (size_t j=first_b; j<last_b; j++)
+        for (int j=first_b; j<last_b; j++)
         {
             score_gap_col = best_gap_arr[j];
 

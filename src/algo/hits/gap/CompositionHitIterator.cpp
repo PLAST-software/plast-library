@@ -198,16 +198,19 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
                 IAlignmentSplitter::SplitOutput output;
                 _splitter->splitAlign (align, output);
 
-                /** We complete missing alignment information. */
-                align.setLength       (output.alignSize);
-                align.setNbIdentities (output.identity);
-                align.setNbPositives  (output.positive);
-                align.setNbMisses     (output.nbMis);
-                align.setNbGaps       (Alignment::QUERY,   output.nbGapQry);
-                align.setNbGaps       (Alignment::SUBJECT, output.nbGapSbj);
+                if (output.alignSize > 0)
+                {
+                    /** We complete missing alignment information. */
+                    align.setLength       (output.alignSize);
+                    align.setNbIdentities (output.identity);
+                    align.setNbPositives  (output.positive);
+                    align.setNbMisses     (output.nbMis);
+                    align.setNbGaps       (Alignment::QUERY,   output.nbGapQry);
+                    align.setNbGaps       (Alignment::SUBJECT, output.nbGapSbj);
 
-                /** We add the alignment into the global alignment container. */
-                _alignmentResult->insert (align, 0);
+                    /** We add the alignment into the global alignment container. */
+                    _alignmentResult->insert (align, 0);
+                }
 
                 /** We just go to the next item. */
                 it++;
