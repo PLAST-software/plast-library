@@ -31,6 +31,14 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_Request_cancel
 JNIEXPORT jboolean JNICALL Java_org_inria_genscale_dbscan_impl_plast_Request_isRunning
   (JNIEnv *, jobject, jlong);
 
+/*
+ * Class:     org_inria_genscale_dbscan_impl_plast_Request
+ * Method:    getExecInfo
+ * Signature: (J)Ljava/util/Properties;
+ */
+JNIEXPORT jobject JNICALL Java_org_inria_genscale_dbscan_impl_plast_Request_getExecInfo
+  (JNIEnv *, jobject, jlong);
+
 #ifdef __cplusplus
 }
 #endif

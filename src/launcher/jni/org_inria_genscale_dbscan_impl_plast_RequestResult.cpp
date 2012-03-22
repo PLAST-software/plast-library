@@ -51,8 +51,6 @@ JNIEXPORT jobject JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestResul
     IRootLevel*      self        = 0;
     IQueryLevel*     currentItem = 0;
     const ISequence* sequence    = 0;
-    char bufId[64];
-    size_t lenId = sizeof(bufId);
 
     DEBUG (("[C++] RequestResult_retrieveNext: obj=%p  peer=%p \n", obj, peer));
 
@@ -82,12 +80,17 @@ JNIEXPORT jobject JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestResul
         /** We initialize the iterator. */
         currentItem->first();
 
+        /** We retrieve information about the sequence. */
+        char bufId[64];     size_t lenId  = sizeof(bufId);
+        char bufDef[256];   size_t lenDef = sizeof(bufDef);
+        sequence->retrieveIdAndDefinition (bufId, lenId, bufDef, lenDef);
+
         /** We create a ISequence from the factory. */
         jobject seq = env->CallObjectMethod (
             factory,
             MethodTable[IObjectFactory_createSequence_e],
-            (jstring)env->NewStringUTF (sequence->getId (bufId, lenId)),
-            (jstring)env->NewStringUTF (sequence->comment),
+            (jstring)env->NewStringUTF (bufId),
+            (jstring)env->NewStringUTF (bufDef),
             (jint)sequence->getLength(),
             (jstring)env->NewStringUTF ("")
         );

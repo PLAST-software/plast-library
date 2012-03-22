@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager_initIDs
   (JNIEnv *, jclass);
 
+/*
+ * Class:     org_inria_genscale_dbscan_impl_plast_RequestManager
+ * Method:    createPeerRequest
+ * Signature: (Ljava/util/Properties;)J
+ */
+JNIEXPORT jlong JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager_createPeerRequest
+  (JNIEnv *, jobject, jobject);
+
 #ifdef __cplusplus
 }
 #endif

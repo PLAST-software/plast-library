@@ -58,10 +58,12 @@ enum Method_e
     METHOD_DEF (Request,        notifyStarted),
     METHOD_DEF (Request,        notifyFinished),
     METHOD_DEF (Request,        notifyCancelled),
+    METHOD_DEF (Request,        notifyExecInfoAvailable),
     METHOD_DEF (Request,        notifyRequestResultAvailable),
     METHOD_DEF (Request,        getProperties),
     METHOD_DEF (Request,        getFactory),
     METHOD_DEF (Request,        cancel),
+    METHOD_DEF (Request,        setExecInfoPeer),
 
     METHOD_DEF (PeerIterator,   init),
     METHOD_DEF (PeerIterator,   setPeer),
