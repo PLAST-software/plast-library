@@ -81,10 +81,12 @@ struct ISequence
     /** */
     u_int32_t getLength ()  const {  return data.letters.size;  }
 
-    /** Get id of the sequence.
-     * \return the id
+    /** Get id and definition of the sequence.
      */
-    char* getId (char* buffer, size_t& length) const
+    void retrieveIdAndDefinition (
+        char* bufId,  size_t& lenId,
+        char* bufDef, size_t& lenDef
+    ) const
     {
         if (comment != 0)
         {
@@ -92,21 +94,25 @@ struct ISequence
             if (lookup != 0)
             {
                 size_t l = (size_t) (lookup-comment);
-                length = length > l ? l : length;
-                strncpy (buffer, comment, length);
-                buffer[length] = 0;
+                lenId = lenId > l ? l : lenId;
+
+                strncpy (bufId, comment, lenId);
+                bufId [lenId] = 0;
+
+                strncpy (bufDef, lookup+1, lenDef);
+                bufDef [lenDef-1] = 0;
             }
             else
             {
-                *buffer = 0;
-                length  = 0;
+                lenId  = 0;
+                lenDef = 0;
             }
         }
         else
         {
-            length = 0;
+            lenId  = 0;
+            lenDef = 0;
         }
-        return buffer;
     }
 
     /** Tool for dumping a sequence content. Useful for debug purpose.
