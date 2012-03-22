@@ -74,7 +74,7 @@ void PlastOptionsParser::build ()
     //this->add (new OptionOneParam ("-C", "Use composition-based score adjustments as in Bioinformatics 21:902-911 for plastp or tplastn [T/F]"));
 
     this->add (new OptionOneParam (STR_OPTION_MAX_DATABASE_SIZE,        "Maximum allowed size (in bytes) for a database. If greater, database is segmented."));
-    this->add (new OptionOneParam (STR_OPTION_MAX_HIT_PER_QUERY,        "Maximum hits per query. 0 value will dump all hits (default)"));
+    this->add (new OptionOneParam (STR_OPTION_MAX_HSP_PER_HIT,          "Maximum hits per query. 0 value will dump all hits (default)"));
     this->add (new OptionOneParam (STR_OPTION_MAX_HIT_PER_ITERATION,    "Maximum hits per iteration (for memory usage control). 1000000 by default"));
 
     this->add (new OptionOneParam (STR_OPTION_OUTPUT_FORMAT,            "Output format: 1 for tabulated (default)."));

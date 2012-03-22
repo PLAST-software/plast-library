@@ -16,7 +16,6 @@
 
 #include <launcher/core/PlastCmd.hpp>
 #include <misc/api/PlastStrings.hpp>
-#include <algo/core/impl/DefaultAlgoEnvironment.hpp>
 #include <designpattern/impl/Property.hpp>
 
 #include <launcher/observers/BargraphObserver.hpp>
@@ -26,6 +25,7 @@
 #include <launcher/observers/AlgoHitsResultObserver.hpp>
 
 #include <algo/core/api/IAlgoEvents.hpp>
+#include <algo/core/impl/DefaultAlgoEnvironment.hpp>
 
 using namespace std;
 
@@ -53,8 +53,9 @@ namespace core     {
  ** REMARKS :
  *********************************************************************/
 PlastCmd::PlastCmd (IProperties* properties)
-    : _properties(0)
+    : _env(0), _properties(0)
 {
+    setEnv        (new DefaultEnvironment (properties, _isRunning));
     setProperties (properties);
 }
 
@@ -68,6 +69,7 @@ PlastCmd::PlastCmd (IProperties* properties)
  *********************************************************************/
 PlastCmd::~PlastCmd ()
 {
+    setEnv        (0);
     setProperties (0);
 }
 
@@ -83,13 +85,8 @@ void PlastCmd::execute ()
 {
     _isRunning = true;
 
-    /** We create an environment for the request and provide the 'this' instance
-     *  as a potential cancel subject. */
-    IEnvironment* env = new DefaultEnvironment (_isRunning);
-    LOCAL (env);
-
     /** We subscribe ourself as listener. */
-    env->addObserver (this);
+    _env->addObserver (this);
 
     /** We may have to configure some observers according to the options provided by the user. */
     list<AbstractObserver*> observers;
@@ -98,21 +95,21 @@ void PlastCmd::execute ()
     /** We may attach listeners to the algo environment. */
     for (list<AbstractObserver*>::iterator it = observers.begin(); it != observers.end(); it++)
     {
-        env->addObserver (*it);
+        _env->addObserver (*it);
     }
 
     /** We run the algorithm through the environment instance. */
-    env->run (_properties);
+    _env->run ();
 
     /** We may remove listeners from the algo environment. */
     for (list<AbstractObserver*>::iterator it = observers.begin(); it != observers.end(); it++)
     {
-        env->removeObserver (*it);
+        _env->removeObserver (*it);
         delete *it;
     }
 
     /** We unsubscribe ourself as listener. */
-    env->removeObserver (this);
+    _env->removeObserver (this);
 
     _isRunning = false;
 }

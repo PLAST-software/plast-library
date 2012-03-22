@@ -30,6 +30,8 @@
 
 #include <designpattern/impl/Observer.hpp>
 
+#include <algo/core/api/IAlgoEnvironment.hpp>
+
 #include <launcher/observers/AbstractObserver.hpp>
 
 /********************************************************************************/
@@ -68,7 +70,13 @@ public:
     /** */
     bool isRunning ()  { return _isRunning; }
 
+    /** */
+    dp::IProperties* getProperties ()  { return _properties; }
+
 private:
+
+    algo::core::IEnvironment* _env;
+    void setEnv (algo::core::IEnvironment* env)  { SP_SETATTR(env); }
 
     dp::IProperties* _properties;
     void setProperties (dp::IProperties* properties)  { SP_SETATTR(properties); }
