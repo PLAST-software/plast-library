@@ -194,9 +194,12 @@ int SemiGapAlign::compute (
             /** Shortcut (avoid several memory access). */
             BlastGapDP& sc = score_array[b_index];
 
-            b_ptr        += b_increment;
+            b_ptr += b_increment;
+
+            int letter = (reverse_sequence && b_ptr<B) ?  CODE_X : (int) *b_ptr;
+
             score_gap_col = sc.best_gap;
-            next_score    = sc.best + matrix_row [(int) *b_ptr];
+            next_score    = sc.best + matrix_row [letter];
 
             /** We update the score as being Max (score, score_gap_col, score_gap_row) */
             if (score < score_gap_col)  {  score = score_gap_col;  }

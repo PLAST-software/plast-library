@@ -61,8 +61,10 @@ public:
         database::LETTER*   queryAlign;
 
         SplitOutput (u_int32_t* tab=0, database::LETTER* sbjAlign=0, database::LETTER* qryAlign=0)
-            : splittab(tab), subjectAlign(sbjAlign), queryAlign(qryAlign) {}
-    };
+            : splittab(tab),
+              identity(0), positive(0), nbGapQry(0), nbGapSbj(0), nbMis(0), alignSize(0),
+              subjectAlign(sbjAlign), queryAlign(qryAlign) {}
+     };
 
     /** Split a gap alignment into ungap alignments.
      * \param[in] subjectSeq        : buffer holding the subject sequence

@@ -53,7 +53,7 @@ AlignmentSplitter::AlignmentSplitter (IScoreMatrix* scoreMatrix, int openGapCost
  : _scoreMatrix(0),
    _openGapCost(openGapCost), _extendGapCost(extendGapCost),
    _matrix_H (0), _matrix_E(0), _matrix_F(0),
-   _DefaultAlignSize(1000), _MaxAlignSize(3000)
+   _DefaultAlignSize(1000), _MaxAlignSize(6000)
 {
     setScoreMatrix (scoreMatrix);
 
