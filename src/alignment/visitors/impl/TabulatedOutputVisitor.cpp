@@ -65,7 +65,7 @@ void TabulatedOutputVisitor::visitAlignment (Alignment* align, const misc::Progr
     DEBUG (("TabulatedOutputVisitor::visitAlignment  align=%p\n", align));
 
     /** We fill the buffer. */
-    char buffer[1024];
+    char buffer[1024];  memset (buffer, 0, sizeof(buffer));
     fillBuffer (align, buffer, sizeof(buffer));
 
     /** We dump the buffer to the outputstream. */
