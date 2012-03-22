@@ -115,13 +115,13 @@ public:
     /**********************************************************************
      * Default constructor.
      **********************************************************************/
-    Alignment ()  :  _length(0), _evalue(0), _bitscore(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)  {}
+    Alignment ()  :  _length(0), _evalue(0), _bitscore(0), _score(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)  {}
 
     /**********************************************************************
      * Constructor that just define query and subject ranges (mainly for test purpose).
      **********************************************************************/
     Alignment (const misc::Range32& sbjRange, const misc::Range32& qryRange)
-        :  _length(0), _evalue(0), _bitscore(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)
+        :  _length(0), _evalue(0), _bitscore(0), _score(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)
     {
         setRange (SUBJECT, sbjRange);
         setRange (QUERY,   qryRange);
@@ -131,7 +131,7 @@ public:
      * Constructor that just define query and subject ranges (mainly for test purpose).
      **********************************************************************/
     Alignment (const AlignSequenceInfo& sbjInfo, const AlignSequenceInfo& qryInfo)
-        :  _length(0), _evalue(0), _bitscore(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)
+        :  _length(0), _evalue(0), _bitscore(0), _score(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)
     {
         _info[QUERY]   = qryInfo;
         _info[SUBJECT] = sbjInfo;
@@ -153,7 +153,7 @@ public:
         u_int32_t qryRightOffset,
         u_int32_t sbjRightOffset
     )
-        : _length(0), _evalue(0), _bitscore(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)
+        : _length(0), _evalue(0), _bitscore(0), _score(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)
     {
         _info[QUERY]._sequence     = (database::ISequence*)qrySequence;
         _info[QUERY]._range.begin  = qryOffset - qryLeftOffset;

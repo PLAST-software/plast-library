@@ -127,10 +127,10 @@ bool UngapAlignmentResult::insert (Alignment& align, void* context)
         u_int32_t  splittab[10000];
         IAlignmentSplitter::SplitOutput output (splittab);
 
-        size_t nbAlign = splitter->splitAlign (align, output);
+        size_t nbSplits = splitter->splitAlign (align, output);
 
         /** A little check. */
-        if (nbAlign < ARRAYSIZE(splittab))
+        if (nbSplits > 0  &&  nbSplits < ARRAYSIZE(splittab))
         {
             u_int32_t q_start=0, q_stop=0, s_start=0, s_stop=0;
 
@@ -138,9 +138,9 @@ bool UngapAlignmentResult::insert (Alignment& align, void* context)
              *  In such a case, nbAlign won't divide 4, so we have to skip the split holding
              *  the '-'. We achieve this by taking the nearest lower integer modulo 4.
              */
-            nbAlign = nbAlign & ~3;
+            nbSplits = nbSplits & ~3;
 
-            for (size_t i=0; i<nbAlign; i=i+4)
+            for (size_t i=0; i<nbSplits; i=i+4)
             {
                 u_int64_t qryOffset = align.getInfo(Alignment::QUERY).getOffsetInDb();
                 u_int64_t sbjOffset = align.getInfo(Alignment::SUBJECT).getOffsetInDb();
