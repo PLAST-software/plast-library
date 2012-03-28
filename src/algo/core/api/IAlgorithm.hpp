@@ -38,6 +38,7 @@
 #include <algo/core/api/IAlgoParameters.hpp>
 #include <algo/core/api/IAlgoIndexator.hpp>
 #include <algo/core/api/IScoreMatrix.hpp>
+#include <algo/core/api/IDatabasesProvider.hpp>
 
 #include <algo/hits/api/IHitIterator.hpp>
 
@@ -100,6 +101,9 @@ public:
     /** Getter for the IAlignmentResultVisitor instance. */
     virtual alignment::core::IAlignmentContainerVisitor*  getResultVisitor    () = 0;
 
+    /** Getter for the IDatabasesProvider instance. */
+    virtual algo::core::IDatabasesProvider*         getDatabasesProvider () = 0;
+
     /** Getter for the ISeedModel instance. */
     virtual seed::ISeedModel*                       getSeedsModel       () = 0;
 
@@ -133,6 +137,9 @@ public:
     /** Setter for the IAlignmentResultVisitor attribute. */
     virtual void setResultVisitor    (alignment::core::IAlignmentContainerVisitor* visitor) = 0;
 
+    /** Setter for the IDatabasesProvider instance. */
+    virtual void setDatabasesProvider (algo::core::IDatabasesProvider* dbProvider) = 0;
+
     /** Setter for the ISeedModel attribute. */
     virtual void setSeedsModel       (seed::ISeedModel*               model)  = 0;
 
@@ -152,33 +159,6 @@ public:
     virtual void setHitIterator      (algo::hits::IHitIterator*       iterator) = 0;
 
 protected:
-
-    /** Provides the list of databases to be used as source databases for the algorithm.
-     *  It should be called twice, one for the subject databases configuration, and once
-     *  for the query.
-     *
-     *  If the frames attribute is empty, one will get only one database in the resulting
-     *  list (we will read the file normally).
-     *
-     *  If the frames attribute is not empty, we will read the provided uri and interpret it
-     *  as a nucleotid database that will be translated in amino acid database for each frame
-     *  of the frames attribute; in such a case, the resulting list will have more than one
-     *  item.
-     *
-     *  \param[in] config : factory used for creating needed instances
-     *  \param[in] uri    : path of the database file
-     *  \param[in] range  : part of the file to be read (as start and end file offsets)
-     *  \param[in] filtering : query low informative region filter
-     *  \param[in] frames : reading frames; if not null, the result will hold a database for each provided frame
-     *  \result a list of ISequenceDatabase instances.
-     */
-    virtual dp::impl::ListIterator<database::ISequenceDatabase*> createDatabaseIterator (
-        IConfiguration*      config,
-        const std::string&   uri,
-        const misc::Range64& range,
-        bool                 filtering,
-        const std::vector<misc::ReadingFrame_e>& frames
-    ) = 0;
 
     /** Define the Hit iterator that will be used for building the alignments.
      *

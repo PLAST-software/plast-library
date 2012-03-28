@@ -38,6 +38,7 @@
 #include <algo/core/api/IAlgorithm.hpp>
 #include <algo/core/api/IAlgoConfig.hpp>
 #include <algo/core/api/IAlgoParameters.hpp>
+#include <algo/core/api/IDatabasesProvider.hpp>
 
 #include <alignment/core/api/IAlignmentContainer.hpp>
 #include <alignment/core/api/IAlignmentContainerVisitor.hpp>
@@ -98,6 +99,7 @@ public:
         IParameters*                                  params,
         alignment::filter::IAlignmentFilter*          filter,
         alignment::core::IAlignmentContainerVisitor*  resultVisitor,
+        algo::core::IDatabasesProvider*               dbProvider,
         bool&                                         isRunning
     );
 
@@ -123,6 +125,9 @@ public:
 
     /** \copydoc IAlgorithm::getResultVisitor */
     alignment::core::IAlignmentContainerVisitor* getResultVisitor    ()  { return _resultVisitor;    }
+
+    /** \copydoc IAlgorithm::getDatabasesProvider */
+    algo::core::IDatabasesProvider*         getDatabasesProvider ()  { return _dbProvider; }
 
     /** \copydoc IAlgorithm::getSeedsModel */
     seed::ISeedModel*                       getSeedsModel       ()  { return _seedsModel;       }
@@ -157,6 +162,9 @@ public:
     /** \copydoc IAlgorithm::setResultVisitor */
     void setResultVisitor    (alignment::core::IAlignmentContainerVisitor* resultVisitor) { SP_SETATTR (resultVisitor);   }
 
+    /** \copydoc IAlgorithm::setDatabasesProvider */
+    void setDatabasesProvider (algo::core::IDatabasesProvider* dbProvider)  { SP_SETATTR(dbProvider); }
+
     /** \copydoc IAlgorithm::setSeedsModel */
     void setSeedsModel       (seed::ISeedModel*                     seedsModel)         { SP_SETATTR (seedsModel);      }
 
@@ -176,15 +184,6 @@ public:
     void setHitIterator      (algo::hits::IHitIterator*             hitIterator)        { SP_SETATTR (hitIterator);     }
 
 protected:
-
-    /** \copydoc IAlgorithm::createDatabaseIterator */
-    dp::impl::ListIterator<database::ISequenceDatabase*> createDatabaseIterator (
-        IConfiguration*      config,
-        const std::string&   uri,
-        const misc::Range64& range,
-        bool                 filtering,
-        const std::vector<misc::ReadingFrame_e>& frames
-    );
 
     /** \copydoc IAlgorithm::createHitIterator */
     algo::hits::IHitIterator* createHitIterator (
@@ -220,6 +219,7 @@ protected:
     IParameters*                                    _params;
     alignment::filter::IAlignmentFilter*            _filter;
     alignment::core::IAlignmentContainerVisitor*    _resultVisitor;
+    IDatabasesProvider*                             _dbProvider;
     seed::ISeedModel*                               _seedsModel;
     IScoreMatrix*                                   _scoreMatrix;
     statistics::IGlobalParameters*                  _globalStats;
@@ -237,14 +237,6 @@ protected:
 
     /**  */
     bool& _isRunning;
-
-    /** */
-    void readReadingFrameDatabases (
-        const std::vector<misc::ReadingFrame_e>& frames,
-        database::ISequenceDatabase* db,
-        bool filtering,
-        std::list<database::ISequenceDatabase*>& framedList
-    );
 
     /** */
     class AlgoTimeInfo : public os::impl::TimeInfo
@@ -279,9 +271,10 @@ public:
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        algo::core::IDatabasesProvider*                 dbProvider,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, isRunning) {}
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, isRunning) {}
 };
 
 /********************************************************************************/
@@ -302,9 +295,10 @@ public:
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        algo::core::IDatabasesProvider*                 dbProvider,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, isRunning)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, isRunning)
     {
         if (params->strands.empty() )
         {
@@ -335,9 +329,10 @@ public:
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        algo::core::IDatabasesProvider*                 dbProvider,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, isRunning)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, isRunning)
     {
         if (params->strands.empty() )
         {

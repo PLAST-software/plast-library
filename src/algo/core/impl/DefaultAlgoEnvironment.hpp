@@ -92,6 +92,9 @@ protected:
     alignment::core::IAlignmentContainerVisitor* _resultVisitor;
     void setResultVisitor (alignment::core::IAlignmentContainerVisitor* resultVisitor)  { SP_SETATTR(resultVisitor); }
 
+    algo::core::IDatabasesProvider* _dbProvider;
+    void setDatabasesProvider  (algo::core::IDatabasesProvider* dbProvider)  { SP_SETATTR(dbProvider); }
+
     /** \copydoc IEnvironment::createAlgorithm */
     IAlgorithm* createAlgorithm (
         IConfiguration*                                 config,
@@ -99,6 +102,7 @@ protected:
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        algo::core::IDatabasesProvider*                 dbProvider,
         bool&                                           isRunning
     );
 

@@ -26,6 +26,7 @@
 #include <algo/core/impl/DefaultAlgoEnvironment.hpp>
 #include <algo/core/impl/DefaultAlgoConfig.hpp>
 #include <algo/core/impl/AbstractAlgorithm.hpp>
+#include <algo/core/impl/DatabasesProvider.hpp>
 
 #include <alignment/filter/api/IAlignmentFilter.hpp>
 #include <alignment/filter/impl/AlignmentFilterXML.hpp>
@@ -64,7 +65,8 @@ namespace impl {
 *********************************************************************/
 DefaultEnvironment::DefaultEnvironment (IProperties* properties, bool& isRunning)
     : _properties(0), _isRunning(isRunning),
-      _config(0), _filter(0), _quickSubjectDbReader(0), _quickQueryDbReader(0), _resultVisitor(0)
+      _config(0), _filter(0), _quickSubjectDbReader(0), _quickQueryDbReader(0),
+      _resultVisitor(0), _dbProvider(0)
 {
     setProperties (properties);
 
@@ -88,6 +90,7 @@ DefaultEnvironment::~DefaultEnvironment ()
     setQuickSubjectDbReader (0);
     setQuickQueryDbReader   (0);
     setResultVisitor        (0);
+    setDatabasesProvider    (0);
 }
 
 /*********************************************************************
@@ -102,6 +105,9 @@ void DefaultEnvironment::configure ()
 {
     /** We create a configuration object for the provided program name (plastp, tplasn...) */
     setConfig (createConfiguration (_properties));
+
+    /** We create a subject/query databases provider. */
+    setDatabasesProvider (new DatabasesProvider (_config));
 
     /** We retrieve the type of algorithm (may be not set). */
     IProperty* algoProp = _properties->getProperty (STR_OPTION_ALGO_TYPE);
@@ -140,12 +146,6 @@ void DefaultEnvironment::configure ()
     {
         setQuickQueryDbReader (new FastaDatabaseQuickReader (queryProp->value, inferType));
         _quickQueryDbReader->read (maxblocksize);
-    }
-
-    /** We may launch an event with information about the two databases. */
-    if (_quickSubjectDbReader != 0  &&  _quickQueryDbReader != 0)
-    {
-        this->notify (new DatabasesInformationEvent (_quickSubjectDbReader, _quickQueryDbReader) );
     }
 
     /** We may have to infer the kind of algorithm (plastp, plastx...) if no one is provided. */
@@ -207,6 +207,12 @@ IConfiguration* DefaultEnvironment::createConfiguration (dp::IProperties* proper
 *********************************************************************/
 void DefaultEnvironment::run ()
 {
+    /** We may launch an event with information about the two databases. */
+    if (_quickSubjectDbReader != 0  &&  _quickQueryDbReader != 0)
+    {
+        this->notify (new DatabasesInformationEvent (_quickSubjectDbReader, _quickQueryDbReader) );
+    }
+
     /** We iterate each parameters. */
     for (size_t i=0; _isRunning && i<_parametersList.size(); i++)
     {
@@ -222,6 +228,7 @@ void DefaultEnvironment::run ()
             _parametersList[i],
             _filter,
             _resultVisitor,
+            _dbProvider,
             _isRunning
         );
         if (algo == 0)  { continue; }
@@ -233,11 +240,7 @@ void DefaultEnvironment::run ()
         algorithms.push_back (algo);
 
         /** We create a commands dispatcher. */
-#if 0
-        ICommandDispatcher* dispatcher = config->createDispatcher ();
-#else
         ICommandDispatcher* dispatcher = new SerialCommandDispatcher ();
-#endif
         LOCAL (dispatcher);
 
         /** We execute the algorithms through the dispatcher. */
@@ -262,6 +265,7 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
     IParameters*                params,
     IAlignmentFilter*           filter,
     IAlignmentContainerVisitor* resultVisitor,
+    IDatabasesProvider*         dbProvider,
     bool&                       isRunning
 )
 {
@@ -276,6 +280,7 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 params,
                 filter,
                 resultVisitor,
+                dbProvider,
                 isRunning
             );
             break;
@@ -287,6 +292,7 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 params,
                 filter,
                 new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT),
+                dbProvider,
                 isRunning
             );
             break;
@@ -298,6 +304,7 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 params,
                 filter,
                 new NucleotidConversionVisitor (resultVisitor, Alignment::QUERY),
+                dbProvider,
                 isRunning
             );
             break;
@@ -343,9 +350,9 @@ vector<pair<Range64,Range64> > DefaultEnvironment::buildUri (
     vector<u_int64_t>& subjectOffsets = subjectReader->getOffsets();
     vector<u_int64_t>& queryOffsets   = queryReader->getOffsets();
 
-    for (size_t i=0; i<subjectOffsets.size()-1; i++)
+    for (size_t j=0; j<queryOffsets.size()-1; j++)
     {
-        for (size_t j=0; j<queryOffsets.size()-1; j++)
+        for (size_t i=0; i<subjectOffsets.size()-1; i++)
         {
             Range64 s (subjectOffsets[i], subjectOffsets[i+1]-1);
             Range64 q (queryOffsets[j],   queryOffsets  [j+1]-1);

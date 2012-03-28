@@ -25,6 +25,7 @@
 #include <database/impl/FastaDatabaseQuickReader.hpp>
 
 #include <algo/core/impl/AbstractAlgorithm.hpp>
+#include <algo/core/impl/DatabasesProvider.hpp>
 
 #include <algo/core/api/IAlgoEvents.hpp>
 
@@ -90,20 +91,22 @@ AbstractAlgorithm::AbstractAlgorithm (
     IParameters*                params,
     IAlignmentFilter*           filter,
     IAlignmentContainerVisitor* resultVisitor,
+    IDatabasesProvider*         dbProvider,
     bool&                       isRunning
 )
-    : _config(0), _reader(0), _params(0), _filter(0), _resultVisitor(0),
+    : _config(0), _reader(0), _params(0), _filter(0), _resultVisitor(0), _dbProvider(0),
       _seedsModel(0), _scoreMatrix(0), _globalStats(0), _queryInfo(0),
       _indexator(0), _hitIterator(0),
       _ungapAlignmentResult(0), _gapAlignmentResult(0),
       _isRunning (isRunning)
 {
     /** We use the provided arguments. */
-    setConfig        (config);
-    setReader        (reader);
-    setParams        (params);
-    setFilter        (filter);
-    setResultVisitor (resultVisitor);
+    setConfig            (config);
+    setReader            (reader);
+    setParams            (params);
+    setFilter            (filter);
+    setResultVisitor     (resultVisitor);
+    setDatabasesProvider (dbProvider);
 
     /** We create the seeds model. */
     setSeedsModel (getConfig()->createSeedModel (getParams()->seedModelKind, getParams()->subseedStrings));
@@ -128,17 +131,18 @@ AbstractAlgorithm::~AbstractAlgorithm (void)
     DEBUG (("AbstractAlgorithm::~AbstractAlgorithm : releasing instances.\n"));
 
     /** We get rid of the used instances. */
-    setConfig           (0);
-    setReader           (0);
-    setParams           (0);
-    setFilter           (0);
-    setResultVisitor    (0);
-    setSeedsModel       (0);
-    setScoreMatrix      (0);
-    setGlobalStatistics (0);
-    setQueryInfo        (0);
-    setIndexator        (0);
-    setHitIterator      (0);
+    setConfig            (0);
+    setReader            (0);
+    setParams            (0);
+    setFilter            (0);
+    setResultVisitor     (0);
+    setDatabasesProvider (0);
+    setSeedsModel        (0);
+    setScoreMatrix       (0);
+    setGlobalStatistics  (0);
+    setQueryInfo         (0);
+    setIndexator         (0);
+    setHitIterator       (0);
 
     setUngapAlignmentResult (0);
     setGapAlignmentResult   (0);
@@ -184,23 +188,13 @@ void AbstractAlgorithm::execute (void)
 
     timeStats->addEntry ("reading");
 
-    /** We create the subject database (more than one for tplastn) */
-    ListIterator<ISequenceDatabase*> subjectDbIt = createDatabaseIterator (
-        getConfig(),
-        getParams()->subjectUri,
-        getParams()->subjectRange,
-        false,
-        getSubjectFrames()
-    );
+    /** We create the subject database (more than one for tplastn) and the
+     *  query database   (more than one for plastx) */
+    getDatabasesProvider()->createDatabases (getParams(), getSubjectFrames(), getQueryFrames());
 
-    /** We create the query database (more than one for plastx) */
-    ListIterator<ISequenceDatabase*> queryDbIt = createDatabaseIterator (
-        getConfig(),
-        getParams()->queryUri,
-        getParams()->queryRange,
-        getParams()->filterQuery,
-        getQueryFrames()
-    );
+    /** We retrieve two iterators for the subject and query databases. */
+    ListIterator<ISequenceDatabase*> subjectDbIt = getDatabasesProvider()->getSubjectDbIterator();
+    ListIterator<ISequenceDatabase*> queryDbIt   = getDatabasesProvider()->getQueryDbIterator();
 
     /** We notify some report to potential listeners. */
     this->notify (new AlgorithmReadingFrameEvent (this, getSubjectFrames(), getQueryFrames()));
@@ -378,60 +372,6 @@ void AbstractAlgorithm::execute (void)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-ListIterator<ISequenceDatabase*> AbstractAlgorithm::createDatabaseIterator (
-    IConfiguration*      config,
-    const std::string&   uri,
-    const misc::Range64& range,
-    bool                 filtering,
-    const std::vector<ReadingFrame_e>& frames
-)
-{
-    list<ISequenceDatabase*> dbList;
-
-    bool isORF = frames.empty() == false;
-
-    /** We create the source database. */
-    ISequenceDatabase* db = config->createDatabase (uri, range, isORF ? false : filtering);
-
-    if (frames.empty() == false)
-    {
-#if 1
-        /** We create the 6 reading frame databases. Note we use an auxiliary method (parallelization possibility). */
-        list<ISequenceDatabase*> framedList;
-        readReadingFrameDatabases (frames, db, filtering, framedList);
-
-        /** We could improve this by reading only once the nucleotid databases and generating 6 reading frames
-         *  from this single reading. */
-        dbList.push_back (new CompositeSequenceDatabase (framedList));
-
-#else
-        for (size_t i=0; i<frames.size(); i++)
-        {
-            dbList.push_back (new ReadingFrameSequenceDatabase (frames[i], db, filtering));
-        }
-#endif
-    }
-    else
-    {
-        dbList.push_back (db);
-    }
-
-    DEBUG (("AbstractAlgorithm::createDatabaseIterator: uri='%s'  filter=%d  => db=%p  nbSeq=%ld  listSize=%ld \n",
-        uri.c_str(), filtering, db, db->getSequencesNumber(), dbList.size()
-    ));
-
-    /** We return the result. */
-    return ListIterator<ISequenceDatabase*> (dbList);
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
 IHitIterator* AbstractAlgorithm::createHitIterator (
     IConfiguration*      config,
     IHitIterator*        hitSource,
@@ -485,61 +425,6 @@ IHitIterator* AbstractAlgorithm::createHitIterator (
 
     /** We return the result. */
     return compositionHitIterator;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-void AbstractAlgorithm::readReadingFrameDatabases (
-    const vector<ReadingFrame_e>& frames,
-    ISequenceDatabase* db,
-    bool filtering,
-    list<ISequenceDatabase*>& framedList
-)
-{
-    /** We first clear the list to be filled. */
-    framedList.clear ();
-
-    /** IMPORTANT !!! The provided nucleotid database may have lazy accessors, so some
-     * internals may have not been yet initialized. Since we are going to use it in
-     * different threads, we should be sure that the internals are initialized first.
-     * We can do it by calling some accessor.
-     */
-    db->getSize();
-
-    /** We create a list of commands. */
-    list<ICommand*> commands;
-    for (size_t i=0; i<frames.size(); i++)
-    {
-        /** We create and use a command. */
-        ICommand* cmd = new ReadingFrameSequenceCommand (db, frames[i], filtering);
-        cmd->use ();
-
-        /** We add the command to the list to be dispatched. */
-        commands.push_back (cmd);
-    }
-
-    /** We dispatch the databases reading in a parallel way. */
-    ParallelCommandDispatcher dispatcher;
-    dispatcher.dispatchCommands (commands, 0);
-
-    /** We retrieve the created databases. */
-    for (list<ICommand*>::iterator it = commands.begin(); it != commands.end(); it++)
-    {
-        /** Shortcut. */
-        ReadingFrameSequenceCommand* current = dynamic_cast<ReadingFrameSequenceCommand*> (*it);
-
-        /** We add the database to the resulting list. */
-        if (current != 0)  {  framedList.push_back (current->getResult());  }
-
-        /** We forget the command. */
-        (*it)->forget();
-    }
 }
 
 /*********************************************************************
