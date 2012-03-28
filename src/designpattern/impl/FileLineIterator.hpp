@@ -26,6 +26,7 @@
 #include <designpattern/api/Iterator.hpp>
 #include <os/impl/DefaultOsFactory.hpp>
 #include <string.h>
+#include <list>
 
 /********************************************************************************/
 namespace dp {
@@ -80,11 +81,20 @@ public:
     /** \copydoc Iterator<char*>::next */
     dp::IteratorStatus next()
     {
-        if (_file)
+        if (!_eof && _currentFile)
         {
-            if (_file->gets (_line, _lineMaxSize) == NULL)
+            if (_currentFile->gets (_line, _lineMaxSize) == NULL)
             {
-                _eof = true;
+                /** We have to look for possible other files. */
+                if (retrieveNextFile())
+                {
+                    /** The current file has been updated, we try again the 'next' method. */
+                    return next ();
+                }
+                else
+                {
+                    _eof = true;
+                }
             }
             else
             {
@@ -118,9 +128,11 @@ private:
     /** Maximum size of a line. */
     size_t      _lineMaxSize;
 
-    /** Instance of the file to be read. */
-    os::IFile* _file;
+    /** Read line. */
     char*  _line;
+
+    /** List of files to be read. */
+    std::list<os::IFile*> _files;
 
     /** First character to be read in the file. */
     u_int64_t _offset0;
@@ -139,6 +151,16 @@ private:
 
     /** Tells if the iteration is finished or not. */
     bool _eof;
+
+    /** */
+    os::IFile* _currentFile;
+    os::IFile* getCurrentFile ()   { return _currentFile; }
+
+    /** */
+    std::list<os::IFile*>::iterator _filesIterator;
+
+    /** Returns false if eof. */
+    bool retrieveNextFile ();
 };
 
 /********************************************************************************/
