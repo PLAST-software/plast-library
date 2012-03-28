@@ -98,6 +98,16 @@ template <class T> struct Range
         char c;
         return s >> c >> o.begin >> c >> o.end >> c;
     }
+
+    bool operator== (const Range& r) const
+    {
+        return begin==r.begin && end==r.end;
+    }
+
+    bool operator!= (const Range& r) const
+    {
+        return begin!=r.begin || end!=r.end;
+    }
 };
 
 /** Some shortcuts. */
