@@ -128,7 +128,7 @@ void AbstractProgressionObserver::update (dp::EventInfo* evt, dp::ISubject* subj
         os::impl::TimeInfo* info = e3->getTimeInfo();
         if (info != 0)
         {
-            _ellapsedTime += info->getEntryByKey ("algorithm");
+            _ellapsedTime += info->getEntryByKey ("reading") + info->getEntryByKey ("algorithm");
             _remainingTime = _globalPercentage > 0 ?  ((1-_globalPercentage)*_ellapsedTime) / _globalPercentage : 0;
         }
 
