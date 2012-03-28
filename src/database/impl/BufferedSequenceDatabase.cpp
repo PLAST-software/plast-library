@@ -160,11 +160,12 @@ ISequenceCache* BufferedSequenceDatabase::buildCache (ISequenceIterator* refIter
     if (result->dataSize == 0)  { return result; }
 
     /** We can resize the containers with true sizes. */
-    result->database.resize (result->dataSize + 1);
+    result->database.resize (result->dataSize + result->shift);
     result->comments.resize (result->nbSequences);
     result->offsets.resize  (result->nbSequences + 1);
 
-    result->database.data [result->dataSize] = CODE_X;
+    /** We add some extra letters in order to be sure that the BLAST algorithm won't read too far in unauthorized memory. */
+    for (Offset i=result->dataSize; i<result->dataSize + result->shift; i++)  {  result->database.data [i] = CODE_X;  }
 
     /** Note that we add an extra offset that matches the total size of the data.
      *  => useful for computing the last sequence size by difference of two offsets. */
@@ -253,7 +254,7 @@ void BufferedSequenceDatabase::updateSequence (size_t idx, ISequence& sequence)
     sequence.database = this;
 
     /** We set the offset in database attribute. */
-    sequence.offsetInDb = currentOffset;
+    sequence.offsetInDb = currentOffset - cache->shift;
 
     /** We get a pointer to the comment of the current sequence. */
     sequence.comment  = cache->comments[idx].c_str();
@@ -311,6 +312,9 @@ bool BufferedSequenceDatabase::getSequenceByOffset (
     /** We reset the argument to be filled. */
     offsetInSequence = 0;
 
+    /** Note that we have to take into account the potential shift in the cache data buffer */
+    offset += cache->shift;
+
     /** Shortcut. */
     Offset* offsets = cache->offsets.data;
     size_t  nb      = cache->offsets.size;
@@ -350,6 +354,7 @@ bool BufferedSequenceDatabase::getSequenceByOffset (
 
         /** If interpolation fails, we use classical dichotomy approach. */
         if (idx >= smax)  {  idx = (smin+smax) >> 1;  }
+
     }
 
     if (false)
@@ -367,13 +372,13 @@ bool BufferedSequenceDatabase::getSequenceByOffset (
     offsetInSequence = offset - off0;
 
     /** We set the actual offset in db. */
-    actualOffsetInDatabase = offset;
+    actualOffsetInDatabase = offset - cache->shift;
 
     /** We set the database field. */
     sequence.database = this;
 
     /** We set the offset in database attribute. */
-    sequence.offsetInDb = off0;
+    sequence.offsetInDb = off0 - cache->shift;
 
     /** We get a pointer to the comment of the current sequence. */
     sequence.comment  = cache->comments[idx].c_str();

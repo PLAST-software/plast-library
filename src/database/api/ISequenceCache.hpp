@@ -56,7 +56,19 @@ public:
         database.resize (estimatedSize);
         offsets.resize  (estimatedSize/500);
         comments.resize (estimatedSize/500);
+
+        /** We add a small shift in the data buffer to let extra room for blast algorithm to look at. */
+        shift = 5;
+
+        /** We initialize the extra data with default values. */
+        for (int i=0; i<shift; i++) {   database.data [i] = CODE_X;  }
+
+        /** The initial size of the data is the size of the shift. */
+        dataSize = shift;
     }
+
+    /** Shift in the data buffer to let extra room for blast algorithm to look at. */
+    u_int8_t shift;
 
     /** Gives the data size of all sequences. */
     Offset dataSize;

@@ -177,8 +177,6 @@ bool CompositeSequenceDatabase::getSequenceByOffset (
         );
     }
 
-if (!result)  { printf ("CompositeSequenceDatabase::getSequenceByOffset: AAAAAAAARGGG\n"); }
-
     return result;
 }
 
