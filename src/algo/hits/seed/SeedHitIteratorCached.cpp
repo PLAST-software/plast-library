@@ -94,7 +94,26 @@ void SeedHitIteratorCached::iterate (void* aClient, Method method)
     u_int64_t nbTotal     = _seedIterator->getNbTotal();
     u_int64_t nbRetrieved = 0;
 
-    size_t splitSize = 1;
+    /** We define a threshold that determines how many seeds occurrences will be handled during an iteration
+     *  of the IOccurrenceBlockIterator (see below).
+     *
+     *  Note that this threshold has a direct influence on the memory usage since IOccurrenceBlockIterator makes
+     *  a copy of all needed neighbourhoods for the N seeds occurrences to be processed (where the copied data size
+     *  is typically 4+2*22 = 48 bytes). We must also count 112 bytes for each ISeedOccurrence created instance.
+     *  As a result, we need about 48+112 = 160 bytes for each seed occurrence.
+     *
+     *  We have also to multiply by the number of CPUs running since each CPU deals with one seed.
+     *
+     *  We have also to multiply by 2 because we instanciate twice IOccurrenceBlockIterator.
+     *
+     *  Thus, we may choose our threshold for having a controlled amount of used memory. For instance, if we use
+     *  8 CPUs and deal with a seed having about 20000 occurrences, we will need something like:
+     *      20000 * 160 * 8 * 2 = 51.200.000 bytes
+     *
+     *  We have also to keep in mind that these neighbourhoods may be extended by further steps
+     *  (like small gap extension step).
+     */
+    size_t maxNbSeedsOccurPerIteration = 20000;
 
     /** We notify potential clients that we start the iteration. */
     this->notify (new IterationStatusEvent (ITER_STARTING, nbRetrieved, nbTotal, "starting iterating seeds..."));
@@ -137,7 +156,7 @@ void SeedHitIteratorCached::iterate (void* aClient, Method method)
             IOccurrenceBlockIterator* itOccurBlockDb1 = _indexDb1->createOccurrenceBlockIterator (
                 &seed,
                 _neighbourhoodSize,
-                nbOccur1 / splitSize
+                MIN (nbOccur1, maxNbSeedsOccurPerIteration)
             );
             if (itOccurBlockDb1 == 0)    { continue; }
             LOCAL (itOccurBlockDb1);
@@ -149,7 +168,7 @@ void SeedHitIteratorCached::iterate (void* aClient, Method method)
             IOccurrenceBlockIterator* itOccurBlockDb2 = _indexDb2->createOccurrenceBlockIterator (
                 &seed,
                 _neighbourhoodSize,
-                nbOccur2 / splitSize
+                MIN (nbOccur2, maxNbSeedsOccurPerIteration)
             );
             if (itOccurBlockDb2 == 0)    { continue; }
             LOCAL (itOccurBlockDb2);

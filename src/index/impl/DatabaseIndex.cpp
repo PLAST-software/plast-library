@@ -469,94 +469,17 @@ DatabaseIndex::DatabaseOccurrenceBlockIterator::DatabaseOccurrenceBlockIterator 
     size_t span,
     IndexEntry* offsets,
     size_t neighbourSize,
-    size_t blockSize
+    size_t nbSeedOccurPerIteration
 )
     : _database(database),
       _span(span),
       _offsets(offsets),
       _neighbourSize(neighbourSize),
-      _blockSize(blockSize),
-      _occurrences (offsets->size()),
-      _table (0), _neighbourhoods(0)
+      _nbSeedOccurPerIteration (nbSeedOccurPerIteration),
+      _table (0), _neighbourhoods(0), _isDone(true)
 {
-    if (offsets && offsets->size() > 0)
-    {
-        size_t nb = offsets->size();
-
-        /** We create a table holding all the wanted occurrences. */
-        _table = new ISeedOccurrence [nb];
-
-        /** We compute the size of a complete neighbourhood (seed + left + right). */
-        _neighbourTotalSize = (_span+2*_neighbourSize);
-
-        /** We create a buffer holding all neighbourhoods for the occurrences. */
-        _neighbourhoods = new LETTER [nb * _neighbourTotalSize];
-        memset (_neighbourhoods, CODE_X, nb * _neighbourTotalSize);
-
-        /** We need a cursor for iterating this buffer. */
-        LETTER* cursor = _neighbourhoods;
-
-        /** We fill the vector. */
-        for (size_t currentIdx=0; currentIdx<nb; currentIdx++)
-        {
-            ISeedOccurrence* occur = & (_table[currentIdx]);
-
-            /** We set it to current vector entry. */
-            _occurrences.data[currentIdx] = occur;
-
-            /** We complete the information of the ISeedOccurrence instance.
-             *  Note: in case the database is a composed database, we should be able now
-             *  to retrieve the actual database and actual offset from the global offset
-             *  we memorized during index building. Therefore, the ISeedOccurrence instance
-             *  will reference information of the actual database. For instance, this may
-             *  be useful when we have a single database composed of 6 ReadingFrame databases
-             *  (when dealing with nucleotid databases transcripted in 6 reading frames); the
-             *  index has been built with the composed database but here we want to know which
-             *  sub database is actually the wanted one (ie one of the 6 reading frame database).
-             */
-
-            /** We retrieve other information: sequence and offsets in sequence and db. */
-            _database->getSequenceByOffset (
-                (*_offsets)[currentIdx],
-                occur->sequence,
-                occur->offsetInSequence,
-                occur->offsetInDatabase
-            );
-
-            /** We may have to build the neighbourhood. */
-            if (_neighbourSize > 0)
-            {
-                size_t imin1 = 0;
-                size_t imin2 = 0;
-
-                /** Shortcuts. */
-                LETTER* bufIn  = occur->sequence.data.letters.data + occur->offsetInSequence;
-                LETTER* bufOut = cursor;
-
-                /** We fill the seed + right neighbour. */
-                imin1 = MIN (_span+_neighbourSize,  occur->sequence.data.letters.size - occur->offsetInSequence);
-                memcpy (bufOut, bufIn, imin1);
-
-                /** We fill the left neighbour.
-                 * Note that we copy from left to right; algorithms computing left scores will have to read it from right to left.
-                 */
-                bufOut += (_span + _neighbourSize);
-                imin2 = MIN (_neighbourSize, occur->offsetInSequence);
-
-                while (imin2-- > 0)  {  *(bufOut++) = *(--bufIn);  }
-            }
-
-            /** We set the current ISeedOccurrence neighbourhood referenced buffer. */
-            occur->neighbourhood.letters.setReference (_neighbourTotalSize, cursor);
-
-            /** We move the cursor on the neighbourhoods buffer. */
-            cursor += _neighbourTotalSize;
-
-        } /* end of for (size_t currentIdx... */
-
-        /** We compute the number of iterations.  */
-        _vectorsList = _occurrences.split (_blockSize);
-    }
+    /** We compute the size of a complete neighbourhood (seed + left + right). */
+    _neighbourTotalSize = (_span + 2*_neighbourSize);
 }
 
 /*********************************************************************
@@ -571,6 +494,146 @@ DatabaseIndex::DatabaseOccurrenceBlockIterator::~DatabaseOccurrenceBlockIterator
 {
     if (_table)             { delete[] _table;          }
     if (_neighbourhoods)    { delete[] _neighbourhoods; }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void DatabaseIndex::DatabaseOccurrenceBlockIterator::first ()
+{
+    if (_offsets && _offsets->size() > 0 &&  _nbSeedOccurPerIteration > 0)
+    {
+        /** We initialize the range to be iterated. */
+        _range.begin = 0;
+        _range.end   = MIN (_nbSeedOccurPerIteration, _offsets->size()) - 1;
+
+        /** We update the isdone attribute. */
+        _isDone = false;
+
+        /** We reconfigure the seeds occurrences table. */
+        configure ();
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+dp::IteratorStatus DatabaseIndex::DatabaseOccurrenceBlockIterator::next()
+{
+    /** We update the current range of seeds occurrences. */
+    _range.begin += _nbSeedOccurPerIteration;
+    _range.end   += _nbSeedOccurPerIteration;
+
+    /** We update the isdone attribute. */
+    _isDone = _range.begin >= _offsets->size();
+
+    if (!_isDone)
+    {
+        /** We have to check that the end doesn't exceed the offsets size. */
+        if (_range.end >= _offsets->size())    {  _range.end = _offsets->size() - 1;  }
+
+        /** We reconfigure with the new range. */
+        configure ();
+    }
+
+    return dp::ITER_UNKNOWN;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void DatabaseIndex::DatabaseOccurrenceBlockIterator::configure ()
+{
+    /** Shortcut. */
+    size_t nb = _range.getLength();
+
+    /** We resize the 'current item'. */
+    _seedOccurVector.resize (nb);
+
+    /** We create a table holding all the wanted occurrences. */
+    if (_table)  { delete[] _table;  }
+    _table = new ISeedOccurrence [nb];
+
+    /** We create a buffer holding all neighbourhoods for the occurrences. Note that we
+     *  allocate this array only at first call. */
+    if (_neighbourhoods == 0)  {  _neighbourhoods = new LETTER [nb * _neighbourTotalSize];  }
+    memset (_neighbourhoods, CODE_X, nb * _neighbourTotalSize);
+
+    /** We need a cursor for iterating this buffer. */
+    LETTER* cursor = _neighbourhoods;
+
+    /** We fill the vector. */
+    for (size_t currentIdx=0; currentIdx < nb; currentIdx++)
+    {
+        /** Shortcut. */
+        ISeedOccurrence* occur = & (_table[currentIdx]);
+
+        _seedOccurVector.data [currentIdx] = occur;
+
+        /** We complete the information of the ISeedOccurrence instance.
+         *  Note: in case the database is a composed database, we should be able now
+         *  to retrieve the actual database and actual offset from the global offset
+         *  we memorized during index building. Therefore, the ISeedOccurrence instance
+         *  will reference information of the actual database. For instance, this may
+         *  be useful when we have a single database composed of 6 ReadingFrame databases
+         *  (when dealing with nucleotid databases transcripted in 6 reading frames); the
+         *  index has been built with the composed database but here we want to know which
+         *  sub database is actually the wanted one (ie one of the 6 reading frame database).
+         */
+
+        /** We retrieve other information: sequence and offsets in sequence and db. */
+        _database->getSequenceByOffset (
+            (*_offsets)[_range.begin + currentIdx],
+            occur->sequence,
+            occur->offsetInSequence,
+            occur->offsetInDatabase
+        );
+
+        /** We may have to build the neighbourhood. */
+        if (_neighbourSize > 0)
+        {
+            size_t imin1 = 0;
+            size_t imin2 = 0;
+
+            /** Shortcuts. */
+            LETTER* bufIn  = occur->sequence.data.letters.data + occur->offsetInSequence;
+            LETTER* bufOut = cursor;
+
+            /** We fill the seed + right neighbour. */
+            imin1 = MIN (_span+_neighbourSize,  occur->sequence.data.letters.size - occur->offsetInSequence);
+            memcpy (bufOut, bufIn, imin1);
+
+            /** We fill the left neighbour.
+             * Note that we copy from left to right; algorithms computing left scores will have to read it from right to left.
+             */
+            bufOut += (_span + _neighbourSize);
+            imin2 = MIN (_neighbourSize, occur->offsetInSequence);
+
+            while (imin2-- > 0)  {  *(bufOut++) = *(--bufIn);  }
+        }
+
+        /** We set the current ISeedOccurrence neighbourhood referenced buffer. */
+        occur->neighbourhood.letters.setReference (_neighbourTotalSize, cursor);
+
+        /** We move the cursor on the neighbourhoods buffer. */
+        cursor += _neighbourTotalSize;
+
+    } /* end of for (size_t currentIdx... */
 }
 
 /*********************************************************************

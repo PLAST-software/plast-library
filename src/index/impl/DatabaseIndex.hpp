@@ -198,22 +198,18 @@ protected:
             size_t span,
             IndexEntry* offsets,
             size_t neighbourSize,
-            size_t blockSize
+            size_t nbSeedOccurPerIteration
         );
 
         ~DatabaseOccurrenceBlockIterator ();
 
-        void first()  {  _vectorsListIterator = _vectorsList.begin();  }
+        void first();
 
-        dp::IteratorStatus next()
-        {
-            _vectorsListIterator ++;
-            return dp::ITER_UNKNOWN;
-        }
+        dp::IteratorStatus next();
 
-        bool isDone()  { return _vectorsListIterator ==  _vectorsList.end(); }
+        bool isDone()  { return _isDone; }
 
-        misc::Vector<const indexation::ISeedOccurrence*>& currentItem()    { return *_vectorsListIterator;    }
+        misc::Vector<const indexation::ISeedOccurrence*>& currentItem()    { return _seedOccurVector;    }
 
         database::LETTER* getNeighbourhoods ()  { return _neighbourhoods; }
 
@@ -222,16 +218,21 @@ protected:
         size_t                       _span;
         IndexEntry*                  _offsets;
         size_t                       _neighbourSize;
-        size_t                       _blockSize;
+        size_t                       _nbSeedOccurPerIteration;
         size_t                       _neighbourTotalSize;
 
-        misc::Vector<const indexation::ISeedOccurrence*>  _occurrences;
-
-        std::list<misc::Vector<const indexation::ISeedOccurrence*> >           _vectorsList;
-        std::list<misc::Vector<const indexation::ISeedOccurrence*> >::iterator _vectorsListIterator;
+        misc::Vector<const indexation::ISeedOccurrence*> _seedOccurVector;
 
         indexation::ISeedOccurrence* _table;
         database::LETTER*            _neighbourhoods;
+
+        bool _isDone;
+
+        /** We need a seed occurrences range (evolves as iteration goes on). */
+        misc::Range<size_t> _range;
+
+        /** Configuration of neighbourhoods for a range of seed occurrences. */
+        void configure ();
     };
 };
 

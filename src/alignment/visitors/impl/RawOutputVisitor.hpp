@@ -75,14 +75,14 @@ public:
 
         getStream() << "H "
 
-            << (int)a->getRange(alignment::core::Alignment::QUERY).begin     << sep
-            << (int)a->getRange(alignment::core::Alignment::QUERY).end       << sep
+            << (int)a->getRange(alignment::core::Alignment::QUERY).begin + 1    << sep
+            << (int)a->getRange(alignment::core::Alignment::QUERY).end   + 1    << sep
             << (int)a->getNbGaps(alignment::core::Alignment::QUERY)          << sep
             << (int)a->getFrame(alignment::core::Alignment::QUERY)           << sep
             << a->getCoverage(alignment::core::Alignment::QUERY)        << sep
 
-            << (int)a->getRange(alignment::core::Alignment::SUBJECT).begin   << sep
-            << (int)a->getRange(alignment::core::Alignment::SUBJECT).end     << sep
+            << (int)a->getRange(alignment::core::Alignment::SUBJECT).begin  + 1 << sep
+            << (int)a->getRange(alignment::core::Alignment::SUBJECT).end    + 1 << sep
             << (int)a->getNbGaps(alignment::core::Alignment::SUBJECT)        << sep
             << (int)a->getFrame(alignment::core::Alignment::SUBJECT)         << sep
             << a->getCoverage(alignment::core::Alignment::SUBJECT)      << sep

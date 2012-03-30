@@ -304,8 +304,8 @@ public:
     {
         std::stringstream ss;
         ss << "ALIGN  "
-           << "sbj [" << getRange(SUBJECT).begin << ":" << getRange(SUBJECT).end << "]  "
-           << "qry [" << getRange(QUERY).begin   << ":" << getRange(QUERY).end   << "]  ";
+           << "sbj [" << getRange(SUBJECT).begin+1 << ":" << getRange(SUBJECT).end+1 << "  frm=" << (int)getFrame(SUBJECT) << "]  "
+           << "qry [" << getRange(QUERY).begin+1   << ":" << getRange(QUERY).end+1   << "  frm=" << (int)getFrame(QUERY)   << "]";
         return ss.str ();
     }
 
