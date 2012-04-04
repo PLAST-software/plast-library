@@ -38,6 +38,7 @@
 #include <algo/hits/ungap/UngapHitIteratorSSE8.hpp>
 #include <algo/hits/ungap/UngapHitIteratorSSE16.hpp>
 #include <algo/hits/ungap/UngapHitIteratorNull.hpp>
+#include <algo/hits/ungap/UngapExtendHitIterator.hpp>
 
 #include <algo/hits/gap/SmallGapHitIterator.hpp>
 #include <algo/hits/gap/SmallGapHitIteratorSSE8.hpp>
@@ -226,7 +227,31 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
 
     else if (algoName.compare ("tplastx")==0)
     {
-        // TO BE DONE...
+        params->algoKind      = ENUM_TPLASTX;
+        params->seedModelKind = ENUM_SubSeedModel;
+        params->seedSpan      = 4;
+        params->subseedStrings.push_back ("A,C,D,E,F,G,H,I,K,L,M,N,P,Q,R,S,T,V,W,Y");
+        params->subseedStrings.push_back ("CFYWMLIV,GPATSNHQEDRK");
+        params->subseedStrings.push_back ("A,C,FYW,G,IV,ML,NH,P,QED,RK,TS");
+        params->subseedStrings.push_back ("A,C,D,E,F,G,H,I,K,L,M,N,P,Q,R,S,T,V,W,Y");
+
+        params->matrixKind           = ENUM_BLOSUM62;
+        params->subjectUri           = string ("foo");
+        params->subjectRange         = Range64(0,0);
+        params->queryUri             = string ("bar");
+        params->queryRange           = Range64(0,0);
+        params->filterQuery          = true;
+        params->ungapNeighbourLength = 22;
+        params->ungapScoreThreshold  = 16;
+        params->smallGapBandLength   = 64;
+        params->smallGapBandWidth    = 16;
+        params->smallGapThreshold    = 54;
+        params->openGapCost          = 0; // 0 means default value; actual value will be set later
+        params->extendGapCost        = 0; // 0 means default value; actual value will be set later
+        params->evalue               = 10.0;
+        params->XdroppofGap          = 0;
+        params->finalXdroppofGap     = 0;
+        params->outputfile           = "stdout";
     }
 
     return params;
@@ -496,6 +521,29 @@ IHitIterator* DefaultConfiguration::createUngapHitIterator (
     }
 
     return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+algo::hits::IHitIterator* DefaultConfiguration::createUngapExtendHitIterator (
+    algo::hits::IHitIterator*               source,
+    seed::ISeedModel*                       model,
+    algo::core::IScoreMatrix*               matrix,
+    algo::core::IParameters*                params,
+    alignment::core::IAlignmentContainer*   ungapResult,
+    statistics::IGlobalParameters*          globalStats,
+    statistics::IQueryInformation*          queryInfo
+)
+{
+    return new UngapExtendHitIterator (
+        source, model, matrix, params, ungapResult, globalStats, queryInfo
+    );
 }
 
 /*********************************************************************

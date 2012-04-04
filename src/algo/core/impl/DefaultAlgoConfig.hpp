@@ -101,6 +101,17 @@ public:
         alignment::core::IAlignmentContainer*   ungapResult
     );
 
+    /** \copydoc IConfiguration::createUngapExtendHitIterator */
+    algo::hits::IHitIterator* createUngapExtendHitIterator (
+        algo::hits::IHitIterator*               source,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               matrix,
+        algo::core::IParameters*                params,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        statistics::IGlobalParameters*          globalStats,
+        statistics::IQueryInformation*          queryInfo
+    );
+
     /** \copydoc IConfiguration::createSmallGapHitIterator */
     algo::hits::IHitIterator* createSmallGapHitIterator (
         algo::hits::IHitIterator*               source,

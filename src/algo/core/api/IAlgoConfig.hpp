@@ -157,6 +157,19 @@ public:
         alignment::core::IAlignmentContainer*   ungapResult
     ) = 0;
 
+    /** Create a Hit iterator used during the ungap part of the PLAST algorithm.
+     * \return a new IHitIterator instance
+     */
+    virtual algo::hits::IHitIterator* createUngapExtendHitIterator (
+        algo::hits::IHitIterator*               source,
+        seed::ISeedModel*                       model,
+        algo::core::IScoreMatrix*               matrix,
+        algo::core::IParameters*                params,
+        alignment::core::IAlignmentContainer*   ungapResult,
+        statistics::IGlobalParameters*          globalStats,
+        statistics::IQueryInformation*          queryInfo
+    ) = 0;
+
     /** Create a Hit iterator used during the small gap part of the PLAST algorithm.
      * \return a new IHitIterator instance
      */

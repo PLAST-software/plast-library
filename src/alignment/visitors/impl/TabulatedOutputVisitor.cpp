@@ -88,11 +88,11 @@ void TabulatedOutputVisitor::fillBuffer (core::Alignment* align, char* buffer, s
 
     if (buffer == 0  ||  _currentQuery==0  ||  _currentSubject==0) { return ; }
 
-    char queryName[32];
+    char queryName[128];
     snprintf (queryName,   sizeof(queryName),   "%s", _currentQuery->comment);
     if ( (locate = strchr (queryName, ' ')) != 0)  { *locate = 0; }
 
-    char subjectName[32];
+    char subjectName[128];
     snprintf (subjectName, sizeof(subjectName), "%s", _currentSubject->comment);
     if ( (locate = strchr (subjectName, ' ')) != 0)  { *locate = 0; }
 

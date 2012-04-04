@@ -331,10 +331,12 @@ void AbstractAlgorithm::execute (void)
              * remove redundant alignments now. */
             ShrinkContainerVisitor shrinker;
             alignmentResult->accept (&shrinker);
+            DEBUG (("AbstractAlgorithm::execute : shrink done...\n"));
 
             /** We filter the alignments. */
             FilterContainerVisitor filterVisitor (_filter);
             alignmentResult->accept (&filterVisitor);
+            DEBUG (("AbstractAlgorithm::execute : filtering done...\n"));
 
             timeStats->stopEntry ("iteration");
 
@@ -455,6 +457,33 @@ void AbstractAlgorithm::update (dp::EventInfo* evt, dp::ISubject* subject)
         /** We forward the event to potential listeners. */
         this->notify (evt);
     }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+IHitIterator* AlgorithmTplastx::createHitIterator (
+    IConfiguration*      config,
+    IHitIterator*        hitSource,
+    IAlignmentContainer* ungapAlignResult,
+    IAlignmentContainer* alignResult
+)
+{
+    IHitIterator* ungapHitIterator = getConfig()->createUngapHitIterator (
+        hitSource, getSeedsModel(), getScoreMatrix(), getParams(), ungapAlignResult
+    );
+
+    IHitIterator* ungapExtendHitIterator =  getConfig()->createUngapExtendHitIterator (
+        ungapHitIterator, getSeedsModel(), getScoreMatrix(), getParams(), alignResult,
+        getGlobalStatistics(), getQueryInfo()
+    );
+
+    return ungapExtendHitIterator;
 }
 
 /*********************************************************************

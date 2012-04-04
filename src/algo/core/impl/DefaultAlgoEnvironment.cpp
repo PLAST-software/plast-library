@@ -167,6 +167,10 @@ void DefaultEnvironment::configure ()
         {
             _properties->add (0, STR_OPTION_ALGO_TYPE, "tplastn");
         }
+        else if (subjectKind == IDatabaseQuickReader::ENUM_NUCLOTID &&  queryKind == IDatabaseQuickReader::ENUM_NUCLOTID)
+        {
+            _properties->add (0, STR_OPTION_ALGO_TYPE, "tplastx");
+        }
         else
         {
             /** We should not be there. Should throw an exception ?*/
@@ -310,6 +314,20 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
             break;
 
         case ENUM_TPLASTX:
+            result = new AlgorithmTplastx (
+                config,
+                new AminoAcidDatabaseQuickReader (reader),
+                params,
+                filter,
+                new NucleotidConversionVisitor (
+                    new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT),
+                    Alignment::QUERY
+                ),
+                dbProvider,
+                isRunning
+            );
+            break;
+
         default:
             break;
     }

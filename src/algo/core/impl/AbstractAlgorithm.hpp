@@ -300,14 +300,8 @@ public:
     )
     : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, isRunning)
     {
-        if (params->strands.empty() )
-        {
-            _queryFrames.assign (allframes, allframes + 6);
-        }
-        else
-        {
-            _queryFrames.assign (params->strands.begin(), params->strands.end());
-        }
+        if (params->strands.empty() )   { _queryFrames.assign (allframes, allframes + 6);                       }
+        else                            { _queryFrames.assign (params->strands.begin(), params->strands.end()); }
     }
 };
 
@@ -334,15 +328,58 @@ public:
     )
     : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, isRunning)
     {
-        if (params->strands.empty() )
-        {
-            _subjectFrames.assign (allframes, allframes + 6);
-        }
-        else
-        {
-            _subjectFrames.assign (params->strands.begin(), params->strands.end());
-        }
+        if (params->strands.empty() )   { _subjectFrames.assign (allframes, allframes + 6);                         }
+        else                            { _subjectFrames.assign (params->strands.begin(), params->strands.end());   }
     }
+};
+
+/********************************************************************************/
+
+/** \brief Implementation of the tplastx algorithm (ADN/ADN)
+ *
+ * The tplastx algorithm inherits from the AbstractAlgorithm class and specifies
+ * what are the reading frames to be used for the subject database.
+ */
+class AlgorithmTplastx : public AbstractAlgorithm
+{
+public:
+
+    /** \copydoc AbstractAlgorithm */
+    AlgorithmTplastx (
+        IConfiguration*                                 config,
+        database::IDatabaseQuickReader*                 reader,
+        IParameters*                                    params,
+        alignment::filter::IAlignmentFilter*            filter,
+        alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        algo::core::IDatabasesProvider*                 dbProvider,
+        bool&                                           isRunning
+    )
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, isRunning)
+    {
+    	_queryFrames.push_back (misc::FRAME_1);
+    	_queryFrames.push_back (misc::FRAME_2);
+    	_queryFrames.push_back (misc::FRAME_3);
+    	_queryFrames.push_back (misc::FRAME_4);
+    	_queryFrames.push_back (misc::FRAME_5);
+    	_queryFrames.push_back (misc::FRAME_6);
+
+        _subjectFrames.push_back (misc::FRAME_1);
+        _subjectFrames.push_back (misc::FRAME_2);
+        _subjectFrames.push_back (misc::FRAME_3);
+        _subjectFrames.push_back (misc::FRAME_4);
+        _subjectFrames.push_back (misc::FRAME_5);
+        _subjectFrames.push_back (misc::FRAME_6);
+    }
+
+protected:
+
+    /** \copydoc IAlgorithm::createHitIterator */
+    algo::hits::IHitIterator* createHitIterator (
+        IConfiguration*                         config,
+        algo::hits::IHitIterator*               sourceHits,
+        alignment::core::IAlignmentContainer*   ungapAlignResult,
+        alignment::core::IAlignmentContainer*   alignResult
+    );
 };
 
 /********************************************************************************/

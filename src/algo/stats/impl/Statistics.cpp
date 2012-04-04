@@ -177,7 +177,19 @@ void GlobalParameters::build (void)
             if (_parameters->openGapCost   == 0)   {  _parameters->openGapCost   = 11;  }
             if (_parameters->extendGapCost == 0)   {  _parameters->extendGapCost = 1;   }
 
-            found = lookup (blosum62_values, ARRAYSIZE(blosum62_values));
+            if (_parameters->algoKind == ENUM_TPLASTX)
+            {
+                K      = 0.133956;
+                alpha  = 0.7916;
+                beta   = -3.2;
+                lambda = 0.317606;
+                evalue  = _parameters->evalue;
+                logK    = log(K);
+            }
+            else
+            {
+                found = lookup (blosum62_values, ARRAYSIZE(blosum62_values));
+            }
 
             if (_parameters->smallGapThreshold   == 0)    { _parameters->smallGapThreshold   = 54; }
             if (_parameters->ungapScoreThreshold == 0)    { _parameters->ungapScoreThreshold = 38; }
@@ -196,7 +208,19 @@ void GlobalParameters::build (void)
             if (_parameters->openGapCost   == 0)   {  _parameters->openGapCost   = 13;  }
             if (_parameters->extendGapCost == 0)   {  _parameters->extendGapCost = 2;   }
 
-            found = lookup (blosum50_values, ARRAYSIZE(blosum50_values));
+            if (_parameters->algoKind == ENUM_TPLASTX)
+            {
+                K       = 0.112;
+                alpha   = 0.6895;
+                beta    = -4;
+                lambda  = 0.317606;
+                evalue  = _parameters->evalue;
+                logK    = log(K);
+            }
+            else
+            {
+                found = lookup (blosum50_values, ARRAYSIZE(blosum50_values));
+            }
 
             if (_parameters->smallGapThreshold   == 0)    { _parameters->smallGapThreshold   = 60; }
             if (_parameters->ungapScoreThreshold == 0)    { _parameters->ungapScoreThreshold = 44; }
@@ -211,6 +235,7 @@ void GlobalParameters::build (void)
         }
 
         default:
+        	printf ("GlobalParameters::build: unknown matrix %d\n", _parameters->matrixKind);
             break;
     }
 }
@@ -276,7 +301,16 @@ IQueryInformation::SequenceInfo& QueryInformation::getSeqInfo (const database::I
     /** We may have to build the information if not already done. */
     build ();
 
-    return _seqInfoMap [seq.database] [seq.index];
+    map <ISequenceDatabase*, Container>::iterator lookup = _seqInfoMap.find (seq.database);
+    if (lookup != _seqInfoMap.end())
+    {
+    	return (lookup->second) [seq.index];
+    }
+    else
+    {
+    	//printf ("QueryInformation::getSeqInfo: UNKNOWN DATABASE...\n");
+		return _seqInfoMap [seq.database] [seq.index];
+    }
 }
 
 /*********************************************************************

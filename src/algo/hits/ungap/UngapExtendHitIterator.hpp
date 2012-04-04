@@ -14,14 +14,14 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/** \file UngapHitIterator.hpp
- *  \brief Implementation of IHitIterator interface for ungap alignments.
+/** \file UngapExtendHitIterator.hpp
+ *  \brief Implementation of IHitIterator interface for ungap alignments with threshold.
  *  \date 07/11/2011
  *  \author edrezen
  */
 
-#ifndef _UNGAP_HIT_ITERATOR_HPP_
-#define _UNGAP_HIT_ITERATOR_HPP_
+#ifndef _UNGAP_EXTEND_HIT_ITERATOR_HPP_
+#define _UNGAP_EXTEND_HIT_ITERATOR_HPP_
 
 /********************************************************************************/
 
@@ -29,6 +29,8 @@
 
 #include <algo/core/api/IScoreMatrix.hpp>
 #include <algo/core/api/IAlgoParameters.hpp>
+
+#include <algo/stats/api/IStatistics.hpp>
 
 #include <algo/hits/common/AbstractPipeHitIterator.hpp>
 
@@ -53,41 +55,50 @@ namespace ungapped {
  * \see UngapHitIteratorSSE8
  * \see UngapHitIteratorSSE16
  */
-class UngapHitIterator : public algo::hits::common::AbstractPipeHitIterator
+class UngapExtendHitIterator : public algo::hits::common::AbstractPipeHitIterator
 {
 public:
 
     /** \copydoc common::AbstractPipeHitIterator::AbstractPipeHitIterator */
-    UngapHitIterator (
+    UngapExtendHitIterator (
         algo::hits::IHitIterator*               sourceIterator,
         seed::ISeedModel*                       model,
         algo::core::IScoreMatrix*               scoreMatrix,
         algo::core::IParameters*                parameters,
-        alignment::core::IAlignmentContainer*   ungapResult
+        alignment::core::IAlignmentContainer*   ungapResult,
+        statistics::IGlobalParameters*          globalStats,
+        statistics::IQueryInformation*          queryInfo
     );
 
     /** Destructor. */
-    virtual ~UngapHitIterator ();
+    virtual ~UngapExtendHitIterator ();
 
     /** \copydoc common::AbstractPipeHitIterator::getName */
-    const char* getName ()  { return "UngapHitIterator"; }
+    const char* getName ()  { return "UngapExtendHitIterator"; }
 
 protected:
 
     /** \copydoc common::AbstractPipeHitIterator::clone */
     virtual AbstractPipeHitIterator* clone (IHitIterator* sourceIterator)
     {
-        return new UngapHitIterator (sourceIterator, _model, _scoreMatrix, _parameters, _ungapResult);
+        return new UngapExtendHitIterator (sourceIterator, _model, _scoreMatrix, _parameters, _ungapResult, _globalStats, _queryInfo);
     }
 
     /** \copydoc common::AbstractPipeHitIterator::iterateMethod
      * This method does the actual filtering by computing the hit scores.
      */
     void iterateMethod  (Hit* hit);
+
+    /** */
+    statistics::IGlobalParameters*  _globalStats;
+    void setGlobalStats (statistics::IGlobalParameters* globalStats)  { SP_SETATTR(globalStats); }
+    /** */
+    statistics::IQueryInformation*  _queryInfo;
+    void setQueryInfo (statistics::IQueryInformation* queryInfo)  { SP_SETATTR(queryInfo); }
 };
 
 /********************************************************************************/
 }}} /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* _UNGAP_HIT_ITERATOR_HPP_ */
+#endif /* _UNGAP_EXTEND_HIT_ITERATOR_HPP_ */

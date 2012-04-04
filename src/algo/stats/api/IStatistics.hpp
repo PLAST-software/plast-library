@@ -39,6 +39,8 @@ class IGlobalParameters : public dp::SmartPointer
 {
 public:
 
+	IGlobalParameters () : evalue(0), K(0), H(0), logK(0), ln2(0), alpha(0), lambda(0), beta(0)  {}
+
     /** */
     double evalue;
 
