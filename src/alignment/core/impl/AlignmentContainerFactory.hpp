@@ -51,6 +51,9 @@ public:
 
     /** \copydoc IAlignmentContainerFactory::createFromFile  */
     IAlignmentContainer* createContainerFromUri (const std::string& uri, void* context=0);
+
+    /** */
+    IAlignmentContainer* createContainerFromUri (dp::impl::FileLineIterator* it, void* context=0);
 };
 
 /********************************************************************************/

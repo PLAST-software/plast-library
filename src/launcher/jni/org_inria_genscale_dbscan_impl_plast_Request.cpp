@@ -21,6 +21,8 @@
 #include <algo/core/api/IAlgoEvents.hpp>
 #include <algo/core/api/IAlgoEnvironment.hpp>
 
+#include <algo/stats/api/IStatistics.hpp>
+
 #include <alignment/visitors/impl/AdapterAlignmentVisitor.hpp>
 #include <alignment/visitors/impl/ModelBuilderVisitor.hpp>
 
@@ -191,8 +193,21 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_Request_run (
     /** We attach the link to the plast request. */
     cmd->addObserver (link);
 
-    /** We launch the request. */
-    cmd->execute ();
+    /** We launch the request. Note that we should try to retrieve C++ exception here. */
+    try
+    {
+        cmd->execute ();
+    }
+    catch (statistics::GlobalParametersFailure& e)
+    {
+        jclass newExcCls = env->FindClass("java/lang/IllegalArgumentException");
+        if (newExcCls != NULL)  {  env->ThrowNew (newExcCls, "Bad arguments");  }
+    }
+    catch (...)
+    {
+        jclass newExcCls = env->FindClass("java/lang/Exception");
+        if (newExcCls != NULL)  {  env->ThrowNew (newExcCls, "Generic exception");  }
+    }
 
     cmd->removeObserver (link);
 

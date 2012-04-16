@@ -44,7 +44,7 @@ public:
     /** Constructor. */
     ReaderAlignmentContainer ();
 
-    /** Desctructor. */
+    /** Destructor. */
     ~ReaderAlignmentContainer ();
 
 private:

@@ -60,6 +60,21 @@ IAlignmentContainer* AlignmentContainerFactory::createContainer ()
 *********************************************************************/
 IAlignmentContainer* AlignmentContainerFactory::createContainerFromUri (const std::string& uri, void* context)
 {
+    return createContainerFromUri (new FileLineIterator (uri.c_str(), 1024), context);
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+IAlignmentContainer* AlignmentContainerFactory::createContainerFromUri (dp::impl::FileLineIterator* it, void* context)
+{
+    LOCAL(it);
+
     /** We first create the new container. */
     ReaderAlignmentContainer* result = new ReaderAlignmentContainer ();
 
@@ -81,8 +96,7 @@ IAlignmentContainer* AlignmentContainerFactory::createContainerFromUri (const st
     ISequence qrySequence;
 
     size_t nbLines = 0;
-    FileLineIterator fileIt (uri.c_str(), 1024);
-    for (fileIt.first(); !fileIt.isDone(); fileIt.next(), nbLines++)
+    for (it->first(); !it->isDone(); it->next(), nbLines++)
     {
         Alignment align;
 
@@ -95,7 +109,7 @@ IAlignmentContainer* AlignmentContainerFactory::createContainerFromUri (const st
         misc::Range32 sbjRange;
 
         size_t idx = 0;
-        TokenizerIterator tokenizer (fileIt.currentItem(), " \t");
+        TokenizerIterator tokenizer (it->currentItem(), " \t");
         for (tokenizer.first(); !tokenizer.isDone(); tokenizer.next(), idx++)
         {
             char* token = tokenizer.currentItem();
@@ -140,6 +154,16 @@ IAlignmentContainer* AlignmentContainerFactory::createContainerFromUri (const st
             else if (idx==9)   {  sbjRange.end   = atoi (token);        }
             else if (idx==10)  {  align.setEvalue   (atof (token));     }
             else if (idx==11)  {  align.setBitScore (atof (token));     }
+
+            else if (idx==12)  {  qrySequence.length = atol (token);                    }
+            else if (idx==13)  {  align.setNbGaps (Alignment::QUERY, atol (token));     }
+            else if (idx==14)  {  align.setFrame  (Alignment::QUERY, atoi (token));     }
+
+            else if (idx==12)  {  sbjSequence.length = atol (token);                    }
+            else if (idx==13)  {  align.setNbGaps (Alignment::SUBJECT, atol (token));   }
+            else if (idx==14)  {  align.setFrame  (Alignment::SUBJECT, atoi (token));   }
+
+            else if (idx==15)  {  align.setNbPositives (atol (token));   }
         }
 
         /** We read from a human readable file that counts range with a 1 starting position.
@@ -174,11 +198,7 @@ IAlignmentContainer* AlignmentContainerFactory::createContainerFromUri (const st
     /** We have now to associate a comment on each ISequence. */
     result->setComments ();
 
-    DEBUG (cout <<  "AlignmentContainerFactory::createContainerFromUri:  "
-       << "uri="     << uri     << "  "
-       << "nbLines=" << nbLines << "  "
-       << endl
-    );
+    DEBUG (cout <<  "AlignmentContainerFactory::createContainerFromUri:  " << "nbLines=" << nbLines << "  " << endl );
 
     /** We return the result. */
     return result;

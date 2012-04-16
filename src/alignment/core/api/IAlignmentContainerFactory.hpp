@@ -26,6 +26,7 @@
 /********************************************************************************/
 
 #include <alignment/core/api/IAlignmentContainer.hpp>
+#include <designpattern/impl/FileLineIterator.hpp>
 
 #include <string>
 #include <vector>
@@ -50,6 +51,11 @@ public:
      * \param[in]  uri : uri of the resource to be used
      */
     virtual IAlignmentContainer* createContainerFromUri (const std::string& uri, void* context) = 0;
+
+    /** Read alignments from some uri resource. Different implementations could read from different file format.
+     * \param[in]  it : file iterator
+     */
+    virtual IAlignmentContainer* createContainerFromUri (dp::impl::FileLineIterator* it, void* context) = 0;
 };
 
 /********************************************************************************/
