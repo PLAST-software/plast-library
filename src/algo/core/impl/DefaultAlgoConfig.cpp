@@ -58,6 +58,7 @@
 #include <alignment/visitors/impl/FilterContainerVisitor.hpp>
 #include <alignment/visitors/impl/ProxyVisitor.hpp>
 #include <alignment/visitors/impl/NucleotidConversionVisitor.hpp>
+#include <alignment/visitors/impl/QueryReorderVisitor.hpp>
 
 using namespace std;
 using namespace misc;
@@ -105,7 +106,8 @@ namespace impl {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-DefaultConfiguration::DefaultConfiguration (IProperties* properties) : _properties(0)
+DefaultConfiguration::DefaultConfiguration (IEnvironment* environment, IProperties* properties)
+    : _environment(environment), _properties(0)
 {
     /** We may have to create empty properties if no one is provided. */
     if (properties == 0)  {  properties = new Properties(); }
@@ -840,6 +842,12 @@ IAlignmentContainerVisitor* DefaultConfiguration::createResultVisitor ()
         {
             result = new MaxHitsPerQueryVisitor (result, maxHitsPerQuery);
         }
+    }
+
+    IProperty* forceQryOrdering = _properties->getProperty (STR_OPTION_FORCE_QUERY_ORDERING);
+    if (forceQryOrdering != 0)
+    {
+        result = new QueryReorderVisitor (this, uri, result, _environment->getQuickQueryDbReader(), 10*1000);
     }
 
     /** We return the result. */

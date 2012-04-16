@@ -120,7 +120,6 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
 
     int scoreLeft=0,  scoreRight=0;
     int leftOffsetInQuery=0, leftOffsetInSubject=0, rightOffsetInQuery=0, rightOffsetInSubject=0;
-    bool shouldKeep = false;
 
     /** Statistics. */
     HIT_STATS (_inputHitsNumber += hit->indexes.size();)
@@ -141,9 +140,6 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
         /** Shortcuts. */
         LETTER* subjectData = subjectSeq.data.letters.data;
         LETTER* queryData   = querySeq.data.letters.data;
-
-        /** By default, we don't want to keep this current hit. */
-        shouldKeep = false;
 
         /** We compute the left part of the score. Note that the left extension includes the starting point,
          * the right extension does not. */

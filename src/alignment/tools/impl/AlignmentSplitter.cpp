@@ -95,7 +95,7 @@ size_t AlignmentSplitter::splitAlign (
     SplitOutput& output
 )
 {
-    int s,x,y,i,j,d,lg,nbg,nbi,qryLen,subLen;
+    int s,x,y,i,j,d,lg,nbg,qryLen,subLen;
     int  j1,j2;
 
     int jj = qryRange.begin - sbjRange.begin;
@@ -194,7 +194,7 @@ size_t AlignmentSplitter::splitAlign (
     }
 
     i=qryLen;  j=subLen;  x=0;  y=0;
-    lg=0; nbg=0; nbi=0;
+    lg=0; nbg=0;
 
     if (output.splittab)  {  (output.splittab)[y++] = qryLen - 1;  }
     if (output.splittab)  {  (output.splittab)[y++] = subLen - 1;  }

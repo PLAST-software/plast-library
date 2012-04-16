@@ -62,6 +62,10 @@ public:
     /** \copydoc IEnvironment::run */
     void run ();
 
+    /** */
+    database::IDatabaseQuickReader* getQuickSubjectDbReader ()  { return _quickSubjectDbReader; }
+    database::IDatabaseQuickReader* getQuickQueryDbReader   ()  { return _quickQueryDbReader;   }
+
 protected:
 
     /** */

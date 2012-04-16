@@ -52,11 +52,13 @@ void CompareContainerVisitor::visitAlignmentsList (
     list<Alignment>* comp = _dbComp->getContainer (qry, sbj);
 
     /** We compute the overlap between the two sets for the given threshold. */
-    AlignmentOverlapCmd cmd (&alignments, comp, _dmax);
+    AlignmentOverlapCmd cmd (&alignments, comp, _overlapRange, _visitorCommon, _visitorDistinct);
     cmd.execute ();
 
     _commonSize   += cmd.getCommonSize   ();
     _specificSize += cmd.getSpecificSize ();
+
+    //printf ("visitAlignmentsList: _commonSize=%ld  _specificSize=%ld \n", cmd.getCommonSize   (),  cmd.getSpecificSize ());
 }
 
 /********************************************************************************/

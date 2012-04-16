@@ -274,6 +274,22 @@ string CompositeSequenceDatabase::getId ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+void CompositeSequenceDatabase::retrieveSequencesIdentifiers (std::set<std::string>& ids)
+{
+    for (std::vector<ISequenceDatabase*>::iterator it = _children.begin(); it != _children.end(); it++)
+    {
+        (*it)->retrieveSequencesIdentifiers (ids);
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 CompositeSequenceIterator::CompositeSequenceIterator (std::list<ISequenceIterator*>& itList)
     : _itList (itList)
 {

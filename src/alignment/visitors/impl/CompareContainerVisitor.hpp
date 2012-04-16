@@ -38,16 +38,53 @@ namespace impl      {
  *
  * This visitor dumps alignments into a list
  */
-class CompareContainerVisitor : public AdapterAlignmentResultVisitor
+class CompareContainerVisitor : public core::IAlignmentContainerVisitor
 {
 public:
 
-    CompareContainerVisitor (core::IAlignmentContainer* dbComp, double dmax)
-        : _dbComp(dbComp), _dmax(dmax), _commonSize(0), _specificSize(0)
+    CompareContainerVisitor (
+        core::IAlignmentContainer* dbComp,
+        misc::Range<double> overlapRange,
+        core::IAlignmentContainerVisitor* visitorCommon   = 0,
+        core::IAlignmentContainerVisitor* visitorDistinct = 0
+    )
+        : _dbComp(dbComp), _overlapRange(overlapRange), _commonSize(0), _specificSize(0),
+          _visitorCommon(0), _visitorDistinct(0)
     {
+        setVisitorCommon   (visitorCommon);
+        setVisitorDistinct (visitorDistinct);
     }
 
-    virtual ~CompareContainerVisitor () {}
+    /** */
+    virtual ~CompareContainerVisitor ()
+    {
+        setVisitorCommon   (0);
+        setVisitorDistinct (0);
+    }
+
+    /** */
+    void visitQuerySequence   (const database::ISequence* seq,   const misc::ProgressInfo& progress)
+    {
+        if (_visitorCommon)     {  _visitorCommon->visitQuerySequence   (seq, progress);    }
+        if (_visitorDistinct)   {  _visitorDistinct->visitQuerySequence (seq, progress);    }
+    }
+
+    /** */
+    void visitSubjectSequence (const database::ISequence* seq,   const misc::ProgressInfo& progress)
+    {
+        if (_visitorCommon)     {  _visitorCommon->visitSubjectSequence   (seq, progress);    }
+        if (_visitorDistinct)   {  _visitorDistinct->visitSubjectSequence (seq, progress);    }
+    }
+
+    /** */
+    void visitAlignment (core::Alignment* align, const misc::ProgressInfo& progress)  {}
+
+    /** */
+    void postVisit  (core::IAlignmentContainer* result)
+    {
+        if (_visitorCommon)     {  _visitorCommon->postVisit   (result);    }
+        if (_visitorDistinct)   {  _visitorDistinct->postVisit (result);    }
+    }
 
     /** \copydoc IAlignmentResultVisitor::visitAlignmentsList */
     void visitAlignmentsList (
@@ -56,18 +93,24 @@ public:
         std::list<core::Alignment>& alignments
     );
 
-    double getTotalSize    ()  { return _commonSize + _specificSize; }
-    double getCommonSize   ()  { return _commonSize;   }
-    double getSpecificSize ()  { return _specificSize; }
+    size_t getTotalSize    ()  { return _commonSize + _specificSize; }
+    size_t getCommonSize   ()  { return _commonSize;   }
+    size_t getSpecificSize ()  { return _specificSize; }
 
     double getCommonPercentage ()  {  return (double)_commonSize  /  (double) (_commonSize + _specificSize);  }
 
 private:
 
     core::IAlignmentContainer* _dbComp;
-    double _dmax;
+    misc::Range<double> _overlapRange;
     size_t _commonSize;
     size_t _specificSize;
+
+    core::IAlignmentContainerVisitor* _visitorCommon;
+    void setVisitorCommon (core::IAlignmentContainerVisitor* visitorCommon)  { SP_SETATTR(visitorCommon); }
+
+    core::IAlignmentContainerVisitor* _visitorDistinct;
+    void setVisitorDistinct (core::IAlignmentContainerVisitor* visitorDistinct)  { SP_SETATTR(visitorDistinct); }
 };
 
 /********************************************************************************/

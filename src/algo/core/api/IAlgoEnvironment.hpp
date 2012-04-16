@@ -91,6 +91,10 @@ public:
      */
     virtual void run () = 0;
 
+    /** Getters. */
+    virtual database::IDatabaseQuickReader* getQuickSubjectDbReader () = 0;
+    virtual database::IDatabaseQuickReader* getQuickQueryDbReader   () = 0;
+
 protected:
 
     /** Create a configuration instance from some properties (gathered by command line

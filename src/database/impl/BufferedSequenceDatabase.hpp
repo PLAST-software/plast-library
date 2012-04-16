@@ -129,6 +129,9 @@ public:
     /** \copydoc ISequenceDatabase::getId */
     std::string getId ()  { return _id; }
 
+    /** \copydoc ISequenceDatabase::retrieveSequencesIdentifiers */
+    void retrieveSequencesIdentifiers (std::set<std::string>& ids);
+
 private:
 
     /** Constructor that uses a provided cache and an index range for iterating the cache.

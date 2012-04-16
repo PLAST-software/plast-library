@@ -28,6 +28,7 @@
 #include <designpattern/api/IProperty.hpp>
 
 #include <algo/core/api/IAlgoConfig.hpp>
+#include <algo/core/api/IAlgoEnvironment.hpp>
 
 #include <alignment/core/api/IAlignmentContainer.hpp>
 #include <alignment/filter/api/IAlignmentFilter.hpp>
@@ -53,7 +54,7 @@ public:
     /** Constructor.
      * \param[in] properties : properties for customizing instances creation.
      */
-    DefaultConfiguration (dp::IProperties* properties);
+    DefaultConfiguration (IEnvironment* environment, dp::IProperties* properties);
 
     /** Destructor. */
     virtual ~DefaultConfiguration ();
@@ -160,6 +161,8 @@ public:
     alignment::core::IAlignmentContainerVisitor* createResultVisitor ();
 
 private:
+
+    IEnvironment* _environment;
 
     dp::IProperties* _properties;
     void setProperties (dp::IProperties* properties)  { SP_SETATTR(properties);  }

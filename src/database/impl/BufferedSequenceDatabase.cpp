@@ -434,6 +434,35 @@ bool BufferedSequenceDatabase::getSequenceByName (
 ** RETURN  :
 ** REMARKS : uses cached information for setting the sequence attributes
 *********************************************************************/
+void BufferedSequenceDatabase::retrieveSequencesIdentifiers (std::set<std::string>& ids)
+{
+    ISequenceCache* cache = getCache ();
+
+    for (size_t i=0; i<cache->nbSequences; i++)
+    {
+        string& comment = cache->comments[i];
+
+        /** We look for the first space. */
+        size_t pos = comment.find_first_of (' ');
+        if (pos != string::npos)
+        {
+            ids.insert (comment.substr(0,pos));
+        }
+        else
+        {
+            ids.insert (comment);
+        }
+    }
+}
+
+/*********************************************************************
+** METHOD  : CacheIterator::changeSequence
+** PURPOSE : fill the attributes of the sequence returned by 'currentItem'
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS : uses cached information for setting the sequence attributes
+*********************************************************************/
 void BufferedSequenceDatabase::BufferedSequenceIterator::updateItem()
 {
     /** A little shortcut (avoid two memory accesses). */

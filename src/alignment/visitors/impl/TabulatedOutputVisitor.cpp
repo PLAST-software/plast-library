@@ -136,12 +136,19 @@ void TabulatedOutputExtendedVisitor::fillBuffer (core::Alignment* align, char* b
     TabulatedOutputVisitor::fillBuffer (align, buffer, size);
 
     /** We format extra information. */
-    char extra[128];
-    snprintf (extra, sizeof(extra), "%c%.1lf%c%.1lf",
-        _sep,
-        100.0 * align->getCoverage(Alignment::QUERY),
-        _sep,
-        100.0 * align->getCoverage(Alignment::SUBJECT)
+    char extra[256];
+
+    snprintf (extra, sizeof(extra), "%c%d%c%d%c%d%c%d%c%d%c%d%c%d",
+
+        _sep,  align->getSequence (Alignment::QUERY)->getLength(),
+        _sep,  align->getNbGaps   (Alignment::QUERY),
+        _sep,  align->getFrame    (Alignment::QUERY),
+
+        _sep,  align->getSequence (Alignment::SUBJECT)->getLength(),
+        _sep,  align->getNbGaps   (Alignment::SUBJECT),
+        _sep,  align->getFrame    (Alignment::SUBJECT),
+
+        _sep,  align->getNbPositives()
     );
 
     /** We add some information at the end of the buffer. */

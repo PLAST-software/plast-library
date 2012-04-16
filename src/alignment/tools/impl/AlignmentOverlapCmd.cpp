@@ -20,13 +20,15 @@ using namespace std;
 using namespace alignment;
 using namespace alignment::core;
 
-#define DEBUG(a)
+#define DEBUG(a) a
 
 /********************************************************************************/
 namespace alignment {
 namespace tools     {
 namespace impl      {
 /********************************************************************************/
+
+int AlignmentOverlapCmd::_count = 0;
 
 /*********************************************************************
 ** METHOD  :
@@ -36,54 +38,54 @@ namespace impl      {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void AlignmentOverlapCmd::execute ()
+void AbstractAlignmentOverlapCmd::execute ()
 {
-    /** We first reset the arguments to be computed. */
-    _commonSize   = 0;
-    _specificSize = 0;
-
     if (!_ref)   { return; }
-    if (!_comp)  { _specificSize = _ref->size();  return; }
 
-    vector<bool> marked (_comp->size(), false);
+    vector<bool> marked;
 
     struct Value  {  double overlap;   int index;   };
     Value best;
+
+    if (_comp)  { marked.resize(_comp->size(), false); }
 
     for (list<Alignment>::const_iterator itRef = _ref->begin(); itRef != _ref->end(); itRef++)
     {
         best.overlap = 0;
         best.index   = 0;
 
-        int idx = 0;
-        for (list<Alignment>::const_iterator itComp = _comp->begin(); itComp != _comp->end(); itComp++, idx++)
+        if (_comp != 0)
         {
-            if (marked[idx] == false)
+            int idx = 0;
+            for (list<Alignment>::const_iterator itComp = _comp->begin(); itComp != _comp->end(); itComp++, idx++)
             {
-                /** We compute the overlap of the two Alignment instances. */
-                double overlap = Alignment::overlap (*itRef, *itComp);
-
-                /** We may memorize this overlap value and the current index. */
-                if (overlap > best.overlap)
+                if (marked[idx] == false)
                 {
-                    best.overlap = overlap;
-                    best.index   = idx;
+                    /** We compute the overlap of the two Alignment instances. */
+                    double overlap = Alignment::overlap (*itRef, *itComp);
+
+                    /** We may memorize this overlap value and the current index. */
+                    if (overlap > best.overlap)
+                    {
+                        best.overlap = overlap;
+                        best.index   = idx;
+                    }
                 }
-            }
 
-        } /* end of for (list<Alignment>::const_iterator itComp... */
+            } /* end of for (list<Alignment>::const_iterator itComp... */
+        }
 
-        if (best.overlap >= _threshold)
+        if (_overlapRange.includes (best.overlap) == true)
         {
             /** We can associate the comp alignment to the ref alignment;
              * we hence tag the marked item in order to not take into account any more. */
             marked [best.index] = true;
 
-            _commonSize++;
+            handleCommonAlignment (*itRef);
         }
         else
         {
-            _specificSize++;
+            handleDistinctAlignment (*itRef);
         }
 
     } /* end of for (list<Alignment>::const_iterator itRef... */

@@ -58,10 +58,10 @@ class ISequenceDatabase;
 struct ISequence
 {
     /** Constructor. */
-    ISequence () : database(0), comment(""), index(0), offsetInDb(0) {}
+    ISequence () : database(0), comment(""), index(0), offsetInDb(0), length(0) {}
 
     /** Constructor. */
-    ISequence (const char* comment) : database(0), comment(comment), index(0), offsetInDb(0) {}
+    ISequence (const char* comment) : database(0), comment(comment), index(0), offsetInDb(0), length(0) {}
 
     /** Reference to the database that holds this sequence. */
     ISequenceDatabase*  database;
@@ -78,8 +78,11 @@ struct ISequence
     /** Global offset of the sequence in the containing database. */
     u_int64_t           offsetInDb;
 
+    /** Length of the sequence (shortcut). */
+    u_int32_t           length;
+
     /** */
-    u_int32_t getLength ()  const {  return data.letters.size;  }
+    u_int32_t getLength ()  const {  return data.letters.size > 0 ? data.letters.size : length;  }
 
     /** Get id and definition of the sequence.
      */
@@ -113,6 +116,24 @@ struct ISequence
             lenId  = 0;
             lenDef = 0;
         }
+    }
+
+    /** Get id of the sequence.
+     */
+    size_t  retrieveId (char* bufId,  size_t lenId) const
+    {
+        if (bufId && comment)
+        {
+            *bufId = 0;
+            const char* lookup = strchr (comment, ' ');
+
+            size_t l =  (lookup != 0 ? (size_t) (lookup-comment) : strlen(comment));
+            lenId = lenId > l ? l : lenId-1;
+
+            strncpy (bufId, comment, lenId);
+            bufId [lenId] = 0;
+        }
+        return lenId;
     }
 
     /** Tool for dumping a sequence content. Useful for debug purpose.

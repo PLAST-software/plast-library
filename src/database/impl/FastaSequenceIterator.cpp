@@ -17,6 +17,8 @@
 #include <database/impl/FastaSequenceIterator.hpp>
 #include <database/impl/BasicSequenceBuilder.hpp>
 
+#include <misc/api/macros.hpp>
+
 #include <iostream>
 #include <sstream>
 
@@ -120,10 +122,15 @@ dp::IteratorStatus FastaSequenceIterator::next()
     /** We may have found a comment. */
     if (buffer != 0)
     {
-        if (builder)  {  builder->setComment (buffer + 1, _commentMaxSize);  }
+        if (builder)
+        {
+            size_t len = strlen (buffer + 1);
 
-        /** We reset the data size. */
-        if (builder)  {  builder->resetData ();  }
+            builder->setComment (buffer + 1, MIN (len, _commentMaxSize) );
+
+            /** We reset the data size. */
+            builder->resetData ();
+        }
 
         /** We read the next line (the current one still points to the comment line). */
         _fileIterator.next();

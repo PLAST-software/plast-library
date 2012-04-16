@@ -119,6 +119,11 @@ public:
      * \return the identifier
      */
     virtual std::string getId () = 0;
+
+    /** Retrieve the identifiers of the sequences of the database.
+     *  \param[out] ids : the set to be filled by the sequences identifiers.
+     */
+    virtual void retrieveSequencesIdentifiers (std::set<std::string>& ids) = 0;
 };
 
 /********************************************************************************/

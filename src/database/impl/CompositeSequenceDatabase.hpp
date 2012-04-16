@@ -107,6 +107,9 @@ public:
     /** \copydoc ISequenceDatabase::getId */
     std::string getId ();
 
+    /** \copydoc ISequenceDatabase::retrieveSequencesIdentifiers */
+    void retrieveSequencesIdentifiers (std::set<std::string>& ids);
+
 private:
 
     /** Vector of children ISequenceDatabase instances. */

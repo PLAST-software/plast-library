@@ -120,10 +120,6 @@ void DefaultEnvironment::configure ()
         setFilter (AlignmentFilterFactoryXML().createFilter (filterProp->getString()));
     }
 
-    /** We create a visitor for visiting the resulting alignments. Note that we use only one visitor even if
-     *  we have to run several algorithm; in such a case, the results are 'concatenated' by the same visitor. */
-    setResultVisitor (_config->createResultVisitor ());
-
     u_int64_t  maxblocksize = 20*1000*1000;
     IProperty* maxBlockProp = _properties->getProperty(STR_OPTION_MAX_DATABASE_SIZE);
     if (maxBlockProp != 0)  {  maxblocksize = maxBlockProp->getInt();  }
@@ -177,6 +173,12 @@ void DefaultEnvironment::configure ()
         }
     }
 
+    /** We create a visitor for visiting the resulting alignments. Note that we use only one visitor even if
+     *  we have to run several algorithm; in such a case, the results are 'concatenated' by the same visitor.
+     *  IMPORTANT: we should create this instance after creating quick readers since these ones may depend
+     *  on this result visitor. */
+    setResultVisitor (_config->createResultVisitor ());
+
     /** We build a list of uri for subject/query databases. */
     vector<pair<Range64,Range64> > uriList = buildUri (_quickSubjectDbReader, _quickQueryDbReader);
 
@@ -196,7 +198,7 @@ IConfiguration* DefaultEnvironment::createConfiguration (dp::IProperties* proper
 {
     IConfiguration* result = 0;
 
-    result = new DefaultConfiguration (properties);
+    result = new DefaultConfiguration (this, properties);
 
     return result;
 }
