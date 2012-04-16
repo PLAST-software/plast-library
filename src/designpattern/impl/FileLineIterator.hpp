@@ -120,6 +120,16 @@ public:
      */
     u_int64_t getCurrentReadSize ()  { return _readCurrentSize; }
 
+    /** */
+    void setRange (u_int64_t offset0, u_int64_t offset1)
+    {
+        _offset0 = offset0;
+        _offset1 = offset1;
+        _range   = _offset1 - _offset0 + 1;
+
+        first ();
+    }
+
 private:
 
     /** URI of the file to be iterated. */
@@ -155,6 +165,9 @@ private:
     /** */
     os::IFile* _currentFile;
     os::IFile* getCurrentFile ()   { return _currentFile; }
+
+    /** */
+    u_int64_t _currentFileLength;
 
     /** */
     std::list<os::IFile*>::iterator _filesIterator;

@@ -1078,9 +1078,8 @@ inline unsigned int get_packed_value(retr_t*retr,unsigned int vert)
 static void pack_retr(retr_t*retr)
 {
 	unsigned int i,bit_idx,j;
-	unsigned int value,part_count_value;
+	unsigned int value;
 	init_bmp(retr->bits_table,retr->nverts+(retr->nverts/256)*32+32);
-	part_count_value=0;
 	for(bit_idx=0,i=0,j=0;i<retr->nverts;i++)
 	{
 		if((i%256)==0)

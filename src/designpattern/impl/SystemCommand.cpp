@@ -132,6 +132,8 @@ void SystemCommand::execute ()
 {
     u_int32_t t0 = os::impl::DefaultFactory::time().gettime();
 
+    DEBUG (("CMD '%s'\n", _buffer));
+
     /** We execute the command. */
     _status = system (_buffer);
 
