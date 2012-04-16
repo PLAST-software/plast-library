@@ -212,7 +212,7 @@ void ResourcesObserver::update (dp::EventInfo* evt, dp::ISubject* subject)
     {
         if ( (_currentAlgo != _lastAlgo)  &&  (_file != 0) )
         {
-            fprintf (_file, "%ld  %.3f  %lld  %lld  %.3f  %.3f  %.3f  %d  %lld  %lld \n",
+            fprintf (_file, "%ld  %.3f  %ld  %ld  %.3f  %.3f  %.3f  %d  %ld  %ld \n",
                 _currentAlgo,
                 _globalPercentage,
                 _nbAlignments - _lastNbAlign,

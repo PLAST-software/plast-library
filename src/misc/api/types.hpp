@@ -76,6 +76,9 @@ template <class T> struct Range
         return ((r.begin + delta) >= this->begin)  &&  (r.end <= (this->end + delta));
     }
 
+    /** Tells whether the provided value is included into the 'this' instance. */
+    bool includes (const T& val) const   {   return (this->begin <= val)  &&  (val <= this->end);  }
+
     /** Dilatation  of a range by some factor. */
     Range inflate (float factor)
     {

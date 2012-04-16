@@ -151,6 +151,8 @@ int OptionsParser::parse (int argc, char* argv[])
                     DEBUG (("CheckOption::proceed:  proceed the option => res=%ld  seenOptions=%ld  _currentArg=%d\n",
                         res, _seenOptions.size(), _currentArg
                     ));
+
+                    res=0;  // reduce warning
                 }
             }
         }

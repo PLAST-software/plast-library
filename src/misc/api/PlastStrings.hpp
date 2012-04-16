@@ -123,6 +123,11 @@ namespace misc {
  */
 #define STR_OPTION_OUTPUT_FORMAT            "-outfmt"
 
+/** Command Line option forcing the ordering of queries identifiers in the final output file
+ *  No parameters
+ */
+#define STR_OPTION_FORCE_QUERY_ORDERING  "-force-query-order"
+
 /** Command Line option giving the maximum database size (in bytes) the algorithm can deal with.
  *  If the subject and/or the query databases are greater than this threshold, the algorithm
  *  will segment the database by blocks of this "max-database-size" size, so even huge file
