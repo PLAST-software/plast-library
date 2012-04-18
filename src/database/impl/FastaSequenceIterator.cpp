@@ -48,7 +48,7 @@ FastaSequenceIterator::FastaSequenceIterator (
     u_int64_t offset0,
     u_int64_t offset1
 )
-    : _commentMaxSize(commentMaxSize),  _fileIterator (filename, 1024, offset0, offset1), _isDone(false)
+    : _commentMaxSize(commentMaxSize),  _fileIterator (filename, _commentMaxSize, offset0, offset1), _isDone(false)
 {
     DEBUG (("FastaSequenceIterator::FastaSequenceIterator:  filename='%s'  range=[%ld,%ld] \n",
         filename, offset0, offset1
@@ -124,9 +124,12 @@ dp::IteratorStatus FastaSequenceIterator::next()
     {
         if (builder)
         {
-            size_t len = strlen (buffer + 1);
+            /** We may have to skip space characters between the '>' and the actual comment. */
+            while (*(++buffer) == ' ')   {}
 
-            builder->setComment (buffer + 1, MIN (len, _commentMaxSize) );
+            size_t len = strlen (buffer);
+
+            builder->setComment (buffer, MIN (len, _commentMaxSize) );
 
             /** We reset the data size. */
             builder->resetData ();
