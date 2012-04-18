@@ -26,6 +26,8 @@
 #include <alignment/visitors/impl/AdapterAlignmentVisitor.hpp>
 #include <alignment/visitors/impl/ModelBuilderVisitor.hpp>
 
+#include <misc/api/PlastStrings.hpp>
+
 #include <launcher/core/PlastCmd.hpp>
 
 #include <launcher/observers/AbstractProgressionObserver.hpp>
@@ -56,7 +58,10 @@ class RequestLink : public AbstractProgressionObserver
 {
 public:
 
-    RequestLink (JNIEnv* env, jobject obj) : _env(env), _obj(obj) {}
+    RequestLink (JNIEnv* env, jobject obj, bool progressiveAlignNotif)
+        : _env(env), _obj(obj), _progressiveAlignNotif(progressiveAlignNotif),
+          _firstResultNotification(true)
+    {}
 
     ~RequestLink ()  { }
 
@@ -67,7 +72,22 @@ public:
 
         /** We cast the received event in the type we are interested in. */
         algo::core::AlgorithmReportEvent* e1 = dynamic_cast<algo::core::AlgorithmReportEvent*> (evt);
-        if (e1 != 0)    {  updatePartFinished (e1);  return;  }
+        if (e1 != 0)
+        {
+            notifyExecInfoAvailable ();
+            if (_progressiveAlignNotif == true)  {  notifyRequestResultAvailable (e1->getAlignmentContainer());  }
+            return;
+        }
+
+        if (_progressiveAlignNotif == false)
+        {
+            algo::core::AlignmentsContainerEvent* e3 = dynamic_cast<algo::core::AlignmentsContainerEvent*> (evt);
+            if (e3 != 0)
+            {
+                notifyRequestResultAvailable (e3->getContainer());
+                return;
+            }
+        }
 
         AlgorithmConfigurationEvent* e2 = dynamic_cast<AlgorithmConfigurationEvent*> (evt);
         if (e2 != 0)
@@ -104,11 +124,16 @@ protected:
     void updateStarted       ()  {  _env->CallObjectMethod (_obj, MethodTable[Request_notifyStarted_e]);   }
     void updateFinished      ()  {  _env->CallObjectMethod (_obj, MethodTable[Request_notifyFinished_e]);  }
 
-    void updatePartFinished  (algo::core::AlgorithmReportEvent* evt)
+    /**********************************************************************/
+    void notifyExecInfoAvailable  (void)
     {
-        /** Shortcut. */
-        IAlignmentContainer* alignments = evt->getAlignmentContainer();
+        /** We notify potential java listeners. */
+        _env->CallObjectMethod (_obj, MethodTable [Request_notifyExecInfoAvailable_e],  createExecInfoProperties());
+    }
 
+    /**********************************************************************/
+    void notifyRequestResultAvailable  (IAlignmentContainer* alignments)
+    {
         /** We create a model for the container. */
         ModelBuilderVisitor v;
         alignments->accept (&v);
@@ -120,6 +145,22 @@ protected:
 
         /** We use the model. */
         LOCAL (model);
+
+        /** We update some values for the execution info properties. */
+        if (_firstResultNotification == true)
+        {
+            _nbAlignments         = 0;
+            _ellapsedTime         = 0;
+            _remainingTime        = 0;
+            _globalPercentage     = 1;
+            _currentAlgo          = 0;
+            _totalAlgo            = 0;
+
+            _firstResultNotification = false;
+        }
+
+        _currentNbAlignments  = alignments->getSize();
+        _nbAlignments        += alignments->getSize();
 
         /** We initialize the iterator. */
         model->first();
@@ -137,9 +178,6 @@ protected:
         );
 
         /** We notify potential java listeners. */
-        _env->CallObjectMethod (_obj, MethodTable [Request_notifyExecInfoAvailable_e],  createExecInfoProperties());
-
-        /** We notify potential java listeners. */
         _env->CallObjectMethod (_obj, MethodTable [Request_notifyRequestResultAvailable_e], requestResult);
     }
 
@@ -147,6 +185,8 @@ private:
 
     JNIEnv* _env;
     jobject _obj;
+
+    bool _progressiveAlignNotif;
 
     /** */
     template <class T> void fillJavaProperties (jobject props, const char* key, T value)
@@ -158,6 +198,8 @@ private:
             _env->NewStringUTF(key),  _env->NewStringUTF (ss.str().c_str())
         );
     }
+
+    bool _firstResultNotification;
 };
 
 /*********************************************************************
@@ -183,8 +225,11 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_Request_run (
     /** We retrieve the PlastCmd instance from the peer. */
     PlastCmd* cmd = (PlastCmd*) peer;
 
+    /** We check whether we want progressive alignments notifications or only at the end. */
+    bool progressiveAlignNotif = cmd->getProperties()->getProperty (STR_OPTION_FORCE_QUERY_ORDERING) == 0;
+
     /** We create a Java link to the request. */
-    RequestLink* link = new RequestLink (env,obj);
+    RequestLink* link = new RequestLink (env,obj, progressiveAlignNotif);
     LOCAL (link);
 
     /** We keep a reference to this link from the java world as a specific peer. */
@@ -193,7 +238,7 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_Request_run (
     /** We attach the link to the plast request. */
     cmd->addObserver (link);
 
-    /** We launch the request. Note that we should try to retrieve C++ exception here. */
+    /** We launch the request. Note that we should try to retrieve C++ exceptions here. */
     try
     {
         cmd->execute ();

@@ -69,7 +69,7 @@ void PlastOptionsParser::build ()
     this->add (new OptionOneParam (STR_OPTION_FILTER_QUERY,             "Filter query sequence"));
     this->add (new OptionOneParam (STR_OPTION_SCORE_MATRIX,             "Score matrix (BLOSUM62 or BLOSUM50)"));
 
-    this->add (new OptionNoParam  (STR_OPTION_FORCE_QUERY_ORDERING,     "Force queries ordering in output file."));
+    this->add (new OptionOneParam (STR_OPTION_FORCE_QUERY_ORDERING,     "Force queries ordering in output file."));
 
     //this->add (new OptionOneParam ("-S", "Subset seed"));
     //this->add (new OptionOneParam ("-R", "Query strands to search against database (for plastx and tplastx)"));
