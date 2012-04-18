@@ -49,7 +49,7 @@ void ShrinkContainerVisitor::visitAlignmentsList (
 )
 {
     /** We may remove redundant alignments. */
-    AlignmentContainerShrinkCmd cmd (alignments, _sort_cbk);
+    AlignmentContainerShrinkCmd cmd (alignments, _sort_cbk, _nbAlignToKeep);
 
     /** We execute the command. */
     cmd.execute ();

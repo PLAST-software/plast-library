@@ -64,6 +64,12 @@ public:
     /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */
     void visitAlignment (core::Alignment* align, const misc::ProgressInfo& progress);
 
+    /** \copydoc AbstractAlignmentResultVisitor::finalize */
+    void finalize (void);
+
+    /** */
+    core::IAlignmentContainerVisitor* getFinalVisitor ()  { return _finalVisitor; }
+
 protected:
 
     std::string getOutputFileUri  ()  { return _outputUri;                       }
@@ -104,9 +110,6 @@ private:
 
     /** */
     void dumpIndex (void);
-
-    /** */
-    void finalize (void);
 };
 
 /********************************************************************************/

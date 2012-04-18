@@ -41,9 +41,10 @@ class ShrinkContainerVisitor : public ModifierContainerVisitor
 {
 public:
 
-    /** \copydoc IAlignmentResultVisitor::AbstractAlignmentResultVisitor */
-    ShrinkContainerVisitor (bool (*sort_cbk) (const core::Alignment& i, const core::Alignment& j) = 0)
-        : _sort_cbk (sort_cbk) {}
+    /** Constructor.
+     * \param[in] nbAlignToKeep Number of alignments to be kept per hit. */
+    ShrinkContainerVisitor (size_t nbAlignToKeep=0, bool (*sort_cbk) (const core::Alignment& i, const core::Alignment& j) = 0)
+        : _nbAlignToKeep(nbAlignToKeep), _sort_cbk (sort_cbk) {}
 
     /** \copydoc IAlignmentResultVisitor::visitQuerySequence */
     void visitQuerySequence   (const database::ISequence* seq, const misc::ProgressInfo& progress) {}
@@ -62,6 +63,7 @@ public:
     );
 
 private:
+    size_t _nbAlignToKeep;
     bool (*_sort_cbk) (const core::Alignment& i, const core::Alignment& j);
 };
 

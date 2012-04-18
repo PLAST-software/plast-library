@@ -52,9 +52,10 @@ bool AlignmentContainerShrinkCmd::mysortfunction (const Alignment& i, const Alig
 *********************************************************************/
 AlignmentContainerShrinkCmd::AlignmentContainerShrinkCmd (
     std::list<Alignment>& alignments,
-    bool (*sort_cbk) (const Alignment& i, const Alignment& j)
+    bool (*sort_cbk) (const Alignment& i, const Alignment& j),
+    size_t nbAlignToKeep
 )
-    : _alignments (alignments), _sort_cbk(sort_cbk), _shiftDivisor(20), _nbRemoved(0)
+    : _alignments (alignments), _sort_cbk(sort_cbk), _shiftDivisor(20), _nbRemoved(0), _nbAlignToKeep(nbAlignToKeep)
 {
     if (_sort_cbk == 0)  {  _sort_cbk = mysortfunction; }
 }
@@ -139,6 +140,18 @@ void AlignmentContainerShrinkCmd::execute ()
 
     /** We may have to sort the list at the end of the process. */
     if (_sort_cbk != 0) {  _alignments.sort (_sort_cbk); }
+
+    /** Now, we may keep only the N first alignments; since they are sorted, it will keep the best
+     *  according to the chosen sort. */
+    if (_nbAlignToKeep > 0)
+    {
+        size_t k=0;
+        list<Alignment>::iterator it;
+        for (it=_alignments.begin(); k<_nbAlignToKeep && it!=_alignments.end(); it++, k++)   {}
+
+        /** We can now delete extra alignments. */
+        _alignments.erase (it, _alignments.end());
+    }
 
     /** We memorize the number of removed items. */
     _nbRemoved = initSize - _alignments.size();

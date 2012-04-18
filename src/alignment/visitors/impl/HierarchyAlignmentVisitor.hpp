@@ -55,6 +55,9 @@ public:
             this->visitAlignment (& (*it), progress);
         }
     }
+
+    /** \copydoc IAlignmentResultVisitor::finalize */
+    void finalize (void)  { }
 };
 
 /********************************************************************************/

@@ -83,6 +83,11 @@ public:
      */
     virtual bool doesExist (const Alignment& align) = 0;
 
+    /** Insert a sequence at first containment level .
+     * \param[in] sequence : sequence to be inserted
+     * \return true if insertion ok, false otherwise. */
+    virtual bool insertFirstLevel (const database::ISequence* sequence) = 0;
+
     /** Insert an alignment.
      * \param[in] align   : alignment to be inserted
      * \param[in] context : some context for customizing the insertion

@@ -65,6 +65,9 @@ public:
     /** Ugly... */
     void setSize (u_int32_t s)  { _nbAlignments = s; }
 
+    /** */
+    bool insertFirstLevel (const database::ISequence* sequence)  { return false; }
+
 protected:
 
     /** Synchronizer for preventing for concurrent accesses. */

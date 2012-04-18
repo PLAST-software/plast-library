@@ -51,6 +51,8 @@ public:
         const database::ISequence* sbj,
         std::list<core::Alignment>& alignments
     ) {}
+
+    void finalize (void)  {}
 };
 
 /********************************************************************************/

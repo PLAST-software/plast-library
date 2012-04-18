@@ -93,6 +93,9 @@ public:
         std::list<core::Alignment>& alignments
     );
 
+    /** \copydoc IAlignmentResultVisitor::finalize */
+    void finalize (void)  { }
+
     size_t getTotalSize    ()  { return _commonSize + _specificSize; }
     size_t getCommonSize   ()  { return _commonSize;   }
     size_t getSpecificSize ()  { return _specificSize; }

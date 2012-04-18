@@ -42,7 +42,8 @@ public:
 
     AlignmentContainerShrinkCmd (
         std::list<core::Alignment>& alignments,
-        bool (*sort_cbk) (const core::Alignment& i, const core::Alignment& j)
+        bool (*sort_cbk) (const core::Alignment& i, const core::Alignment& j),
+        size_t nbAlignToKeep
     );
 
     void execute ();
@@ -55,6 +56,7 @@ private:
     int _shiftDivisor;
     size_t _nbRemoved;
     static bool mysortfunction (const core::Alignment& i, const core::Alignment& j);
+    size_t _nbAlignToKeep;
 };
 
 /********************************************************************************/

@@ -60,6 +60,9 @@ public:
      */
     bool doesExist (const Alignment& align)  { return false; }
 
+    /** \copydoc IAlignmentResult::insertFirstLevel */
+    bool insertFirstLevel (const database::ISequence* sequence)  { return false; }
+
     /** \copydoc IAlignmentResult::insert */
     bool insert (Alignment& align, void* context) { return false; }
 

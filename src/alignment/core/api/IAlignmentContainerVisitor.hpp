@@ -25,6 +25,8 @@
 
 /********************************************************************************/
 
+#include <designpattern/impl/Observer.hpp>
+
 #include <alignment/core/api/Alignment.hpp>
 
 #include <string>
@@ -62,7 +64,7 @@ class IAlignmentContainer;
  * Implementors of this interface therefore can use this hierarchy for structuring themself what they want; this is useful
  * for instance for dumping the alignment in a XML file.
  */
-class IAlignmentContainerVisitor : public dp::SmartPointer
+class IAlignmentContainerVisitor : public dp::SmartPointer, public dp::impl::Subject
 {
 public:
 
@@ -102,6 +104,10 @@ public:
     /** Called at the end of the 'accept' method.
      */
     virtual void postVisit (IAlignmentContainer* result) = 0;
+
+    /** Method to be called for finalizing all (after potential 'accept' calls).
+     */
+    virtual void finalize (void) = 0;
 };
 
 /********************************************************************************/

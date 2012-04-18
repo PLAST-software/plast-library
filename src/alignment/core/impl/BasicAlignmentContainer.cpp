@@ -159,6 +159,35 @@ bool BasicAlignmentContainer::doesExist (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+bool BasicAlignmentContainer::insertFirstLevel (const database::ISequence* firstLevelSeq)
+{
+    bool result = true;
+
+    /** We look for the first level entry. */
+    Key firstKey (firstLevelSeq->database,firstLevelSeq->index);
+    ContainerLevel1::iterator lookFirstLevel = _containerLevel1.find (firstKey);
+    if (lookFirstLevel == _containerLevel1.end())
+    {
+        /** We copy the provided sequence. */
+        firstLevelSeq = new ISequence (*firstLevelSeq);
+        _nbSeqLevel1 ++;
+
+        /** We add a new pair into the map. */
+        pair<ISequence*,ContainerLevel2>& p =
+            _containerLevel1 [firstKey] = pair<ISequence*,ContainerLevel2> ((ISequence*)firstLevelSeq, ContainerLevel2());
+    }
+
+    return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 bool BasicAlignmentContainer::insert (Alignment& align, void* context)
 {
     //if (_filter && _filter->isOk(align) == false)  {  return false;  }
@@ -244,6 +273,7 @@ bool BasicAlignmentContainer::insert (Alignment& align, void* context)
 
         _nbAlignments ++;
     }
+    //else  {  printf ("BasicAlignmentContainer::insert FOUND\n"); }
 
     return found;
 }

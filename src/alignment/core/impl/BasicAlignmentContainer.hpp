@@ -57,6 +57,9 @@ public:
         u_int32_t bandSize
     );
 
+    /** \copydoc AbstractAlignmentResult::insertFirstLevel */
+    bool insertFirstLevel (const database::ISequence* sequence);
+
     /** \copydoc AbstractAlignmentResult::insert */
     bool insert (Alignment& align, void* context);
 

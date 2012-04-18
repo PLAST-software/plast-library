@@ -69,8 +69,11 @@ public:
         _ref->visitAlignmentsList (qry, sbj, alignments);
     }
 
-    /** \copydoc IAlignmentResultVisitor::finish */
+    /** \copydoc IAlignmentResultVisitor::postVisit */
     void postVisit (core::IAlignmentContainer* result)  { _ref->postVisit(result); }
+
+    /** \copydoc IAlignmentResultVisitor::finalize */
+    void finalize (void)  {  _ref->finalize();  }
 
 private:
     IAlignmentContainerVisitor* _ref;
