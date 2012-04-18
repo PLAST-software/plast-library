@@ -163,14 +163,14 @@ void AbstractAlgorithm::execute (void)
      *  steps, each step filtering out hits.
      *
      *  The result of the algorithm is a IAlignmentResult instance that is visited by some Visitor
-     *  (usually for dumping alingments into a file).
+     *  (usually for dumping alignments into a file).
      *
      *  The algorithm is named 'abstract' because it provides a skeleton of the algorithm, some
      *  parts of the algorithm can be refined in sub classes. Therefore, this 'execute' method
-     *  can be seedn as a Template Method (template primitives are for instance 'createHitIterator'
+     *  can be seen as a Template Method (template primitives are for instance 'createHitIterator'
      *  and 'createDatabaseIterator')
      *
-     *  Note also that many instances are created through the IConfiguration instance, so the behaviour
+     *  Note also that many instances are created through the IConfiguration instance, so the behavior
      *  of the algorithm may change according to the kind of configuration is used.
      */
 
@@ -329,7 +329,7 @@ void AbstractAlgorithm::execute (void)
 
             /** Now, our alignment result instance should hold found alignments, with possible redundancies, so we try to
              * remove redundant alignments now. */
-            ShrinkContainerVisitor shrinker;
+            ShrinkContainerVisitor shrinker (_params->nbAlignPerHit);
             alignmentResult->accept (&shrinker);
             DEBUG (("AbstractAlgorithm::execute : shrink done...\n"));
 

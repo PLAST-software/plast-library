@@ -256,6 +256,12 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->outputfile           = "stdout";
     }
 
+
+    /** We may want to restrict the number of dumped alingments. */
+    IProperty* maxHspPerHitProp = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT);
+    if (maxHspPerHitProp != 0)  { params->nbAlignPerHit = atoi (maxHspPerHitProp->value.c_str());  }
+    else                        { params->nbAlignPerHit = 0; }
+
     return params;
 }
 
@@ -315,7 +321,7 @@ ISequenceDatabase*  DefaultConfiguration::createDatabase (const string& uri, con
     database::ISequenceDatabase* result = 0;
 
     result = new BufferedSequenceDatabase (
-        new FastaSequenceIterator (uri.c_str(), 256, range.begin, range.end),
+        new FastaSequenceIterator (uri.c_str(), 1024, range.begin, range.end),
         filtering
     );
 
@@ -831,23 +837,13 @@ IAlignmentContainerVisitor* DefaultConfiguration::createResultVisitor ()
         result = new  TabulatedOutputVisitor (uri);
     }
 
-    /** We may want to restrict the number of dumped alingments. We use a Proxy (see [GOF94]) for
-     *  controlling this aspect.
-     */
-    IProperty* maxHspPerHitProp = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT);
-    if (maxHspPerHitProp != 0)
-    {
-        size_t maxHitsPerQuery = atoi (maxHspPerHitProp->value.c_str());
-        if (maxHitsPerQuery > 0)
-        {
-            result = new MaxHitsPerQueryVisitor (result, maxHitsPerQuery);
-        }
-    }
-
     IProperty* forceQryOrdering = _properties->getProperty (STR_OPTION_FORCE_QUERY_ORDERING);
     if (forceQryOrdering != 0)
     {
-        result = new QueryReorderVisitor (this, uri, result, _environment->getQuickQueryDbReader(), 10*1000);
+        u_int32_t nbAlignPerNotif = forceQryOrdering->getInt();
+        if (nbAlignPerNotif == 0)  { nbAlignPerNotif = 10*1000; }
+
+        result = new QueryReorderVisitor (this, uri, result, _environment->getQuickQueryDbReader(), nbAlignPerNotif);
     }
 
     /** We return the result. */

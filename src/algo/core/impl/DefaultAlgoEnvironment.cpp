@@ -27,6 +27,7 @@
 #include <algo/core/impl/DefaultAlgoConfig.hpp>
 #include <algo/core/impl/AbstractAlgorithm.hpp>
 #include <algo/core/impl/DatabasesProvider.hpp>
+#include <algo/core/api/IAlgoEvents.hpp>
 
 #include <alignment/filter/api/IAlignmentFilter.hpp>
 #include <alignment/filter/impl/AlignmentFilterXML.hpp>
@@ -45,6 +46,8 @@ using namespace alignment::core;
 using namespace alignment::filter;
 using namespace alignment::filter::impl;
 using namespace alignment::visitors::impl;
+
+using namespace algo::core;
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -179,6 +182,9 @@ void DefaultEnvironment::configure ()
      *  on this result visitor. */
     setResultVisitor (_config->createResultVisitor ());
 
+    /** We register as listener to the result visitor. */
+    _resultVisitor->addObserver (this);
+
     /** We build a list of uri for subject/query databases. */
     vector<pair<Range64,Range64> > uriList = buildUri (_quickSubjectDbReader, _quickQueryDbReader);
 
@@ -252,6 +258,9 @@ void DefaultEnvironment::run ()
         /** We execute the algorithms through the dispatcher. */
         dispatcher->dispatchCommands (algorithms, 0);
     }
+
+    /** We finalize the output result visitor. */
+    _resultVisitor->finalize ();
 
     /** We send a notification telling we are done (ie. current==total). */
     this->notify (new AlgorithmConfigurationEvent (_properties, _parametersList.size(), _parametersList.size()));

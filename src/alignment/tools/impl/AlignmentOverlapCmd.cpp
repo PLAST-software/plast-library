@@ -20,7 +20,7 @@ using namespace std;
 using namespace alignment;
 using namespace alignment::core;
 
-#define DEBUG(a) a
+#define DEBUG(a) //a
 
 /********************************************************************************/
 namespace alignment {

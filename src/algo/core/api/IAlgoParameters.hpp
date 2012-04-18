@@ -130,6 +130,9 @@ public:
     /** List of strands to be used. */
     std::vector<misc::ReadingFrame_e> strands;
 
+    /** */
+    size_t nbAlignPerHit;
+
     /** Clone the instance.
      * \return the cloned instance. */
     IParameters* clone ()

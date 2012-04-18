@@ -265,6 +265,43 @@ private:
 
 /********************************************************************************/
 
+/** \brief Provides information about the gap alignments list.
+ *
+ */
+class AlignmentsContainerEvent : public dp::EventInfo
+{
+public:
+
+    /** Constructor.
+     * \param[in] iterateEvent : the information to be decorated
+     * \param[in] ungapResult  : the list of ungap alignments
+     * \param[in] gapResult    : the list of gap alignments
+     */
+    AlignmentsContainerEvent (alignment::core::IAlignmentContainer* container)
+        : dp::EventInfo(0), _container(0)
+    {
+        setContainer (container);
+    }
+
+    /** Destructor. */
+    virtual ~AlignmentsContainerEvent ()
+    {
+        setContainer (0);
+    }
+
+    /** Getter on the container.
+     * \return the container.
+     */
+    alignment::core::IAlignmentContainer* getContainer    ()  { return _container;      }
+
+private:
+    alignment::core::IAlignmentContainer* _container
+    ;
+    void setContainer (alignment::core::IAlignmentContainer* container)  { SP_SETATTR(container); }
+};
+
+/********************************************************************************/
+
 /** \brief Provides information about Open Reading Frames (ORF)
  *
  * This class provides notification information the Open Reading Frames (ORF) used
