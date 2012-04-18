@@ -173,8 +173,7 @@ bool BasicAlignmentContainer::insertFirstLevel (const database::ISequence* first
         _nbSeqLevel1 ++;
 
         /** We add a new pair into the map. */
-        pair<ISequence*,ContainerLevel2>& p =
-            _containerLevel1 [firstKey] = pair<ISequence*,ContainerLevel2> ((ISequence*)firstLevelSeq, ContainerLevel2());
+        _containerLevel1 [firstKey] = pair<ISequence*,ContainerLevel2> ((ISequence*)firstLevelSeq, ContainerLevel2());
     }
 
     return result;
