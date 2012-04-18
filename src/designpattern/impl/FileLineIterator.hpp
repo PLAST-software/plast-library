@@ -98,12 +98,20 @@ public:
             }
             else
             {
+                /** We get the size of the read line. */
                 _readCurrentSize = strlen (_line);
                 _readTotalSize  += _readCurrentSize;
                 _eof = (_readTotalSize > _range);
 
-                // don't take the ending '\n'
-                _line[--_readCurrentSize] = 0;
+                /** We remove the unwanted ending characters. */
+                while (_readCurrentSize > 0)
+                {
+                    char c = _line[_readCurrentSize-1];
+
+                    if (c!=10 && c!=13)  { break; }
+
+                    _line[--_readCurrentSize] = 0;
+                }
             }
         }
         return ITER_UNKNOWN;
