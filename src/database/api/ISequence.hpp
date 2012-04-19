@@ -107,7 +107,10 @@ struct ISequence
             }
             else
             {
-                lenId  = 0;
+                /** We have only id, no def. */
+                strncpy (bufId, comment, lenId);
+                bufId [lenId-1] = 0;
+
                 lenDef = 0;
             }
         }
