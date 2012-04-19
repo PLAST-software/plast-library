@@ -58,6 +58,9 @@ public:
 
     /** \copydoc IAlignmentResultVisitor::finalize */
     void finalize (void)  { }
+
+    /** \copydoc IAlignmentResultVisitor::getPosition */
+    u_int64_t getPosition ()  { return 0; }
 };
 
 /********************************************************************************/

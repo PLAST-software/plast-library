@@ -63,11 +63,14 @@ public:
     /** \copydoc IAlignmentResult::insertFirstLevel */
     bool insertFirstLevel (const database::ISequence* sequence)  { return false; }
 
+    /** \copydoc IAlignmentResult::getFirstLevelNumber */
+    u_int32_t getFirstLevelNumber () { return 0; }
+
     /** \copydoc IAlignmentResult::insert */
     bool insert (Alignment& align, void* context) { return false; }
 
     /** \copydoc IAlignmentResult::getSize */
-    u_int32_t getSize () { return 0; }
+    u_int32_t getAlignmentsNumber () { return 0; }
 
     /** \copydoc IAlignmentResult::getContainer */
     std::list<Alignment>* getContainer (

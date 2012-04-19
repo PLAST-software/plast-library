@@ -72,8 +72,8 @@ IProperties* AbstractAlignmentContainer::getProperties (const std::string& root)
 {
     IProperties* props = new Properties();
 
-    props->add (0, root,   "%ld", getSize());
-    props->add (1, "size", "%ld", getSize());
+    props->add (0, root,   "%ld", getAlignmentsNumber());
+    props->add (1, "size", "%ld", getAlignmentsNumber());
 
     return props;
 }

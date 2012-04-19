@@ -96,6 +96,9 @@ public:
     /** \copydoc IAlignmentResultVisitor::finalize */
     void finalize (void)  { }
 
+    /** \copydoc IAlignmentResultVisitor::getPosition */
+    u_int64_t getPosition ()  { return 0; }
+
     size_t getTotalSize    ()  { return _commonSize + _specificSize; }
     size_t getCommonSize   ()  { return _commonSize;   }
     size_t getSpecificSize ()  { return _specificSize; }

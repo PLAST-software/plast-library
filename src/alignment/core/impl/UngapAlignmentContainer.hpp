@@ -81,7 +81,7 @@ public:
     bool insert (Alignment& align, void* context);
 
     /** \copydoc AbstractAlignmentResult::getSize */
-    u_int32_t getSize ()  {  return _listGaplessAlignSize; }
+    u_int32_t getAlignmentsNumber ()  {  return _listGaplessAlignSize; }
 
     /** \copydoc AbstractAlignmentResult::getSize */
     std::list<Alignment>* getContainer (

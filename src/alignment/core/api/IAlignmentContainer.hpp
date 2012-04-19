@@ -88,6 +88,11 @@ public:
      * \return true if insertion ok, false otherwise. */
     virtual bool insertFirstLevel (const database::ISequence* sequence) = 0;
 
+    /** Give the number of item at first level.
+     * \return the number of items
+     */
+    virtual u_int32_t getFirstLevelNumber () = 0;
+
     /** Insert an alignment.
      * \param[in] align   : alignment to be inserted
      * \param[in] context : some context for customizing the insertion
@@ -97,7 +102,7 @@ public:
     /** Give the number of known alignments.
      * \return the number of alignments
      */
-    virtual u_int32_t getSize () = 0;
+    virtual u_int32_t getAlignmentsNumber () = 0;
 
     /** Get the list of alignments for a given [query,subject] pair
      * \return the alignments list

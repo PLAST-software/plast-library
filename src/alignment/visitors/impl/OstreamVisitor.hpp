@@ -79,6 +79,9 @@ public:
         getStream().flush ();
     }
 
+    /** \copydoc IAlignmentResultVisitor::getPosition */
+    u_int64_t getPosition ()  { return getStream().tellp(); }
+
 protected:
 
     /** */

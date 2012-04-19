@@ -75,7 +75,10 @@ public:
     /** \copydoc IAlignmentResultVisitor::finalize */
     void finalize (void)  {  _ref->finalize();  }
 
-private:
+    /** \copydoc IAlignmentResultVisitor::getPosition */
+    u_int64_t getPosition ()  { return _ref->getPosition (); }
+
+protected:
     IAlignmentContainerVisitor* _ref;
     void setRef (IAlignmentContainerVisitor* ref)  { SP_SETATTR(ref); }
 };

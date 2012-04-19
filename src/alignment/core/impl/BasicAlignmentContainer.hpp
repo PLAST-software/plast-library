@@ -60,6 +60,9 @@ public:
     /** \copydoc AbstractAlignmentResult::insertFirstLevel */
     bool insertFirstLevel (const database::ISequence* sequence);
 
+    /** \copydoc IAlignmentResult::getFirstLevelNumber */
+    u_int32_t getFirstLevelNumber ()  { return _containerLevel1.size(); }
+
     /** \copydoc AbstractAlignmentResult::insert */
     bool insert (Alignment& align, void* context);
 

@@ -60,13 +60,16 @@ public:
     dp::IProperties* getProperties (const std::string& root);
 
     /** \copydoc IAlignmentResult::getSize */
-    u_int32_t getSize ()  { return _nbAlignments; }
+    u_int32_t getAlignmentsNumber ()  { return _nbAlignments; }
 
     /** Ugly... */
     void setSize (u_int32_t s)  { _nbAlignments = s; }
 
-    /** */
+    /** \copydoc IAlignmentResult::insertFirstLevel */
     bool insertFirstLevel (const database::ISequence* sequence)  { return false; }
+
+    /** \copydoc IAlignmentResult::getFirstLevelNumber */
+    u_int32_t getFirstLevelNumber () { return 0; }
 
 protected:
 

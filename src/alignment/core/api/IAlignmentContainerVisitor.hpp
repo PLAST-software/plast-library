@@ -105,9 +105,13 @@ public:
      */
     virtual void postVisit (IAlignmentContainer* result) = 0;
 
-    /** Method to be called for finalizing all (after potential 'accept' calls).
-     */
+    /** Method to be called for finalizing all (after potential 'accept' calls). */
     virtual void finalize (void) = 0;
+
+    /** Returns the position during the visit. Semantics may depend on the implementation
+     *  (which is uggly and should be improved).
+     */
+    virtual u_int64_t getPosition () = 0;
 };
 
 /********************************************************************************/
