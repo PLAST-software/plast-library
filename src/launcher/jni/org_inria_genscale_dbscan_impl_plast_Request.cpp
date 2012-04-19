@@ -159,8 +159,8 @@ protected:
             _firstResultNotification = false;
         }
 
-        _currentNbAlignments  = alignments->getSize();
-        _nbAlignments        += alignments->getSize();
+        _currentNbAlignments  = alignments->getAlignmentsNumber();
+        _nbAlignments        += alignments->getAlignmentsNumber();
 
         /** We initialize the iterator. */
         model->first();

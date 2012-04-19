@@ -135,7 +135,7 @@ void AbstractProgressionObserver::update (dp::EventInfo* evt, dp::ISubject* subj
         IAlignmentContainer*  alignmentResult  = e3->getAlignmentContainer();
         if (e3 != 0)
         {
-            _currentNbAlignments = alignmentResult->getSize();
+            _currentNbAlignments = alignmentResult->getAlignmentsNumber();
             _nbAlignments += _currentNbAlignments;
         }
 

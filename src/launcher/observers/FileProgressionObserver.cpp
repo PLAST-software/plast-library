@@ -159,8 +159,8 @@ void AlignmentProgressionObserver::update (dp::EventInfo* evt, dp::ISubject* sub
         fprintf (_file, "%d  %.3f  %d  %d \n",
             _count,
             (t1-_t0) / 1000000.0,
-            e1->getUngapResult()->getSize(),
-            e1->getGapResult()->getSize()
+            e1->getUngapResult()->getAlignmentsNumber(),
+            e1->getGapResult()->getAlignmentsNumber()
         );
 
         return;
