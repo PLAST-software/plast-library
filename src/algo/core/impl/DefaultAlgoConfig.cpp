@@ -90,7 +90,7 @@ using namespace alignment::visitors::impl;
 #include <stdarg.h>
 
 #include <stdio.h>
-#define DEBUG(a)  //printf a
+#define DEBUG(a)  //a
 
 /********************************************************************************/
 namespace algo {
@@ -799,51 +799,107 @@ IAlignmentContainer* DefaultConfiguration::createUnapAlignmentResult (size_t que
 *********************************************************************/
 IAlignmentContainerVisitor* DefaultConfiguration::createResultVisitor ()
 {
-    IProperty* prop = 0;
-
     IAlignmentContainerVisitor* result = 0;
+    IProperty* prop = 0;
 
     /** We need an uri. We take the one provided by the properties. */
     string uri ("stdout");
     if ( (prop = _properties->getProperty (STR_OPTION_OUTPUT_FILE)) != 0)   { uri = prop->value;  }
 
-    if ( (prop = _properties->getProperty (STR_OPTION_OUTPUT_FORMAT)) != 0)
-    {
-        switch (atoi (prop->value.c_str()))
-        {
-        case 1:
-            result = new  TabulatedOutputVisitor (uri);
-            break;
+    /** We need an output format. */
+    int outfmt = 1;
+    if ( (prop = _properties->getProperty (STR_OPTION_OUTPUT_FORMAT)) != 0)  { outfmt = prop->getInt(); }
 
-        case 2:
-            result = new  TabulatedOutputExtendedVisitor (uri);
-            break;
+    DEBUG (cout << "DefaultConfiguration::createResultVisitor  outfmt=" << outfmt << "  uri=" << uri << endl);
 
-        case 3:
-            result = new  RawOutputVisitor (uri);
-            break;
-
-        case 4:
-            result = new  XmlOutputVisitor (uri);
-            break;
-
-        default:
-            result = new  TabulatedOutputVisitor (uri);
-            break;
-        }
-    }
-    else
-    {
-        result = new  TabulatedOutputVisitor (uri);
-    }
-
+    /** We may have to modify the query order. So we may encapsulate the "normal" result by another visitor
+     *  that will reorder the alignments. */
     IProperty* forceQryOrdering = _properties->getProperty (STR_OPTION_FORCE_QUERY_ORDERING);
     if (forceQryOrdering != 0)
     {
         u_int32_t nbAlignPerNotif = forceQryOrdering->getInt();
         if (nbAlignPerNotif == 0)  { nbAlignPerNotif = 10*1000; }
 
-        result = new QueryReorderVisitor (this, uri, result, _environment->getQuickQueryDbReader(), nbAlignPerNotif);
+        result = new QueryReorderVisitor (
+            this,
+            uri,
+            createAlgorithmResultVisitor (uri + ".tmp", 3),         // visitor wanted by user with a forced outfmt
+            createSimpleResultVisitor    (uri,          outfmt),    // visitor for final dump with the user outfmt
+            _environment->getQuickQueryDbReader(),
+            nbAlignPerNotif
+        );
+    }
+    else
+    {
+        /** We create the result. */
+        result = createAlgorithmResultVisitor (uri, outfmt);
+    }
+
+    /** We return the result. */
+    return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+IAlignmentContainerVisitor* DefaultConfiguration::createSimpleResultVisitor (const std::string& uri, int outfmt)
+{
+    IAlignmentContainerVisitor* result = 0;
+
+    switch (outfmt)
+    {
+        case 1:     result = new  TabulatedOutputVisitor         (uri);     break;
+        case 2:     result = new  TabulatedOutputExtendedVisitor (uri);     break;
+        case 3:     result = new  RawOutputVisitor               (uri);     break;
+        case 4:     result = new  XmlOutputVisitor               (uri);     break;
+        default:    result = new  TabulatedOutputVisitor         (uri);     break;
+    }
+
+    return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+IAlignmentContainerVisitor* DefaultConfiguration::createAlgorithmResultVisitor (const std::string& uri, int outfmt)
+{
+    IAlignmentContainerVisitor* result = createSimpleResultVisitor (uri, outfmt);
+
+    /** Now, we have to take into account the kind of the algorithm (plastp, plastx...)
+     *  since we may have to convert back to nucleotid alphabet. */
+    IProperty* prop = _properties->getProperty (STR_OPTION_ALGO_TYPE);
+    if (prop != 0)
+    {
+        string algoName = prop->getValue();
+
+        if (algoName.compare ("plastp")==0)
+        {
+        }
+        else if (algoName.compare ("tplastn")==0)
+        {
+            result = new NucleotidConversionVisitor (result, Alignment::SUBJECT);
+        }
+        else if (algoName.compare ("plastx")==0)
+        {
+            result = new NucleotidConversionVisitor (result, Alignment::QUERY);
+        }
+        else if (algoName.compare ("tplastx")==0)
+        {
+            result = new NucleotidConversionVisitor (
+                new NucleotidConversionVisitor (result, Alignment::SUBJECT),
+                Alignment::QUERY
+            );
+        }
     }
 
     /** We return the result. */

@@ -25,9 +25,8 @@
 
 /********************************************************************************/
 
-#include <alignment/visitors/impl/RawOutputVisitor.hpp>
-#include <alignment/visitors/impl/TabulatedOutputVisitor.hpp>
 #include <algo/core/api/IAlgoEnvironment.hpp>
+#include <alignment/visitors/impl/ProxyVisitor.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -42,14 +41,15 @@ namespace impl      {
 /** \brief
  *
  */
-class QueryReorderVisitor : public RawOutputVisitor
+class QueryReorderVisitor : public AlignmentsProxyVisitor
 {
 public:
 
     /** Constructor. */
     QueryReorderVisitor  (
         algo::core::IConfiguration*         config,
-        const std::string&                  outputUri,
+        const std::string&                  uri,
+        core::IAlignmentContainerVisitor*   realVisitor,
         core::IAlignmentContainerVisitor*   finalVisitor,
         database::IDatabaseQuickReader*     qryReader,
         u_int32_t                           nbAlignmentsThreshold
@@ -61,8 +61,11 @@ public:
     /** \copydoc AbstractAlignmentResultVisitor::visitQuerySequence */
     void visitQuerySequence (const database::ISequence* seq, const misc::ProgressInfo& progress);
 
-    /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */
-    void visitAlignment (core::Alignment* align, const misc::ProgressInfo& progress);
+    /** \copydoc IAlignmentResultVisitor::visitAlignment */
+    void visitAlignment (core::Alignment* align, const misc::ProgressInfo& progress)
+    {
+        // nothing to do here: our delegate '_realVisitor' will be called by parent class AlignmentsProxyVisitor.
+    }
 
     /** \copydoc AbstractAlignmentResultVisitor::finalize */
     void finalize (void);
@@ -81,8 +84,12 @@ private:
     /** */
     algo::core::IConfiguration* _config;
 
-    /** Uri of the output. */
+    /** */
     std::string _outputUri;
+
+    /** */
+    core::IAlignmentContainerVisitor* _realVisitor;
+    void setRealVisitor (core::IAlignmentContainerVisitor* realVisitor) { SP_SETATTR(realVisitor); }
 
     /** */
     core::IAlignmentContainerVisitor* _finalVisitor;
@@ -101,9 +108,6 @@ private:
     /** */
     int64_t _prevPos;
     int64_t _newPos;
-
-    /** */
-    u_int64_t _nbAlignments;
 
     /** */
     u_int32_t _nbAlignmentsThreshold;

@@ -306,7 +306,7 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 new AminoAcidDatabaseQuickReader (reader),
                 params,
                 filter,
-                new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT),
+                resultVisitor, //new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT),
                 dbProvider,
                 isRunning
             );
@@ -318,7 +318,7 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 reader,
                 params,
                 filter,
-                new NucleotidConversionVisitor (resultVisitor, Alignment::QUERY),
+                resultVisitor, //new NucleotidConversionVisitor (resultVisitor, Alignment::QUERY),
                 dbProvider,
                 isRunning
             );
@@ -330,10 +330,10 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 new AminoAcidDatabaseQuickReader (reader),
                 params,
                 filter,
-                new NucleotidConversionVisitor (
-                    new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT),
-                    Alignment::QUERY
-                ),
+                resultVisitor,
+                //new NucleotidConversionVisitor (new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT),
+                //    Alignment::QUERY
+                //),
                 dbProvider,
                 isRunning
             );

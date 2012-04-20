@@ -166,6 +166,9 @@ private:
 
     dp::IProperties* _properties;
     void setProperties (dp::IProperties* properties)  { SP_SETATTR(properties);  }
+
+    alignment::core::IAlignmentContainerVisitor* createSimpleResultVisitor    (const std::string& uri, int outfmt);
+    alignment::core::IAlignmentContainerVisitor* createAlgorithmResultVisitor (const std::string& uri, int outfmt);
 };
 
 /********************************************************************************/

@@ -17,6 +17,8 @@
 #include <alignment/visitors/impl/QueryReorderVisitor.hpp>
 #include <alignment/core/impl/AlignmentContainerFactory.hpp>
 
+#include <alignment/visitors/impl/TabulatedOutputVisitor.hpp>
+
 #include <algo/core/api/IAlgoEvents.hpp>
 
 #include <os/impl/DefaultOsFactory.hpp>
@@ -96,6 +98,7 @@ public:
         /** We update the field of the placeholder sequence to be added in the alignments container. */
         _qrySeq.index   = _nbQrySeq++;
         _qrySeq.comment = sequence->comment;
+        _qrySeq.length  = sequence->getLength();
 
         /** We add the placeholder into the container. */
         _container->insertFirstLevel (&_qrySeq);
@@ -116,6 +119,7 @@ public:
         ss >> c;
 
         switch (c)
+
         {
             case 'Q':
             {
@@ -213,21 +217,30 @@ public:
     IAlignmentContainer* getContainer ()  { return _container; }
 
     /** */
-    u_int64_t getAlignmentsNumber ()  { return (_container ? _container->getSize() : 0); }
+    u_int64_t getAlignmentsNumber ()  { return (_container ? _container->getAlignmentsNumber() : 0); }
 
     /** */
     void dump (QueryReorderVisitor* queryVisitor, u_int32_t threshold=0)
     {
+        DEBUG (cout << "AlignmentContainerBuilderStream::dump  alignNb=" << getAlignmentsNumber() << "  threshold=" << threshold << endl);
+
         if (getAlignmentsNumber() >= threshold  ||  threshold==0)
         {
-            if (_container && _container->getSize() > 0)
+            /** We notify if we found some query sequences (with potentially no hits) or alignments. */
+            if (_container && (_container->getAlignmentsNumber()>0  || _container->getFirstLevelNumber()>0) )
             {
+                DEBUG (cout << "AlignmentContainerBuilderStream::dump    accept final visitor " << queryVisitor->getFinalVisitor() << endl);
+
                 /** We accept the provided visitor. */
                 _container->accept (queryVisitor->getFinalVisitor());
 
                 /** We send a notification to potential listeners. */
                 queryVisitor->notify (new AlignmentsContainerEvent (_container));
-                DEBUG (cout << "AlignmentContainerBuilderStream::dump    notifying size " << _container->getSize() << endl);
+                DEBUG (cout << "AlignmentContainerBuilderStream::dump    notifying..."
+                    << "  alignNb="  << _container->getAlignmentsNumber()
+                    << "  queryNb="  << _container->getFirstLevelNumber()
+                    << endl
+                );
             }
 
             /** We reset the alignment builder for the other alignments to be parsed from the temporary file. */
@@ -312,17 +325,21 @@ private:
 QueryReorderVisitor::QueryReorderVisitor (
     algo::core::IConfiguration*         config,
     const std::string&                  outputUri,
+    core::IAlignmentContainerVisitor*   realVisitor,
     core::IAlignmentContainerVisitor*   finalVisitor,
     database::IDatabaseQuickReader*     qryReader,
     u_int32_t                           nbAlignmentsThreshold
 )
-    :  RawOutputVisitor (outputUri + std::string(".tmp")),
+    :  AlignmentsProxyVisitor(realVisitor),
        _config (config),
-       _outputUri(outputUri), _finalVisitor(0), _qryReader(0),
+       _outputUri(outputUri),
+       _realVisitor(0), _finalVisitor(0),
+       _qryReader(0),
        _prevPos(0), _newPos(0),
-       _nbAlignments(0), _nbAlignmentsThreshold(nbAlignmentsThreshold)
+       _nbAlignmentsThreshold(nbAlignmentsThreshold)
 {
-    /** We keep a reference on the final visitor. */
+    /** We keep a reference on the provided visitors. */
+    setRealVisitor  (realVisitor);
     setFinalVisitor (finalVisitor);
 
     /** We keep a reference on the query reader. */
@@ -343,6 +360,7 @@ QueryReorderVisitor::QueryReorderVisitor (
 QueryReorderVisitor::~QueryReorderVisitor ()
 {
     /** We clean up resources. */
+    setRealVisitor  (0);
     setFinalVisitor (0);
     setQryReader    (0);
 
@@ -364,33 +382,14 @@ void QueryReorderVisitor::visitQuerySequence (const database::ISequence* seq, co
     /** We dump the index of the previous query. */
     dumpIndex ();
 
-    /** We call the parent method. */
-    RawOutputVisitor::visitQuerySequence (seq, progress);
+    /** We call the delegate. */
+    _realVisitor->visitQuerySequence (seq, progress);
 
     /** We retrieve the query sequence identifier. */
     if (seq)  {  seq->retrieveId (_queryId, sizeof(_queryId));  }
 
     /** We keep the previous position. */
     _prevPos = _newPos;
-
-    /** We reset the number of alignments for the current sequence. */
-    _nbAlignments = 0;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-void QueryReorderVisitor::visitAlignment (core::Alignment* align, const misc::ProgressInfo& progress)
-{
-    /** We call the parent method. */
-    RawOutputVisitor::visitAlignment (align, progress);
-
-    _nbAlignments++;
 }
 
 /*********************************************************************
@@ -404,13 +403,13 @@ void QueryReorderVisitor::visitAlignment (core::Alignment* align, const misc::Pr
 void QueryReorderVisitor::dumpIndex (void)
 {
     /** We get the new cursor location in the output stream. */
-    _newPos = getStream().tellp();
+    _newPos = _realVisitor->getPosition ();
 
     if (_newPos > _prevPos &&  _indexesFile.is_open())
     {
         char sep = ' ';
 
-        _indexesFile << _queryId << sep << _prevPos << sep << _newPos << endl;
+        _indexesFile << _queryId << sep << _prevPos << sep << (_newPos-1) << endl;
     }
 }
 

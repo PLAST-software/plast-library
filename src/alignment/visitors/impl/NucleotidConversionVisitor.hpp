@@ -46,6 +46,24 @@ public:
     /** */
     NucleotidConversionVisitor (core::IAlignmentContainerVisitor* ref, core::Alignment::DbKind kind);
 
+    /** \copydoc IAlignmentResultVisitor::visitQuerySequence */
+    void visitQuerySequence (const database::ISequence* seq, const misc::ProgressInfo& progress)
+    {
+        const database::ISequence* actualSeq =  (_kind == core::Alignment::QUERY ?
+            retrieveNucleotidSequence (seq) :  seq);
+
+        _ref->visitQuerySequence (actualSeq, progress);
+    }
+
+    /** \copydoc IAlignmentResultVisitor::visitSubjectSequence */
+    void visitSubjectSequence (const database::ISequence* seq, const misc::ProgressInfo& progress)
+    {
+        const database::ISequence* actualSeq =  (_kind == core::Alignment::SUBJECT ?
+            retrieveNucleotidSequence (seq) :  seq);
+
+        _ref->visitSubjectSequence (actualSeq, progress);
+    }
+
     /** \copydoc IAlignmentResultVisitor::visitAlignment */
     void visitAlignment (core::Alignment* align, const misc::ProgressInfo& progress);
 
@@ -53,18 +71,18 @@ protected:
 
     core::Alignment::DbKind _kind;
 
+    database::ISequenceDatabase* _nucleotidDb;
+    database::ISequence          _nucleotidSequence;
+    int8_t                       _frameShift;
+    bool                         _isTopFrame;
+
     /** Shortcut. */
     typedef std::pair <database::ISequenceDatabase*, u_int32_t> Key;
 
     std::map <Key,database::ISequence> _nucleotidSequences;
 
     /** */
-    virtual  bool getNucleotidSequence (
-        database::ISequence& sequence,
-        core::Alignment*     align,
-        int8_t&              frameShift,
-        bool&                isTopFrame
-    );
+    virtual  const database::ISequence* retrieveNucleotidSequence (const database::ISequence*  proteinSequence);
 };
 
 /********************************************************************************/

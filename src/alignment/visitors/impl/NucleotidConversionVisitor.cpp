@@ -21,7 +21,7 @@
 #include <alignment/visitors/impl/NucleotidConversionVisitor.hpp>
 
 #include <stdio.h>
-#define DEBUG(a)  //printf a
+#define DEBUG(a)  //a
 
 using namespace std;
 using namespace misc;
@@ -48,8 +48,9 @@ NucleotidConversionVisitor::NucleotidConversionVisitor (
     IAlignmentContainerVisitor* ref,
     Alignment::DbKind kind
 )
-    :  AlignmentsProxyVisitor(ref), _kind(kind)
+    :  AlignmentsProxyVisitor(ref), _kind(kind), _nucleotidDb(0)
 {
+    DEBUG (cout << "NucleotidConversionVisitor::NucleotidConversionVisitor   ref=" << ref << "  kind=" << kind << endl);
 }
 
 /*********************************************************************
@@ -62,32 +63,26 @@ NucleotidConversionVisitor::NucleotidConversionVisitor (
 *********************************************************************/
 void NucleotidConversionVisitor::visitAlignment  (Alignment* align, const misc::ProgressInfo& progress)
 {
-    ISequence nucleotidSequence;
-    int8_t    frameShift;
-    bool      isTopFrame;
+    Range32 oldRange = align->getRange (_kind);
 
-    /** We retrieve the nucleotid sequence. */
-    if (getNucleotidSequence (nucleotidSequence, align, frameShift, isTopFrame) == true)
+    /** We convert [start,end] in terms of nucleotide sequence. */
+    Range32 newRange (
+        3*oldRange.begin + _frameShift,
+        3*oldRange.begin + _frameShift + 3*oldRange.getLength() - 1
+    );
+
+    /** We may have to reverse the indexes according to the reading frame. */
+    if (_isTopFrame == false)
     {
-        Range32 oldRange = align->getRange (_kind);
-
-        /** We convert [start,end] in terms of nucleotid sequence. */
-        Range32 newRange (
-            3*oldRange.begin + frameShift,
-            3*oldRange.begin + frameShift + 3*oldRange.getLength() - 1
-        );
-
-        /** We may have to reverse the indexes according to the reading frame. */
-        if (isTopFrame == false)
-        {
-            newRange.begin = nucleotidSequence.getLength() - newRange.begin - 1;
-            newRange.end   = nucleotidSequence.getLength() - newRange.end   - 1;
-        }
-
-        /** We update some information of the alignment. */
-        align->setRange (_kind, newRange);
-        align->setFrame (_kind, frameShift);
+        newRange.begin = _nucleotidSequence.getLength() - newRange.begin - 1;
+        newRange.end   = _nucleotidSequence.getLength() - newRange.end   - 1;
     }
+
+    DEBUG (cout << "NucleotidConversionVisitor::visitAlignment FOUND   old=" << oldRange << "  new=" << newRange << endl);
+
+    /** We update some information of the alignment. */
+    align->setRange (_kind, newRange);
+    align->setFrame (_kind, _frameShift);
 }
 
 /*********************************************************************
@@ -98,55 +93,44 @@ void NucleotidConversionVisitor::visitAlignment  (Alignment* align, const misc::
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-bool NucleotidConversionVisitor::getNucleotidSequence (
-    ISequence&  nuclotidSequence,
-    Alignment*  align,
-    int8_t&     frameShift,
-    bool&       isTopFrame
-)
+const ISequence* NucleotidConversionVisitor::retrieveNucleotidSequence (const database::ISequence*  proteinSequence)
 {
-    bool found = false;
+    const ISequence* result = 0;
 
-    ISequenceDatabase* nucleotidDb = 0;
-
-    /** Shortcut. */
-    const ISequence* sequence = align->getSequence (_kind);
-
-    /** We first look for the nucleotid database. */
-    ReadingFrameSequenceDatabase* orfDb = dynamic_cast<ReadingFrameSequenceDatabase*> (sequence->database);
+    /** We first look for the nucleotide database. */
+    ReadingFrameSequenceDatabase* orfDb = dynamic_cast<ReadingFrameSequenceDatabase*> (proteinSequence->database);
     if (orfDb != 0)
     {
-        nucleotidDb = orfDb->getNucleotidDatabase();
-        frameShift  = orfDb->getFrameShift();
-        isTopFrame  = orfDb->isTopFrame();
+        _nucleotidDb = orfDb->getNucleotidDatabase();
+        _frameShift  = orfDb->getFrameShift();
+        _isTopFrame  = orfDb->isTopFrame();
     }
 
-    if (nucleotidDb != 0)
+    if (_nucleotidDb != 0)
     {
         /**  Note that we use a ISequence cache in order to avoid too many
          *  ISequenceDatabase::getSequenceByIndex calls which may be time consuming.  */
-        Key key (nucleotidDb, sequence->index);
+        Key key (_nucleotidDb, proteinSequence->index);
 
         map<Key,database::ISequence>::iterator look = _nucleotidSequences.find (key);
         if (look != _nucleotidSequences.end())
         {
-            nuclotidSequence = look->second;
+            _nucleotidSequence = look->second;
         }
         else
         {
-            ISequence nucleotidSequence;
-            nucleotidDb->getSequenceByIndex (sequence->index, nucleotidSequence);
-            nuclotidSequence = (_nucleotidSequences[key] = nucleotidSequence);
+            _nucleotidDb->getSequenceByIndex (proteinSequence->index, _nucleotidSequence);
+            _nucleotidSequences[key] = _nucleotidSequence;
         }
-        found = true;
+        result = &_nucleotidSequence;
     }
 
     else
     {
-        found = false;
+        result = 0;
     }
 
-    return found;
+    return result;
 }
 
 /********************************************************************************/
