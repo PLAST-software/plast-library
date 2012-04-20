@@ -91,6 +91,9 @@ struct ISequence
         char* bufDef, size_t& lenDef
     ) const
     {
+        /** A little check. */
+        if (!bufId || !bufDef)  { return; }
+
         if (comment != 0)
         {
             const char* lookup = strchr (comment, ' ');
@@ -111,13 +114,14 @@ struct ISequence
                 strncpy (bufId, comment, lenId);
                 bufId [lenId-1] = 0;
 
-                lenDef = 0;
+                *bufDef = 0;
+                lenDef  = 0;
             }
         }
         else
         {
-            lenId  = 0;
-            lenDef = 0;
+            lenId  = 0;     *bufId  = 0;
+            lenDef = 0;     *bufDef = 0;
         }
     }
 
