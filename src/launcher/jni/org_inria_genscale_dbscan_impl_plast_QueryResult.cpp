@@ -81,8 +81,8 @@ JNIEXPORT jobject JNICALL Java_org_inria_genscale_dbscan_impl_plast_QueryResult_
         currentItem->first();
 
         /** We retrieve information about the sequence. */
-        char bufId[64];     size_t lenId  = sizeof(bufId);
-        char bufDef[256];   size_t lenDef = sizeof(bufDef);
+        char bufId[256];     size_t lenId  = sizeof(bufId);
+        char bufDef[1024];   size_t lenDef = sizeof(bufDef);
         sequence->retrieveIdAndDefinition (bufId, lenId, bufDef, lenDef);
 
         /** We create a ISequence from the factory. */
