@@ -103,7 +103,7 @@ private:
     std::fstream _indexesFile;
 
     /** */
-    char _queryId[256];
+    char _queryId[1024];
 
     /** */
     int64_t _prevPos;

@@ -95,6 +95,13 @@ public:
     /** */
     void putFirstLevelSequence (const ISequence* sequence)
     {
+        DEBUG (cout << "AlignmentContainerBuilderStream::putFirstLevelSequence"
+            << "  _nbQrySeq='" << _nbQrySeq
+            << "  comment='" << sequence->comment << "'"
+            << "  length=" << sequence->getLength()
+            << endl
+        );
+
         /** We update the field of the placeholder sequence to be added in the alignments container. */
         _qrySeq.index   = _nbQrySeq++;
         _qrySeq.comment = sequence->comment;
@@ -108,8 +115,6 @@ public:
     void put (char* line)
     {
         if (!line)  { return; }
-
-        DEBUG (cout << line << endl);
 
         char c;
 
@@ -126,14 +131,14 @@ public:
                 /** We have to reset the index of subject sequence. */
                 _sbjSeq.index = 0;
 
-                manageSequence (_qryIdMap, _qrySeq, _nbQrySeq, ss);
+                manageSequence (c, _qryIdMap, _qrySeq, _nbQrySeq, ss);
 
                 break;
             }
 
             case 'S':
             {
-                manageSequence (_sbjIdMap, _sbjSeq, _nbSbjSeq, ss);
+                manageSequence (c, _sbjIdMap, _sbjSeq, _nbSbjSeq, ss);
 
                 break;
             }
@@ -193,6 +198,14 @@ public:
                 /** We can now insert the alignment into the container. */
                 _container->insert (a, 0);
 
+                DEBUG (cout << "AlignmentContainerBuilderStream::put"
+                    << "  NEW ALIGNMENT, now " << _container->getAlignmentsNumber()
+                    << "  qry='" << _qrySeq.comment << "'"
+                    << "  sbj='" << _sbjSeq.comment << "'"
+                    << "  " << a.toString()
+                    << endl
+                );
+
                 break;
             }
 
@@ -222,7 +235,11 @@ public:
     /** */
     void dump (QueryReorderVisitor* queryVisitor, u_int32_t threshold=0)
     {
-        DEBUG (cout << "AlignmentContainerBuilderStream::dump  alignNb=" << getAlignmentsNumber() << "  threshold=" << threshold << endl);
+        DEBUG (cout << "AlignmentContainerBuilderStream::dump"
+            << "  alignNb="         << getAlignmentsNumber()
+            << "  nbFirstLevel="    << _container->getFirstLevelNumber()
+            << "  threshold="       << threshold << endl
+        );
 
         if (getAlignmentsNumber() >= threshold  ||  threshold==0)
         {
@@ -244,6 +261,7 @@ public:
             }
 
             /** We reset the alignment builder for the other alignments to be parsed from the temporary file. */
+            DEBUG (cout << "AlignmentContainerBuilderStream::dump    clearing content..." << endl);
             clear ();
         }
     }
@@ -251,9 +269,9 @@ public:
 private:
 
     /** */
-    void manageSequence (map<string,Entry>& theMap, ISequence& seq, size_t& nbSeq, stringstream& ss)
+    void manageSequence (char kind, map<string,Entry>& theMap, ISequence& seq, size_t& nbSeq, stringstream& ss)
     {
-        char commentBuffer[4*1024];
+        char  commentBuffer[4*1024];
 
         /** We read the sequence length from the stream. */
         ss >> seq.length;
@@ -261,26 +279,46 @@ private:
         /** We read the remaining of the comment line from the stream. */
         ss.getline (commentBuffer, sizeof(commentBuffer)-1);
 
+        DEBUG (cout << endl);
+
+        DEBUG (cout << "AlignmentContainerBuilderStream::manageSequence "
+            << "  kind="    << kind
+            << "  length="  << seq.length
+            << "  buffer='" << commentBuffer << "'"
+            << endl
+        );
+
+        char* commentBufferCursor = commentBuffer;
+
+        /** We skip potential leading spaces. */
+        while (*commentBufferCursor==' ')  { commentBufferCursor++; }
+
         /** We retrieve the sequence id from the full comment. */
-        char* seqId = strchr (commentBuffer+1, ' ');
+        char* endIdCursor = strchr (commentBufferCursor, ' ');
 
         bool transientChange = false;
 
-        if (seqId != 0)
+        if (endIdCursor != 0)
         {
             transientChange = true;
-            *seqId = 0;
+            *endIdCursor = 0;
         }
         else
         {
             transientChange = false;
-            seqId = commentBuffer + 1;
+            endIdCursor = commentBufferCursor;
         }
 
-        /** We look whether the read id is already known. */
-        map<string,Entry>::iterator lookup = theMap.find (commentBuffer+1);
+        DEBUG (cout << "AlignmentContainerBuilderStream::manageSequence "
+            << "  transient=" << transientChange
+            << "  cursor='"   << commentBufferCursor << "'"
+            << endl
+        );
 
-        if (transientChange)  { *seqId = ' '; }
+        /** We look whether the read id is already known. */
+        map<string,Entry>::iterator lookup = theMap.find (commentBufferCursor);
+
+        if (transientChange)  { *endIdCursor = ' '; }
 
         if (lookup != theMap.end())
         {
@@ -291,14 +329,22 @@ private:
         {
             pair<map<string,Entry>::iterator,bool> ret = theMap.insert (
                 pair<string,Entry> (
-                    seqId,
-                    Entry(commentBuffer+1, nbSeq++)
+                    commentBufferCursor,
+                    Entry(commentBufferCursor, nbSeq++)
                 )
             );
 
             seq.comment = ret.first->second.comment.c_str();
             seq.index   = ret.first->second.index;
         }
+
+        DEBUG (cout << "AlignmentContainerBuilderStream::manageSequence "
+            << "  found=" << found
+            << "  comment='" << seq.comment << "'"
+            << "  index=" << seq.index
+            << endl
+        );
+
     }
 
     IAlignmentContainer* _container;
@@ -435,7 +481,7 @@ void QueryReorderVisitor::finalize (void)
      *  updated during the loop over all ranges for a given query.
      *  IMPORTANT... use a big line size since a line can be a header + a fasta comment
      */
-    FileLineIterator lineIt (getTmpFileUri().c_str(), 4*1024);
+    FileLineIterator lineIt (getTmpFileUri().c_str());
 
     /** We retrieve the partition of the query database as a vector of file offsets. */
     vector<u_int64_t>& qryOffsets = _qryReader->getOffsets();
@@ -503,6 +549,9 @@ void QueryReorderVisitor::finalize (void)
             char id[1024];
             size_t len = seq->retrieveId (id, sizeof(id));
 
+            DEBUG (cout << endl);
+            DEBUG (cout << "QueryReorderVisitor::finalize   retrieveId : len=" << len << "  id='" << id << "'" << endl);
+
             /** We check that we got a valid id. */
             if (len == 0)  { continue; }
 
@@ -514,7 +563,7 @@ void QueryReorderVisitor::finalize (void)
                 bool firstEntry = true;
                 for (list<Range64>::iterator entriesIt=l.begin(); entriesIt != l.end(); entriesIt++, firstEntry=false)
                 {
-                    //DEBUG (cout <<  "QueryId=" << id << "  range=" << (*entriesIt) << endl);
+                    DEBUG (cout <<  "QueryId=" << id << "  range=" << (*entriesIt) << endl);
 
                     /** We update the range to be read within the file. */
                     lineIt.setRange (entriesIt->begin, entriesIt->end);
