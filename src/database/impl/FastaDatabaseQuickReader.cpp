@@ -33,7 +33,7 @@ namespace database { namespace impl {
 ** REMARKS :
 *********************************************************************/
 FastaDatabaseQuickReader::FastaDatabaseQuickReader (const std::string& uri, bool shouldInferType)
-    : _iterator (uri.c_str(), 1024),
+    : _iterator (uri.c_str()),
       _uri(uri),
       _totalSize(0), _dataSize(0), _nbSequences(0),
       _readThreshold (shouldInferType ? 100 : 0),

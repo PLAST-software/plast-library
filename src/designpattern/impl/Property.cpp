@@ -247,7 +247,7 @@ IProperty* Properties::getProperty (const std::string& key)
 *********************************************************************/
 void Properties::readFile (const char* filename)
 {
-    FileLineIterator it (filename, 1024);
+    FileLineIterator it (filename);
 
     for (it.first(); !it.isDone(); it.next())
     {

@@ -70,7 +70,7 @@ public:
      * \param[in]  offset0      : if not 0, provides the first character index to be read in the file
      * \param[in]  offset1      : if not 0, provides the last character index to be read in the file
      */
-    FileLineIterator (const char* filename, size_t lineMaxSize, u_int64_t offset0=0, u_int64_t offset1=0);
+    FileLineIterator (const char* filename, size_t lineMaxSize=64*1024, u_int64_t offset0=0, u_int64_t offset1=0);
 
     /** Destructor. */
     virtual ~FileLineIterator ();

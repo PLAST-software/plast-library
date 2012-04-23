@@ -145,7 +145,7 @@ void SystemCommand::execute ()
     if (_outputfile != 0)
     {
         /** We use a file iterator. */
-        FileLineIterator it (_tmpFilename, 1024);
+        FileLineIterator it (_tmpFilename);
         for (it.first(); !it.isDone(); it.next())
         {
             _outputfile->println (it.currentItem());

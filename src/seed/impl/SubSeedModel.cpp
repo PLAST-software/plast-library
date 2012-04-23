@@ -61,7 +61,7 @@ SubSeedModel::SubSeedModel (const char* filename)
     : AbstractSeedModel(0), _allSeedsTable(0), _seedsMaxNumber(1), _currentNumber(0)
 {
     /** We need to read the file. */
-    FileLineIterator it (filename, 256);
+    FileLineIterator it (filename);
 
     /** The first line should be the span. */
     it.first ();

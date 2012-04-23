@@ -48,7 +48,7 @@ FastaSequenceIterator::FastaSequenceIterator (
     u_int64_t offset0,
     u_int64_t offset1
 )
-    : _commentMaxSize(commentMaxSize),  _fileIterator (filename, _commentMaxSize, offset0, offset1), _isDone(false)
+    : _commentMaxSize(commentMaxSize),  _fileIterator (filename, commentMaxSize, offset0, offset1), _isDone(false)
 {
     DEBUG (("FastaSequenceIterator::FastaSequenceIterator:  filename='%s'  range=[%ld,%ld] \n",
         filename, offset0, offset1
