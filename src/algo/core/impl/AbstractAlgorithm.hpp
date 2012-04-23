@@ -383,6 +383,32 @@ protected:
 };
 
 /********************************************************************************/
+
+/** \brief Implementation of the plastn algorithm (ADN/ADN)
+ *
+ * The plastn algorithm inherits from the AbstractAlgorithm class and specifies
+ * what are the reading frames to be used for the subject database.
+ */
+class AlgorithmPlastn : public AbstractAlgorithm
+{
+public:
+
+    /** \copydoc AbstractAlgorithm */
+    AlgorithmPlastn (
+        IConfiguration*                                 config,
+        database::IDatabaseQuickReader*                 reader,
+        IParameters*                                    params,
+        alignment::filter::IAlignmentFilter*            filter,
+        alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        algo::core::IDatabasesProvider*                 dbProvider,
+        bool&                                           isRunning
+    )
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, isRunning)
+    {
+    }
+};
+
+/********************************************************************************/
 }}} /* end of namespaces. */
 /********************************************************************************/
 

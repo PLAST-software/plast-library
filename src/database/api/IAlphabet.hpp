@@ -95,9 +95,22 @@ struct IAlphabet
 
 /********************************************************************************/
 
-/** We define what data encodings are available.
- */
-enum Encoding  {  SUBSEED, ASCII, NCBI, UNKNOWN };
+/** We define what kind of alphabets we want to deal with: nucleotides or amino acids */
+enum AlphabetKind
+{
+    ALPHABET_NUCLEOTID,
+    ALPHABET_AMINO_ACID,
+    ALPHABET_UNKNOWN
+};
+
+/** We define what data encodings are available.  */
+enum Encoding
+{
+    SUBSEED,
+    ASCII,
+    NCBI,
+    UNKNOWN
+};
 
 /********************************************************************************/
 

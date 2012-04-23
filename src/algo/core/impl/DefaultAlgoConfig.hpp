@@ -81,7 +81,11 @@ public:
     statistics::IGlobalParameters*  createGlobalParameters (algo::core::IParameters* params);
 
     /** \copydoc IConfiguration::createSeedModel */
-    seed::ISeedModel* createSeedModel (misc::SeedModelKind_e modelKind, const std::vector<std::string>& subseedStrings);
+    seed::ISeedModel* createSeedModel (
+        misc::SeedModelKind_e modelKind,
+        size_t span,
+        const std::vector<std::string>& subseedStrings
+    );
 
     /** \copydoc IConfiguration::createIndexator */
     IIndexator*  createIndexator (

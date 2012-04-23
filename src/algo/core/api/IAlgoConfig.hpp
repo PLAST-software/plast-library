@@ -121,10 +121,11 @@ public:
 
     /** Create a seeds model used by the algorithm (in particular, used for databases indexation)
      * \param[in] modelKind : kind of the model to be created; normally should be a subseed model
+     * \param[in] span : number of letter of each seed (for a given alphabet).
      * \param[in] subseedStrings : strings defining a subseed model
      * \return a new ISeedModel instance
      */
-    virtual seed::ISeedModel* createSeedModel (misc::SeedModelKind_e modelKind, const std::vector<std::string>& subseedStrings) = 0;
+    virtual seed::ISeedModel* createSeedModel (misc::SeedModelKind_e modelKind, size_t span, const std::vector<std::string>& subseedStrings) = 0;
 
     /** Create an indexator instance, ie. something that can index a database given some seeds model (and other params).
      *  Its main feature is to create a source Hit iterator from a seeds model and the subject and query databases.

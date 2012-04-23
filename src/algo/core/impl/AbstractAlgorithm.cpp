@@ -109,7 +109,11 @@ AbstractAlgorithm::AbstractAlgorithm (
     setDatabasesProvider (dbProvider);
 
     /** We create the seeds model. */
-    setSeedsModel (getConfig()->createSeedModel (getParams()->seedModelKind, getParams()->subseedStrings));
+    setSeedsModel (getConfig()->createSeedModel (
+        getParams()->seedModelKind,
+        getParams()->seedSpan,
+        getParams()->subseedStrings
+    ));
 
     /** We set the score matrix. */
     setScoreMatrix (getConfig()->createScoreMatrix (getParams()->matrixKind, SUBSEED));
@@ -325,13 +329,16 @@ void AbstractAlgorithm::execute (void)
              */
             dispatcher->dispatchCommands (commands, 0);
 
-            DEBUG (("AbstractAlgorithm::execute : dispatching done...\n"));
+            DEBUG (("AbstractAlgorithm::execute : dispatching done  nbAlign=%d  firstLevelNb=%d...\n",
+                alignmentResult->getAlignmentsNumber(),
+                alignmentResult->getFirstLevelNumber()
+            ));
 
             /** Now, our alignment result instance should hold found alignments, with possible redundancies, so we try to
              * remove redundant alignments now. */
             ShrinkContainerVisitor shrinker (_params->nbAlignPerHit);
             alignmentResult->accept (&shrinker);
-            DEBUG (("AbstractAlgorithm::execute : shrink done...\n"));
+            DEBUG (("AbstractAlgorithm::execute : shrink done with nbAlignPerHit=%ld...\n", _params->nbAlignPerHit));
 
             /** We filter the alignments. */
             FilterContainerVisitor filterVisitor (_filter);

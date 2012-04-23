@@ -114,7 +114,7 @@ void DefaultEnvironment::configure ()
 
     /** We retrieve the type of algorithm (may be not set). */
     IProperty* algoProp = _properties->getProperty (STR_OPTION_ALGO_TYPE);
-    bool inferType = (algoProp == 0);
+    bool inferType = true; //(algoProp == 0);
 
     /** We may have a defined XML file URI. */
     IProperty* filterProp = _properties->getProperty (STR_OPTION_XML_FILTER_FILE);
@@ -166,13 +166,14 @@ void DefaultEnvironment::configure ()
         {
             _properties->add (0, STR_OPTION_ALGO_TYPE, "tplastn");
         }
-        else if (subjectKind == IDatabaseQuickReader::ENUM_NUCLOTID &&  queryKind == IDatabaseQuickReader::ENUM_NUCLOTID)
-        {
-            _properties->add (0, STR_OPTION_ALGO_TYPE, "tplastx");
-        }
+        //else if (subjectKind == IDatabaseQuickReader::ENUM_NUCLOTID &&  queryKind == IDatabaseQuickReader::ENUM_NUCLOTID)
+        //{
+        //    _properties->add (0, STR_OPTION_ALGO_TYPE, "tplastx");
+        //}
         else
         {
-            /** We should not be there. Should throw an exception ?*/
+            /** Note that for ADN/ADN, we have 2 choices (tplastx or plastn), so we can't guess what the user wants.
+             * Should throw an exception ?*/
         }
     }
 
@@ -334,6 +335,18 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 //new NucleotidConversionVisitor (new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT),
                 //    Alignment::QUERY
                 //),
+                dbProvider,
+                isRunning
+            );
+            break;
+
+        case ENUM_PLASTN:
+            result = new AlgorithmPlastn (
+                config,
+                reader,
+                params,
+                filter,
+                resultVisitor,
                 dbProvider,
                 isRunning
             );

@@ -256,6 +256,31 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->outputfile           = "stdout";
     }
 
+    else if (algoName.compare ("plastn")==0)
+    {
+        params->algoKind      = ENUM_PLASTN;
+        params->seedModelKind = ENUM_BasicSeedModel;
+        params->seedSpan      = 11;
+
+        params->matrixKind           = ENUM_BLOSUM62;
+        params->subjectUri           = string ("foo");
+        params->subjectRange         = Range64(0,0);
+        params->queryUri             = string ("bar");
+        params->queryRange           = Range64(0,0);
+        params->filterQuery          = false;  // Don't do that for nucleotid/nucleotid comparisons
+        params->ungapNeighbourLength = 22;
+        params->ungapScoreThreshold  = 16;
+        params->smallGapBandLength   = 64;
+        params->smallGapBandWidth    = 16;
+        params->smallGapThreshold    = 54;
+        params->openGapCost          = 0; // 0 means default value; actual value will be set later
+        params->extendGapCost        = 0; // 0 means default value; actual value will be set later
+        params->evalue               = 10.0;
+        params->XdroppofGap          = 0;
+        params->finalXdroppofGap     = 0;
+        params->outputfile           = "stdout";
+    }
+
 
     /** We may want to restrict the number of dumped alingments. */
     IProperty* maxHspPerHitProp = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT);
@@ -382,11 +407,24 @@ IGlobalParameters*  DefaultConfiguration::createGlobalParameters (IParameters* p
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-ISeedModel* DefaultConfiguration::createSeedModel (SeedModelKind_e modelKind, const vector<string>& subseedStrings)
+ISeedModel* DefaultConfiguration::createSeedModel (SeedModelKind_e modelKind, size_t span, const vector<string>& subseedStrings)
 {
     ISeedModel* result = 0;
 
-    result = new SubSeedModel (subseedStrings);
+    switch (modelKind)
+    {
+        case ENUM_BasicSeedModel:
+            result = new BasicSeedModel (SUBSEED, span);
+            break;
+
+        case ENUM_SubSeedModel:
+            result = new SubSeedModel (subseedStrings);
+            break;
+
+        default:
+            result = new SubSeedModel (subseedStrings);
+            break;
+    }
 
     return result;
 }

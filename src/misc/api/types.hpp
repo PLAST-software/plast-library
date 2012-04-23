@@ -160,7 +160,8 @@ enum AlgoKind_e
     ENUM_PLASTP,
     ENUM_TPLASTN,
     ENUM_PLASTX,
-    ENUM_TPLASTX
+    ENUM_TPLASTX,
+    ENUM_PLASTN
 };
 
 /** */
