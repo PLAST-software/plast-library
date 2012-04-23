@@ -346,7 +346,7 @@ ISequenceDatabase*  DefaultConfiguration::createDatabase (const string& uri, con
     database::ISequenceDatabase* result = 0;
 
     result = new BufferedSequenceDatabase (
-        new FastaSequenceIterator (uri.c_str(), 1024, range.begin, range.end),
+        new FastaSequenceIterator (uri.c_str(), 64*1024, range.begin, range.end),
         filtering
     );
 

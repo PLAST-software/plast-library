@@ -60,7 +60,7 @@ IAlignmentContainer* AlignmentContainerFactory::createContainer ()
 *********************************************************************/
 IAlignmentContainer* AlignmentContainerFactory::createContainerFromUri (const std::string& uri, void* context)
 {
-    return createContainerFromUri (new FileLineIterator (uri.c_str(), 1024), context);
+    return createContainerFromUri (new FileLineIterator (uri.c_str()), context);
 }
 
 /*********************************************************************
