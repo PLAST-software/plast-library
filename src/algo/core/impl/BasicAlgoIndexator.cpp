@@ -75,11 +75,13 @@ BasicIndexator::BasicIndexator (
     ISeedModel* model,
     algo::core::IParameters* params,
     indexation::IDatabaseIndexFactory* factory,
+    float seedsUseRatio,
     bool& isRunning
 )
     : _model(0), _params(0), _factory(0),
       _subjectDatabase(0),  _queryDatabase(0),
       _subjectIndex(0),     _queryIndex(0),
+      _seedsUseRatio (seedsUseRatio),
       _isRunning (isRunning)
 {
     /** We use some resources. */
@@ -252,6 +254,7 @@ IHitIterator* BasicIndexator::createHitIterator ()
         _subjectIndex,
         _queryIndex,
         _params->ungapNeighbourLength,
+        _seedsUseRatio,
         _isRunning
     );
 
@@ -290,9 +293,10 @@ BasicSortedIndexator::BasicSortedIndexator (
     ISeedModel* model,
     IParameters* params,
     IDatabaseIndexFactory* factory,
+    float seedsUseRation,
     bool& isRunning
 )
-    : BasicIndexator (model, params, factory, isRunning)
+    : BasicIndexator (model, params, factory, seedsUseRation, isRunning)
 {
 }
 
@@ -312,6 +316,7 @@ IHitIterator* BasicSortedIndexator::createHitIterator ()
         _subjectIndex,
         _queryIndex,
         _params->ungapNeighbourLength,
+        _seedsUseRatio,
         _isRunning
     );
 

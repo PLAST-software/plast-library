@@ -45,19 +45,19 @@ SeedHitIterator::SeedHitIterator (
     IDatabaseIndex* indexDb,
     IDatabaseIndex* indexQuery,
     size_t          neighbourhoodSize,
+    float           seedsUseRatio,
     bool&           isRunning,
     ISeedIterator*  seedIterator
 )
     : _indexDb1(indexDb), _indexDb2(indexQuery),  _model(0),
       _neighbourhoodSize (neighbourhoodSize),
+      _seedsUseRatio(seedsUseRatio),
       _isRunning (isRunning),
       _seedIterator (0),
       _isLocalDone(true), _isGlobalDone(true),
       _nbOccurMaxDb(0), _nbOccurMaxQuery(0),
       _itOccurDb1 (0),  _itOccurDb2 (0)
 {
-    DEBUG (("SeedHitIterator::SeedHitIterator:  _seedIterator=%p\n", _seedIterator));
-
     /** We use the two provided indexes. */
     if (_indexDb1)  { _indexDb1->use ();  }
     if (_indexDb2)  { _indexDb2->use ();  }
@@ -66,8 +66,16 @@ SeedHitIterator::SeedHitIterator (
     _model = _indexDb1->getModel();
 
     /** We may have to set default interval of seeds values. */
-    if (seedIterator == 0)   { seedIterator = _model->createAllSeedsIterator();  }
+    if (seedIterator == 0)
+    {
+        seedIterator = _model->createAllSeedsIterator();
+
+        DEBUG (("SeedHitIterator::SeedHitIterator:  creation of all seeds iterator => %p\n", seedIterator));
+    }
+
     setSeedIterator (seedIterator);
+
+    DEBUG (("SeedHitIterator::SeedHitIterator:  this=%p  _seedIterator=%p\n", this, _seedIterator));
 }
 
 /*********************************************************************
@@ -296,7 +304,7 @@ std::vector<IHitIterator*> SeedHitIterator::split (size_t nbSplit)
         u_int64_t nbHits = getSeedsCode (seedsIdx, hitsNbList);
 
         DEBUG (("SeedHitIterator::split (this=%p):  nbSplit=%ld  nbSeedsFound=%ld  nbHits=%ld  nbMaxSeedsModel=%ld\n",
-            this, nbSplit, seedsList.size(), nbHits, _model->getSeedsMaxNumber()
+            this, nbSplit, seedsIdx.size(), nbHits, _model->getSeedsMaxNumber()
         ));
 
         size_t firstIdx = 0;
@@ -415,6 +423,10 @@ u_int64_t SeedHitIterator::getSeedsCode (std::vector<size_t>& seedsIdx, std::vec
     /** We resize the two provided vectors with the number of 'useful' seeds. */
     size_t nbSeeds = seedsList.size();
 
+    DEBUG (("BEFORE nbSeeds=%ld    _seedsUseRatio=%g\n", nbSeeds, _seedsUseRatio));
+    nbSeeds = (size_t) ((float)nbSeeds * _seedsUseRatio);
+    DEBUG (("AFTER nbSeeds=%ld \n", nbSeeds));
+
     seedsIdx.resize (nbSeeds);
     hitsNbList.resize (nbSeeds);
 
@@ -426,6 +438,8 @@ u_int64_t SeedHitIterator::getSeedsCode (std::vector<size_t>& seedsIdx, std::vec
         seedsIdx[n]   = current.first;
         hitsNbList[n] = current.second;
     }
+
+    DEBUG (("SeedHitIterator::getSeedsCode  nbSeeds=%ld  result=%ld\n", nbSeeds, result));
 
     /** We return the result. */
     return result;

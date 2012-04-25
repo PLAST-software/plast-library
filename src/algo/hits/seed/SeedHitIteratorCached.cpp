@@ -50,11 +50,15 @@ SeedHitIteratorCached::SeedHitIteratorCached (
     IDatabaseIndex* indexDb,
     IDatabaseIndex* indexQuery,
     size_t          neighbourhoodSize,
+    float           seedsUseRatio,
     bool&           isRunning,
     ISeedIterator*  seedIterator
 )
-    : SeedHitIterator (indexDb, indexQuery, neighbourhoodSize, isRunning, seedIterator)
+    : SeedHitIterator (indexDb, indexQuery, neighbourhoodSize, seedsUseRatio, isRunning, seedIterator)
 {
+    DEBUG (("SeedHitIteratorCached::SeedHitIteratorCached   this=%p  seedIterator=%p  _seedIterator=%p\n",
+        this, seedIterator, _seedIterator
+    ));
 }
 
 /*********************************************************************
@@ -220,11 +224,17 @@ std::vector<IHitIterator*> SeedHitIteratorCached::split (size_t nbSplit)
 {
     std::vector<IHitIterator*> result;
 
+    DEBUG (("SeedHitIteratorCached::split  this=%p  _seedIterator=%p  nbSplit=%ld\n", this, _seedIterator, nbSplit));
+
     /** We may have to sort the seeds according to some criteria. */
     this->sortSeeds ();
 
+    DEBUG (("SeedHitIteratorCached::split  sortSeeds done,  _seedIterator=%p\n", _seedIterator));
+
     /** We have to reinit the seeds iterator. */
     _seedIterator->first ();
+
+    DEBUG (("SeedHitIteratorCached::split  entering loop\n"));
 
     /** We split the current iterator. */
     for (size_t i=0; i<nbSplit; i++)
@@ -232,12 +242,18 @@ std::vector<IHitIterator*> SeedHitIteratorCached::split (size_t nbSplit)
         /** We clone the instance. */
         SeedHitIterator* clone = this->clone (_seedIterator);
 
+        DEBUG (("SeedHitIteratorCached::split  clone %d created \n", i));
+
         /** We add a new iterator into the result list. */
         result.push_back (clone);
     }
 
+    DEBUG (("SeedHitIteratorCached::split  split done\n"));
+
     /** We link the created split to the current instance. */
     this->setSplitIterators (result);
+
+    DEBUG (("SeedHitIteratorCached::split  finished\n"));
 
     /** We return the result. */
     return result;
@@ -255,10 +271,11 @@ SeedHitIteratorCachedWithSortedSeeds::SeedHitIteratorCachedWithSortedSeeds (
     IDatabaseIndex* indexDb,
     IDatabaseIndex* indexQuery,
     size_t          neighbourhoodSize,
+    float           seedsUseRatio,
     bool&           isRunning,
     ISeedIterator*  seedIterator
 )
-    : SeedHitIteratorCached (indexDb, indexQuery, neighbourhoodSize, isRunning, seedIterator)
+    : SeedHitIteratorCached (indexDb, indexQuery, neighbourhoodSize, seedsUseRatio, isRunning, seedIterator)
 {
 }
 
@@ -281,8 +298,12 @@ void SeedHitIteratorCachedWithSortedSeeds::sortSeeds ()
     vector<size_t> hitsNbList;
     getSeedsCode (seedsIdx, hitsNbList);
 
+    DEBUG (("SeedHitIteratorCachedWithSortedSeeds::sortSeeds   seedsIdx.size()=%ld\n", seedsIdx.size() ));
+
     /** We create a new seed iterator that filters the current one with 'useful' seeds. */
     ISeedIterator* filteredSeedIt = _seedIterator->createFilteredIterator (seedsIdx);
+
+    DEBUG (("SeedHitIteratorCachedWithSortedSeeds::sortSeeds filteredSeedIt=%p\n", filteredSeedIt));
 
     /** We set the filtered iterator as the new one used for hits iteration. */
     setSeedIterator (filteredSeedIt);

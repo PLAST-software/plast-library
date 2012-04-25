@@ -71,6 +71,7 @@ public:
         indexation::IDatabaseIndex* indexSubject,
         indexation::IDatabaseIndex* indexQuery,
         size_t                      neighbourhoodSize,
+        float                       seedsUseRatio,
         bool&                       isRunning,
         ::seed::ISeedIterator*      seedIterator=0
     );
@@ -122,6 +123,9 @@ protected:
     size_t _neighbourhoodSize;
 
     /** */
+    float _seedsUseRatio;
+
+    /** */
     bool& _isRunning;
 
     /** The iterator that loops over seeds.
@@ -132,12 +136,7 @@ protected:
     /** Smart setter for the _seedIterator attribute.
      * \param[in] seedIterator : the seed iterator to be referenced.
      */
-    void setSeedIterator (::seed::ISeedIterator* seedIterator)
-    {
-        if (_seedIterator != 0)  { _seedIterator->forget (); }
-        _seedIterator = seedIterator;
-        if (_seedIterator != 0)  { _seedIterator->use ();    }
-    }
+    void setSeedIterator (::seed::ISeedIterator* seedIterator)  { SP_SETATTR(seedIterator); }
 
     /** Get the list of used seeds (i.e. matched by both databases).
      * \param[in] seedsIdx
@@ -158,7 +157,7 @@ protected:
     /** Clone the instance with a specific seeds iterator. */
     virtual SeedHitIterator* clone (::seed::ISeedIterator* seedIterator)
     {
-        return new SeedHitIterator (_indexDb1, _indexDb2, _neighbourhoodSize, _isRunning, seedIterator);
+        return new SeedHitIterator (_indexDb1, _indexDb2, _neighbourhoodSize, _seedsUseRatio, _isRunning, seedIterator);
     }
 
     size_t _nbOccurMaxDb;

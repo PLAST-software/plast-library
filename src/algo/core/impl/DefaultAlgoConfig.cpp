@@ -469,20 +469,30 @@ IIndexator*  DefaultConfiguration::createIndexator (
         dbIndexFactory = new DatabaseIndexCodonStopOptimFactory (params->ungapNeighbourLength);
     }
 
+    /** We get the ratio of seeds to be used for hit iteration. */
+    float seedsUseRatio = 1.0;
+    if ( (prop = _properties->getProperty (STR_OPTION_SEEDS_USE_RATIO)) != 0)
+    {
+        seedsUseRatio = atof (prop->getString());
+
+        /** A little check. */
+        if (seedsUseRatio<0.0 || seedsUseRatio>1.0)  { seedsUseRatio = 1.0; }
+    }
+
     /** We retrieve the property. */
     prop = _properties->getProperty (STR_OPTION_FACTORY_INDEXATION);
 
     if (prop && prop->value.compare("BasicIndexator")==0)
     {
-        result = new BasicIndexator (seedsModel, params, dbIndexFactory, isRunning);
+        result = new BasicIndexator (seedsModel, params, dbIndexFactory, seedsUseRatio, isRunning);
     }
     else if (prop && prop->value.compare("BasicSortedIndexator")==0)
     {
-        result = new BasicSortedIndexator (seedsModel, params, dbIndexFactory, isRunning);
+        result = new BasicSortedIndexator (seedsModel, params, dbIndexFactory, seedsUseRatio, isRunning);
     }
     else
     {
-        result = new BasicSortedIndexator (seedsModel, params, dbIndexFactory, isRunning);
+        result = new BasicSortedIndexator (seedsModel, params, dbIndexFactory, seedsUseRatio, isRunning);
     }
 
     return result;

@@ -61,6 +61,7 @@ public:
         seed::ISeedModel* model,
         algo::core::IParameters* params,
         indexation::IDatabaseIndexFactory* factory,
+        float seedsUseRatio,
         bool& isRunning
     );
 
@@ -127,6 +128,9 @@ protected:
     indexation::IDatabaseIndex* _queryIndex;
 
     /** */
+    float _seedsUseRatio;
+
+    /** */
     bool& _isRunning;
 
     /** Build an index for the some database.
@@ -156,6 +160,7 @@ public:
         seed::ISeedModel* model,
         algo::core::IParameters* params,
         indexation::IDatabaseIndexFactory* factory,
+        float seedsUseRation,
         bool& isRunning
     );
 
