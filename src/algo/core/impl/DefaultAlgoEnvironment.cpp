@@ -341,6 +341,11 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
             break;
 
         case ENUM_PLASTN:
+
+            /** WARNING !  We first switch to nucleotide alphabet before creating the instance. */
+            EncodingManager::singleton().setKind (EncodingManager::ALPHABET_NUCLEOTID);
+
+            /** We create the instance. */
             result = new AlgorithmPlastn (
                 config,
                 reader,
