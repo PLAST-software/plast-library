@@ -113,6 +113,8 @@ void PlastOptionsParser::build ()
 
     this->add (new OptionOneParam (STR_OPTION_XML_FILTER_FILE,          "Uri of a XML filter file."));
 
+    this->add (new OptionOneParam (STR_OPTION_SEEDS_USE_RATIO,          "Ratio of seeds to be used."));
+
     this->add (new OptionNoParam  (STR_OPTION_HELP, "help"));
 }
 

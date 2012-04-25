@@ -266,6 +266,11 @@ namespace misc {
  */
 #define STR_OPTION_XML_FILTER_FILE         "-xmlfilter"
 
+/** Command Line option giving the ratio of seeds to be used
+ *  String.
+ */
+#define STR_OPTION_SEEDS_USE_RATIO         "-seeds-use-ratio"
+
 /** Command Line option for displaying help.
  *  No associated value.
  */
