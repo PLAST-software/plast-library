@@ -160,6 +160,7 @@ private:
     {
     public:
         AllSeedsIterator (BasicSeedModel* model, size_t firstIdx=1, size_t lastIdx=0);
+        AllSeedsIterator (BasicSeedModel* model, const std::vector<size_t>& seedsIdx);
         virtual ~AllSeedsIterator ();
 
         /** Create a new iterator that is a subset of the current one. */
@@ -167,12 +168,19 @@ private:
 
         u_int64_t getNbTotal ()  { return _totalNumber; }
 
+        /** \copydoc ISeedIterator::createFilteredIterator */
+        ISeedIterator* createFilteredIterator (const std::vector<size_t>& seedsIdx);
+
     private:
         BasicSeedModel* _specificModel;
         bool findNextValidItem (void) { return true; }
         void updateItem (void);
 
         u_int64_t _totalNumber;
+
+        /** We need a vector that keep indexes of seeds sorted in some way.
+         *  By default, they are sorted as 0,1,2,... but it may be useful to reorder them. */
+        std::vector<size_t> _seedsIdx;
     };
 };
 

@@ -18,7 +18,8 @@
 #include <seed/impl/BasicSeedModel.hpp>
 
 #include <stdio.h>
-#define DEBUG(a)  //printf a
+#define DEBUG(a)    //printf a
+#define VERBOSE(a)
 
 using namespace std;
 using namespace database;
@@ -153,7 +154,7 @@ bool BasicSeedModel::DataSeedIterator::findNextValidItem (void)
         /** We look whether there is a bad letter in the current seed. */
         for (size_t i=0; i <_span; i++)
         {
-            DEBUG (("DataSeedIterator::findNextValidLetter: data[%ld]=%d  \n" ,i, _data.letters[i+_currentIdx]));
+            VERBOSE (("DataSeedIterator::findNextValidLetter: data[%ld]=%d  \n" ,i, _data.letters[i+_currentIdx]));
 
             /** We retrieve the current letter. */
             LETTER l = buffer[i+_currentIdx];
@@ -182,7 +183,7 @@ bool BasicSeedModel::DataSeedIterator::findNextValidItem (void)
 
     } /* end of while (found==false && _currentIdx <= _lastIdx) */
 
-    DEBUG (("DataSeedIterator::findNextValidLetter: ------------------- _currentIdx=%ld  _lastIdx=%ld  found=%d\n", _currentIdx, _lastIdx, found));
+    VERBOSE (("DataSeedIterator::findNextValidLetter: ------------------- _currentIdx=%ld  _lastIdx=%ld  found=%d\n", _currentIdx, _lastIdx, found));
 
     if (found)
     {
@@ -288,7 +289,44 @@ BasicSeedModel::AllSeedsIterator::AllSeedsIterator (BasicSeedModel* model, size_
 
     _totalNumber = _lastIdx - _firstIdx + 1;
 
-    DEBUG (("BasicSeedModel::AllSeedsIterator::AllSeedsIterator: [%ld,%ld] => [%ld,%ld]\n", firstIdx, lastIdx, _firstIdx, _lastIdx));
+    /** We fill the indexes vector. */
+    _seedsIdx.resize (_totalNumber);
+    for (size_t i=0; i<_totalNumber; i++)  {  _seedsIdx[i] = i; }
+
+    DEBUG (("BasicSeedModel::AllSeedsIterator::AllSeedsIterator 1: [%ld,%ld] => [%ld,%ld]\n", firstIdx, lastIdx, _firstIdx, _lastIdx));
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+BasicSeedModel::AllSeedsIterator::AllSeedsIterator (BasicSeedModel* model, const std::vector<size_t>& seedsIdx)
+    : AbstractSeedIterator (model, 0, 0, false),
+      _specificModel(model), _totalNumber(0)
+{
+    if (seedsIdx.empty() == false)
+    {
+        _firstIdx = 0;
+        _lastIdx  = seedsIdx.size()-1;
+    }
+    else
+    {
+        /** We have nothing to iterate, just be sure that the first is greater than the last. */
+        _firstIdx = 1;
+        _lastIdx  = 0;
+    }
+
+    /** We compute the total number of seed. */
+    _totalNumber = seedsIdx.size();
+
+    /** We copy the vector of seeds indexes. */
+    _seedsIdx = seedsIdx;
+
+    DEBUG (("BasicSeedModel::AllSeedsIterator::AllSeedsIterator 2: seedsIdx.size()=%ld\n", seedsIdx.size() ));
 }
 
 /*********************************************************************
@@ -324,21 +362,38 @@ ISeedIterator* BasicSeedModel::AllSeedsIterator::extract (size_t firstIdx, size_
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+ISeedIterator* BasicSeedModel::AllSeedsIterator::createFilteredIterator (const std::vector<size_t>& seedsIdx)
+{
+    DEBUG (("BasicSeedModel::AllSeedsIterator::createFilteredIterator   seedsIdx.size()=%ld\n", seedsIdx.size() ));
+
+    /** We just clone, we don't filter anything. TO BE IMPROVED... */
+    return new AllSeedsIterator (_specificModel, seedsIdx);
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 void BasicSeedModel::AllSeedsIterator::updateItem (void)
 {
     /** A little shortcut. */
     LETTER* out = _currentItem.kmer.letters.data;
 
-    size_t idx =_currentIdx;
+    /** We retrieve the actual index of the seed. */
+    size_t actualIdx = _seedsIdx [_currentIdx - _firstIdx];
 
     /** We convert the letters of the current data according to the model. */
     for (size_t i=0; i<_span; i++)
     {
-        out[i] =  idx % _alphabetSize;
-        idx   /= _alphabetSize;
+        out[i] =  actualIdx % _alphabetSize;
+        actualIdx   /= _alphabetSize;
     }
 
-    _currentItem.code   = _currentIdx;
+    _currentItem.code   = actualIdx;
     _currentItem.offset = 0;
 }
 

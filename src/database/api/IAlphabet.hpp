@@ -95,14 +95,6 @@ struct IAlphabet
 
 /********************************************************************************/
 
-/** We define what kind of alphabets we want to deal with: nucleotides or amino acids */
-enum AlphabetKind
-{
-    ALPHABET_NUCLEOTID,
-    ALPHABET_AMINO_ACID,
-    ALPHABET_UNKNOWN
-};
-
 /** We define what data encodings are available.  */
 enum Encoding
 {
@@ -127,10 +119,23 @@ class EncodingManager
 {
 public:
 
+    /** We define what kind of alphabets we want to deal with: nucleotides or amino acids */
+    enum Kind
+    {
+        ALPHABET_NUCLEOTID,
+        ALPHABET_AMINO_ACID,
+        ALPHABET_UNKNOWN
+    };
+
     /** Singleton definition.
      * \return the singleton instance.
      */
     static EncodingManager& singleton ()  { static EncodingManager instance; return instance; }
+
+    /** Set the kind of alphabet: nucleotid or amino acid (default)
+     * \param[in] kind : kind of the alphabet
+     */
+    void setKind (Kind kind) { _kind = kind; }
 
     /** Returns an IAlphabet instance given an encoding scheme.
      * \param[in] encoding : encoding scheme
@@ -143,6 +148,17 @@ public:
      * \param[in] to   : the destination encoding scheme
      * \return the conversion array of LETTER*/
     const LETTER* getEncodingConversion (Encoding from, Encoding to);
+
+private:
+
+    /** We configure to amino acid alphabet by default. */
+    EncodingManager ()  : _kind (ALPHABET_AMINO_ACID) {}
+
+    Kind _kind;
+
+    /** */
+    const LETTER* getEncodingConversion_aminoacid (Encoding from, Encoding to);
+    const LETTER* getEncodingConversion_nucleotid (Encoding from, Encoding to);
 };
 
 /********************************************************************************/
