@@ -28,6 +28,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <math.h>
+
 using namespace std;
 using namespace dp;
 using namespace dp::impl;
@@ -117,9 +119,11 @@ void FileProgressionObserver::dump (void)
  ** REMARKS :
  *********************************************************************/
 AlignmentProgressionObserver::AlignmentProgressionObserver (const std::string& filename)
-    : _file (0), _count(0),_t0(0)
+    : _file (0), _count(0),_t0(0), _synchro(0)
 {
     _file = fopen (filename.c_str(), "w");
+
+    _synchro = DefaultFactory::singleton().thread().newSynchronizer();
 }
 
 /*********************************************************************
@@ -132,7 +136,35 @@ AlignmentProgressionObserver::AlignmentProgressionObserver (const std::string& f
  *********************************************************************/
 AlignmentProgressionObserver::~AlignmentProgressionObserver ()
 {
+    size_t nb = ungapAlignsNb.size();
+
+    if (nb > 0)
+    {
+        u_int32_t maxUngap = ungapAlignsNb [nb - 1];
+        u_int32_t maxGap   = gapAlignNb    [nb - 1];
+
+        for (size_t i=0; i<nb; i++)
+        {
+            if (maxUngap==0 || maxGap==0)  { continue; }
+
+            float a = (float) ungapAlignsNb[i] / (float) maxUngap;
+            float b = (float) gapAlignNb[i]    / (float) maxGap;
+
+            fprintf (_file, "%ld  %.3f  %.6f  %d  %d  %.6f  %.6f\n",
+                i,
+                (float)i / (float)nb,
+                execTime[i],
+                ungapAlignsNb[i],
+                gapAlignNb[i],
+                a,
+                b
+            );
+        }
+    }
+
     if (_file != 0)  { fclose (_file); }
+
+    if (_synchro)  { delete _synchro; }
 }
 
 /*********************************************************************
@@ -148,6 +180,8 @@ void AlignmentProgressionObserver::update (dp::EventInfo* evt, dp::ISubject* sub
     AlignmentProgressionEvent* e1 = dynamic_cast<AlignmentProgressionEvent*> (evt);
     if (e1 != 0)
     {
+        LocalSynchronizer sync (_synchro);
+
         if (_count==0)
         {
             _t0 = DefaultFactory::singleton().getTimeFactory().getclock();
@@ -156,12 +190,9 @@ void AlignmentProgressionObserver::update (dp::EventInfo* evt, dp::ISubject* sub
 
         u_int32_t t1 = DefaultFactory::singleton().getTimeFactory().getclock();
 
-        fprintf (_file, "%d  %.3f  %d  %d \n",
-            _count,
-            (t1-_t0) / 1000000.0,
-            e1->getUngapResult()->getAlignmentsNumber(),
-            e1->getGapResult()->getAlignmentsNumber()
-        );
+        ungapAlignsNb.push_back (e1->getUngapResult()->getAlignmentsNumber());
+        gapAlignNb.push_back    (e1->getGapResult()->getAlignmentsNumber());
+        execTime.push_back      ((float)(t1-_t0) / 1000.0);
 
         return;
     }

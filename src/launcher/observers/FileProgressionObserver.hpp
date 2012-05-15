@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <vector>
 
 /********************************************************************************/
 /** \brief PLAST command line. */
@@ -82,6 +83,12 @@ protected:
     FILE*     _file;
     u_int32_t _count;
     u_int32_t _t0;
+
+    os::ISynchronizer* _synchro;
+
+    std::vector<u_int32_t> ungapAlignsNb;
+    std::vector<u_int32_t> gapAlignNb;
+    std::vector<float>     execTime;
 };
 
 /********************************************************************************/
