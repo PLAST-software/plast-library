@@ -23,7 +23,8 @@ using namespace database;
 using namespace seed;
 
 #include <stdio.h>
-#define DEBUG(a) // printf a
+#define DEBUG(a)  printf a
+#define VERBOSE(a)
 
 /********************************************************************************/
 namespace indexation { namespace impl {
@@ -98,7 +99,7 @@ void DatabaseIndex::iterateSeed (const ISeed* seed)
         /** We retrieve the index corresponding to the seed. */
         IndexEntry& entry = _index[hashCode];
 
-        DEBUG (("DatabaseIndex::iterateSeed: this=%p  seed='%s' (code=%ld) => offset=%ld\n",  this,
+        VERBOSE (("DatabaseIndex::iterateSeed: this=%p  seed='%s' (code=%ld) => offset=%ld\n",  this,
             seed->kmer.toString().c_str(),
             seed->code,
             _sequenceOffset + seed->offset
@@ -154,7 +155,7 @@ void DatabaseIndex::build ()
         /** A little shortcut for the currently iterated sequence. */
         _currentSequence  = seqIter->currentItem();
 
-        DEBUG (("DatabaseIndex::build : current sequence '%s'\n", _currentSequence->data.toString().c_str()));
+        VERBOSE (("DatabaseIndex::build : current sequence '%s'\n", _currentSequence->data.toString().c_str()));
 
         /** We create a seed iterator. */
         ISeedIterator* itSeed = createSeedsIterator (_currentSequence->data);
@@ -172,7 +173,7 @@ void DatabaseIndex::build ()
 
     DEBUG (("DatabaseIndex::build : END SEQUENCES LOOP\n"));
 
-    DEBUG (("DatabaseIndex::build : found %ld seeds occurrences. %ld sequences\n", nbOccurrences, nbSequences));
+    DEBUG (("DatabaseIndex::build : %ld sequences\n", nbSequences));
 }
 
 /*********************************************************************
