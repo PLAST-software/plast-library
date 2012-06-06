@@ -105,7 +105,7 @@ std::vector<algo::hits::IHitIterator*> AbstractPipeHitIterator::split (size_t nb
     /** We split the real iterator. */
     std::vector<algo::hits::IHitIterator*> realSplit = _sourceIterator->split (nbSplit);
 
-    /** We create (for each real split) a new UngapAlignement iterator. */
+    /** We create (for each real split) a new iterator. */
     for (size_t i=0; i<realSplit.size(); i++)
     {
         /** We add a clone to the result. */
