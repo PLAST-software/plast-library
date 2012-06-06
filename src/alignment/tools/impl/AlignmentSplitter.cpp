@@ -53,6 +53,7 @@ AlignmentSplitter::AlignmentSplitter (IScoreMatrix* scoreMatrix, int openGapCost
  : _scoreMatrix(0),
    _openGapCost(openGapCost), _extendGapCost(extendGapCost),
    _matrix_H (0), _matrix_E(0), _matrix_F(0),
+   _sbjLocal(0), _qryLocal(0),
    _DefaultAlignSize(1000), _MaxAlignSize(6000)
 {
     setScoreMatrix (scoreMatrix);
@@ -60,6 +61,9 @@ AlignmentSplitter::AlignmentSplitter (IScoreMatrix* scoreMatrix, int openGapCost
     _matrix_H = newMatrix (_DefaultAlignSize, _DefaultAlignSize);
     _matrix_E = newMatrix (_DefaultAlignSize, _DefaultAlignSize);
     _matrix_F = newMatrix (_DefaultAlignSize, _DefaultAlignSize);
+
+    setQryLocal (_DefaultAlignSize);
+    setSbjLocal (_DefaultAlignSize);
 }
 
 /*********************************************************************
@@ -77,6 +81,9 @@ AlignmentSplitter::~AlignmentSplitter ()
     freeMatrix (&_matrix_H);
     freeMatrix (&_matrix_E);
     freeMatrix (&_matrix_F);
+
+    setQryLocal (0);
+    setSbjLocal (0);
 }
 
 /*********************************************************************
@@ -147,6 +154,9 @@ size_t AlignmentSplitter::splitAlign (
         _matrix_H = newMatrix (_DefaultAlignSize, _DefaultAlignSize);
         _matrix_E = newMatrix (_DefaultAlignSize, _DefaultAlignSize);
         _matrix_F = newMatrix (_DefaultAlignSize, _DefaultAlignSize);
+
+        setQryLocal (_DefaultAlignSize);
+        setSbjLocal (_DefaultAlignSize);
     }
 
     /** We use a shortcut. */
@@ -199,8 +209,8 @@ size_t AlignmentSplitter::splitAlign (
     if (output.splittab)  {  (output.splittab)[y++] = qryLen - 1;  }
     if (output.splittab)  {  (output.splittab)[y++] = subLen - 1;  }
 
-    char qryLocal [10000];
-    char subLocal [10000];
+    char* qryLocal = _qryLocal;
+    char* subLocal = _sbjLocal;
     int status = 0;
 
     /** We reset some alignments fields to be completed. */
@@ -384,6 +394,34 @@ void AlignmentSplitter::freeMatrix (int16_t *** mat)
         DefaultFactory::memory().free(*mat);
     }
     *mat = NULL;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AlignmentSplitter::setSbjLocal (size_t l)
+{
+    DefaultFactory::memory().free (_sbjLocal);
+    if (l > 0)  {  _sbjLocal = (char*) DefaultFactory::memory().malloc (l); }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AlignmentSplitter::setQryLocal (size_t l)
+{
+    DefaultFactory::memory().free (_qryLocal);
+    if (l > 0)  {  _qryLocal = (char*) DefaultFactory::memory().malloc (l); }
 }
 
 /********************************************************************************/

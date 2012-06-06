@@ -75,6 +75,12 @@ private:
     int16_t** _matrix_E;
     int16_t** _matrix_F;
 
+    char* _sbjLocal;
+    void setSbjLocal (size_t l);
+
+    char* _qryLocal;
+    void setQryLocal (size_t l);
+
     int _DefaultAlignSize;
     int _MaxAlignSize;
 
