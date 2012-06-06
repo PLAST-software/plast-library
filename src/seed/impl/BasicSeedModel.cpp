@@ -384,7 +384,9 @@ void BasicSeedModel::AllSeedsIterator::updateItem (void)
     LETTER* out = _currentItem.kmer.letters.data;
 
     /** We retrieve the actual index of the seed. */
-    size_t actualIdx = _seedsIdx [_currentIdx - _firstIdx];
+    size_t initIdx = _seedsIdx [_currentIdx - _firstIdx];
+
+    size_t actualIdx = initIdx;
 
     /** We convert the letters of the current data according to the model. */
     for (size_t i=0; i<_span; i++)
@@ -393,7 +395,7 @@ void BasicSeedModel::AllSeedsIterator::updateItem (void)
         actualIdx   /= _alphabetSize;
     }
 
-    _currentItem.code   = actualIdx;
+    _currentItem.code   = initIdx;
     _currentItem.offset = 0;
 }
 
