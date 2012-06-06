@@ -23,7 +23,7 @@ using namespace database;
 using namespace seed;
 
 #include <stdio.h>
-#define DEBUG(a)  printf a
+#define DEBUG(a)  //printf a
 #define VERBOSE(a)
 
 /********************************************************************************/
