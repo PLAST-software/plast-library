@@ -675,7 +675,15 @@ void BufferedSegmentSequenceBuilder::postTreamtment (void)
     const LETTER* convert = EncodingManager::singleton().getEncodingConversion (ASCII, SUBSEED);
 
     /** We convert the cache from ASCII to SUBSEED. */
-    for (size_t i=0; i<_cache->dataSize; i++)  {  data[i] = convert [(int)data[i]];  }
+    for (size_t i=0; i<_cache->dataSize; i++)
+    {
+        LETTER l = (convert ? convert [(int)data[i]] : data[i]);
+
+    	/** We may have some strange database; we change bad letter into "any" letter. */
+        if (l == CODE_BAD)  {  l = EncodingManager::singleton().getAlphabet(SUBSEED)->any;  }
+
+        data[i] = l;
+    }
 
     //printf ("BufferedSegmentSequenceBuilder::postTreamtment 3. : size=%ld\n", _cache->dataSize);
     //for (size_t i=0; i<_cache->dataSize; i++)  {  printf ("%d ", data[i]); }  printf("\n");
