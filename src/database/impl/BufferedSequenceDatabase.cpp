@@ -443,10 +443,11 @@ void BufferedSequenceDatabase::retrieveSequencesIdentifiers (std::set<std::strin
         string& comment = cache->comments[i];
 
         /** We look for the first space. */
-        size_t pos = comment.find_first_of (' ');
-        if (pos != string::npos)
+        char* locate = ISequence::searchIdSeparator (comment.c_str());
+
+        if (locate != 0)
         {
-            ids.insert (comment.substr(0,pos));
+            ids.insert (comment.substr (0, locate - comment.c_str()));
         }
         else
         {
