@@ -96,7 +96,7 @@ struct ISequence
 
         if (comment != 0)
         {
-            const char* lookup = strchr (comment, ' ');
+            const char* lookup = searchIdSeparator (comment);
             if (lookup != 0)
             {
                 size_t l = (size_t) (lookup-comment);
@@ -132,7 +132,7 @@ struct ISequence
         if (bufId && comment)
         {
             *bufId = 0;
-            const char* lookup = strchr (comment, ' ');
+            const char* lookup = searchIdSeparator (comment);
 
             size_t l =  (lookup != 0 ? (size_t) (lookup-comment) : strlen(comment));
             lenId = lenId > l ? l : lenId-1;
@@ -179,6 +179,22 @@ struct ISequence
         char c = ' ';
         os << seq.getLength() << c << seq.comment;
         return os;
+    }
+
+    /********************************************************************************/
+    static char* searchIdSeparator (const char* comment)
+    {
+		/** A basic implementation would be to return strchr (comment, ' ');
+		 *  BUT! Some silly databases have \t as separators (instead of ' ')
+		 *  See also bug 14459.
+		 */
+    	char c = 0;
+
+    	for (const char* loop = comment; (c = *loop); loop++)
+    	{
+    		if (c <= ' ')  {  return (char*)loop; }
+    	}
+    	return 0;
     }
 };
 

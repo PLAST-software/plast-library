@@ -90,11 +90,11 @@ void TabulatedOutputVisitor::fillBuffer (core::Alignment* align, char* buffer, s
 
     char queryName[128];
     snprintf (queryName,   sizeof(queryName),   "%s", _currentQuery->comment);
-    if ( (locate = strchr (queryName, ' ')) != 0)  { *locate = 0; }
+    if ( (locate = database::ISequence::searchIdSeparator (queryName)) != 0)  { *locate = 0; }
 
     char subjectName[128];
     snprintf (subjectName, sizeof(subjectName), "%s", _currentSubject->comment);
-    if ( (locate = strchr (subjectName, ' ')) != 0)  { *locate = 0; }
+    if ( (locate = database::ISequence::searchIdSeparator (subjectName)) != 0)  { *locate = 0; }
 
     char evalueStr[32];
     double ev = align->getEvalue();
