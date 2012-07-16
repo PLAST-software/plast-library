@@ -62,6 +62,9 @@ public:
     /** \copydoc IConfiguration::createDefaultParameters */
     IParameters* createDefaultParameters (const std::string& algoName);
 
+    /** \copydoc IConfiguration::createIndexationDispatcher */
+    dp::ICommandDispatcher* createIndexationDispatcher ();
+
     /** \copydoc IConfiguration::createDispatcher */
     dp::ICommandDispatcher* createDispatcher ();
 
@@ -164,7 +167,7 @@ public:
     /** \copydoc IConfiguration::createResultVisitor */
     alignment::core::IAlignmentContainerVisitor* createResultVisitor ();
 
-private:
+protected:
 
     IEnvironment* _environment;
 

@@ -256,32 +256,6 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->outputfile           = "stdout";
     }
 
-    else if (algoName.compare ("plastn")==0)
-    {
-        params->algoKind      = ENUM_PLASTN;
-        params->seedModelKind = ENUM_BasicSeedModel;
-        params->seedSpan      = 11;
-
-        params->matrixKind           = ENUM_BLOSUM62;
-        params->subjectUri           = string ("foo");
-        params->subjectRange         = Range64(0,0);
-        params->queryUri             = string ("bar");
-        params->queryRange           = Range64(0,0);
-        params->filterQuery          = false;  // Don't do that for nucleotid/nucleotid comparisons
-        params->ungapNeighbourLength = 22;
-        params->ungapScoreThreshold  = 16;
-        params->smallGapBandLength   = 64;
-        params->smallGapBandWidth    = 16;
-        params->smallGapThreshold    = 54;
-        params->openGapCost          = 0; // 0 means default value; actual value will be set later
-        params->extendGapCost        = 0; // 0 means default value; actual value will be set later
-        params->evalue               = 10.0;
-        params->XdroppofGap          = 0;
-        params->finalXdroppofGap     = 0;
-        params->outputfile           = "stdout";
-    }
-
-
     /** We may want to restrict the number of dumped alingments. */
     IProperty* maxHspPerHitProp = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT);
     if (maxHspPerHitProp != 0)  { params->nbAlignPerHit = atoi (maxHspPerHitProp->value.c_str());  }
@@ -331,6 +305,20 @@ ICommandDispatcher* DefaultConfiguration::createDispatcher ()
     }
 
     return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+dp::ICommandDispatcher* DefaultConfiguration::createIndexationDispatcher ()
+{
+    /** By default, we return the same stuff as "createDispatcher". */
+    return createDispatcher();
 }
 
 /*********************************************************************
@@ -519,6 +507,12 @@ IScoreMatrix* DefaultConfiguration::createScoreMatrix (ScoreMatrixKind_e kind, d
         case ENUM_BLOSUM50:
         {
             result = ScoreMatrixManager::singleton().getMatrix ("BLOSUM50", encoding);
+            break;
+        }
+
+        case ENUM_NUCLEOTIDE_IDENTITY:
+        {
+            result = ScoreMatrixManager::singleton().getMatrix ("IDENTITY", encoding);
             break;
         }
 
