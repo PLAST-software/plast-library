@@ -85,6 +85,12 @@ public:
      * iteration for instance, see IAlgorithm class).
      *  \return a new ICommandDispatcher instance
      */
+    virtual dp::ICommandDispatcher* createIndexationDispatcher () = 0;
+
+    /** Create a command dispatcher instance. Such an instance can be used for parallelization (hits
+     * iteration for instance, see IAlgorithm class).
+     *  \return a new ICommandDispatcher instance
+     */
     virtual dp::ICommandDispatcher* createDispatcher () = 0;
 
     /** Create a database object (with means for retrieving sequence within the database) from an uri (likely
