@@ -32,13 +32,14 @@ namespace database { namespace impl {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-FastaDatabaseQuickReader::FastaDatabaseQuickReader (const std::string& uri, bool shouldInferType)
+FastaDatabaseQuickReader::FastaDatabaseQuickReader (const std::string& uri, bool shouldInferType, bool getOnlyType)
     : _iterator (uri.c_str()),
       _uri(uri),
       _totalSize(0), _dataSize(0), _nbSequences(0),
       _readThreshold (shouldInferType ? 100 : 0),
       _nbNucleotids(0), _nbAminoAcids(0),
-      _dbKind (ENUM_UNKNOWN)
+      _dbKind (ENUM_UNKNOWN),
+      _getOnlyType (getOnlyType)
 {
 }
 
@@ -66,6 +67,10 @@ void FastaDatabaseQuickReader::read (u_int64_t  maxblocksize)
 {
     size_t oldIdx     = ~0;
     size_t currentIdx =  0;
+
+    DEBUG (("FastaDatabaseQuickReader::read  maxblocksize=%ld  _getOnlyType=%d  _readThreshold=%d \n",
+        maxblocksize, _getOnlyType, _readThreshold
+    ));
 
     /** We clear the provided arguments. */
     _totalSize   = 0;
@@ -112,7 +117,11 @@ void FastaDatabaseQuickReader::read (u_int64_t  maxblocksize)
 
                     if (isNucleotid)  { _nbNucleotids++;  }
                     else              { _nbAminoAcids++;  }
+
                 }
+
+                /** We are interested only in the type; we can break since we should have got enough residues. */
+                if (_getOnlyType)  { break; }
 
                 _readThreshold -= imax;
             }
@@ -124,6 +133,10 @@ void FastaDatabaseQuickReader::read (u_int64_t  maxblocksize)
         /** We need +1 for counting the '\n' that has been removed by the file line iterator. */
         _totalSize += _iterator.getCurrentReadSize() + 1;
     }
+
+    DEBUG (("FastaDatabaseQuickReader::read  _nbSequences=%d  _nbNucleotids=%d  _nbAminoAcids=%d\n",
+        _nbSequences, _nbNucleotids, _nbAminoAcids
+    ));
 
     _offsets.push_back (_totalSize);
 }
@@ -144,14 +157,14 @@ IDatabaseQuickReader::DatabaseKind_e FastaDatabaseQuickReader::getKind ()
     {
         float ratio = (float) _nbNucleotids / (float) (_nbAminoAcids + _nbNucleotids);
 
-        DEBUG (("FastaDatabaseQuickReader::getKind : _nbAminoAcids=%ld  _nbNucleotids=%ld => ratio=%.1f\n",
+        DEBUG (("FastaDatabaseQuickReader::getKind : _nbAminoAcids=%d  _nbNucleotids=%d => ratio=%.1f\n",
             _nbAminoAcids, _nbNucleotids, ratio
         ));
 
         result = ratio > 0.8 ? ENUM_NUCLOTID : ENUM_AMINO_ACID;
     }
 
-    DEBUG (("FastaDatabaseQuickReader::getKind : _nbAminoAcids=%ld  _nbNucleotids=%ld => result=%d\n",
+    DEBUG (("FastaDatabaseQuickReader::getKind : _nbAminoAcids=%d  _nbNucleotids=%d => result=%d\n",
         _nbAminoAcids, _nbNucleotids, result
     ));
 

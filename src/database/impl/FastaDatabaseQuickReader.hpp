@@ -53,7 +53,7 @@ public:
     /** Constructor.
      * \param[in] uri : uri of the FASTA file to be read.
      * \param[in] shouldInferType : tells whether we should try to find the kind of genomic database we read. */
-    FastaDatabaseQuickReader (const std::string& uri, bool shouldInferType);
+    FastaDatabaseQuickReader (const std::string& uri, bool shouldInferType, bool getOnlyType=false);
 
     /** Destructor. */
     virtual ~FastaDatabaseQuickReader  ();
@@ -112,6 +112,9 @@ private:
 
     /** Kind of the database. */
     DatabaseKind_e _dbKind;
+
+    /** */
+    bool _getOnlyType;
 };
 
 /********************************************************************************/
