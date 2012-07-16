@@ -62,9 +62,9 @@ static IAlphabet alphabetsTable_aminoacid[] =
 
 /********************************************************************************/
 
-static LETTER subseedLetters_nucleotid[]  = { 0,   1,   2,   3,   4};
-static LETTER ascciiLetters_nucleotid[]   = {'A', 'C', 'G', 'T', 'N'};
-static LETTER ncbiLetters_nucleotid[]     = { 0,   1,   2,   3,   4};
+static LETTER subseedLetters_nucleotid[]  = { 0,   1,   2,   3,   4,   5 };
+static LETTER ascciiLetters_nucleotid[]   = {'A', 'C', 'G', 'T', 'N', '-'};
+static LETTER ncbiLetters_nucleotid[]     = { 0,   1,   2,   3,   4,   5 };
 
 static IAlphabet alphabetsTable_nucleotid[] =
 {
@@ -74,7 +74,7 @@ static IAlphabet alphabetsTable_nucleotid[] =
        subseedLetters_nucleotid,
        4,
 
-       4, 4, 4
+       4, 4, 5
     },
 
     {
@@ -83,7 +83,7 @@ static IAlphabet alphabetsTable_nucleotid[] =
        ascciiLetters_nucleotid,
        4,
 
-       'N', 'N', 'N'
+       'N', 'N', '-'
     },
 
     {
@@ -92,7 +92,7 @@ static IAlphabet alphabetsTable_nucleotid[] =
        ncbiLetters_nucleotid,
        4,
 
-       4, 4, 4
+       4, 4, 5
     }
 };
 
@@ -261,10 +261,10 @@ const LETTER* EncodingManager::getEncodingConversion_nucleotid (Encoding from, E
         0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
 
-    static const LETTER Encoding_subseed2ascii [] = {'A','C','G','T','N' };
+    static const LETTER Encoding_subseed2ascii [] = {'A','C','G','T','N','-'};
 
-    static const LETTER Encoding_subseed2ncbi [] = { 0, 1, 2, 3, 4 };
-    static const LETTER Encoding_ncbi2subseed [] = { 0, 1, 2, 3, 4 };
+    static const LETTER Encoding_subseed2ncbi [] = { 0, 1, 2, 3, 4, 5 };
+    static const LETTER Encoding_ncbi2subseed [] = { 0, 1, 2, 3, 4, 5 };
 
     /** We define the result object. */
     const LETTER* result = 0;
