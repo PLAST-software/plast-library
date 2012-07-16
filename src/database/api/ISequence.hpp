@@ -84,6 +84,9 @@ struct ISequence
     /** */
     u_int32_t getLength ()  const {  return data.letters.size > 0 ? data.letters.size : length;  }
 
+    /** */
+    const LETTER* getData () const  { return data.letters.data; }
+
     /** Get id and definition of the sequence.
      */
     void retrieveIdAndDefinition (
