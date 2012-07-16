@@ -144,6 +144,44 @@ static const int8_t  BLOSUM50_matrix [28][28] = {
     { -5, -2, -4, -2, -4, -3,  1, -4, -3,  4, -3,  4,  2, -4, -3, -3, -3, -3, -1,  2, -2, -1, -1, -3, -1, -5, -1,  4, }
 };
 
+/********************************************************************************/
+
+static const int8_t M = 1;  // match
+static const int8_t P = 2;  // penalty
+
+static const int8_t  IDENTITY_NUCLEOTID_matrix [28][28] = {
+
+   /*  A   C   G   T   N                                                                                              */
+    {  M, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P,  M, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P,  M, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P,  M, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
+};
+
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
@@ -189,6 +227,16 @@ IScoreMatrix* ScoreMatrixManager::getMatrix (const char* matrixName, Encoding en
 
         /** We fill the matrix. */
         fillMatrix (result, BLOSUM50_matrix);
+    }
+    else if (strcmp(matrixName,"IDENTITY")==0)
+    {
+        DEBUG (("ScoreMatrixManager::getMatrix => IDENTITY\n"));
+
+        /** We create the score matrix. */
+        result = new ScoreMatrix (encoding, 28, -3);
+
+        /** We fill the matrix. */
+        fillMatrix (result, IDENTITY_NUCLEOTID_matrix);
     }
 
     /** We may have no matrix: we send an exception. */
