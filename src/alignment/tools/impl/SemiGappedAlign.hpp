@@ -55,8 +55,8 @@ public:
 
     /** */
     int compute (
-        char* A,
-        char* B,
+        const char* A,
+        const char* B,
         int M,
         int N,
         int* a_offset,

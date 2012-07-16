@@ -92,8 +92,8 @@ SemiGapAlign::~SemiGapAlign ()
 ** REMARKS :
 *********************************************************************/
 int SemiGapAlign::compute (
-    char* A,
-    char* B,
+	const char* A,
+	const char* B,
     int M,
     int N,
     int* a_offset,
@@ -101,6 +101,9 @@ int SemiGapAlign::compute (
     int reverse_sequence
 )
 {
+    DEBUG (("----------------------------------------------------------------------------------------------------\n"));
+    DEBUG (("SemiGapAlign::compute:  |Q|=%3d |S|=%3d \n", M,N));
+
     /** Define as local variable (ie. in stack). */
     int8_t** matrix             = _scoreMatrix->getMatrix();
     int      gap_extend         = _extendGapCost;
@@ -120,11 +123,11 @@ int SemiGapAlign::compute (
     BlastGapDP* score_array = 0;
     int8_t*     matrix_row  = 0;
 
-    ScoreInt score;                 /* score tracking variables */
-    ScoreInt score_gap_row;
-    ScoreInt score_gap_col;
-    ScoreInt next_score;
-    ScoreInt best_score;
+    ScoreInt score         = 0;                 /* score tracking variables */
+    ScoreInt score_gap_row = 0;
+    ScoreInt score_gap_col = 0;
+    ScoreInt next_score    = 0;
+    ScoreInt best_score    = score;
 
     u_int16_t num_extra_cells;
     u_int16_t dp_mem_alloc = 1000;
@@ -283,6 +286,10 @@ int SemiGapAlign::compute (
     /**********************************************************************/
 
     DefaultFactory::memory().free (score_array);
+
+    DEBUG (("SemiGapAlign::compute:  |Q|=%3d |S|=%3d  => a_index=%d  b_index=%d  score=%d  best=%d  aOffset=%d  bOffset=%d  b_size=%d  first_b_index=%d\n",
+        M,N, a_index, b_index, score, best_score, *a_offset, *b_offset, b_size, first_b_index
+    ));
 
     return best_score;
 }
