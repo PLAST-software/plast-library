@@ -176,6 +176,23 @@ bool UngapAlignmentResult::insert (Alignment& align, void* context)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+bool UngapAlignmentResult::insert (const misc::Range64& qryRange, const misc::Range64& sbjRange, u_int32_t qryIndex)
+{
+    return addDiag (
+        qryRange.begin, qryRange.end,
+        sbjRange.begin, sbjRange.end,
+        qryIndex
+    );
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 bool UngapAlignmentResult::doesExist (
     const indexation::ISeedOccurrence* subjectOccur,
     const indexation::ISeedOccurrence* queryOccur,

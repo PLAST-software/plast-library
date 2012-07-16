@@ -80,6 +80,9 @@ public:
     /** \copydoc AbstractAlignmentResult::insert */
     bool insert (Alignment& align, void* context);
 
+    /** \copydoc AbstractAlignmentResult::insert */
+    bool insert (const misc::Range64& qry, const misc::Range64& sbj, u_int32_t qryIndex);
+
     /** \copydoc AbstractAlignmentResult::getSize */
     u_int32_t getAlignmentsNumber ()  {  return _listGaplessAlignSize; }
 
