@@ -106,7 +106,7 @@ void DatabaseIndex::iterateSeed (const ISeed* seed)
         ));
 
         /** We add the offset in the database for the current seed. */
-        entry.push_back (_sequenceOffset + seed->offset);
+        entry.push_back (SeedOccurrence (_sequenceOffset + seed->offset, _currentSequence->index));
     }
 }
 
@@ -220,14 +220,14 @@ IOccurrenceIterator* DatabaseIndex::createOccurrenceIterator (const ISeed* seed,
 {
     SeedHashCode code = (seed->code != BAD_SEED_HASH_CODE ? seed->code : getHashCode (seed->kmer));
 
-    if (code > _index.size())
+    if (code >= _index.size())
     {
         printf ("ERROR!!! : BAD HASH CODE\n");
         return 0;
     }
 
     /** A little shortcut. */
-    std::vector<SequenceOffset>& offsets = _index[code];
+	IndexEntry& offsets = _index[code];
 
     return (offsets.size() > 0 ?
         new DatabaseOccurrenceIterator (getDatabase(), _span, &offsets, neighbourhoodSize)
@@ -254,14 +254,14 @@ IOccurrenceBlockIterator* DatabaseIndex::createOccurrenceBlockIterator (
 
     SeedHashCode code = (seed->code != BAD_SEED_HASH_CODE ? seed->code : getHashCode (seed->kmer));
 
-    if (code > _index.size())
+    if (code >= _index.size())
     {
         printf ("ERROR!!! : BAD HASH CODE\n");
     }
     else
     {
-        /** A little shortcut. */
-        std::vector<SequenceOffset>& offsets = _index[code];
+    	/** A little shortcut. */
+		IndexEntry& offsets = _index[code];
 
         if (offsets.size() > 0)
         {
@@ -286,11 +286,34 @@ IOccurrenceBlockIterator* DatabaseIndex::createOccurrenceBlockIterator (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+IDatabaseIndex::IndexEntry& DatabaseIndex::getEntry (const seed::ISeed* seed)
+{
+    SeedHashCode code = (seed->code != BAD_SEED_HASH_CODE ? seed->code : getHashCode (seed->kmer));
+
+    if (code >= _index.size())
+    {
+        printf ("ERROR!!! : BAD HASH CODE\n");
+        return _index[0];
+    }
+    else
+    {
+        return _index[code];
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 size_t DatabaseIndex::getOccurrenceNumber (const seed::ISeed* seed)
 {
     SeedHashCode code = (seed->code != BAD_SEED_HASH_CODE ? seed->code : getHashCode (seed->kmer));
 
-    if (code > _index.size())
+    if (code >= _index.size())
     {
         printf ("ERROR!!! : BAD HASH CODE\n");
         return 0;
@@ -352,10 +375,10 @@ void DatabaseIndex::merge (void)
         const ISeed* seed = itSeed->currentItem();
 
         SeedHashCode code = (seed->code != BAD_SEED_HASH_CODE ? seed->code : getHashCode (seed->kmer));
-        if (code > _index.size())  {  printf ("ERROR!!! : BAD HASH CODE\n");  return ;  }
+        if (code >= _index.size())  {  printf ("ERROR!!! : BAD HASH CODE\n");  return ;  }
 
         /** A little shortcut. */
-        vector<SequenceOffset>& globalOccur = _index[code];
+        vector<SeedOccurrence>& globalOccur = _index[code];
 
         /** We clear the occurrences vector of the 'this' instance for the current seed. */
         globalOccur.clear();
@@ -371,13 +394,12 @@ void DatabaseIndex::merge (void)
 
             if (CHECKPTR(child))
             {
-                vector<SequenceOffset>& childOccur =  child->_index [code];
+            	IndexEntry& childOccur =  child->_index [code];
 
                 /** We have to align the offsets. */
-                for (size_t j=0; j<childOccur.size(); j++)
+                for (IndexEntry::iterator it = childOccur.begin(); it != childOccur.end(); it++)
                 {
-                    SequenceOffset& occur = childOccur[j];
-                    occur += databasesSize;
+                    it->offsetInDatabase += databasesSize;
                 }
 
                 /** We add the child index into the parent index. */
@@ -413,7 +435,7 @@ void DatabaseIndex::DatabaseOccurrenceIterator::updateItem ()
 {
     /** We retrieve other information: sequence and offset in sequence. */
     _database->getSequenceByOffset (
-        (*_offsets)[_currentIdx],
+        (*_offsets)[_currentIdx].offsetInDatabase,
         _item.sequence,
         _item.offsetInSequence,
         _item.offsetInDatabase
@@ -599,7 +621,7 @@ void DatabaseIndex::DatabaseOccurrenceBlockIterator::configure ()
 
         /** We retrieve other information: sequence and offsets in sequence and db. */
         _database->getSequenceByOffset (
-            (*_offsets)[_range.begin + currentIdx],
+            (*_offsets)[_range.begin + currentIdx].offsetInDatabase,
             occur->sequence,
             occur->offsetInSequence,
             occur->offsetInDatabase

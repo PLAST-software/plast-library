@@ -79,6 +79,19 @@ class IDatabaseIndex : public dp::SmartPointer
 {
 public:
 
+    /** Data type for storing a list of <offsets,sequenceIndex>. */
+    struct SeedOccurrence
+    {
+        SeedOccurrence () : offsetInDatabase(0), sequenceIdx(0) {}
+        SeedOccurrence (u_int32_t off, u_int32_t seqIdx) : offsetInDatabase(off), sequenceIdx(seqIdx) {}
+
+        u_int32_t  offsetInDatabase;
+        u_int32_t  sequenceIdx;
+    };
+
+    /** Data type for storing a list of offsets. */
+    typedef std::vector<SeedOccurrence> IndexEntry;
+
     /** Returns the sequences database.
      * \return the database.
      */
@@ -111,6 +124,12 @@ public:
         size_t neighbourhoodSize,
         size_t blockSize
     ) = 0;
+
+    /** Returns the entries for a given seed.
+     * param[in] seed : the seed for which we want to know the occurrences number
+     * \return the entries
+     */
+    virtual IndexEntry& getEntry (const seed::ISeed* seed) = 0;
 
     /** Returns the number of occurrences for a given seed.
      * param[in] seed : the seed for which we want to know the occurrences number

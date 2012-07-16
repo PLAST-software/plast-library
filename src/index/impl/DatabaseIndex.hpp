@@ -88,6 +88,9 @@ public:
         size_t blockSize
     );
 
+    /** \copydoc AbstractDatabaseIndex::getEntry */
+    IndexEntry& getEntry (const seed::ISeed* seed);
+
     /** \copydoc AbstractDatabaseIndex::getOccurrenceNumber */
     size_t getOccurrenceNumber (const seed::ISeed* seed);
 
@@ -98,12 +101,6 @@ public:
     void merge (void);
 
 protected:
-
-    /** Data type for storing an seed offset. */
-    typedef u_int32_t SequenceOffset;
-
-    /** Data type for storing a lsit of offsets. */
-    typedef std::vector<SequenceOffset> IndexEntry;
 
     /** The index itself. Defined as a vector of vectors. */
     std::vector <IndexEntry>  _index;
