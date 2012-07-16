@@ -167,6 +167,29 @@ public:
     }
 
     /**********************************************************************
+     * Constructor. This is the typical constructor used when some HSP has
+     * been computed and ranges in query/subject have been computed by some
+     * dynamic programmation. Here, we memorize these information and provide
+     * getter to access it.
+     **********************************************************************/
+    Alignment (
+        const database::ISequence* qrySequence,
+        const database::ISequence* sbjSequence,
+        const misc::Range32& qryRange,
+        const misc::Range32& sbjRange
+    )
+        : _length(0), _evalue(0), _bitscore(0), _score(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)
+    {
+        _info[QUERY]._sequence = (database::ISequence*)qrySequence;
+        _info[QUERY]._range    = qryRange;
+
+        _info[SUBJECT]._sequence = (database::ISequence*)sbjSequence;
+        _info[SUBJECT]._range    = sbjRange;
+
+        _length = MAX (qryRange.getLength(), sbjRange.getLength());
+    }
+
+    /**********************************************************************
      * Constructor that configure an alignment from some string source (mainly for test purpose).
      **********************************************************************/
     Alignment (const std::string& source, const std::string& format="tabulated");
@@ -304,8 +327,8 @@ public:
     {
         std::stringstream ss;
         ss << "ALIGN  "
-           << "sbj [" << getRange(SUBJECT).begin+1 << ":" << getRange(SUBJECT).end+1 << "  frm=" << (int)getFrame(SUBJECT) << "]  "
-           << "qry [" << getRange(QUERY).begin+1   << ":" << getRange(QUERY).end+1   << "  frm=" << (int)getFrame(QUERY)   << "]";
+           << "qry [" << getRange(QUERY).begin+1   << ":" << getRange(QUERY).end+1   << "  frm=" << (int)getFrame(QUERY)   << "]  "
+           << "sbj [" << getRange(SUBJECT).begin+1 << ":" << getRange(SUBJECT).end+1 << "  frm=" << (int)getFrame(SUBJECT) << "]  ";
         return ss.str ();
     }
 
