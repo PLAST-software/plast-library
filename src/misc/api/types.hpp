@@ -175,7 +175,8 @@ enum SeedModelKind_e
 enum ScoreMatrixKind_e
 {
     ENUM_BLOSUM62,
-    ENUM_BLOSUM50
+    ENUM_BLOSUM50,
+    ENUM_NUCLEOTIDE_IDENTITY
 };
 
 /** */
