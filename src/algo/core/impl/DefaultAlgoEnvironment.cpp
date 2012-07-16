@@ -25,7 +25,9 @@
 
 #include <algo/core/impl/DefaultAlgoEnvironment.hpp>
 #include <algo/core/impl/DefaultAlgoConfig.hpp>
+#include <algo/core/impl/PlastnAlgoConfig.hpp>
 #include <algo/core/impl/AbstractAlgorithm.hpp>
+#include <algo/core/impl/AlgorithmPlastn.hpp>
 #include <algo/core/impl/DatabasesProvider.hpp>
 #include <algo/core/api/IAlgoEvents.hpp>
 
@@ -205,7 +207,19 @@ IConfiguration* DefaultEnvironment::createConfiguration (dp::IProperties* proper
 {
     IConfiguration* result = 0;
 
-    result = new DefaultConfiguration (this, properties);
+    /** We retrieve the type of algorithm (may be not set). */
+    IProperty* algoProp = _properties->getProperty (STR_OPTION_ALGO_TYPE);
+
+    DEBUG (("DefaultEnvironment::createConfiguration: algoProp=%p (val='%s') \n", algoProp, (algoProp ? algoProp->getString() : "?")));
+
+    if (algoProp != 0  &&  algoProp->getValue().compare ("plastn")==0)
+    {
+        result = new PlastnConfiguration (this, properties);
+    }
+    else
+    {
+        result = new DefaultConfiguration (this, properties);
+    }
 
     return result;
 }
