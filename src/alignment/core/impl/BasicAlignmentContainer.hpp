@@ -116,6 +116,37 @@ protected:
 };
 
 /********************************************************************************/
+
+/** \brief Default implementation of IAlignmentResult interface for gap alignments
+ */
+class BasicAlignmentContainerBis : public BasicAlignmentContainer
+{
+public:
+
+protected:
+
+    /** */
+    virtual bool isInContainer (
+        ContainerLevel3* container,
+        const misc::Range32& sbjRange,
+        const misc::Range32& qryRange,
+        char delta = 0
+    )
+    {
+        bool found = false;
+        if (container != 0)
+        {
+            for (ContainerLevel3::iterator it = container->begin(); !found  &&  it != container->end(); it++)
+            {
+                found = (*it).getRange(Alignment::SUBJECT) == sbjRange  &&  (*it).getRange(Alignment::QUERY) == qryRange;
+            }
+        }
+
+        return found;
+    }
+};
+
+/********************************************************************************/
 }}} /* end of namespaces. */
 /********************************************************************************/
 
