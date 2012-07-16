@@ -63,6 +63,9 @@ public:
     /** \copydoc IAlignmentResult::insertFirstLevel */
     bool insertFirstLevel (const database::ISequence* sequence)  { return false; }
 
+    /** \copydoc IAlignmentResult::insert */
+    bool insert (const misc::Range64& qry, const misc::Range64& sbj, u_int32_t qryIndex)  { return false; }
+
     /** \copydoc IAlignmentResult::getFirstLevelNumber */
     u_int32_t getFirstLevelNumber () { return 0; }
 
