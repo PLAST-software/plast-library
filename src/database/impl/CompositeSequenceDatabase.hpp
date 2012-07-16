@@ -75,6 +75,10 @@ public:
      */
     bool getSequenceByIndex (size_t index, ISequence& sequence);
 
+    /** \copydoc ISequenceDatabase::getSequenceRefByIndex
+     * The cache is supposed to be already built. */
+    ISequence* getSequenceRefByIndex (size_t index);
+
     /** \copydoc ISequenceDatabase::getSequenceByOffset
      *  Note that the filled ISequence instance will refer
      *  the child database it belongs to and not the composite database.

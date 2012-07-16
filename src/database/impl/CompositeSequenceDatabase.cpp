@@ -126,6 +126,35 @@ bool CompositeSequenceDatabase::getSequenceByIndex (size_t index, ISequence& seq
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+ISequence* CompositeSequenceDatabase::getSequenceRefByIndex (size_t index)
+{
+    ISequence* result = NULL;
+
+    size_t imax = _sequencesOffsets.size() - 1;
+
+    size_t i=0;
+    for (i=0; i<imax; i++)
+    {
+        if ( (_sequencesOffsets[i] <= index) &&  (index <_sequencesOffsets[i+1]) )  { break; }
+    }
+
+    if (i<imax)
+    {
+        /** We look for the result in the actual database. */
+        result = _children[i]->getSequenceRefByIndex (index - _sequencesOffsets[i]);
+    }
+
+    return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 bool CompositeSequenceDatabase::getSequenceByName (
     const std::string& id,
     ISequence& sequence
