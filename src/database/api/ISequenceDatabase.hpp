@@ -69,6 +69,12 @@ public:
      */
     virtual bool getSequenceByIndex (size_t index, ISequence& sequence) = 0;
 
+    /** Returns a sequence reference given its index.
+     * \param[in]  index : the index of the wanted sequence
+     * \return a reference to the sequence if found, NULL otherwise
+     */
+    virtual ISequence* getSequenceRefByIndex (size_t index) = 0;
+
     /** Returns a sequence given an offset (in the database).
      *  Also returns the offset in the returned sequence and the actual offset in the database.
      *  \param[in] offset : offset of the sequence in the database
