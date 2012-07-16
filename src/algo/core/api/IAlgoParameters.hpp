@@ -133,6 +133,12 @@ public:
     /** */
     size_t nbAlignPerHit;
 
+    /** Reward score (used by plastn). */
+    int reward;
+
+    /** Penalty score (used by plastn). */
+    int penalty;
+
     /** Clone the instance.
      * \return the cloned instance. */
     IParameters* clone ()
