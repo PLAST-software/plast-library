@@ -84,6 +84,18 @@ public:
      */
     BufferedSequenceDatabase (ISequenceIterator* refIterator, bool filterLowComplexity);
 
+    /** Constructor that uses a provided cache and an index range for iterating the cache.
+     * \param[in] cache : cache to be used
+     * \param[in] firstIdx : first index to be used in the cache
+     * \param[in] lastIdx  : last index to be used in the cache
+     */
+    BufferedSequenceDatabase (
+        const std::string& id,
+        ISequenceCache* cache,
+        size_t firstIdx,
+        size_t lastIdx
+    );
+
     /** Destructor. */
     virtual ~BufferedSequenceDatabase ();
 
@@ -98,6 +110,10 @@ public:
     /** \copydoc ISequenceDatabase::getSequenceByIndex
      * The cache is supposed to be already built. */
     bool getSequenceByIndex (size_t index, ISequence& sequence);
+
+    /** \copydoc ISequenceDatabase::getSequenceRefByIndex
+     * The cache is supposed to be already built. */
+    ISequence* getSequenceRefByIndex (size_t index)  { return 0; }
 
     /** \copydoc ISequenceDatabase::getSequenceByOffset
      * The cache is supposed to be already built. */
@@ -133,18 +149,6 @@ public:
     void retrieveSequencesIdentifiers (std::set<std::string>& ids);
 
 private:
-
-    /** Constructor that uses a provided cache and an index range for iterating the cache.
-     * \param[in] cache : cache to be used
-     * \param[in] firstIdx : first index to be used in the cache
-     * \param[in] lastIdx  : last index to be used in the cache
-     */
-    BufferedSequenceDatabase (
-        const std::string& id,
-        ISequenceCache* cache,
-        size_t firstIdx,
-        size_t lastIdx
-    );
 
     /** Identifier */
     std::string _id;
