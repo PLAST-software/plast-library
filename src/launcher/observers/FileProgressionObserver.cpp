@@ -123,6 +123,13 @@ AlignmentProgressionObserver::AlignmentProgressionObserver (const std::string& f
 {
     _file = fopen (filename.c_str(), "w");
 
+    if (_file)
+    {
+        fprintf (_file,
+            "#  1) idx    2) exec ratio   3) time   4) HSP nb   5) align nb   6) time ratio   7) HSP ratio   8) align ratio\n"
+        );
+    }
+
     _synchro = DefaultFactory::singleton().thread().newSynchronizer();
 }
 
@@ -142,20 +149,23 @@ AlignmentProgressionObserver::~AlignmentProgressionObserver ()
     {
         u_int32_t maxUngap = ungapAlignsNb [nb - 1];
         u_int32_t maxGap   = gapAlignNb    [nb - 1];
+        float     maxTime  = execTime    [nb - 1];
 
         for (size_t i=0; i<nb; i++)
         {
             if (maxUngap==0 || maxGap==0)  { continue; }
 
+            float t = (float) execTime[i]    / (float) maxTime;
             float a = (float) ungapAlignsNb[i] / (float) maxUngap;
             float b = (float) gapAlignNb[i]    / (float) maxGap;
 
-            fprintf (_file, "%ld  %.3f  %.6f  %d  %d  %.6f  %.6f\n",
+            fprintf (_file, "%ld  %.3f  %.6f  %d  %d  %.6f  %.6f  %.6f\n",
                 i,
                 (float)i / (float)nb,
                 execTime[i],
                 ungapAlignsNb[i],
                 gapAlignNb[i],
+                t,
                 a,
                 b
             );
