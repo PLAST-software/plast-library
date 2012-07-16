@@ -18,6 +18,8 @@
 
 #include <misc/api/macros.hpp>
 
+#include <designpattern/impl/RangeIterator.hpp>
+
 #include <alignment/tools/impl/AlignmentSplitter.hpp>
 
 #include <iostream>
@@ -112,6 +114,10 @@ size_t AlignmentSplitter::splitAlign (
         /** Alignments are too big for computing information. */
         return 0;
     }
+
+    /** SHORTCUTS. */
+    LETTER anyLetter  = EncodingManager::singleton().getAlphabet(SUBSEED)->any;
+    LETTER dashLetter = EncodingManager::singleton().getAlphabet(SUBSEED)->gap;
 
     /** Shortcuts. */
     int8_t** MATRIX = _scoreMatrix->getMatrix();
@@ -216,7 +222,7 @@ size_t AlignmentSplitter::splitAlign (
 
         if (s > 0)  { output.positive++; }
 
-        if ((H[i-1][j-1] + s) >= MAX (E[i][j],F[i][j]))
+        if ((H[i-1][j-1] + s) > MAX (E[i][j],F[i][j]))
         {
             qryLocal[x] = qryStr[i-1];
             subLocal[x] = subStr[j-1];
@@ -239,7 +245,7 @@ size_t AlignmentSplitter::splitAlign (
         {
             if (E[i][j] > F[i][j])
             {
-                qryLocal[x] = CODE_DASH;
+                qryLocal[x] = dashLetter;
                 subLocal[x] = subStr[j-1];
                 x++;
 
@@ -258,7 +264,7 @@ size_t AlignmentSplitter::splitAlign (
             else
             {
                 qryLocal[x] = qryStr[i-1];
-                subLocal[x] = CODE_DASH;
+                subLocal[x] = dashLetter;
                 x++;
 
                 if (lg==0)
@@ -278,6 +284,7 @@ size_t AlignmentSplitter::splitAlign (
 
     } /* end of while ( (i>0) && (j>0) ) */
 
+
     for (i=x-1; i>=0; i--)
     {
         /** Shortcuts (and optimization). */
@@ -285,8 +292,8 @@ size_t AlignmentSplitter::splitAlign (
         char l2 = subLocal[i];
 
 #if 1
-             if (l1==l2         || (l1==CODE_X || l2==CODE_X))       {  output.identity ++;  }
-        else if (l1!=CODE_DASH  &&  l2!=CODE_DASH)    {  output.nbMis++;      }
+             if (l1==l2          || (l1==anyLetter || l2==anyLetter))       {  output.identity ++;  }
+        else if (l1!=dashLetter  &&  l2!=dashLetter)    {  output.nbMis++;      }
 #else
              if (l1==l2         &&  l1!=CODE_X)       {  output.identity ++;  }
         else if (l1!=CODE_DASH  &&  l2!=CODE_DASH)    {  output.nbMis++;      }
@@ -302,11 +309,7 @@ size_t AlignmentSplitter::splitAlign (
     if (output.queryAlign   != 0)  { memcpy (output.queryAlign,   qryLocal, output.alignSize); }
 
 #if 0
-    printf ("\nALIGN: nbGapQry=%d   nbGapSbj=%d   \n", output.nbGapQry, output.nbGapSbj);
-    const LETTER* convert = EncodingManager::singleton().getEncodingConversion(SUBSEED, ASCII);
-    for (u_int32_t ii=0; ii<x; ii++)  { printf ("%c", convert[(int)qryLocal[ii]]);  }  printf("\n");
-    for (u_int32_t ii=0; ii<x; ii++)  { printf ("%c", (qryLocal[ii]==subLocal[ii] && qryLocal[ii] != CODE_X ? '|' : ' '));  }  printf("\n");
-    for (u_int32_t ii=0; ii<x; ii++)  { printf ("%c", convert[(int)subLocal[ii]]);  }  printf("\n");
+    dump (output, qryRange, sbjRange, qryLocal, subLocal);
 #endif
 
     /** We return the result. */
@@ -384,6 +387,74 @@ void AlignmentSplitter::freeMatrix (int16_t *** mat)
         DefaultFactory::memory().free(*mat);
     }
     *mat = NULL;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AlignmentSplitter::dump (
+	const SplitOutput& output,
+    const misc::Range32&    qryRange,
+    const misc::Range32&    sbjRange,
+    char* qryLocal,
+    char* subLocal
+)
+{
+    /** SHORTCUTS. */
+    LETTER anyLetter  = EncodingManager::singleton().getAlphabet(SUBSEED)->any;
+    LETTER dashLetter = EncodingManager::singleton().getAlphabet(SUBSEED)->gap;
+	u_int32_t x = output.alignSize;
+
+    printf ("\nALIGN: nbGapQry=%d   nbGapSbj=%d   alignSize=%d \n", output.nbGapQry, output.nbGapSbj, output.alignSize);
+    const LETTER* convert = EncodingManager::singleton().getEncodingConversion(SUBSEED, ASCII);
+
+    dp::impl::RangeIterator<int> it (misc::Range<int> (0, output.alignSize-1), 60, 0);
+
+    int nbQryChar = 0;
+    int nbSbjChar = 0;
+
+    misc::Range<int> r;
+    while (it.retrieve(r))
+    {
+
+        printf ("Query  %3d  ", qryRange.begin + 1 + nbQryChar);
+        for (int ii=r.begin; ii<=r.end; ii++)  { printf ("%c", convert[(int)qryLocal[x-1-ii]]);  if (qryLocal[x-1-ii]!=dashLetter) {nbQryChar++;} }
+        printf ("  %d", qryRange.begin + nbQryChar);
+        printf("\n");
+
+        printf ("            ");
+        for (int ii=r.begin; ii<=r.end; ii++)
+        {
+            bool isTheSame = qryLocal[x-1-ii]==subLocal[x-1-ii];
+
+            if (isTheSame && qryLocal[x-1-ii] != anyLetter)
+            {
+                printf ("%c", '|');
+            }
+            else if (qryLocal[x-1-ii]==dashLetter  ||  subLocal[x-1-ii]==dashLetter)
+            {
+                printf ("%c", ' ');
+            }
+            else
+            {
+                printf ("%c", ' ');
+            }
+    //        printf ("%c", (qryLocal[ii]==subLocal[ii] && qryLocal[ii] != CODE_X ? '|' : ' '));
+        }
+        printf("\n");
+
+        printf ("Sbjct  %3d  ", sbjRange.begin + 1 + nbSbjChar);
+        for (int ii=r.begin; ii<=r.end; ii++)  { printf ("%c", convert[(int)subLocal[x-1-ii]]); if (subLocal[x-1-ii]!=dashLetter) {nbSbjChar++;} }
+        printf ("  %d", sbjRange.begin + nbSbjChar);
+        printf("\n");
+
+        printf ("\n");
+    }
 }
 
 /********************************************************************************/

@@ -80,6 +80,15 @@ private:
 
     int16_t** newMatrix  (int nrows, int ncols);
     void      freeMatrix (int16_t*** mat);
+
+    /** */
+    void dump (
+		const SplitOutput& output,
+	    const misc::Range32&    qryRange,
+	    const misc::Range32&    sbjRange,
+	    char* qryLocal,
+	    char* subLocal
+	);
 };
 
 /********************************************************************************/
