@@ -38,20 +38,8 @@ namespace statistics { namespace impl {
 
 #define VMAX    (double)32768
 
-/** Structure holding statistical information. */
-struct Info
-{
-    double openGap;
-    double extendGap;
-    double lambda;
-    double K;
-    double H;
-    double alpha;
-    double beta;
-};
-
 /** Supported values (gap-existence, extension, etc.) for BLOSUM62. */
-static Info blosum62_values [] =
+static GlobalParameters::Info blosum62_values [] =
 { // openGap  extendGap   lambda     K       H       alpha   beta
     { VMAX,    VMAX,      0.3176,  0.134,  0.4012,  0.7916,  -3.2    },
     {   11,       2,      0.2970,  0.082,  0.2700,  1.1000,  -10     },
@@ -68,7 +56,7 @@ static Info blosum62_values [] =
 };
 
 /** Supported values (gap-existence, extension, etc.) for BLOSUM50. */
-static Info  blosum50_values[] =
+static GlobalParameters::Info  blosum50_values[] =
 { // openGap  extendGap   lambda     K       H       alpha   beta
     { VMAX,    VMAX,      0.2318,  0.112,  0.3362,  0.6895,  -4.0    },
     {   13,       3,      0.212,   0.063,  0.1900,  1.1000,  -16     },
@@ -96,58 +84,26 @@ static Info  blosum50_values[] =
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-GlobalParameters::GlobalParameters (IParameters* parameters)
-    : _parameters (parameters)
-{
-    build ();
-
-    DEBUG (("GlobalParameters::GlobalParameters::  K=%f logK=%f alpha=%f lambda=%f beta=%f  evalue=%f\n",
-        K, logK, alpha, lambda, beta, evalue
-    ));
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-void GlobalParameters::setParameters (IParameters* parameters)
-{
-    if (_parameters != 0)  { _parameters->forget(); }
-    _parameters = parameters;
-    if (_parameters != 0)  { _parameters->use();    }
-}
-
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-bool GlobalParameters::lookup (void* table, size_t size)
+bool AbstractGlobalParameters::lookup (AbstractGlobalParameters* globalParams, void* table, size_t size)
 {
     bool found = false;
 
     for (size_t i=0; !found &&  i<size; i++)
     {
-        /** Shortcut. */
+        /** Shortcuts. */
         Info&  current = ((Info*)table)[i];
 
-        if (current.openGap==_parameters->openGapCost  &&  current.extendGap==_parameters->extendGapCost)
+        IParameters* params = globalParams->_parameters;
+
+        if (current.openGap==params->openGapCost  &&  current.extendGap==params->extendGapCost)
         {
-            lambda  = current.lambda;
-            K       = current.K;
-            H       = current.H;
-            alpha   = current.alpha;
-            beta    = current.beta;
-            evalue  = _parameters->evalue;
-            logK    = log(K);
+            globalParams->lambda  = current.lambda;
+            globalParams->K       = current.K;
+            globalParams->H       = current.H;
+            globalParams->alpha   = current.alpha;
+            globalParams->beta    = current.beta;
+            globalParams->evalue  = params->evalue;
+            globalParams->logK    = log(globalParams->K);
 
             found = true;
         }
@@ -188,7 +144,7 @@ void GlobalParameters::build (void)
             }
             else
             {
-                found = lookup (blosum62_values, ARRAYSIZE(blosum62_values));
+                found = lookup (this, blosum62_values, ARRAYSIZE(blosum62_values));
             }
 
             if (_parameters->smallGapThreshold   == 0)    { _parameters->smallGapThreshold   = 54; }
@@ -219,7 +175,7 @@ void GlobalParameters::build (void)
             }
             else
             {
-                found = lookup (blosum50_values, ARRAYSIZE(blosum50_values));
+                found = lookup (this, blosum50_values, ARRAYSIZE(blosum50_values));
             }
 
             if (_parameters->smallGapThreshold   == 0)    { _parameters->smallGapThreshold   = 60; }

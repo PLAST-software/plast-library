@@ -43,37 +43,64 @@ namespace statistics  {
 namespace impl {
 /********************************************************************************/
 
-/** \brief Implementation of IGlobalParameters interface
- *
- *  This class uses a IParameters instance (coming from command line options for instance)
- *  for customizing the generation of the statistical parameters
- *  (openGapCost, extendGapCost, etc...).
+/** Code factorization.
  */
-class GlobalParameters : public IGlobalParameters
+class AbstractGlobalParameters : public IGlobalParameters
 {
 public:
 
     /** Constructor.
      *  \param[in] parameters : parameters used for configuring the global statistics.
      */
-    GlobalParameters (algo::core::IParameters* parameters);
+    AbstractGlobalParameters (algo::core::IParameters* parameters) : _parameters(0)  { setParameters (parameters); }
 
-private:
+    /** Structure holding statistical information. */
+    struct Info
+    {
+        double openGap;
+        double extendGap;
+        double lambda;
+        double K;
+        double H;
+        double alpha;
+        double beta;
+        double theta;
+    };
+
+protected:
 
     /** Reference on the IParameters instance. */
     algo::core::IParameters* _parameters;
-
-    /** Smart setter for the _parameters attribute.
-     * \param[in] parameters */
-    void setParameters (algo::core::IParameters* parameters);
-
-    /** Computes statistics. */
-    void build (void);
+    void setParameters (algo::core::IParameters* parameters)  { SP_SETATTR(parameters); }
 
     /** Looks for statistical parameters according to a score matrix and open/extend gap costs.
      * \return true if parameters are found, false otherwise
      */
-    bool lookup (void* table, size_t size);
+    static bool lookup (AbstractGlobalParameters* globalParams, void* table, size_t size);
+};
+
+/********************************************************************************/
+
+/** \brief Implementation of IGlobalParameters interface
+ *
+ *  This class uses a IParameters instance (coming from command line options for instance)
+ *  for customizing the generation of the statistical parameters
+ *  (openGapCost, extendGapCost, etc...).
+ */
+class GlobalParameters : public AbstractGlobalParameters
+{
+public:
+
+    /** Constructor.
+     *  \param[in] parameters : parameters used for configuring the global statistics.
+     */
+    GlobalParameters (algo::core::IParameters* parameters)
+        : AbstractGlobalParameters (parameters)  {  build(); }
+
+protected:
+
+    /** Computes statistics. */
+    void build (void);
 };
 
 /********************************************************************************/
