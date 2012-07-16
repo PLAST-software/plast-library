@@ -39,7 +39,7 @@ namespace indexation { namespace impl {
 ** REMARKS :
 *********************************************************************/
 DatabaseIndex::DatabaseIndex (ISequenceDatabase* database, ISeedModel* model)
-    : AbstractDatabaseIndex (database, model), _currentSequence(0), _span(0), _alphabetSize(0)
+    : AbstractDatabaseIndex (database, model), _currentSequence(0), _span(0), _alphabetSize(0), _sequenceOffset(0)
 {
     DEBUG (("DatabaseIndex::DatabaseIndex: _maxSeedsNumber=%ld\n", _maxSeedsNumber));
 
