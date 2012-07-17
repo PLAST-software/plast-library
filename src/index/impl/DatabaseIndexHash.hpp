@@ -91,7 +91,7 @@ private:
     {
     public:
         DatabaseOccurrenceIterator (database::ISequenceDatabase* database, IndexEntry* offsets, size_t deltaSequence)
-            : _database(database), _offsets(offsets), _deltaSequence(deltaSequence)
+            : _database(database), _currentIdx(0), _lastIdx(0), _offsets(offsets), _deltaSequence(deltaSequence)
         {
         }
 

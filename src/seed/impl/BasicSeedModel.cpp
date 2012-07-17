@@ -206,7 +206,7 @@ bool BasicSeedModel::DataSeedIterator::findNextValidItem (void)
 ** REMARKS :
 *********************************************************************/
 BasicSeedModel::DataSeedIteratorWithTokenizer::DataSeedIteratorWithTokenizer (BasicSeedModel* model, const database::IWord& data)
-    : DataSeedIterator (model, data), _delta(0), _tokenizer(data), _begin(0), _end(0)
+    : DataSeedIterator (model, data), _delta(0), _tokenizer(data), _currentToken(0), _begin(0), _end(0)
 {
 }
 
