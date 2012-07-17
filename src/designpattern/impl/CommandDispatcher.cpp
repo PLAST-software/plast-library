@@ -212,11 +212,11 @@ void SerialCommandDispatcher::dispatchCommands (std::list<ICommand*> commands, I
 
     for (list<ICommand*>::iterator it = commands.begin(); it != commands.end(); it++)
     {
-        invoker.executeCommand (*it);
+    	DefaultCommandInvoker (& SerialThreadFactory::singleton()).executeCommand (*it);
     }
 
     /** We may have to do some post treatment. Note that we do it in the current thread. */
-    invoker.executeCommand (postTreatment);
+    DefaultCommandInvoker (& SerialThreadFactory::singleton()).executeCommand (postTreatment);
 }
 
 /********************************************************************************/
