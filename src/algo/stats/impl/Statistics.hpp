@@ -54,6 +54,8 @@ public:
      */
     AbstractGlobalParameters (algo::core::IParameters* parameters) : _parameters(0)  { setParameters (parameters); }
 
+    ~AbstractGlobalParameters () { setParameters (0); }
+
     /** Structure holding statistical information. */
     struct Info
     {
