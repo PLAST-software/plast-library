@@ -26,6 +26,7 @@
 #include <database/impl/BufferedCachedSequenceDatabase.hpp>
 
 #include <index/impl/DatabaseIndex.hpp>
+#include <index/impl/DatabaseNucleotidIndex.hpp>
 
 #include <algo/core/impl/BasicAlgoIndexator.hpp>
 #include <algo/core/impl/ScoreMatrix.hpp>
@@ -126,7 +127,7 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
     params->queryRange           = Range64(0,0);
     params->filterQuery          = false;  // Don't do that for nucleotid/nucleotid comparisons
     params->ungapNeighbourLength = 0;
-    params->ungapScoreThreshold  = 0;
+    params->ungapScoreThreshold  = 27;
     params->smallGapBandLength   = 0;
     params->smallGapBandWidth    = 0;
     params->smallGapThreshold    = 0;
@@ -242,7 +243,8 @@ IIndexator*  PlastnConfiguration::createIndexator (
 {
     DEBUG ((cout << "PlastnConfiguration::createIndexator" <<  endl));
 
-    return new BasicIndexator (seedsModel, params, new DatabaseIndexFactory (), 1.0, isRunning);
+    return new BasicIndexator (seedsModel, params, new DatabaseNucleotidIndexFactory (), 1.0, isRunning);
+    //return new BasicIndexator (seedsModel, params, new DatabaseIndexFactory (), 1.0, isRunning);
 }
 
 /*********************************************************************
