@@ -19,7 +19,7 @@
 #include <misc/api/macros.hpp>
 
 #include <stdio.h>
-#define DEBUG(a)  printf a
+#define DEBUG(a)  //printf a
 
 using namespace std;
 using namespace misc;
