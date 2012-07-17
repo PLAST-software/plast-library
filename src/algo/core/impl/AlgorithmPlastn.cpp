@@ -18,13 +18,10 @@
 
 #include <designpattern/impl/RangeIterator.hpp>
 
-#if 0
 #include <alignment/core/impl/HspContainer.hpp>
-#include <alignment/core/impl/HspGenerator.hpp>
-
-#include <alignment/core/impl/HspAlignmentGenerator.hpp>
-#include <alignment/core/impl/HspAlignmentGenerator2.hpp>
-#endif
+#include <algo/hits/hsp/HspGeneratorCmd.hpp>
+#include <algo/hits/hsp/HspExtensionCmd.hpp>
+#include <algo/hits/hsp/AlignmentGeneratorCmd.hpp>
 
 #include <alignment/tools/impl/SemiGappedAlign.hpp>
 #include <alignment/tools/impl/AlignmentSplitter.hpp>
@@ -32,7 +29,7 @@
 #include <alignment/visitors/impl/FilterContainerVisitor.hpp>
 
 #include <stdio.h>
-#define DEBUG(a)  printf a
+#define DEBUG(a)  //printf a
 
 using namespace std;
 using namespace dp;
@@ -43,7 +40,9 @@ using namespace misc;
 using namespace database;
 using namespace database::impl;
 using namespace indexation;
+
 using namespace algo::hits;
+using namespace algo::hits::hsp;
 
 using namespace alignment::core;
 using namespace alignment::core::impl;
@@ -118,25 +117,16 @@ void AlgorithmPlastn::computeAlignments (
     TimeInfo*              timeStats
 )
 {
-    int32_t MATCH     = 1;
-    int32_t MISMATCH  = 2;
-    int32_t XDROP     = 1*MISMATCH;
-    int32_t THRESHOLD = 27;
-
     DEBUG (("AlgorithmPlastn::computeAlignments BEGIN\n"));
-#if 0
-    IHspContainer* hspContainer = new HspContainer (queryDb->getSize());
-    LOCAL (hspContainer);
 
-    IHspContainer* hspContainer2 = new HspContainer (queryDb->getSize());
-    LOCAL (hspContainer2);
+    IHspContainer* hspContainerPass0 = new HspContainer (queryDb->getSize());
+    hspContainerPass0->use ();
 
-    IHspContainer* hspContainer3 = new HspContainer (queryDb->getSize());
-    LOCAL (hspContainer3);
+    IHspContainer* hspContainerPass1 = new HspContainer (queryDb->getSize());
+    hspContainerPass1->use ();
 
-    IHspContainer* hspOther = new HspContainer (queryDb->getSize());
-    LOCAL (hspOther);
-
+    IHspContainer* hspContainerPass2 = new HspContainer (queryDb->getSize());
+    hspContainerPass2->use ();
 
     /** We need a range iterator for getting successive seeds hashcode ranges. */
     u_int32_t maxSeedsNumber = 1 << (2*getSeedsModel()->getSpan());
@@ -157,8 +147,11 @@ void AlgorithmPlastn::computeAlignments (
     for (size_t i=0; i<nbcpu; i++)
     {
         commands.push_back (new HSPGenerator(
-            getIndexator(),  hspContainer,  rangeIterator,
-            THRESHOLD, MATCH, MISMATCH, XDROP
+            getIndexator(),  hspContainerPass0,  rangeIterator,
+            _params->ungapScoreThreshold,
+            _params->reward,
+            _params->penalty,
+            ABS (_params->penalty * 1)
         ));
     }
 
@@ -168,85 +161,82 @@ void AlgorithmPlastn::computeAlignments (
     timesVec.push_back (DefaultFactory::time().gettime());
 
     DEBUG (("AlgorithmPlastn::computeAlignments: PASS 0: %ld HSP generated in %d msec\n",
-        hspContainer->getItemsNumber(),
+        hspContainerPass0->getItemsNumber(),
         timesVec[timesVec.size()-1] - timesVec[timesVec.size()-2]
     ));
 
-#if 1
     /**********************************************************************/
     /***************************   PASS 1  ********************************/
     /**********************************************************************/
     commands.clear();
     for (size_t i=0; i<nbcpu; i++)
     {
-        commands.push_back (new HspAlignmentGenerator(
+        commands.push_back (new HspExtensionCmd(
             subjectDb,  queryDb,
             getQueryInfo(),
-            getGlobalStatistics(),
-            hspContainer, hspContainer2, hspOther,
+            hspContainerPass0, hspContainerPass1,
             new SemiGapAlign (getScoreMatrix(), _params->openGapCost, _params->extendGapCost, _params->XdroppofGap),
-            getScoreMatrix(),
             _params
         ));
     }
     dispatcher->dispatchCommands (commands, 0);
 
+    /** We get rid of the input HSP container. */
+    hspContainerPass0->forget ();
+
     timesVec.push_back (DefaultFactory::time().gettime());
 
     DEBUG (("AlgorithmPlastn::computeAlignments: PASS 1: %ld HSP generated in %d msec\n",
-        hspContainer2->getItemsNumber(),
+        hspContainerPass1->getItemsNumber(),
         timesVec[timesVec.size()-1] - timesVec[timesVec.size()-2]
     ));
 
-#endif
-
-#if 1
     /**********************************************************************/
     /***************************   PASS 2  ********************************/
     /**********************************************************************/
     commands.clear();
     for (size_t i=0; i<nbcpu; i++)
     {
-        commands.push_back (new HspAlignmentGenerator(
+        commands.push_back (new HspExtensionCmd(
             subjectDb,  queryDb,
             getQueryInfo(),
-            getGlobalStatistics(),
-            hspContainer2, hspContainer3, hspOther,
+            hspContainerPass1, hspContainerPass2,
             new SemiGapAlign (getScoreMatrix(), _params->openGapCost, _params->extendGapCost, _params->finalXdroppofGap),
-            getScoreMatrix(),
             _params
         ));
     }
     dispatcher->dispatchCommands (commands, 0);
 
+    /** We get rid of the input HSP container. */
+    hspContainerPass1->forget ();
+
     timesVec.push_back (DefaultFactory::time().gettime());
 
     DEBUG (("AlgorithmPlastn::computeAlignments: PASS 2: %ld HSP generated in %d msec\n",
-        hspContainer3->getItemsNumber(),
+        hspContainerPass2->getItemsNumber(),
         timesVec[timesVec.size()-1] - timesVec[timesVec.size()-2]
     ));
 
-#endif
-
-#if 1
     /**********************************************************************/
     /***************************   PASS 3  ********************************/
     /**********************************************************************/
     commands.clear();
     for (size_t i=0; i<nbcpu; i++)
     {
-        commands.push_back (new HspAlignmentGenerator2(
+        commands.push_back (new AlignmentGeneratorCmd(
             subjectDb,  queryDb,
             getQueryInfo(),
             getGlobalStatistics(),
-            hspContainer3,  alignmentResult,
-            new SemiGapAlign (getScoreMatrix(), _params->openGapCost, _params->extendGapCost, _params->finalXdroppofGap),
+            hspContainerPass2,
+            alignmentResult,
             getScoreMatrix(),
             _params
         ));
     }
-    hspContainer = hspContainer2;
     dispatcher->dispatchCommands (commands, 0);
+
+    /** We get rid of the input HSP container. */
+    hspContainerPass2->forget ();
 
     timesVec.push_back (DefaultFactory::time().gettime());
 
@@ -254,8 +244,6 @@ void AlgorithmPlastn::computeAlignments (
         alignmentResult->getAlignmentsNumber(),
         timesVec[timesVec.size()-1] - timesVec[timesVec.size()-2]
     ));
-
-#endif
 
     /**********************************************************************/
     /***************************   FINISH  ********************************/
@@ -265,8 +253,6 @@ void AlgorithmPlastn::computeAlignments (
         alignmentResult->getAlignmentsNumber(),
         timesVec[timesVec.size()-1] - timesVec[0]
     ));
-
-#endif
 }
 
 /*********************************************************************
