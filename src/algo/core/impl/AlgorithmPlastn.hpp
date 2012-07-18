@@ -26,6 +26,8 @@
 /********************************************************************************/
 
 #include <algo/core/impl/AbstractAlgorithm.hpp>
+#include <alignment/core/api/IHspContainer.hpp>
+#include <designpattern/impl/RangeIterator.hpp>
 
 /********************************************************************************/
 namespace algo {
@@ -71,6 +73,43 @@ protected:
 
     /** */
     void finalizeAlignments (alignment::core::IAlignmentContainer* alignmentResult, os::impl::TimeInfo* timeStats);
+
+    /** */
+    void update (dp::EventInfo* evt, dp::ISubject* subject);
+
+    /** */
+    alignment::core::IHspContainer* pass0 (
+		database::ISequenceDatabase*        subjectDb,
+		database::ISequenceDatabase*        queryDb,
+		dp::ICommandDispatcher*             dispatcher,
+		dp::impl::RangeIterator<u_int32_t>& rangeIterator
+    );
+
+    /** */
+    alignment::core::IHspContainer* pass1 (
+		database::ISequenceDatabase*        subjectDb,
+		database::ISequenceDatabase*        queryDb,
+		dp::ICommandDispatcher*             dispatcher,
+		alignment::core::IHspContainer*		sourceHsp,
+		int									xdrop
+    );
+
+    /** */
+    void pass2 (
+		database::ISequenceDatabase*        	subjectDb,
+		database::ISequenceDatabase*        	queryDb,
+		dp::ICommandDispatcher*             	dispatcher,
+		alignment::core::IHspContainer*			sourceHsp,
+		alignment::core::IAlignmentContainer*   alignContainer
+    );
+
+    alignment::core::IHspContainer* _hspContainer;
+    void setHspContainer (alignment::core::IHspContainer* hspContainer)  { SP_SETATTR (hspContainer); }
+
+    std::vector<u_int32_t> timesVec;
+
+    size_t _nbPasses;
+    size_t _currentPass;
 };
 
 /********************************************************************************/
