@@ -255,11 +255,7 @@ IIndexator*  PlastnConfiguration::createIndexator (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IAlignmentContainer* PlastnConfiguration::createGapAlignmentResult  (
-    ISequenceDatabase* subject,
-    ISequenceDatabase* query,
-    IAlignmentFilter*  filter
-)
+IAlignmentContainer* PlastnConfiguration::createGapAlignmentResult  ()
 {
     DEBUG ((cout << "PlastnConfiguration::createGapAlignmentResult" <<  endl));
 

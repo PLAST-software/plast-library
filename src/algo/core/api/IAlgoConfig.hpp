@@ -228,11 +228,7 @@ public:
      * \param[in] query   : the query database
      * \return a new IAlignmentResult instance
      */
-    virtual alignment::core::IAlignmentContainer* createGapAlignmentResult  (
-        database::ISequenceDatabase*          subject,
-        database::ISequenceDatabase*          query,
-        alignment::filter::IAlignmentFilter*  filter
-    ) = 0;
+    virtual alignment::core::IAlignmentContainer* createGapAlignmentResult  () = 0;
 
     /** Create a visitor for the gap alignments (likely a visitor that dump the alignments into a file).
      * \return a new AlignmentResultVisitor instance

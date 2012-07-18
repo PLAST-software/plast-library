@@ -155,11 +155,7 @@ public:
     );
 
     /** \copydoc IConfiguration::createGapAlignmentResult */
-    alignment::core::IAlignmentContainer* createGapAlignmentResult  (
-        database::ISequenceDatabase*    subject,
-        database::ISequenceDatabase*    query,
-        alignment::filter::IAlignmentFilter*  filter
-    );
+    alignment::core::IAlignmentContainer* createGapAlignmentResult  ();
 
     /** \copydoc IConfiguration::createUnapAlignmentResult */
     alignment::core::IAlignmentContainer* createUnapAlignmentResult (size_t querySize);

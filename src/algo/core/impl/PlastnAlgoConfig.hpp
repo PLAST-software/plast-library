@@ -83,11 +83,7 @@ public:
     );
 
     /** \copydoc IConfiguration::createGapAlignmentResult */
-    alignment::core::IAlignmentContainer* createGapAlignmentResult  (
-        database::ISequenceDatabase*    subject,
-        database::ISequenceDatabase*    query,
-        alignment::filter::IAlignmentFilter*  filter
-    );
+    alignment::core::IAlignmentContainer* createGapAlignmentResult  ();
 };
 
 /********************************************************************************/
