@@ -42,9 +42,15 @@ public:
     /** Constructors.
      */
     RangeIterator (const misc::Range<T>& range, T step, os::ISynchronizer* synchro)
-        : _range(range),  _step(step), _synchro(synchro)
+        : _range(range),  _step(step), _synchro(synchro), _nbItems(0), _nbRetrieved(0)
     {
         _value = _range.begin;
+
+        /** A little life insurance. */
+        if (_step == 0)  { _step = 1; }
+
+        /** We compute the number of ranges to be iterated. */
+        _nbItems = _range.getLength() / _step + (_range.getLength() % _step != 0 ? 1 : 0);
     }
 
     /** Destructor. */
@@ -55,7 +61,10 @@ public:
     }
 
     /** */
-    bool retrieve (misc::Range<T>& range)
+    size_t getNbItems ()  {  return _nbItems;  }
+
+    /** */
+    bool retrieve (misc::Range<T>& range, size_t& nbRetrieved)
     {
         bool result = false;
 
@@ -68,6 +77,8 @@ public:
             range.begin = _value;
             range.end   = MIN (tmp, _range.end);
             _value      = tmp + 1;
+
+            nbRetrieved = ++_nbRetrieved;
 
             result = true;
         }
@@ -83,6 +94,9 @@ private:
     T                  _step;
     T                  _value;
     os::ISynchronizer* _synchro;
+
+    size_t _nbItems;
+    size_t _nbRetrieved;
 };
 
 /********************************************************************************/
