@@ -122,7 +122,7 @@ void HspExtensionCmd::execute ()
     IHspContainer::HSP* hsp = 0;
 
     size_t nbTotal       = _hspContainer->getItemsNumber();
-    size_t notifyModulus = nbTotal / 100;  // notify each percentage.
+    size_t notifyModulus = MAX (1, nbTotal / 100);  // notify each percentage.
 
     /** We loop over all HSP. */
      while ( (hsp = _hspContainer->retrieve (nbHsp)) != 0)
