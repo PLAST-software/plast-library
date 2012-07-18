@@ -20,10 +20,14 @@
 
 #include <alignment/tools/impl/AlignmentSplitter.hpp>
 
+#include <designpattern/api/Iterator.hpp>
+
 #include <string.h>
 #include <math.h>
 
 using namespace std;
+
+using namespace dp;
 
 using namespace os;
 using namespace os::impl;
@@ -66,7 +70,8 @@ HspExtensionCmd::HspExtensionCmd (
     IHspContainer*                          hspContainer,
     IHspContainer*                          hspContainer2,
     alignment::tools::impl::SemiGapAlign*   dynapro,
-    algo::core::IParameters*                params
+    algo::core::IParameters*                params,
+    dp::IObserver* 							observer
 )
     : _db1(0), _db2(0), _queryInfo(0), _hspContainer (0), _hspContainer2 (0),
       _dynapro(0), _parameters(0)
@@ -78,6 +83,9 @@ HspExtensionCmd::HspExtensionCmd (
     setHspContainer2      (hspContainer2);
     setDynapro            (dynapro);
     setParameters         (params);
+
+    /** We register the provided observer. */
+    this->addObserver (observer);
 }
 
 /*********************************************************************
@@ -113,31 +121,38 @@ void HspExtensionCmd::execute ()
 
     IHspContainer::HSP* hsp = 0;
 
-    /** We loop over all HSP (ie ungapped extensions of initial seeds). */
+    size_t nbTotal       = _hspContainer->getItemsNumber();
+    size_t notifyModulus = nbTotal / 100;  // notify each percentage.
+
+    /** We loop over all HSP. */
      while ( (hsp = _hspContainer->retrieve (nbHsp)) != 0)
      {
-         ISequence seqQry, seqSbj;
+    	 /** We notify about the execution % of the loop. */
+    	 if (nbHsp % notifyModulus == 0)
+    	 {
+    	     this->notify (new IterationStatusEvent (ITER_ON_GOING, nbHsp,  nbTotal, "iterating HSP", nbHsp,  nbTotal));
+    	 }
 
          u_int64_t qryStart = hsp->q_start;
          u_int64_t sbjStart = hsp->s_start;
 
          /** We look for the query sequence. */
-         bool foundQry = _db2->getSequenceByIndex (hsp->q_idx, seqQry);
-         if (!foundQry)  { printf ("QRY NOT FOUND...\n"); }
+         ISequence* seqQry = _db2->getSequenceRefByIndex (hsp->q_idx);
+         if (!seqQry)  { printf ("QRY NOT FOUND...\n"); }
 
-         bool foundSbj = _db1->getSequenceByIndex (hsp->s_idx, seqSbj);
-         if (!foundSbj)  { printf ("SBJ NOT FOUND...\n"); }
+         ISequence* seqSbj = _db1->getSequenceRefByIndex (hsp->s_idx);
+         if (!seqSbj)  { printf ("SBJ NOT FOUND...\n"); }
 
          /** We shift the two HSP ranges into sequence referential (instead of database). */
-         qryStart -= seqQry.offsetInDb;
-         sbjStart -= seqSbj.offsetInDb;
+         qryStart -= seqQry->offsetInDb;
+         sbjStart -= seqSbj->offsetInDb;
 
         int leftOffsetInQuery=0, leftOffsetInSubject=0, rightOffsetInQuery=0, rightOffsetInSubject=0;
 
         int scoreRight=0, scoreLeft=0;
 
-         const char* qryData = seqQry.getData();
-         const char* sbjData = seqSbj.getData();
+         const char* qryData = seqQry->getData();
+         const char* sbjData = seqSbj->getData();
 
          /** LEFT EXTENSION */
          scoreLeft = _dynapro->compute (
@@ -154,8 +169,8 @@ void HspExtensionCmd::execute ()
          scoreRight = _dynapro->compute (
              qryData + qryStart,
              sbjData + sbjStart,
-             seqQry.getLength() - qryStart - 1,
-             seqSbj.getLength() - sbjStart - 1,
+             seqQry->getLength() - qryStart - 1,
+             seqSbj->getLength() - sbjStart - 1,
              & rightOffsetInQuery,
              & rightOffsetInSubject,
              0
@@ -165,7 +180,7 @@ void HspExtensionCmd::execute ()
          int score = scoreLeft + scoreRight;
 
          /** We retrieve statistical information for the current query sequence. */
-         IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfo (seqQry);
+         IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfo (*seqQry);
 
          if (score >= info.cut_offs)
          {
@@ -181,6 +196,9 @@ void HspExtensionCmd::execute ()
          }
 
      } /* end of while ( (hsp = _hspContainer->retrieve... */
+
+     /** We send a notification about the % of execution. Here, we force to be at 100%. */
+     this->notify (new IterationStatusEvent (ITER_ON_GOING, nbTotal, nbTotal, "iterating HSP", nbTotal, nbTotal));
 
      DEBUG (("HspExtensionCmd::execute  nbExists=%d\n", nbExists));
 }

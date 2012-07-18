@@ -26,6 +26,7 @@
 /********************************************************************************/
 
 #include <designpattern/api/ICommand.hpp>
+#include <designpattern/impl/Observer.hpp>
 
 #include <database/api/ISequenceDatabase.hpp>
 
@@ -44,7 +45,7 @@ namespace hits {
 namespace hsp  {
 /********************************************************************************/
 
-class HspExtensionCmd : public dp::ICommand
+class HspExtensionCmd : public dp::ICommand, public dp::impl::Subject
 {
 public:
 
@@ -56,7 +57,8 @@ public:
         alignment::core::IHspContainer*         hspContainer,
         alignment::core::IHspContainer*         hspContainer2,
         alignment::tools::impl::SemiGapAlign*   dynapro,
-        algo::core::IParameters*                params
+        algo::core::IParameters*                params,
+        dp::IObserver* 							observer
     );
 
     /** */

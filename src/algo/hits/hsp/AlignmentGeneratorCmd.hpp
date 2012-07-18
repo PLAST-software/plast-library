@@ -26,6 +26,7 @@
 /********************************************************************************/
 
 #include <designpattern/api/ICommand.hpp>
+#include <designpattern/impl/Observer.hpp>
 
 #include <database/api/ISequenceDatabase.hpp>
 
@@ -44,7 +45,7 @@ namespace hits {
 namespace hsp  {
 /********************************************************************************/
 
-class AlignmentGeneratorCmd : public dp::ICommand
+class AlignmentGeneratorCmd : public dp::ICommand, public dp::impl::Subject
 {
 public:
 
@@ -57,7 +58,8 @@ public:
         alignment::core::IHspContainer*         hspContainer,
         alignment::core::IAlignmentContainer*   alignmentContainer,
         algo::core::IScoreMatrix*               scoreMatrix,
-        algo::core::IParameters*                params
+        algo::core::IParameters*                params,
+        dp::IObserver* 							observer
     );
 
     /** */
@@ -88,9 +90,6 @@ private:
 
     alignment::core::IAlignmentContainer* _alignmentContainer;
     void setAlignmentContainer (alignment::core::IAlignmentContainer* alignmentContainer)  { SP_SETATTR(alignmentContainer); }
-
-    algo::core::IParameters* _parameters;
-    void setParameters (algo::core::IParameters* parameters)  { SP_SETATTR (parameters); }
 
     alignment::tools::IAlignmentSplitter* _splitter;
     void setSplitter (alignment::tools::IAlignmentSplitter* splitter)  { SP_SETATTR(splitter); }

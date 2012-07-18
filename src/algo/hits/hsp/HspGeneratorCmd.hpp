@@ -26,9 +26,13 @@
 /********************************************************************************/
 
 #include <algo/core/api/IAlgoIndexator.hpp>
+
 #include <alignment/core/api/IHspContainer.hpp>
+
 #include <os/api/IThread.hpp>
+
 #include <designpattern/impl/RangeIterator.hpp>
+#include <designpattern/impl/Observer.hpp>
 
 #include <stdio.h>
 
@@ -38,7 +42,7 @@ namespace hits {
 namespace hsp  {
 /********************************************************************************/
 
-class HSPGenerator : public dp::ICommand
+class HSPGenerator : public dp::ICommand, public dp::impl::Subject
 {
 public:
 
@@ -50,7 +54,8 @@ public:
         int32_t threshold,
         int32_t match,
         int32_t mismatch,
-        int32_t xdrop
+        int32_t xdrop,
+        dp::IObserver* observer
     );
 
     /** */
@@ -81,11 +86,6 @@ private:
     /********************************************************************************/
     struct Entry
     {
-        Entry() : data(0)  {}
-
-        Entry (const database::LETTER* aData, u_int64_t aOffsetInDb, u_int32_t aRightLen,  u_int32_t aLeftLen, u_int32_t aSeqId)
-        : data(aData), offsetInDb(aOffsetInDb), rightLen(aRightLen), leftLen(aLeftLen), seqId(aSeqId) {}
-
         void set (const database::LETTER* aData, u_int64_t aOffsetInDb, u_int32_t aRightLen,  u_int32_t aLeftLen, u_int32_t aSeqId)
         {
             data       = aData;

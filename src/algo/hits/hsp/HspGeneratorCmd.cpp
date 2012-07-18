@@ -17,11 +17,16 @@
 #include <algo/hits/hsp/HspGeneratorCmd.hpp>
 #include <os/impl/DefaultOsFactory.hpp>
 
+#include <designpattern/api/Iterator.hpp>
+
 #include <misc/api/macros.hpp>
+#include <misc/api/types.hpp>
 
 #include <string.h>
 
 using namespace std;
+
+using namespace misc;
 
 using namespace os;
 using namespace os::impl;
@@ -64,7 +69,8 @@ HSPGenerator::HSPGenerator (
     int32_t threshold,
     int32_t match,
     int32_t mismatch,
-    int32_t xdrop
+    int32_t xdrop,
+    dp::IObserver* observer
 )
     : _indexator (0), _hspContainer(0), _rangeIterator(rangeIterator),
       _threshold(threshold), _match(match), _mismatch(mismatch), _xdrop(xdrop)
@@ -80,6 +86,9 @@ HSPGenerator::HSPGenerator (
     _span = _indexator->getQueryIndex()->getModel()->getSpan();
 
     _badLetter = EncodingManager::singleton().getAlphabet(SUBSEED)->any;
+
+    /** We register the provided observer. */
+    this->addObserver (observer);
 }
 
 /*********************************************************************
@@ -113,14 +122,43 @@ void HSPGenerator::execute ()
     IDatabaseIndex* idx1 = _indexator->getSubjectIndex();
     IDatabaseIndex* idx2 = _indexator->getQueryIndex();
 
-    vector <Entry> seqs1;
-    vector <Entry> seqs2;
+    IMemoryAllocator& allocator = DefaultFactory::singleton().memory();
+
+    Entry* seqs1 = 0;
+    Entry* seqs2 = 0;
 
     ISeed seed;
     Range<u_int32_t> s;
 
-    while (_rangeIterator.retrieve (s) == true)
+    size_t nb1 = 1000;
+    size_t nb2 = 1000;
+
+    size_t maxNb1 = 0;
+    size_t maxNb2 = 0;
+
+    size_t maxProd    = 0;
+    size_t nbIterated = 0;
+    size_t nbInserted = 0;
+
+    if (maxNb1 < nb1)   {  maxNb1 = nb1;  seqs1 = (Entry*) allocator.calloc (maxNb1, sizeof(Entry));  }
+    if (maxNb2 < nb2)   {  maxNb2 = nb2;  seqs2 = (Entry*) allocator.calloc (maxNb2, sizeof(Entry));  }
+
+    size_t nbRetrieved = 0;
+    size_t nbTotal     = _rangeIterator.getNbItems();
+
+    DEBUG (("HSPGenerator::execute: LOOP BEGIN (this=%p) \n", this));
+
+    while (_rangeIterator.retrieve (s, nbRetrieved) == true)
     {
+        /** We send a notification about the % of execution. */
+        this->notify (new IterationStatusEvent (
+            ITER_ON_GOING,
+            nbRetrieved,
+            nbTotal,
+            "iterating seeds codes",
+            nbRetrieved, nbTotal
+        ));
+
         for (u_int32_t g=s.begin; g<=s.end; g++)
         {
             seed.code = g;
@@ -136,8 +174,9 @@ void HSPGenerator::execute ()
 
             VERBOSE (("CURRENT CODE %d \n", seed.code));
 
-            size_t nb1 = entries1.size();
-            seqs1.resize (nb1);
+            nb1 = entries1.size();
+            if (maxNb1 < nb1)   {  maxNb1 = nb1;  seqs1 = (Entry*) allocator.realloc (seqs1, maxNb1*sizeof(Entry));  }
+
             for (size_t i=0; i<nb1; i++)
             {
                 IDatabaseIndex::SeedOccurrence& occur = entries1[i];
@@ -154,8 +193,9 @@ void HSPGenerator::execute ()
                 );
             }
 
-            size_t nb2 = entries2.size();
-            seqs2.resize (nb2);
+            nb2 = entries2.size();
+            if (maxNb2 < nb2)   {  maxNb2 = nb2;  seqs2 = (Entry*) allocator.realloc (seqs2, maxNb2*sizeof(Entry));  }
+
             for (size_t i=0; i<nb2; i++)
             {
                 IDatabaseIndex::SeedOccurrence& occur = entries2[i];
@@ -171,6 +211,9 @@ void HSPGenerator::execute ()
                     seq2->index
                 );
             }
+
+            maxProd = MAX (maxProd, nb1*nb2);
+            nbIterated += nb1*nb2;
 
             for (size_t i=0; i<nb1; i++)
             {
@@ -212,6 +255,8 @@ void HSPGenerator::execute ()
                         /** We add the alignment. */
                         _hspContainer->insert (qryRange, sbjRange, e2.seqId, e1.seqId, score);
 
+                        nbInserted ++;
+
 #if 0
                         dump (seed.code, e1.seqId, e2.seqId, leftLen1, leftLen2);
 #endif
@@ -224,6 +269,13 @@ void HSPGenerator::execute ()
         } /* end of for (int g=s.begin... */
 
     } /** end of while (getNextSeedCodes (s)... */
+
+    DEBUG (("HSPGenerator::execute: LOOP END (this=%p)  maxNb1=%ld  maxNb2=%ld  nbIterated=%ld  maxProd=%ld  nbInserted=%ld\n",
+		this, maxNb1, maxNb2, nbIterated, maxProd, nbInserted
+	));
+
+    allocator.free (seqs1);
+    allocator.free (seqs2);
 }
 
 /*********************************************************************
