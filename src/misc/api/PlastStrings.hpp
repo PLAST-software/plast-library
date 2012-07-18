@@ -123,6 +123,11 @@ namespace misc {
  */
 #define STR_OPTION_OUTPUT_FORMAT            "-outfmt"
 
+/** Command Line option giving the wanted strands (in particular for plastn).
+ *  string: "plus", "minus" or "both" (default)
+ */
+#define STR_OPTION_STRAND            "-strand"
+
 /** Command Line option forcing the ordering of queries identifiers in the final output file
  *  No parameters
  */
