@@ -780,11 +780,7 @@ IHitIterator* DefaultConfiguration::createCompositionHitIterator  (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IAlignmentContainer* DefaultConfiguration::createGapAlignmentResult  (
-    ISequenceDatabase* subject,
-    ISequenceDatabase* query,
-    IAlignmentFilter*  filter
-)
+IAlignmentContainer* DefaultConfiguration::createGapAlignmentResult  ()
 {
     IAlignmentContainer* result = 0;
 
