@@ -66,6 +66,9 @@ public:
     /** \copydoc AbstractAlignmentResult::insert */
     bool insert (Alignment& align, void* context);
 
+    /** \copydoc IAlignmentResult::merge */
+    void merge (const std::vector<IAlignmentContainer*> containers);
+
     /** \copydoc AbstractAlignmentResult::accept */
     void accept (IAlignmentContainerVisitor* visitor);
 
@@ -122,6 +125,9 @@ protected:
 class BasicAlignmentContainerBis : public BasicAlignmentContainer
 {
 public:
+
+    /** Constructor. */
+	BasicAlignmentContainerBis ()  {  if (_synchro != 0)  { delete _synchro;  _synchro=0;}  }
 
 protected:
 

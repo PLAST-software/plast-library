@@ -285,6 +285,41 @@ bool BasicAlignmentContainer::insert (Alignment& align, void* context)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+void BasicAlignmentContainer::merge (const std::vector<IAlignmentContainer*> containers)
+{
+	for (size_t i=0; i<containers.size(); i++)
+	{
+		BasicAlignmentContainer* current = dynamic_cast<BasicAlignmentContainer*> (containers[i]);
+
+		if (current == 0)  { continue; }
+
+		for (ContainerLevel1::iterator itLevel1 = current->_containerLevel1.begin();
+			itLevel1 != current->_containerLevel1.end();  ++itLevel1
+		)
+		{
+	        ContainerLevel2&  containerLevel2  = (*itLevel1).second.second;
+
+	        for (ContainerLevel2::iterator itLevel2 = containerLevel2.begin(); itLevel2 != containerLevel2.end(); ++itLevel2)
+	        {
+	            ContainerLevel3& containerLevel3 = (*itLevel2).second.second;
+
+	            for (ContainerLevel3::iterator itLevel3 = containerLevel3.begin(); itLevel3 != containerLevel3.end(); ++itLevel3)
+	            {
+	            	this->insert (*itLevel3, 0);
+	            }
+	        }
+		}
+	}
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 void BasicAlignmentContainer::accept (IAlignmentContainerVisitor* visitor)
 {
     DEBUG (("BasicAlignmentContainer::accept  _nbSeqLevel1=%ld  _nbSeqLevel2=%ld\n", _nbSeqLevel1, _nbSeqLevel2));

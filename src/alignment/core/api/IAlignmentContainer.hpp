@@ -103,6 +103,9 @@ public:
      * \return true if insertion ok, false otherwise. */
     virtual bool insert (const misc::Range64& qry, const misc::Range64& sbj, u_int32_t qryIndex) = 0;
 
+    /** Merge */
+    virtual void merge (const std::vector<IAlignmentContainer*> containers) = 0;
+
     /** Give the number of known alignments.
      * \return the number of alignments
      */

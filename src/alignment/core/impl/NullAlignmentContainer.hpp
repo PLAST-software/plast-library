@@ -72,6 +72,9 @@ public:
     /** \copydoc IAlignmentResult::insert */
     bool insert (Alignment& align, void* context) { return false; }
 
+    /** \copydoc IAlignmentResult::merge */
+    void merge (const std::vector<IAlignmentContainer*> containers)  { }
+
     /** \copydoc IAlignmentResult::getSize */
     u_int32_t getAlignmentsNumber () { return 0; }
 

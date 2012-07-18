@@ -74,6 +74,9 @@ public:
     /** \copydoc IAlignmentResult::insert */
     bool insert (const misc::Range64& qry, const misc::Range64& sbj, u_int32_t qryIndex)  { return false; }
 
+    /** \copydoc IAlignmentResult::merge */
+    void merge (const std::vector<IAlignmentContainer*> containers) {  }
+
 protected:
 
     /** Synchronizer for preventing for concurrent accesses. */
