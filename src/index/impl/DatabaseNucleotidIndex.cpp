@@ -179,7 +179,10 @@ void DatabaseNucleotidIndex::build ()
         /** A little shortcut for the currently iterated sequence. */
         currentSequence  = seqIter->currentItem();
 
-        VERBOSE (("DatabaseNucleotidIndex::build : current sequence '%s'\n",    currentSequence->data.toString().c_str()));
+        VERBOSE (("DatabaseNucleotidIndex::build : current sequence (len=%d)  '%s'\n",
+			currentSequence->getLength(),
+			currentSequence->data.toString().c_str()
+		));
         VERBOSE (("DatabaseNucleotidIndex::build : current sequence len=%d \n", currentSequence->getLength() ));
 
         u_int32_t  length = currentSequence->getLength();
