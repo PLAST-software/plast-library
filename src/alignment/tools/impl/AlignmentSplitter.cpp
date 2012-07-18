@@ -419,7 +419,9 @@ void AlignmentSplitter::dump (
     int nbSbjChar = 0;
 
     misc::Range<int> r;
-    while (it.retrieve(r))
+    size_t nbRetrieved = 0;
+
+    while (it.retrieve (r, nbRetrieved))
     {
 
         printf ("Query  %3d  ", qryRange.begin + 1 + nbQryChar);
