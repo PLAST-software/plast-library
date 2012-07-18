@@ -68,6 +68,7 @@ void PlastOptionsParser::build ()
     this->add (new OptionOneParam (STR_OPTION_X_DROPOFF_FINAL,          "X dropoff value for final gapped alignment in bits (0.0 invokes default behavior)"));
     this->add (new OptionOneParam (STR_OPTION_FILTER_QUERY,             "Filter query sequence"));
     this->add (new OptionOneParam (STR_OPTION_SCORE_MATRIX,             "Score matrix (BLOSUM62 or BLOSUM50)"));
+    this->add (new OptionOneParam (STR_OPTION_STRAND,                   "strands for plastn: 'plus', 'minus' or 'both' (default)"));
 
     this->add (new OptionOneParam (STR_OPTION_FORCE_QUERY_ORDERING,     "Force queries ordering in output file."));
 
