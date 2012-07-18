@@ -28,6 +28,7 @@
 #include <alignment/core/api/IHspContainer.hpp>
 #include <os/api/IThread.hpp>
 
+#include <vector>
 #include <stdio.h>
 
 /********************************************************************************/
@@ -69,16 +70,26 @@ public:
     )   {  return insert (qry.begin, qry.end, sbj.begin, sbj.end, qryId, seqId, score);  }
 
     /** */
+    bool insert (HSP* hsp)
+    {  return insert (hsp->q_start, hsp->q_stop, hsp->s_start, hsp->s_stop, hsp->q_idx, hsp->s_idx, hsp->score);  }
+
+    /** */
     bool doesExist (u_int64_t q_start, u_int64_t s_start, u_int32_t delta);
 
     /** */
-    HSP* retrieve (u_int64_t& nbRetrieved);
+    HSP* retrieve (size_t& nbRetrieved);
 
     /** */
     void resetRetrieve ()  { _firstRetrieve = true; }
 
     /** */
     u_int64_t getItemsNumber ();
+
+    /** */
+    u_int32_t getDbSize ()  { return _dbSize; }
+
+    /** */
+	void merge (std::vector<IHspContainer*> v);
 
 private:
 
@@ -127,8 +138,11 @@ private:
     os::ISynchronizer* _synchro;
 
     /** */
+    u_int32_t _dbSize;
+
+    /** */
     bool      _firstRetrieve;
-    u_int64_t _nbRetrieved;
+    size_t    _nbRetrieved;
     u_int32_t _currentDiagonal;
     LISTGAP*  _currentItem;
 

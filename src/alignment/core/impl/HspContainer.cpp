@@ -45,7 +45,7 @@ namespace impl      {
 ** REMARKS :
 *********************************************************************/
 HspContainer::HspContainer (size_t dbQuerySize)
-    : _diagonalNumber(0), _diagonalMask(0), _HspList(0), _HspListSize(0), _synchro(0),
+    : _diagonalNumber(0), _diagonalMask(0), _HspList(0), _HspListSize(0), _synchro(0), _dbSize(dbQuerySize),
       _firstRetrieve(true), _nbRetrieved(0), _currentDiagonal(0), _currentItem(0)
 {
     size_t diagLength=0;
@@ -304,7 +304,7 @@ bool HspContainer::doesExist (u_int64_t q_start, u_int64_t s_start, u_int32_t de
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IHspContainer::HSP* HspContainer::retrieve (u_int64_t& nbRetrieved)
+IHspContainer::HSP* HspContainer::retrieve (size_t& nbRetrieved)
 {
     IHspContainer::HSP* result = 0;
 
@@ -424,6 +424,33 @@ void  HspContainer::clean ()
 
     DEBUG (("HspContainer::clean  nbRemoved=%ld \n", nbRemoved));
 }
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void HspContainer::merge (std::vector<IHspContainer*> v)
+{
+	if (v.empty() == false)
+	{
+		DEBUG (("HspContainer::merge  BEGIN\n"));
+
+		u_int64_t nbRetrieved;
+		HSP* hsp = 0;
+
+		for (size_t i=0; i<v.size(); i++)
+		{
+			while ( (hsp = v[i]->retrieve (nbRetrieved)) != 0)  {  this->insert (hsp);  }
+		}
+
+		DEBUG (("HspContainer::merge  END  nbItems=%ld\n", result->getItemsNumber()));
+	}
+}
+
 
 /********************************************************************************/
 }}}; /* end of namespaces. */

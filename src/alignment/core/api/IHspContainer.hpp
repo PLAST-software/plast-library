@@ -28,6 +28,8 @@
 #include <designpattern/api/SmartPointer.hpp>
 #include <misc/api/types.hpp>
 
+#include <vector>
+
 /********************************************************************************/
 namespace alignment {
 namespace core      {
@@ -77,11 +79,19 @@ public:
         int16_t score
     ) =  0;
 
+	virtual void merge (std::vector<IHspContainer*> v) = 0;
+
+    /** */
+    virtual bool insert (HSP* hsp) = 0;
+
+    /** */
+    virtual u_int32_t getDbSize () = 0;
+
     /** */
     virtual bool doesExist (u_int64_t q_start, u_int64_t s_start, u_int32_t delta) = 0;
 
     /** */
-    virtual HSP* retrieve (u_int64_t& nbRetrieved) = 0;
+    virtual HSP* retrieve (size_t& nbRetrieved) = 0;
 
     /** */
     virtual void resetRetrieve () = 0;
