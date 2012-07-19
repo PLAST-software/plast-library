@@ -54,8 +54,10 @@ public:
     /** */
     virtual void createDatabases (
         algo::core::IParameters* params,
-        const std::vector<misc::ReadingFrame_e>&  sbjFrames,
-        const std::vector<misc::ReadingFrame_e>&  qryFrames
+        const std::vector<misc::ReadingFrame_e>&    sbjFrames,
+        const std::vector<misc::ReadingFrame_e>&    qryFrames,
+        database::ISequenceIteratorFactory*         sbjFactory,
+        database::ISequenceIteratorFactory*         qryFactory
     ) = 0;
 
     /** */
