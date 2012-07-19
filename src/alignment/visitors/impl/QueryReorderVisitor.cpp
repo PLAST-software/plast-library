@@ -494,7 +494,7 @@ void QueryReorderVisitor::finalize (void)
         /** We create the query database for the given range. Note we are interested mainly by sequences
          *  identifiers.
          */
-        ISequenceDatabase* db = _config->createDatabase (_qryReader->getUri(), range, false);
+        ISequenceDatabase* db = _config->createDatabase (_qryReader->getUri(), range, false, 0);
         LOCAL (db);
 
         DEBUG (cout << "-----------------------------------------------------------------------------" << endl);
