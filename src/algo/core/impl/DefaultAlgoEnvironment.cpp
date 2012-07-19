@@ -22,20 +22,22 @@
 
 #include <database/impl/FastaDatabaseQuickReader.hpp>
 #include <database/impl/AminoAcidDatabaseQuickReader.hpp>
+#include <database/impl/ReverseStrandSequenceIterator.hpp>
 
+#include <algo/core/api/IAlgoEvents.hpp>
 #include <algo/core/impl/DefaultAlgoEnvironment.hpp>
 #include <algo/core/impl/DefaultAlgoConfig.hpp>
 #include <algo/core/impl/PlastnAlgoConfig.hpp>
 #include <algo/core/impl/AbstractAlgorithm.hpp>
 #include <algo/core/impl/AlgorithmPlastn.hpp>
 #include <algo/core/impl/DatabasesProvider.hpp>
-#include <algo/core/api/IAlgoEvents.hpp>
 
 #include <alignment/filter/api/IAlignmentFilter.hpp>
 #include <alignment/filter/impl/AlignmentFilterXML.hpp>
 
 #include <alignment/visitors/impl/XmlOutputVisitor.hpp>
 #include <alignment/visitors/impl/NucleotidConversionVisitor.hpp>
+#include <alignment/visitors/impl/ReverseStrandVisitor.hpp>
 
 using namespace std;
 using namespace dp;
@@ -43,6 +45,8 @@ using namespace dp::impl;
 using namespace misc;
 using namespace database;
 using namespace database::impl;
+
+using namespace statistics;
 
 using namespace alignment::core;
 using namespace alignment::filter;
@@ -243,35 +247,40 @@ void DefaultEnvironment::run ()
     /** We iterate each parameters. */
     for (size_t i=0; _isRunning && i<_parametersList.size(); i++)
     {
-        list<ICommand*> algorithms;
+        list<ICommand*> algosCmd;
 
         /** We send a notification to potential listeners. */
         this->notify (new AlgorithmConfigurationEvent (_properties, i, _parametersList.size()));
 
         /** We create an Algorithm instance. */
-        IAlgorithm* algo = this->createAlgorithm (
+        list<IAlgorithm*> algos = this->createAlgorithm (
             _config,
             _quickSubjectDbReader,
             _parametersList[i],
             _filter,
             _resultVisitor,
             _dbProvider,
+            _config->createGlobalParameters (_parametersList[i]),
             _isRunning
         );
-        if (algo == 0)  { continue; }
+        if (algos.empty())  { continue; }
 
-        /** We can register ourself to be notified by execution events. */
-        algo->addObserver (this);
+        /** We loop over each created algorithm. */
+        for (list<IAlgorithm*>::iterator it = algos.begin(); it != algos.end(); ++it)
+        {
+        	/** We can register ourself to be notified by execution events. */
+        	(*it)->addObserver (this);
 
-        /** We add this instance to the algorithms list. */
-        algorithms.push_back (algo);
+        	/** We add this instance to the algorithms list. */
+        	algosCmd.push_back (*it);
+        }
 
         /** We create a commands dispatcher. */
         ICommandDispatcher* dispatcher = new SerialCommandDispatcher ();
         LOCAL (dispatcher);
 
         /** We execute the algorithms through the dispatcher. */
-        dispatcher->dispatchCommands (algorithms, 0);
+        dispatcher->dispatchCommands (algosCmd, 0);
     }
 
     /** We finalize the output result visitor. */
@@ -289,58 +298,62 @@ void DefaultEnvironment::run ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IAlgorithm* DefaultEnvironment::createAlgorithm (
+list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
     IConfiguration*             config,
     IDatabaseQuickReader*       reader,
     IParameters*                params,
     IAlignmentFilter*           filter,
     IAlignmentContainerVisitor* resultVisitor,
     IDatabasesProvider*         dbProvider,
+    IGlobalParameters*          globalStats,
     bool&                       isRunning
 )
 {
-    IAlgorithm* result = 0;
+	list<IAlgorithm*> result;
 
     switch (params->algoKind)
     {
         case ENUM_PLASTP:
-            result = new AlgorithmPlastp (
+            result.push_back (new AlgorithmPlastp (
                 config,
                 reader,
                 params,
                 filter,
                 resultVisitor,
                 dbProvider,
+                globalStats,
                 isRunning
-            );
+            ));
             break;
 
         case ENUM_TPLASTN:
-            result = new AlgorithmTplastn (
+        	result.push_back (new AlgorithmTplastn (
                 config,
                 new AminoAcidDatabaseQuickReader (reader),
                 params,
                 filter,
                 resultVisitor, //new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT),
                 dbProvider,
+                globalStats,
                 isRunning
-            );
+            ));
             break;
 
         case ENUM_PLASTX:
-            result = new AlgorithmPlastx (
+        	result.push_back (new AlgorithmPlastx (
                 config,
                 reader,
                 params,
                 filter,
                 resultVisitor, //new NucleotidConversionVisitor (resultVisitor, Alignment::QUERY),
                 dbProvider,
+                globalStats,
                 isRunning
-            );
+            ));
             break;
 
         case ENUM_TPLASTX:
-            result = new AlgorithmTplastx (
+        	result.push_back (new AlgorithmTplastx (
                 config,
                 new AminoAcidDatabaseQuickReader (reader),
                 params,
@@ -350,26 +363,52 @@ IAlgorithm* DefaultEnvironment::createAlgorithm (
                 //    Alignment::QUERY
                 //),
                 dbProvider,
+                globalStats,
                 isRunning
-            );
+            ));
             break;
 
         case ENUM_PLASTN:
-
+        {
             /** WARNING !  We first switch to nucleotide alphabet before creating the instance. */
             EncodingManager::singleton().setKind (EncodingManager::ALPHABET_NUCLEOTID);
 
-            /** We create the instance. */
-            result = new AlgorithmPlastn (
-                config,
-                reader,
-                params,
-                filter,
-                resultVisitor,
-                dbProvider,
-                isRunning
-            );
+            DEBUG (("DefaultEnvironment::createAlgorithm: strand=%d\n", params->strand));
+
+            /** We may create the instance for the "minus" strand. */
+            if (params->strand == 0  ||  params->strand==-1)
+            {
+                result.push_back (new AlgorithmPlastn (
+                    config,
+                    reader,
+                    params,
+                    filter,
+                    new ReverseStrandVisitor (resultVisitor, Alignment::SUBJECT),
+                    new DatabasesProviderProxy (new DatabasesProvider (config), config, new ReverseStrandSequenceIteratorFactory(), 0),
+                    globalStats,
+                    isRunning,
+                    -1  // actual strand
+                ));
+            }
+
+            /** We may create the instance for the "plus" strand. */
+            if (params->strand == 0  ||  params->strand==1)
+            {
+                result.push_back (new AlgorithmPlastn (
+                    config,
+                    reader,
+                    params,
+                    filter,
+                    resultVisitor,
+                    dbProvider,
+                    globalStats,
+                    isRunning,
+                    1  // actual strand
+                ));
+            }
+
             break;
+        }
 
         default:
             break;

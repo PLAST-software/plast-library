@@ -100,13 +100,14 @@ protected:
     void setDatabasesProvider  (algo::core::IDatabasesProvider* dbProvider)  { SP_SETATTR(dbProvider); }
 
     /** \copydoc IEnvironment::createAlgorithm */
-    IAlgorithm* createAlgorithm (
+    std::list<IAlgorithm*> createAlgorithm (
         IConfiguration*                                 config,
         database::IDatabaseQuickReader*                 reader,
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
+        statistics::IGlobalParameters*                  globalStats,
         bool&                                           isRunning
     );
 
