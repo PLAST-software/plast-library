@@ -84,7 +84,9 @@ DatabasesProvider::~DatabasesProvider ()
 void DatabasesProvider::createDatabases (
     IParameters* params,
     const std::vector<misc::ReadingFrame_e>&    sbjFrames,
-    const std::vector<misc::ReadingFrame_e>&    qryFrames
+    const std::vector<misc::ReadingFrame_e>&    qryFrames,
+    database::ISequenceIteratorFactory*         sbjFactory,
+    database::ISequenceIteratorFactory*         qryFactory
 )
 {
     /** We may create the subject database (more than one for tplastn) in case parameters
@@ -99,7 +101,8 @@ void DatabasesProvider::createDatabases (
             params->subjectRange,
             false,
             sbjFrames,
-            _sbjDbList
+            _sbjDbList,
+            sbjFactory
         );
     }
 
@@ -116,7 +119,8 @@ void DatabasesProvider::createDatabases (
             params->queryRange,
             params->filterQuery,
             qryFrames,
-            _qryDbList
+            _qryDbList,
+            qryFactory
         );
     }
 
@@ -137,17 +141,17 @@ void DatabasesProvider::createDatabaseList (
     const misc::Range64& range,
     bool                 filtering,
     const std::vector<ReadingFrame_e>& frames,
-    std::list<database::ISequenceDatabase*>& dbList
+    std::list<database::ISequenceDatabase*>& dbList,
+    database::ISequenceIteratorFactory* seqIterFactory
 )
 {
-    bool isORF = frames.empty() == false;
+    bool shouldFilter = !frames.empty() ? false : filtering;
 
     /** We create the source database. */
-    ISequenceDatabase* db = _config->createDatabase (uri, range, isORF ? false : filtering);
+    ISequenceDatabase* db = _config->createDatabase (uri, range, shouldFilter, seqIterFactory);
 
     if (frames.empty() == false)
     {
-#if 1
         /** We create the 6 reading frame databases. Note we use an auxiliary method (parallelization possibility). */
         list<ISequenceDatabase*> framedList;
         readReadingFrameDatabases (frames, db, filtering, framedList);
@@ -155,13 +159,6 @@ void DatabasesProvider::createDatabaseList (
         /** We could improve this by reading only once the nucleotid databases and generating 6 reading frames
          *  from this single reading. */
         dbList.push_back (new CompositeSequenceDatabase (framedList));
-
-#else
-        for (size_t i=0; i<frames.size(); i++)
-        {
-            dbList.push_back (new ReadingFrameSequenceDatabase (frames[i], db, filtering));
-        }
-#endif
     }
     else
     {
@@ -174,7 +171,6 @@ void DatabasesProvider::createDatabaseList (
         /** We forget the db. */
         (*it)->use();
     }
-
 
     DEBUG (cout << "AbstractAlgorithm::createDatabaseList: "
         << " uri="       << uri

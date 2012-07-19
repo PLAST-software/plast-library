@@ -50,8 +50,10 @@ public:
     /** */
     void createDatabases (
         algo::core::IParameters* params,
-        const std::vector<misc::ReadingFrame_e>&  sbjFrames,
-        const std::vector<misc::ReadingFrame_e>&  qryFrames
+        const std::vector<misc::ReadingFrame_e>&    sbjFrames,
+        const std::vector<misc::ReadingFrame_e>&    qryFrames,
+        database::ISequenceIteratorFactory*         sbjFactory,
+        database::ISequenceIteratorFactory*         qryFactory
     );
 
     /** */
@@ -93,7 +95,8 @@ private:
         const misc::Range64& range,
         bool                 filtering,
         const std::vector<misc::ReadingFrame_e>& frames,
-        std::list<database::ISequenceDatabase*>& dbList
+        std::list<database::ISequenceDatabase*>& dbList,
+        database::ISequenceIteratorFactory* seqIterFactory
     );
 
     /** */
@@ -110,6 +113,71 @@ private:
     /** */
     bool areNewSubjectParameters (algo::core::IParameters* params);
     bool areNewQueryParameters   (algo::core::IParameters* params);
+};
+
+/********************************************************************************/
+
+/**
+ */
+class DatabasesProviderProxy : public DatabasesProvider
+{
+public:
+
+    /** Constructor. */
+    DatabasesProviderProxy (
+        IDatabasesProvider*                 ref,
+        algo::core::IConfiguration*         config,
+        database::ISequenceIteratorFactory* sbjFactory,
+        database::ISequenceIteratorFactory* qryFactory
+    )
+        : DatabasesProvider(config), _ref(0), _sbjFactory(0), _qryFactory(0)
+    {
+        setRef        (ref);
+        setSbjFactory (sbjFactory);
+        setQryFactory (qryFactory);
+    }
+
+    /** Destructor. */
+    virtual ~DatabasesProviderProxy ()
+    {
+        setRef (0);
+        setSbjFactory (0);
+        setQryFactory (0);
+    }
+
+    /** */
+    void createDatabases (
+        algo::core::IParameters* params,
+        const std::vector<misc::ReadingFrame_e>&    sbjFrames,
+        const std::vector<misc::ReadingFrame_e>&    qryFrames,
+        database::ISequenceIteratorFactory*         sbjFactory,
+        database::ISequenceIteratorFactory*         qryFactory
+    )
+    {
+        _ref->createDatabases (params, sbjFrames, qryFrames, _sbjFactory, _qryFactory);
+    }
+
+    /** */
+    dp::impl::ListIterator<database::ISequenceDatabase*> getSubjectDbIterator ()
+    {
+        return _ref->getSubjectDbIterator();
+    }
+
+    dp::impl::ListIterator<database::ISequenceDatabase*> getQueryDbIterator ()
+    {
+        return _ref->getQueryDbIterator();
+    }
+
+private:
+
+    IDatabasesProvider* _ref;
+    void setRef (IDatabasesProvider* ref)  { SP_SETATTR(ref); }
+
+    database::ISequenceIteratorFactory* _sbjFactory;
+    void setSbjFactory (database::ISequenceIteratorFactory* sbjFactory)  { SP_SETATTR(sbjFactory); }
+
+    database::ISequenceIteratorFactory* _qryFactory;
+    void setQryFactory (database::ISequenceIteratorFactory* qryFactory)  { SP_SETATTR(qryFactory); }
 };
 
 /********************************************************************************/
