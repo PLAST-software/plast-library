@@ -53,7 +53,9 @@ public:
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
-        bool&                                           isRunning
+        statistics::IGlobalParameters*                  statistics,
+        bool&                                           isRunning,
+        int                                             actualStrand
     );
 
     /** */

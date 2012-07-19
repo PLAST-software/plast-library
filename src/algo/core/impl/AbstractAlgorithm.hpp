@@ -40,6 +40,8 @@
 #include <algo/core/api/IAlgoParameters.hpp>
 #include <algo/core/api/IDatabasesProvider.hpp>
 
+#include <algo/stats/api/IStatistics.hpp>
+
 #include <alignment/core/api/IAlignmentContainer.hpp>
 #include <alignment/core/api/IAlignmentContainerVisitor.hpp>
 #include <alignment/filter/api/IAlignmentFilter.hpp>
@@ -100,6 +102,7 @@ public:
         alignment::filter::IAlignmentFilter*          filter,
         alignment::core::IAlignmentContainerVisitor*  resultVisitor,
         algo::core::IDatabasesProvider*               dbProvider,
+        statistics::IGlobalParameters*                globalStats,
         bool&                                         isRunning
     );
 
@@ -285,9 +288,10 @@ public:
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
+        statistics::IGlobalParameters*                  globalStats,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, isRunning) {}
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, isRunning) {}
 };
 
 /********************************************************************************/
@@ -309,9 +313,10 @@ public:
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
+        statistics::IGlobalParameters*                  globalStats,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, isRunning)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, isRunning)
     {
         if (params->strands.empty() )   { _queryFrames.assign (allframes, allframes + 6);                       }
         else                            { _queryFrames.assign (params->strands.begin(), params->strands.end()); }
@@ -337,9 +342,10 @@ public:
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
+        statistics::IGlobalParameters*                  globalStats,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, isRunning)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, isRunning)
     {
         if (params->strands.empty() )   { _subjectFrames.assign (allframes, allframes + 6);                         }
         else                            { _subjectFrames.assign (params->strands.begin(), params->strands.end());   }
@@ -365,9 +371,10 @@ public:
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
+        statistics::IGlobalParameters*                  globalStats,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, isRunning)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, isRunning)
     {
     	_queryFrames.push_back (misc::FRAME_1);
     	_queryFrames.push_back (misc::FRAME_2);

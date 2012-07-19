@@ -46,6 +46,8 @@ using namespace database::impl;
 using namespace indexation;
 using namespace algo::hits;
 
+using namespace statistics;
+
 using namespace alignment::core;
 using namespace alignment::filter;
 using namespace alignment::visitors::impl;
@@ -92,6 +94,7 @@ AbstractAlgorithm::AbstractAlgorithm (
     IAlignmentFilter*           filter,
     IAlignmentContainerVisitor* resultVisitor,
     IDatabasesProvider*         dbProvider,
+    IGlobalParameters*          globalStats,
     bool&                       isRunning
 )
     : _config(0), _reader(0), _params(0), _filter(0), _resultVisitor(0), _dbProvider(0),
@@ -119,7 +122,7 @@ AbstractAlgorithm::AbstractAlgorithm (
     setScoreMatrix (getConfig()->createScoreMatrix (getParams()->matrixKind, SUBSEED));
 
     /** We set the global statistic parameters. */
-    setGlobalStatistics (getConfig()->createGlobalParameters (getParams()) );
+    setGlobalStatistics (globalStats);
 }
 
 /*********************************************************************
@@ -202,7 +205,7 @@ void AbstractAlgorithm::execute (void)
 
     /** We create the subject database (more than one for tplastn) and the
      *  query database   (more than one for plastx) */
-    getDatabasesProvider()->createDatabases (getParams(), getSubjectFrames(), getQueryFrames());
+    getDatabasesProvider()->createDatabases (getParams(), getSubjectFrames(), getQueryFrames(), 0, 0);
 
     /** We retrieve two iterators for the subject and query databases. */
     ListIterator<ISequenceDatabase*> subjectDbIt = getDatabasesProvider()->getSubjectDbIterator();

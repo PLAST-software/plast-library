@@ -76,15 +76,22 @@ AlgorithmPlastn::AlgorithmPlastn (
     alignment::filter::IAlignmentFilter*            filter,
     alignment::core::IAlignmentContainerVisitor*    resultVisitor,
     algo::core::IDatabasesProvider*                 dbProvider,
-    bool&                                           isRunning
+    statistics::IGlobalParameters*                  statistics,
+    bool&                                           isRunning,
+    int                                             actualStrand
 )
-	: AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, isRunning),
+	: AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, statistics, isRunning),
   	  _hspContainer(0), _nbPasses(4), _currentPass(0)
 {
     DEBUG (("AlgorithmPlastn::AlgorithmPlastn\n"));
 
-    /** WARNING !  We first switch to nucleotide alphabet before creating the instance. */
-    EncodingManager::singleton().setKind (EncodingManager::ALPHABET_NUCLEOTID);
+    /** We may have to consider twice the number of passes in case we work on both strands. */
+    if (params->strand == 0)
+    {
+        if (actualStrand==1)  { _currentPass += _nbPasses; }
+
+        _nbPasses *= 2;
+    }
 }
 
 /*********************************************************************
@@ -100,9 +107,6 @@ AlgorithmPlastn::~AlgorithmPlastn ()
     DEBUG (("AlgorithmPlastn::~AlgorithmPlastn\n"));
 
     setHspContainer (0);
-
-    /** WARNING !  We switch back to amino acid alphabet. */
-    EncodingManager::singleton().setKind (EncodingManager::ALPHABET_AMINO_ACID);
 }
 
 /*********************************************************************
@@ -382,7 +386,7 @@ void AlgorithmPlastn::update (dp::EventInfo* evt, dp::ISubject* subject)
         	/** Since we have several successive passes, we rationalize the incoming notifications
         	 *  in order to look like we have only one phase.
         	 */
-        	float currentPercent = (float)(e1->getCurrentIndex()) / (float)(e1->getTotalNumber());
+        	float currentPercent = e1->getTotalNumber() > 0 ? (float)(e1->getCurrentIndex()) / (float)(e1->getTotalNumber())  : 0;
 
             u_int64_t currentIndex = 100 * (currentPercent + _currentPass);
             u_int64_t totalNumber  = 100 * (_nbPasses);
