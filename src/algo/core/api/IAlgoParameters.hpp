@@ -139,6 +139,9 @@ public:
     /** Penalty score (used by plastn). */
     int penalty;
 
+    /** Strand to be used by plastn: O for both, 1 for plus, -1 for minus. */
+    int strand;
+
     /** Clone the instance.
      * \return the cloned instance. */
     IParameters* clone ()
