@@ -113,15 +113,16 @@ protected:
      * \param[in] reader : supposed to represent the read subject database
      * \param[in] params : parameters for configuring the algorithm
      * \param[in] resultVisitor : the visitor that visits all found alignments during algo execution
-     * \return a new IAlgorithm instance
+     * \return a new IAlgorithm instances list
      */
-    virtual IAlgorithm* createAlgorithm (
+    virtual std::list<IAlgorithm*> createAlgorithm (
         IConfiguration*                                 config,
         database::IDatabaseQuickReader*                 reader,
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
+        statistics::IGlobalParameters*                  globalStats,
         bool&                                           isRunning
     ) = 0;
 };
