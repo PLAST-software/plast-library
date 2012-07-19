@@ -93,15 +93,26 @@ public:
      */
     virtual dp::ICommandDispatcher* createDispatcher () = 0;
 
+    /** Create a factory that builds ISequenceIterator objects.
+     * \return the factory instance.
+     */
+    virtual database::ISequenceIteratorFactory* createSequenceIteratorFactory () = 0;
+
     /** Create a database object (with means for retrieving sequence within the database) from an uri (likely
      *  a local file, but it should be a location on a remote computer). A Range can be provided for using only
      *  a part of the database.
      *  \param[in] uri : uri of the database file to be read
      *  \param[in] range : a range to be read in the file (ie. a starting and ending offsets)
      *  \param[in] filtering : tells whether low informative regions have to be filtered out from the database
+     *  \param[in] sequenceIteratorFactory : a factory can be provided. If null, should use createSequenceIteratorFactory
      *  \return a new ISequenceDatabase instance
      */
-    virtual database::ISequenceDatabase*  createDatabase (const std::string& uri, const misc::Range64& range, bool filtering) = 0;
+    virtual database::ISequenceDatabase*  createDatabase (
+        const std::string& uri,
+        const misc::Range64& range,
+        bool filtering,
+        database::ISequenceIteratorFactory* sequenceIteratorFactory
+    ) = 0;
 
     /** Create statistical information for the query database that will be used by the algorithm for getting cutoffs.
      * \param[in] globalStats : global statistics for the algorithm
