@@ -34,6 +34,9 @@
 #include <database/api/ISequence.hpp>
 #include <database/api/IAlphabet.hpp>
 
+#include <misc/api/types.hpp>
+#include <string>
+
 /********************************************************************************/
 /** \brief Definition of concepts related to genomic databases. */
 namespace database {
@@ -80,6 +83,17 @@ protected:
      * \return the associated builder if any.
      */
     virtual ISequenceBuilder* getBuilder() const = 0;
+};
+
+/********************************************************************************/
+
+/** */
+class ISequenceIteratorFactory : public dp::SmartPointer
+{
+public:
+    /** Create a sequence iterator given an uri (and a range).
+     */
+    virtual ISequenceIterator* createSequenceIterator (const std::string& uri, const misc::Range64& range) = 0;
 };
 
 /********************************************************************************/
