@@ -29,6 +29,8 @@
 /********************************************************************************/
 
 #include <database/impl/AbstractSequenceIterator.hpp>
+#include <database/impl/FastaSequenceIterator.hpp>
+
 #include <misc/api/types.hpp>
 
 #include <string>
@@ -89,6 +91,20 @@ private:
 
     /** Define shortcuts for [A,C,G,T] according to the current encoding. */
     LETTER A, C, G, T;
+};
+
+/********************************************************************************/
+
+/** */
+class ReverseStrandSequenceIteratorFactory  : public ISequenceIteratorFactory
+{
+public:
+    /** Create a sequence iterator given an uri (and a range).
+     */
+    virtual ISequenceIterator* createSequenceIterator (const std::string& uri, const misc::Range64& range)
+    {
+        return new ReverseStrandSequenceIterator (new FastaSequenceIterator (uri.c_str(), 64*1024, range.begin, range.end));
+    }
 };
 
 /********************************************************************************/
