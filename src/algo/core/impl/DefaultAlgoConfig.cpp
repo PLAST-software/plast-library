@@ -329,16 +329,35 @@ dp::ICommandDispatcher* DefaultConfiguration::createIndexationDispatcher ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-ISequenceDatabase*  DefaultConfiguration::createDatabase (const string& uri, const Range64& range, bool filtering)
+database::ISequenceIteratorFactory* DefaultConfiguration::createSequenceIteratorFactory ()
 {
-    database::ISequenceDatabase* result = 0;
+    return new FastaSequenceIteratorFactory ();
+}
 
-    result = new BufferedSequenceDatabase (
-        new FastaSequenceIterator (uri.c_str(), 64*1024, range.begin, range.end),
-        filtering
-    );
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+ISequenceDatabase*  DefaultConfiguration::createDatabase (
+    const string& uri,
+    const Range64& range,
+    bool filtering,
+    ISequenceIteratorFactory* sequenceIteratorFactory
+)
+{
+    LOCAL (sequenceIteratorFactory);
 
-    return result;
+    /** We create the sequence iterator. */
+    ISequenceIterator* seqIterator =  sequenceIteratorFactory ?
+        sequenceIteratorFactory->createSequenceIterator (uri, range) :
+        new FastaSequenceIterator (uri.c_str(), 64*1024, range.begin, range.end);
+
+    /** We create the database. */
+    return new BufferedSequenceDatabase (seqIterator, filtering);
 }
 
 /*********************************************************************

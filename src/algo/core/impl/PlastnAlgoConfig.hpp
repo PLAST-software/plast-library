@@ -32,6 +32,7 @@ namespace algo {
 namespace core {
 /** \brief Implementation of concepts for configuring and running PLAST. */
 namespace impl {
+
 /********************************************************************************/
 
 /** \brief Plastn implementation of the IConfiguration interface
@@ -60,7 +61,12 @@ public:
     dp::ICommandDispatcher* createIndexationDispatcher ();
 
     /** \copydoc IConfiguration::createDatabase */
-    database::ISequenceDatabase*  createDatabase (const std::string& uri, const misc::Range64& range, bool filtering);
+    database::ISequenceDatabase*  createDatabase (
+        const std::string& uri,
+        const misc::Range64& range,
+        bool filtering,
+        database::ISequenceIteratorFactory* sequenceIteratorFactory
+    );
 
     /** \copydoc IConfiguration::createGlobalParameters */
     statistics::IGlobalParameters*  createGlobalParameters (algo::core::IParameters* params);

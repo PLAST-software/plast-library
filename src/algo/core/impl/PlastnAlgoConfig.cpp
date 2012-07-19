@@ -24,6 +24,7 @@
 
 #include <database/impl/FastaSequenceIterator.hpp>
 #include <database/impl/BufferedCachedSequenceDatabase.hpp>
+#include <database/impl/ReverseStrandSequenceIterator.hpp>
 
 #include <index/impl/DatabaseIndex.hpp>
 #include <index/impl/DatabaseNucleotidIndex.hpp>
@@ -139,6 +140,14 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
     params->outputfile           = "stdout";
     params->reward               =  1;
     params->penalty              = -2;
+    params->strand               = 0;
+
+    IProperty* strandProp = _properties->getProperty (STR_OPTION_STRAND);
+    if (strandProp != 0)
+    {
+             if (strandProp->getValue().compare ("plus")  == 0)  {  params->strand =  1;  }
+        else if (strandProp->getValue().compare ("minus") == 0)  {  params->strand = -1;  }
+    }
 
     /** We may want to restrict the number of dumped alignments. */
     IProperty* maxHspPerHitProp = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT);
@@ -172,14 +181,26 @@ dp::ICommandDispatcher* PlastnConfiguration::createIndexationDispatcher ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-ISequenceDatabase*  PlastnConfiguration::createDatabase (const string& uri, const Range64& range, bool filtering)
+ISequenceDatabase*  PlastnConfiguration::createDatabase (
+    const string& uri,
+    const Range64& range,
+    bool filtering,
+    database::ISequenceIteratorFactory* sequenceIteratorFactory
+)
 {
-    DEBUG ((cout << "PlastnConfiguration::createDatabase : uri='" << uri << "'  range=" << range << "  filtering=" << filtering << endl));
+    DEBUG ((cout << "PlastnConfiguration::createDatabase : "
+        << "  uri='" << uri << "'  range=" << range
+        << "  filtering=" << filtering << "  sequenceIteratorFactory=" << sequenceIteratorFactory << endl
+    ));
 
-    return new BufferedCachedSequenceDatabase (
-        new FastaSequenceIterator (uri.c_str(), 64*1024, range.begin, range.end),
-        filtering
-    );
+    LOCAL (sequenceIteratorFactory);
+
+    /** We create the sequence iterator. */
+    ISequenceIterator* seqIterator =  sequenceIteratorFactory ?
+        sequenceIteratorFactory->createSequenceIterator (uri, range) :
+        new FastaSequenceIterator (uri.c_str(), 64*1024, range.begin, range.end);
+
+    return new BufferedCachedSequenceDatabase (seqIterator, filtering);
 }
 
 /*********************************************************************

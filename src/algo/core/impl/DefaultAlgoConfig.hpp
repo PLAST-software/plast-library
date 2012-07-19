@@ -68,8 +68,16 @@ public:
     /** \copydoc IConfiguration::createDispatcher */
     dp::ICommandDispatcher* createDispatcher ();
 
+    /** \copydoc IConfiguration::createSequenceIteratorFactory */
+    database::ISequenceIteratorFactory* createSequenceIteratorFactory ();
+
     /** \copydoc IConfiguration::createDatabase */
-    database::ISequenceDatabase*  createDatabase (const std::string& uri, const misc::Range64& range, bool filtering);
+    database::ISequenceDatabase*  createDatabase (
+        const std::string& uri,
+        const misc::Range64& range,
+        bool filtering,
+        database::ISequenceIteratorFactory* sequenceIteratorFactory
+    );
 
     /** \copydoc IConfiguration::createQueryInformation */
     statistics::IQueryInformation* createQueryInformation (
