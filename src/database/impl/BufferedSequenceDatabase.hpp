@@ -148,7 +148,7 @@ public:
     /** \copydoc ISequenceDatabase::retrieveSequencesIdentifiers */
     void retrieveSequencesIdentifiers (std::set<std::string>& ids);
 
-private:
+protected:
 
     /** Identifier */
     std::string _id;
