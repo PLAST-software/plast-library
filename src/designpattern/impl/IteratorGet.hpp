@@ -24,6 +24,7 @@
 #define _ITERATOR_GET_HPP_
 
 #include <designpattern/api/Iterator.hpp>
+#include <designpattern/api/ICommand.hpp>
 
 #include <os/impl/DefaultOsFactory.hpp>
 
@@ -45,8 +46,6 @@ public:
         setIterator (iterator);
 
         _synchro = os::impl::DefaultFactory::singleton().thread().newSynchronizer();
-
-        _iterator->first ();
     }
 
     /** Destructor. */
@@ -66,11 +65,13 @@ public:
 
         if (_synchro)  { _synchro->lock (); }
 
+        if (_nbRetrieved == 0)  {  _iterator->first ();  }
+        else                    {  _iterator->next  ();  }
+
         result = ! _iterator->isDone();
         if (result)
         {
             item = _iterator->currentItem();
-            _iterator->next ();
             nbRetrieved = ++ _nbRetrieved;
         }
 
@@ -99,7 +100,7 @@ template <class T> class IteratorCommand : public dp::ICommand
 public:
 
     /** Constructor. */
-    IteratorCommand (Iterator<T>* iterator)  : _iteratorGet(0)  {  setIteratorGet (new IteratorGet<T> (iterator));  }
+    IteratorCommand (IteratorGet<T>* iterator)  : _iteratorGet(0)  {  setIteratorGet (iterator);  }
 
     /** Destructor. */
     virtual ~IteratorCommand ()  {  setIteratorGet (0);  }
