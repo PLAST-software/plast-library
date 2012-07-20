@@ -29,6 +29,7 @@
 #include <alignment/tools/impl/AlignmentSplitter.hpp>
 
 #include <alignment/visitors/impl/FilterContainerVisitor.hpp>
+#include <alignment/visitors/impl/SortContainerVisitor.hpp>
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -205,6 +206,11 @@ void AlgorithmPlastn::computeAlignments (
 void AlgorithmPlastn::finalizeAlignments (alignment::core::IAlignmentContainer* alignmentResult, os::impl::TimeInfo* timeStats)
 {
     timesVec.push_back (DefaultFactory::time().gettime());
+
+    /** Now, our alignment result instance should hold found alignments, we order the alignments. */
+    SortContainerVisitor sortVisitor;
+    alignmentResult->accept (&sortVisitor);
+    DEBUG (("AlgorithmPlastn::finalizeAlignments : sort done... \n"));
 
     /** We filter the alignments. */
     FilterContainerVisitor filterVisitor (_filter);
