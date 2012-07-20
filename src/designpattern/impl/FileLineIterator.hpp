@@ -138,6 +138,16 @@ public:
         first ();
     }
 
+    /** */
+    void setRange (u_int64_t offset)
+    {
+        _offset0 = offset;
+        _offset1 = offset;
+        _range   = ~0;
+
+        first ();
+    }
+
 private:
 
     /** URI of the file to be iterated. */
