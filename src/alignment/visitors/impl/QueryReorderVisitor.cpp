@@ -16,6 +16,7 @@
 
 #include <alignment/visitors/impl/QueryReorderVisitor.hpp>
 #include <alignment/core/impl/AlignmentContainerFactory.hpp>
+#include <alignment/core/impl/BasicAlignmentContainer.hpp>
 
 #include <alignment/visitors/impl/TabulatedOutputVisitor.hpp>
 
@@ -34,7 +35,8 @@
 #include <fstream>
 
 #include <stdio.h>
-#define DEBUG(a)  //a
+#define DEBUG(a)     //a
+#define VERBOSE(a)
 
 using namespace std;
 
@@ -85,7 +87,7 @@ public:
     /** */
     AlignmentContainerBuilderStream () : _container(0), _nbQrySeq(0), _nbSbjSeq()
     {
-        setContainer (AlignmentContainerFactory::singleton().createContainer());
+        setContainer (new BasicAlignmentContainerBis ());
     }
 
     /** */
@@ -95,7 +97,7 @@ public:
     /** */
     void putFirstLevelSequence (const ISequence* sequence)
     {
-        DEBUG (cout << "AlignmentContainerBuilderStream::putFirstLevelSequence"
+        VERBOSE (cout << "AlignmentContainerBuilderStream::putFirstLevelSequence"
             << "  _nbQrySeq='" << _nbQrySeq
             << "  comment='" << sequence->comment << "'"
             << "  length=" << sequence->getLength()
@@ -198,7 +200,7 @@ public:
                 /** We can now insert the alignment into the container. */
                 _container->insert (a, 0);
 
-                DEBUG (cout << "AlignmentContainerBuilderStream::put"
+                VERBOSE (cout << "AlignmentContainerBuilderStream::put"
                     << "  NEW ALIGNMENT, now " << _container->getAlignmentsNumber()
                     << "  qry='" << _qrySeq.comment << "'"
                     << "  sbj='" << _sbjSeq.comment << "'"
@@ -219,7 +221,7 @@ public:
     /** */
     void clear ()
     {
-        setContainer (AlignmentContainerFactory::singleton().createContainer());
+        setContainer (new BasicAlignmentContainerBis ());
         _qryIdMap.clear ();
         _sbjIdMap.clear ();
         _qrySeq.index = _sbjSeq.index = 0;
@@ -235,7 +237,7 @@ public:
     /** */
     void dump (QueryReorderVisitor* queryVisitor, u_int32_t threshold=0)
     {
-        DEBUG (cout << "AlignmentContainerBuilderStream::dump"
+        VERBOSE (cout << "AlignmentContainerBuilderStream::dump"
             << "  alignNb="         << getAlignmentsNumber()
             << "  nbFirstLevel="    << _container->getFirstLevelNumber()
             << "  threshold="       << threshold << endl
@@ -246,14 +248,14 @@ public:
             /** We notify if we found some query sequences (with potentially no hits) or alignments. */
             if (_container && (_container->getAlignmentsNumber()>0  || _container->getFirstLevelNumber()>0) )
             {
-                DEBUG (cout << "AlignmentContainerBuilderStream::dump    accept final visitor " << queryVisitor->getFinalVisitor() << endl);
+                VERBOSE (cout << "AlignmentContainerBuilderStream::dump    accept final visitor " << queryVisitor->getFinalVisitor() << endl);
 
                 /** We accept the provided visitor. */
                 _container->accept (queryVisitor->getFinalVisitor());
 
                 /** We send a notification to potential listeners. */
                 queryVisitor->notify (new AlignmentsContainerEvent (_container));
-                DEBUG (cout << "AlignmentContainerBuilderStream::dump    notifying..."
+                VERBOSE (cout << "AlignmentContainerBuilderStream::dump    notifying..."
                     << "  alignNb="  << _container->getAlignmentsNumber()
                     << "  queryNb="  << _container->getFirstLevelNumber()
                     << endl
@@ -261,7 +263,7 @@ public:
             }
 
             /** We reset the alignment builder for the other alignments to be parsed from the temporary file. */
-            DEBUG (cout << "AlignmentContainerBuilderStream::dump    clearing content..." << endl);
+            VERBOSE (cout << "AlignmentContainerBuilderStream::dump    clearing content..." << endl);
             clear ();
         }
     }
@@ -279,9 +281,9 @@ private:
         /** We read the remaining of the comment line from the stream. */
         ss.getline (commentBuffer, sizeof(commentBuffer)-1);
 
-        DEBUG (cout << endl);
+        VERBOSE (cout << endl);
 
-        DEBUG (cout << "AlignmentContainerBuilderStream::manageSequence "
+        VERBOSE (cout << "AlignmentContainerBuilderStream::manageSequence "
             << "  kind="    << kind
             << "  length="  << seq.length
             << "  buffer='" << commentBuffer << "'"
@@ -309,7 +311,7 @@ private:
             endIdCursor = commentBufferCursor;
         }
 
-        DEBUG (cout << "AlignmentContainerBuilderStream::manageSequence "
+        VERBOSE (cout << "AlignmentContainerBuilderStream::manageSequence "
             << "  transient=" << transientChange
             << "  cursor='"   << commentBufferCursor << "'"
             << endl
@@ -338,8 +340,7 @@ private:
             seq.index   = ret.first->second.index;
         }
 
-        DEBUG (cout << "AlignmentContainerBuilderStream::manageSequence "
-            << "  found=" << found
+        VERBOSE (cout << "AlignmentContainerBuilderStream::manageSequence "
             << "  comment='" << seq.comment << "'"
             << "  index=" << seq.index
             << endl
@@ -549,30 +550,61 @@ void QueryReorderVisitor::finalize (void)
             char id[1024];
             size_t len = seq->retrieveId (id, sizeof(id));
 
-            DEBUG (cout << endl);
-            DEBUG (cout << "QueryReorderVisitor::finalize   retrieveId : len=" << len << "  id='" << id << "'" << endl);
-
             /** We check that we got a valid id. */
             if (len == 0)  { continue; }
 
             /** Shortcut. */
             list<Range64>& l = indexes[id];
 
+            DEBUG (cout << endl);
+            DEBUG (cout << "QueryReorderVisitor::finalize   retrieveId : l.size=" << l.size() << "  id='" << id << "'" << endl);
+
             if (! l.empty())
             {
                 bool firstEntry = true;
+
                 for (list<Range64>::iterator entriesIt=l.begin(); entriesIt != l.end(); entriesIt++, firstEntry=false)
                 {
-                    DEBUG (cout <<  "QueryId=" << id << "  range=" << (*entriesIt) << endl);
-
                     /** We update the range to be read within the file. */
-                    lineIt.setRange (entriesIt->begin, entriesIt->end);
+                    lineIt.setRange (entriesIt->begin);
 
-                    /** Note the trick: we get rid of redundant 'Q' headed lines (just keep the first). */
-                    if (!firstEntry)  { lineIt.next(); }
+                    DEBUG (cout <<  "QueryId=" << id
+                        << "  l.size=" << l.size()
+                        << "  range=" << (*entriesIt)
+                        << "  line=" << lineIt.currentItem()
+                        << endl
+                    );
+
+                    CHECK_BLOCK_BEGIN
+                        if (lineIt.currentItem()[0] != 'Q')  {  throw "QueryReorderVisitor::finalize => FOUND BAD CHARACTER"; }
+                    CHECK_BLOCK_END
 
                     /** We loop each file line and parse it through an alignment builder. */
-                    for ( ; !lineIt.isDone(); lineIt.next())   {  alignStream.put (lineIt.currentItem());  }
+                    bool stop = false;
+                    for (bool firstLine=true; !stop && !lineIt.isDone(); lineIt.next(), firstLine=false)
+                    {
+                        const char* current = lineIt.currentItem();
+
+                        if (*current == 'Q')
+                        {
+                            if (firstLine)
+                            {
+                                if (!firstEntry)
+                                {
+                                    /** Note the trick: we get rid of redundant 'Q' headed lines (just keep the first). */
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                /** We got a query that is not the currently processed, which means
+                                 * that we found all required alignments for the current query. */
+                                stop=true;  continue;
+                            }
+                        }
+
+                        alignStream.put (lineIt.currentItem());
+                    }
 
                 }  /* end of for (list<Entry>::iterator entriesIt=l.begin(); */
             }
