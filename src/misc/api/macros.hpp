@@ -55,6 +55,17 @@ namespace misc {
 /** Size of an array (computed through sizeof). */
 #define ARRAYSIZE(t)  (sizeof(t) / sizeof(t[0]))
 
+/** Some macros for add checks in the code. */
+#define WITH_CHECK
+
+#ifdef WITH_CHECK
+    #define CHECK_BLOCK_BEGIN  if (true) {
+    #define CHECK_BLOCK_END    }
+#else
+    #define CHECK_BLOCK_BEGIN  if (false)  {
+    #define CHECK_BLOCK_END    }
+#endif
+
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
