@@ -439,7 +439,7 @@ void HspContainer::merge (std::vector<IHspContainer*> v)
 	{
 		DEBUG (("HspContainer::merge  BEGIN\n"));
 
-		u_int64_t nbRetrieved;
+		size_t nbRetrieved;
 		HSP* hsp = 0;
 
 		for (size_t i=0; i<v.size(); i++)

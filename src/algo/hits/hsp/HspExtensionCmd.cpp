@@ -117,7 +117,7 @@ HspExtensionCmd::~HspExtensionCmd ()
 *********************************************************************/
 void HspExtensionCmd::execute ()
 {
-    u_int64_t nbHsp=0;
+    size_t nbHsp=0;
 
     IHspContainer::HSP* hsp = 0;
 
