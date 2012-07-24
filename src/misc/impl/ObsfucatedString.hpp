@@ -36,7 +36,7 @@ class ObsfucatedString
 {
 public:
 
-    typedef u_int64_t LONG;
+    typedef unsigned long long LONG;
 
     /** Constructor. */
     ObsfucatedString (LONG l, ...);
