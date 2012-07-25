@@ -14,6 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+#include "JniObsfucation.h"
 #include "org_inria_genscale_dbscan_impl_plast_Request.h"
 
 #include <designpattern/api/IProperty.hpp>
@@ -103,7 +104,7 @@ public:
     jobject createExecInfoProperties ()
     {
         /** We create a java.util.Properties instance. */
-        jobject props = _env->NewObject (ClassTable [Properties_e], MethodTable[Properties_init_e]);
+        jobject props = _env->NewObject (CLASS (Properties), METHOD (Properties,init));
 
         /** We add some entries into the map. */
         fillJavaProperties (props, "exec_percent",   _globalPercentage);
@@ -121,14 +122,14 @@ protected:
 
     void dump () {}
 
-    void updateStarted       ()  {  _env->CallObjectMethod (_obj, MethodTable[Request_notifyStarted_e]);   }
-    void updateFinished      ()  {  _env->CallObjectMethod (_obj, MethodTable[Request_notifyFinished_e]);  }
+    void updateStarted       ()  {  _env->CallObjectMethod (_obj, METHOD (Request,notifyStarted));   }
+    void updateFinished      ()  {  _env->CallObjectMethod (_obj, METHOD (Request,notifyFinished));  }
 
     /**********************************************************************/
     void notifyExecInfoAvailable  (void)
     {
         /** We notify potential java listeners. */
-        _env->CallObjectMethod (_obj, MethodTable [Request_notifyExecInfoAvailable_e],  createExecInfoProperties());
+        _env->CallObjectMethod (_obj, METHOD (Request,notifyExecInfoAvailable),  createExecInfoProperties());
     }
 
     /**********************************************************************/
@@ -166,19 +167,19 @@ protected:
         model->first();
 
         /** We retrieve the object factory. */
-        jobject factory  = _env->CallObjectMethod (_obj, MethodTable [Request_getFactory_e]);
+        jobject factory  = _env->CallObjectMethod (_obj, METHOD (Request,getFactory));
 
         /** We create a new RequestResult instance and give to it the container model. */
         jobject requestResult = _env->NewObject (
-            ClassTable [RequestResult_e],
-            MethodTable[RequestResult_init_e],
+            CLASS (RequestResult),
+            METHOD (RequestResult,init),
             (jlong)   model,
             (jobject) factory,
             (jint)    model->size()
         );
 
         /** We notify potential java listeners. */
-        _env->CallObjectMethod (_obj, MethodTable [Request_notifyRequestResultAvailable_e], requestResult);
+        _env->CallObjectMethod (_obj, METHOD (Request,notifyRequestResultAvailable), requestResult);
     }
 
 private:
@@ -194,7 +195,7 @@ private:
         stringstream ss;
         ss << value;
 
-        _env->CallObjectMethod (props, MethodTable[Properties_setProperty_e],
+        _env->CallObjectMethod (props, METHOD (Properties,setProperty),
             _env->NewStringUTF(key),  _env->NewStringUTF (ss.str().c_str())
         );
     }
@@ -233,7 +234,7 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_Request_run (
     LOCAL (link);
 
     /** We keep a reference to this link from the java world as a specific peer. */
-    env->CallObjectMethod (obj, MethodTable [Request_setExecInfoPeer_e], link);
+    env->CallObjectMethod (obj, METHOD (Request,setExecInfoPeer), link);
 
     /** We attach the link to the plast request. */
     cmd->addObserver (link);
@@ -257,8 +258,8 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_Request_run (
     cmd->removeObserver (link);
 
     /** We reset the peers. */
-    env->CallObjectMethod (obj, MethodTable [Request_setExecInfoPeer_e], 0);
-    env->CallObjectMethod (obj, MethodTable [PeerIterator_setPeer_e],    0);
+    env->CallObjectMethod (obj, METHOD (Request,setExecInfoPeer), 0);
+    env->CallObjectMethod (obj, METHOD (PeerIterator,setPeer),    0);
 
     /** We forget the peer. */
     cmd->forget ();
@@ -288,7 +289,7 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_Request_cancel 
         cmd->cancel();
 
         /** We notify potential listeners. */
-        env->CallObjectMethod (obj, MethodTable[Request_notifyCancelled_e]);
+        env->CallObjectMethod (obj, METHOD (Request,notifyCancelled));
     }
 }
 
@@ -342,7 +343,7 @@ JNIEXPORT jobject JNICALL Java_org_inria_genscale_dbscan_impl_plast_Request_getE
     }
     else
     {
-        result = env->NewObject (ClassTable [Properties_e], MethodTable[Properties_init_e]);
+        result = env->NewObject (CLASS (Properties), METHOD (Properties,init));
     }
 
     return result;

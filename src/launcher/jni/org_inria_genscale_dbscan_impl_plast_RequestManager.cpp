@@ -14,7 +14,10 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+#include "JniObsfucation.h"
 #include "org_inria_genscale_dbscan_impl_plast_RequestManager.h"
+
+#include <misc/api/version.hpp>
 
 #include <designpattern/api/IProperty.hpp>
 
@@ -35,6 +38,46 @@ using namespace launcher::core;
 
 #define DEBUG(a)  //a
 
+extern "C" void iLE (char* isAllowed);
+
+#define CONTROL_CHECKS 1
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+static bool CheckCode (const char* code)
+{
+    if (!code)  { return false; }
+
+    char* dup = strdup (code);
+    if (!dup)   { return false; }
+
+    size_t len = strlen (dup);
+
+    /** Here, the idea is to parse the provided code and for each found digit,
+     *  change the character by decrementing the value.
+     *  For instance, "V3.2.1b" should become "V2.1.0b"  */
+    for (size_t i=0; i<len; i++)
+    {
+        char c = dup[i];
+
+        if (c>='0' && c<='9')  {  dup[i] = ((c - '0' + 9) % 10) + '0';  }
+    }
+
+    /** We compute the result. */
+    bool result = strcmp (dup, PLAST_VERSION) == 0;
+
+    /** We release resources. */
+    free (dup);
+
+    return result;
+}
+
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
@@ -45,59 +88,57 @@ using namespace launcher::core;
 *********************************************************************/
 JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager_initIDs (
     JNIEnv* env,
-    jclass clazz
+    jclass clazz,
+    jstring code
 )
 {
     DEBUG (cout << "Java_org_inria_genscale_plast_impl_RequestManager_initIDs 1" << endl << flush);
 
-#define INIT_CLASS(p,c)  ClassTable[c##_e] = (jclass) env->NewGlobalRef (env->FindClass (p#c));
+    INIT_CLASS ("java/util/",   Properties,                     Properties_name);
+    INIT_CLASS (PKG_API,        IObjectFactory,                 IObjectFactory_name);
+    INIT_CLASS (PKG_COMMON,     HspInfo,                        HspInfo_name);
+    INIT_CLASS (PKG_PLAST,      Request,                        Request_name);
+    INIT_CLASS (PKG_PLAST,      PeerIterator,                   PeerIterator_name);
+    INIT_CLASS (PKG_PLAST,      RequestResult,                  RequestResult_name);
+    INIT_CLASS (PKG_PLAST,      QueryResult,                    QueryResult_name);
+    INIT_CLASS (PKG_PLAST,      Hit,                            Hit_name);
+    INIT_CLASS (PKG_PLAST,      DisabledLibraryException,       DisabledLibraryException_name);
 
-    INIT_CLASS ("java/util/",   Properties);
-    INIT_CLASS (PKG_API,        IObjectFactory);
-    INIT_CLASS (PKG_COMMON,     HspInfo);
-    INIT_CLASS (PKG_PLAST,      Request);
-    INIT_CLASS (PKG_PLAST,      PeerIterator);
-    INIT_CLASS (PKG_PLAST,      RequestResult);
-    INIT_CLASS (PKG_PLAST,      QueryResult);
-    INIT_CLASS (PKG_PLAST,      Hit);
+    INIT_METHOD (Request,           getProperties,                  getProperties_name,                 "()" SIGPROPS);
+    INIT_METHOD (Request,           getFactory,                     getFactory_name,                    "()" SIGFACTO);
+    INIT_METHOD (Request,           cancel,                         cancel_name,                        "(JZ)V");
+    INIT_METHOD (Request,           setExecInfoPeer,                setExecInfoPeer_name,               "(J)V");
+    INIT_METHOD (Request,           notifyStarted,                  notifyStarted_name,                 "()V");
+    INIT_METHOD (Request,           notifyFinished,                 notifyFinished_name,                "()V");
+    INIT_METHOD (Request,           notifyCancelled,                notifyCancelled_name,               "()V");
+    INIT_METHOD (Request,           notifyExecInfoAvailable,        notifyExecInfoAvailable_name,       "("  SIGPROPS ")V");
+    INIT_METHOD (Request,           notifyRequestResultAvailable,   notifyRequestResultAvailable_name,  "("  SIG(PKG_API,"IRR") ")V");
+    INIT_METHOD (PeerIterator,      setPeer,                        setPeer_name,          "(J)V");
+    INIT_METHOD (IObjectFactory,    createSequence,                 createSequence_name,   "(" SIGSTR SIGSTR "I" SIGSTR   ")" SIGSEQ);
+    INIT_METHOD (IObjectFactory,    createHsp,                      createHsp_name,        "(" "IDDDIIII" SIGHSPI SIGHSPI ")" SIGHSP);
+    INIT_METHOD (Properties,        setProperty,                    setProperty_name,      "(" SIGSTR SIGSTR")" SIGOBJ);
 
-#define INIT_METHOD(c,m,p)  MethodTable[c##_##m##_e] = env->GetMethodID (ClassTable[c##_e], #m,p);
-#define INIT_CONSTR(c,m,p)  MethodTable[c##_##m##_e] = env->GetMethodID (ClassTable[c##_e], "<"#m">",p);
+    INIT_CONSTR (RequestResult, "(J" SIGFACTO "I" ")V");
+    INIT_CONSTR (QueryResult,   "(J" SIGFACTO "I" SIGSEQ   ")V");
+    INIT_CONSTR (Hit,           "(J" SIGFACTO "I" SIGSEQ SIGQRY ")V");
+    INIT_CONSTR (Properties,    "()V");
+    INIT_CONSTR (HspInfo,       "(" SIGSEQ "IIIID" ")V" );
+    INIT_CONSTR (DisabledLibraryException,       "(" SIGSTR ")V" );
 
-#define SIG(p,c)  "L" p c ";"
-#define SIGPROPS  SIG("java/util/", "Properties")
-#define SIGMAP    SIG("java/util/", "Map")
-#define SIGHMAP   SIG("java/util/", "HashMap")
-#define SIGOBJ    SIG("java/lang/", "Object")
-#define SIGSTR    SIG("java/lang/", "String")
-#define SIGFACTO  SIG(PKG_API,      "IObjectFactory")
-#define SIGSEQ    SIG(PKG_API,      "ISequence")
-#define SIGQRY    SIG(PKG_API,      "IQueryResult")
-#define SIGHSP    SIG(PKG_API,      "IHsp")
-#define SIGHSPI   SIG(PKG_API,      "IHspInfo")
+#ifdef CONTROL_CHECKS
+    const char* codeBuffer = env->GetStringUTFChars (code, NULL);
+    if (codeBuffer)
+    {
+        if (CheckCode (codeBuffer) == false)
+        {
+            /** LIBRARY NOT ENABLED !!! We launch an exception. */
+            env->ThrowNew (CLASS(DisabledLibraryException), "Library disabled... Bad version...");
+        }
 
-    INIT_METHOD (Request,       notifyStarted,                  "()V");
-    INIT_METHOD (Request,       notifyFinished,                 "()V");
-    INIT_METHOD (Request,       notifyCancelled,                "()V");
-    INIT_METHOD (Request,       notifyExecInfoAvailable,        "("  SIGPROPS ")V");
-    INIT_METHOD (Request,       notifyRequestResultAvailable,   "("  SIG(PKG_API,"IRequestResult") ")V");
-    INIT_METHOD (Request,       getProperties,                  "()" SIGPROPS);
-    INIT_METHOD (Request,       getFactory,                     "()" SIGFACTO);
-    INIT_METHOD (Request,       cancel,                         "(JZ)V");
-    INIT_METHOD (Request,       setExecInfoPeer,                "(J)V");
-
-    INIT_METHOD (PeerIterator,   setPeer,            "(J)V");
-
-    INIT_METHOD (Properties,     setProperty,        "(" SIGSTR SIGSTR")" SIGOBJ);
-
-    INIT_METHOD (IObjectFactory,    createSequence,  "(" SIGSTR SIGSTR "I" SIGSTR     ")" SIGSEQ);
-    INIT_METHOD (IObjectFactory,    createHsp,       "(" "IDDDIIII" SIGHSPI SIGHSPI ")" SIGHSP);
-
-    INIT_CONSTR (RequestResult, init, "(J" SIGFACTO "I" ")V");
-    INIT_CONSTR (QueryResult,   init, "(J" SIGFACTO "I" SIGSEQ   ")V");
-    INIT_CONSTR (Hit,           init, "(J" SIGFACTO "I" SIGSEQ SIGQRY ")V");
-    INIT_CONSTR (Properties,    init, "()V");
-    INIT_CONSTR (HspInfo,       init, "(" SIGSEQ "IIIID" ")V" );
+        //printf ("CODE='%s'\n", codeBuffer);
+        env->ReleaseStringUTFChars (code, codeBuffer);
+    }
+#endif
 
     DEBUG (cout << "Java_org_inria_genscale_plast_impl_RequestManager_initIDs 2" << endl << flush);
 }
@@ -116,6 +157,17 @@ JNIEXPORT jlong JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager
     jobject javaProps
 )
 {
+#ifdef CONTROL_CHECKS
+    /** We check whether the library is enabled or not. */
+    char isEnabled=0;   iLE (&isEnabled);
+
+    if (isEnabled != 64)
+    {
+        /** LIBRARY NOT ENABLED !!! We launch an exception. */
+        env->ThrowNew (CLASS(DisabledLibraryException), "Library disabled...");
+    }
+#endif
+
     /** We convert the JAVA properties as C++ properties. */
     IProperties* props = Wrapper(env).convertProperties (javaProps);
 
@@ -136,7 +188,7 @@ JNIEXPORT jlong JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager
 
         void visitProperty (IProperty* prop)
         {
-            _env->CallObjectMethod (_javaprops, MethodTable[Properties_setProperty_e],
+            _env->CallObjectMethod (_javaprops, METHOD (Properties,setProperty),
                 _env->NewStringUTF(prop->key.c_str()),  _env->NewStringUTF (prop->getString())
             );
         }

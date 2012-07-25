@@ -14,6 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+#include "JniObsfucation.h"
 #include "org_inria_genscale_dbscan_impl_plast_Hit.h"
 
 #include <launcher/jni/Helper.hpp>
@@ -71,7 +72,7 @@ JNIEXPORT jobject JNICALL Java_org_inria_genscale_dbscan_impl_plast_Hit_retrieve
     if (isOk)
     {
         /** We create a IHspInfo for the query. */
-        jobject qryInfo = env->NewObject (ClassTable[HspInfo_e], MethodTable[HspInfo_init_e],
+        jobject qryInfo = env->NewObject (CLASS(HspInfo), METHOD(HspInfo,init),
             (jobject) querySeq,
             (jint)   (currentItem->getRange    (Alignment::QUERY).begin + 1),
             (jint)   (currentItem->getRange    (Alignment::QUERY).end   + 1),
@@ -81,7 +82,7 @@ JNIEXPORT jobject JNICALL Java_org_inria_genscale_dbscan_impl_plast_Hit_retrieve
         );
 
         /** We create a IHspInfo for the query. */
-        jobject hitInfo = env->NewObject (ClassTable[HspInfo_e], MethodTable[HspInfo_init_e],
+        jobject hitInfo = env->NewObject (CLASS(HspInfo), METHOD(HspInfo,init),
             (jobject) hitSeq,
             (jint)   (currentItem->getRange    (Alignment::SUBJECT).begin + 1),
             (jint)   (currentItem->getRange    (Alignment::SUBJECT).end   + 1),
@@ -93,7 +94,7 @@ JNIEXPORT jobject JNICALL Java_org_inria_genscale_dbscan_impl_plast_Hit_retrieve
         /** We create the Hsp instance through the factory. */
         result = env->CallObjectMethod (
             factory,
-            MethodTable[IObjectFactory_createHsp_e],
+            METHOD (IObjectFactory, createHsp),
             (jint)0, //num,
             (jdouble)currentItem->getBitScore(),
             (jdouble)currentItem->getScore(),
@@ -112,7 +113,7 @@ JNIEXPORT jobject JNICALL Java_org_inria_genscale_dbscan_impl_plast_Hit_retrieve
             /** We may invalidate the peer in the java object. */
             env->CallObjectMethod (
 				obj, 
-				MethodTable[PeerIterator_setPeer_e], 
+				METHOD (PeerIterator, setPeer),
 				(jlong)0
 			);
         }

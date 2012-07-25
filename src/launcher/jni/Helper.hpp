@@ -28,10 +28,6 @@ namespace launcher  {
 namespace jni       {
 /********************************************************************************/
 
-#define PKG_API     "org/inria/genscale/dbscan/api/"
-#define PKG_COMMON  "org/inria/genscale/dbscan/impl/common/"
-#define PKG_PLAST   "org/inria/genscale/dbscan/impl/plast/"
-
 #define CLASS_DEF(c)  c##_e
 
 enum Class_e
@@ -46,6 +42,8 @@ enum Class_e
     CLASS_DEF (Properties),
     CLASS_DEF (IObjectFactory),
     CLASS_DEF (HspInfo),
+    CLASS_DEF (RequestController),
+    CLASS_DEF (DisabledLibraryException),
     ClassLast_e
 };
 
@@ -80,6 +78,10 @@ enum Method_e
     METHOD_DEF (Properties,     init),
     METHOD_DEF (HspInfo,        init),
 
+    METHOD_DEF (RequestController,  enableLibrary),
+
+    METHOD_DEF (DisabledLibraryException,  init),
+
     MethodLast_e
 };
 
@@ -87,6 +89,15 @@ enum Method_e
 
 extern jclass    ClassTable[];
 extern jmethodID MethodTable[];
+
+/********************************************************************************/
+#define CLASS(c)     ClassTable  [c##_e]
+#define METHOD(c,m)  MethodTable [c##_##m##_e]
+
+/********************************************************************************/
+#define INIT_CLASS(p,c,name)     CLASS(c)       = (jclass) env->NewGlobalRef (env->FindClass (p name));
+#define INIT_METHOD(c,m,name,p)  METHOD(c,m)    = env->GetMethodID (ClassTable[c##_e], name,p);
+#define INIT_CONSTR(c,p)         METHOD(c,init) = env->GetMethodID (ClassTable[c##_e], "<init>",p);
 
 /********************************************************************************/
 }}

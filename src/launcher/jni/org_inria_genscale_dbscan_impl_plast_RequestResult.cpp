@@ -14,6 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+#include "JniObsfucation.h"
 #include "org_inria_genscale_dbscan_impl_plast_RequestResult.h"
 
 #include <launcher/jni/Helper.hpp>
@@ -88,7 +89,7 @@ JNIEXPORT jobject JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestResul
         /** We create a ISequence from the factory. */
         jobject seq = env->CallObjectMethod (
             factory,
-            MethodTable[IObjectFactory_createSequence_e],
+            METHOD (IObjectFactory,createSequence),
             (jstring)env->NewStringUTF (bufId),
             (jstring)env->NewStringUTF (bufDef),
             (jint)sequence->getLength(),
@@ -97,8 +98,8 @@ JNIEXPORT jobject JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestResul
 
         /** We build the current object. */
         result = env->NewObject (
-            ClassTable[QueryResult_e],
-            MethodTable[QueryResult_init_e],
+            CLASS (QueryResult),
+            METHOD (QueryResult,init),
             (jlong)currentItem,
             (jobject)factory,
             (jint)currentItem->size(),
@@ -111,7 +112,7 @@ JNIEXPORT jobject JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestResul
             /** We invalidate the peer in the java object. */
             env->CallObjectMethod (
 				obj, 
-				MethodTable[PeerIterator_setPeer_e], 
+				METHOD (PeerIterator,setPeer),
 				(jlong)0
 			);
         }

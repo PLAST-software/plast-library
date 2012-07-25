@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     org_inria_genscale_dbscan_impl_plast_RequestManager
  * Method:    initIDs
- * Signature: ()V
+ * Signature: (String)V
  */
 JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager_initIDs
-  (JNIEnv *, jclass);
+  (JNIEnv *, jclass, jstring);
 
 /*
  * Class:     org_inria_genscale_dbscan_impl_plast_RequestManager
