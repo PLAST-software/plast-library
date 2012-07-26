@@ -53,34 +53,34 @@ enum Class_e
 
 enum Method_e
 {
-    METHOD_DEF (Request,        notifyStarted),
-    METHOD_DEF (Request,        notifyFinished),
-    METHOD_DEF (Request,        notifyCancelled),
-    METHOD_DEF (Request,        notifyExecInfoAvailable),
-    METHOD_DEF (Request,        notifyRequestResultAvailable),
-    METHOD_DEF (Request,        getProperties),
-    METHOD_DEF (Request,        getFactory),
-    METHOD_DEF (Request,        cancel),
-    METHOD_DEF (Request,        setExecInfoPeer),
+    /*  0  */  METHOD_DEF (Request,        notifyStarted),
+    /*  1  */  METHOD_DEF (Request,        notifyFinished),
+    /*  2  */  METHOD_DEF (Request,        notifyCancelled),
+    /*  3  */  METHOD_DEF (Request,        notifyExecInfoAvailable),
+    /*  4  */  METHOD_DEF (Request,        notifyRequestResultAvailable),
+    /*  5  */  METHOD_DEF (Request,        getProperties),
+    /*  6  */  METHOD_DEF (Request,        getFactory),
+    /*  7  */  METHOD_DEF (Request,        cancel),
+    /*  8  */  METHOD_DEF (Request,        setExecInfoPeer),
 
-    METHOD_DEF (PeerIterator,   init),
-    METHOD_DEF (PeerIterator,   setPeer),
+    /*  9  */  METHOD_DEF (PeerIterator,   init),
+    /*  10 */  METHOD_DEF (PeerIterator,   setPeer),
 
-    METHOD_DEF (Properties,     setProperty),
+    /*  11 */  METHOD_DEF (Properties,     setProperty),
 
-    METHOD_DEF (IObjectFactory, createSequence),
-    METHOD_DEF (IObjectFactory, createHsp),
+    /*  12 */  METHOD_DEF (IObjectFactory, createSequence),
+    /*  13 */  METHOD_DEF (IObjectFactory, createHsp),
 
-    METHOD_DEF (RequestResult,  init),
-    METHOD_DEF (QueryResult,    init),
-    METHOD_DEF (Hit,            init),
-    METHOD_DEF (Hsp,            init),
-    METHOD_DEF (Properties,     init),
-    METHOD_DEF (HspInfo,        init),
+    /*  14 */  METHOD_DEF (RequestResult,  init),
+    /*  15 */  METHOD_DEF (QueryResult,    init),
+    /*  16 */  METHOD_DEF (Hit,            init),
+    /*  17 */  METHOD_DEF (Hsp,            init),
+    /*  18 */  METHOD_DEF (Properties,     init),
+    /*  19 */  METHOD_DEF (HspInfo,        init),
 
-    METHOD_DEF (RequestController,  enableLibrary),
+    /*  20 */  METHOD_DEF (RequestController,  enableLibrary),
 
-    METHOD_DEF (DisabledLibraryException,  init),
+    /*  21 */  METHOD_DEF (DisabledLibraryException,  init),
 
     MethodLast_e
 };

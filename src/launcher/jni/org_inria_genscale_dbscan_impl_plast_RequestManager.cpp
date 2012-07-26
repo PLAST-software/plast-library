@@ -112,7 +112,7 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager_
     INIT_METHOD (Request,           notifyFinished,                 notifyFinished_name,                "()V");
     INIT_METHOD (Request,           notifyCancelled,                notifyCancelled_name,               "()V");
     INIT_METHOD (Request,           notifyExecInfoAvailable,        notifyExecInfoAvailable_name,       "("  SIGPROPS ")V");
-    INIT_METHOD (Request,           notifyRequestResultAvailable,   notifyRequestResultAvailable_name,  "("  SIG(PKG_API,"IRR") ")V");
+    INIT_METHOD (Request,           notifyRequestResultAvailable,   notifyRequestResultAvailable_name,  "("  SIGIRR ")V");
     INIT_METHOD (PeerIterator,      setPeer,                        setPeer_name,          "(J)V");
     INIT_METHOD (IObjectFactory,    createSequence,                 createSequence_name,   "(" SIGSTR SIGSTR "I" SIGSTR   ")" SIGSEQ);
     INIT_METHOD (IObjectFactory,    createHsp,                      createHsp_name,        "(" "IDDDIIII" SIGHSPI SIGHSPI ")" SIGHSP);
@@ -125,6 +125,8 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager_
     INIT_CONSTR (HspInfo,       "(" SIGSEQ "IIIID" ")V" );
     INIT_CONSTR (DisabledLibraryException,       "(" SIGSTR ")V" );
 
+    DEBUG (for (size_t i=0; i<MethodLast_e; i++)  {  printf ("METHOD[%d] = %p\n", i, MethodTable[i]);  })
+
 #ifdef CONTROL_CHECKS
     const char* codeBuffer = env->GetStringUTFChars (code, NULL);
     if (codeBuffer)
@@ -135,7 +137,6 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager_
             env->ThrowNew (CLASS(DisabledLibraryException), "Library disabled... Bad version...");
         }
 
-        //printf ("CODE='%s'\n", codeBuffer);
         env->ReleaseStringUTFChars (code, codeBuffer);
     }
 #endif
