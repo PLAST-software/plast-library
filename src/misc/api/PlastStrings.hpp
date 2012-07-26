@@ -118,6 +118,14 @@ namespace misc {
  */
 #define STR_OPTION_SCORE_MATRIX             "-M"
 
+/** Option giving the reward for a nucleotide match (plastn)
+ *  Integer value */
+#define STR_OPTION_REWARD "-r"
+
+/** Option giving the penalty for a nucleotide mismatch (plastn)
+ *  Integer value */
+#define STR_OPTION_PENALTY "-q"
+
 /** Command Line option giving the output format.
  *  Enum value (1 for tabulated output, 2 for XML output)
  */
