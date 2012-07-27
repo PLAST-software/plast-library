@@ -17,6 +17,7 @@
 #include <database/impl/BufferedSequenceDatabase.hpp>
 #include <designpattern/impl/Property.hpp>
 #include <misc/api/macros.hpp>
+#include <misc/api/PlastStrings.hpp>
 
 #include <stdlib.h>
 
@@ -359,10 +360,7 @@ bool BufferedSequenceDatabase::getSequenceByOffset (
 
     if (false)
     {
-        if (offset < offsets[idx]  ||  offset >= offsets[idx+1])
-        {
-            printf ("BufferedSequenceDatabase::getSequenceByOffset: ERROR IN SEQUENCE SEARCH...\n");
-        }
+        if (offset < offsets[idx]  ||  offset >= offsets[idx+1])  {  throw MSG_DATABASE_MSG1;  }
     }
 
     /** Optimization that avoids several memory acces. */

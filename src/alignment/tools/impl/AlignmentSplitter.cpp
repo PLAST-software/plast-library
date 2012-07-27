@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
+#define INFO(a)   printf a
 
 using namespace std;
 using namespace database;
@@ -410,7 +411,7 @@ void AlignmentSplitter::dump (
     LETTER dashLetter = EncodingManager::singleton().getAlphabet(SUBSEED)->gap;
 	u_int32_t x = output.alignSize;
 
-    printf ("\nALIGN: nbGapQry=%d   nbGapSbj=%d   alignSize=%d \n", output.nbGapQry, output.nbGapSbj, output.alignSize);
+    INFO (("\nALIGN: nbGapQry=%d   nbGapSbj=%d   alignSize=%d \n", output.nbGapQry, output.nbGapSbj, output.alignSize));
     const LETTER* convert = EncodingManager::singleton().getEncodingConversion(SUBSEED, ASCII);
 
     dp::impl::RangeIterator<int> it (misc::Range<int> (0, output.alignSize-1), 60, 0);
@@ -424,10 +425,10 @@ void AlignmentSplitter::dump (
     while (it.retrieve (r, nbRetrieved))
     {
 
-        printf ("Query  %3d  ", qryRange.begin + 1 + nbQryChar);
-        for (int ii=r.begin; ii<=r.end; ii++)  { printf ("%c", convert[(int)qryLocal[x-1-ii]]);  if (qryLocal[x-1-ii]!=dashLetter) {nbQryChar++;} }
-        printf ("  %d", qryRange.begin + nbQryChar);
-        printf("\n");
+        INFO (("Query  %3d  ", qryRange.begin + 1 + nbQryChar));
+        for (int ii=r.begin; ii<=r.end; ii++)  { INFO (("%c", convert[(int)qryLocal[x-1-ii]]));  if (qryLocal[x-1-ii]!=dashLetter) {nbQryChar++;} }
+        INFO (("  %d", qryRange.begin + nbQryChar));
+        INFO (("\n"));
 
         printf ("            ");
         for (int ii=r.begin; ii<=r.end; ii++)
@@ -436,26 +437,26 @@ void AlignmentSplitter::dump (
 
             if (isTheSame && qryLocal[x-1-ii] != anyLetter)
             {
-                printf ("%c", '|');
+                INFO (("%c", '|'));
             }
             else if (qryLocal[x-1-ii]==dashLetter  ||  subLocal[x-1-ii]==dashLetter)
             {
-                printf ("%c", ' ');
+                INFO (("%c", ' '));
             }
             else
             {
-                printf ("%c", ' ');
+                INFO (("%c", ' '));
             }
     //        printf ("%c", (qryLocal[ii]==subLocal[ii] && qryLocal[ii] != CODE_X ? '|' : ' '));
         }
-        printf("\n");
+        INFO (("\n"));
 
-        printf ("Sbjct  %3d  ", sbjRange.begin + 1 + nbSbjChar);
-        for (int ii=r.begin; ii<=r.end; ii++)  { printf ("%c", convert[(int)subLocal[x-1-ii]]); if (subLocal[x-1-ii]!=dashLetter) {nbSbjChar++;} }
-        printf ("  %d", sbjRange.begin + nbSbjChar);
-        printf("\n");
+        INFO (("Sbjct  %3d  ", sbjRange.begin + 1 + nbSbjChar));
+        for (int ii=r.begin; ii<=r.end; ii++)  { INFO (("%c", convert[(int)subLocal[x-1-ii]])); if (subLocal[x-1-ii]!=dashLetter) {nbSbjChar++;} }
+        INFO (("  %d", sbjRange.begin + nbSbjChar));
+        INFO (("\n"));
 
-        printf ("\n");
+        INFO (("\n"));
     }
 }
 

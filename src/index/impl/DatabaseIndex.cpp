@@ -16,6 +16,7 @@
 
 #include <index/impl/DatabaseIndex.hpp>
 #include <misc/api/macros.hpp>
+#include <misc/api/PlastStrings.hpp>
 
 using namespace std;
 using namespace dp;
@@ -220,11 +221,7 @@ IOccurrenceIterator* DatabaseIndex::createOccurrenceIterator (const ISeed* seed,
 {
     SeedHashCode code = (seed->code != BAD_SEED_HASH_CODE ? seed->code : getHashCode (seed->kmer));
 
-    if (code >= _index.size())
-    {
-        printf ("ERROR!!! : BAD HASH CODE\n");
-        return 0;
-    }
+    if (code >= _index.size())  {  throw MSG_INDEXATION_MSG1;  }
 
     /** A little shortcut. */
 	IndexEntry& offsets = _index[code];
@@ -254,10 +251,7 @@ IOccurrenceBlockIterator* DatabaseIndex::createOccurrenceBlockIterator (
 
     SeedHashCode code = (seed->code != BAD_SEED_HASH_CODE ? seed->code : getHashCode (seed->kmer));
 
-    if (code >= _index.size())
-    {
-        printf ("ERROR!!! : BAD HASH CODE\n");
-    }
+    if (code >= _index.size())  {  throw MSG_INDEXATION_MSG1;  }
     else
     {
     	/** A little shortcut. */
@@ -290,11 +284,7 @@ IDatabaseIndex::IndexEntry& DatabaseIndex::getEntry (const seed::ISeed* seed)
 {
     SeedHashCode code = (seed->code != BAD_SEED_HASH_CODE ? seed->code : getHashCode (seed->kmer));
 
-    if (code >= _index.size())
-    {
-        printf ("ERROR!!! : BAD HASH CODE\n");
-        return _index[0];
-    }
+    if (code >= _index.size())  {  throw MSG_INDEXATION_MSG1;  }
     else
     {
         return _index[code];
@@ -313,11 +303,7 @@ size_t DatabaseIndex::getOccurrenceNumber (const seed::ISeed* seed)
 {
     SeedHashCode code = (seed->code != BAD_SEED_HASH_CODE ? seed->code : getHashCode (seed->kmer));
 
-    if (code >= _index.size())
-    {
-        printf ("ERROR!!! : BAD HASH CODE\n");
-        return 0;
-    }
+    if (code >= _index.size())  {  throw MSG_INDEXATION_MSG1;  }
     else
     {
         return _index[code].size();
@@ -375,7 +361,7 @@ void DatabaseIndex::merge (void)
         const ISeed* seed = itSeed->currentItem();
 
         SeedHashCode code = (seed->code != BAD_SEED_HASH_CODE ? seed->code : getHashCode (seed->kmer));
-        if (code >= _index.size())  {  printf ("ERROR!!! : BAD HASH CODE\n");  return ;  }
+        if (code >= _index.size())  {  throw MSG_INDEXATION_MSG1;  }
 
         /** A little shortcut. */
         vector<SeedOccurrence>& globalOccur = _index[code];

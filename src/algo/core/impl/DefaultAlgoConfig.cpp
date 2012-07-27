@@ -291,11 +291,11 @@ ICommandDispatcher* DefaultConfiguration::createDispatcher ()
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_DISPATCHER);
 
-    if (prop && prop->value.compare("SerialCommandDispatcher")==0)
+    if (prop && prop->value.compare(STR_CONFIG_CLASS_SerialCommandDispatcher)==0)
     {
         result = new SerialCommandDispatcher ();
     }
-    else if (prop && prop->value.compare("ParallelCommandDispatcher")==0)
+    else if (prop && prop->value.compare(STR_CONFIG_CLASS_ParallelCommandDispatcher)==0)
     {
         result = new ParallelCommandDispatcher (nbProc);
     }
@@ -489,11 +489,11 @@ IIndexator*  DefaultConfiguration::createIndexator (
     /** We retrieve the property. */
     prop = _properties->getProperty (STR_OPTION_FACTORY_INDEXATION);
 
-    if (prop && prop->value.compare("BasicIndexator")==0)
+    if (prop && prop->value.compare(STR_CONFIG_CLASS_BasicIndexator)==0)
     {
         result = new BasicIndexator (seedsModel, params, dbIndexFactory, seedsUseRatio, isRunning);
     }
-    else if (prop && prop->value.compare("BasicSortedIndexator")==0)
+    else if (prop && prop->value.compare(STR_CONFIG_CLASS_BasicSortedIndexator)==0)
     {
         result = new BasicSortedIndexator (seedsModel, params, dbIndexFactory, seedsUseRatio, isRunning);
     }
@@ -572,15 +572,15 @@ IHitIterator* DefaultConfiguration::createUngapHitIterator (
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_HIT_UNGAP);
 
-    if (prop && prop->value.compare("UngapHitIteratorNull")==0)
+    if (prop && prop->value.compare(STR_CONFIG_CLASS_UngapHitIteratorNull)==0)
     {
         result = new UngapHitIteratorNull (source, model, matrix, params, actualUngapResult);
     }
-    else if (prop && prop->value.compare("UngapHitIterator")==0)
+    else if (prop && prop->value.compare(STR_CONFIG_CLASS_UngapHitIterator)==0)
     {
         result = new UngapHitIterator (source, model, matrix, params, actualUngapResult);
     }
-    else if (prop && prop->value.compare("UngapHitIteratorSSE16")==0)
+    else if (prop && prop->value.compare(STR_CONFIG_CLASS_UngapHitIteratorSSE16)==0)
     {
         result = new UngapHitIteratorSSE16 (source, model, matrix, params, actualUngapResult, maxHitsPerIter);
     }
@@ -637,15 +637,15 @@ IHitIterator* DefaultConfiguration::createSmallGapHitIterator (
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_HIT_SMALLGAP);
 
-    if (prop && prop->value.compare("SmallGapHitIterator")==0)
+    if (prop && prop->value.compare(STR_CONFIG_CLASS_SmallGapHitIterator)==0)
     {
         result = new SmallGapHitIterator (source, model, matrix, params, ungapResult);
     }
-    else if (prop && prop->value.compare("SmallGapHitIteratorNull")==0)
+    else if (prop && prop->value.compare(STR_CONFIG_CLASS_SmallGapHitIteratorNull)==0)
     {
         result = new SmallGapHitIteratorNull (source, model, matrix, params, ungapResult);
     }
-    else if (prop && prop->value.compare("SmallGapHitIteratorSSE8")==0)
+    else if (prop && prop->value.compare(STR_CONFIG_CLASS_SmallGapHitIteratorSSE8)==0)
     {
         result = new SmallGapHitIteratorSSE8 (source, model, matrix, params, ungapResult, alignmentResult);
     }
@@ -681,7 +681,7 @@ IHitIterator* DefaultConfiguration::createFullGapHitIterator (
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_HIT_FULLGAP);
 
-    if (prop && prop->value.compare("FullGapHitIterator")==0)
+    if (prop && prop->value.compare(STR_CONFIG_CLASS_FullGapHitIterator)==0)
     {
         result = new FullGapHitIterator (
             source,
@@ -694,7 +694,7 @@ IHitIterator* DefaultConfiguration::createFullGapHitIterator (
             alignmentResult
         );
     }
-    if (prop && prop->value.compare("FullGapHitIteratorNull")==0)
+    if (prop && prop->value.compare(STR_CONFIG_CLASS_FullGapHitIteratorNull)==0)
     {
         result = new FullGapHitIteratorNull (
             source,
@@ -748,7 +748,7 @@ IHitIterator* DefaultConfiguration::createCompositionHitIterator  (
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_HIT_COMPOSITION);
 
-    if (prop && prop->value.compare("CompositionHitIterator")==0)
+    if (prop && prop->value.compare(STR_CONFIG_CLASS_CompositionHitIterator)==0)
     {
         result = new CompositionHitIterator (
             source,
@@ -761,7 +761,7 @@ IHitIterator* DefaultConfiguration::createCompositionHitIterator  (
             alignmentResult
         );
     }
-    if (prop && prop->value.compare("CompositionHitIteratorNull")==0)
+    if (prop && prop->value.compare(STR_CONFIG_CLASS_CompositionHitIteratorNull)==0)
     {
         result = new CompositionHitIteratorNull (
             source,
@@ -806,7 +806,7 @@ IAlignmentContainer* DefaultConfiguration::createGapAlignmentResult  ()
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_GAP_RESULT);
 
-    if (prop && prop->value.compare("BasicAlignmentResult")==0)
+    if (prop && prop->value.compare(STR_CONFIG_CLASS_BasicAlignmentResult)==0)
     {
         result = new BasicAlignmentContainer ();
     }
@@ -834,7 +834,7 @@ IAlignmentContainer* DefaultConfiguration::createUnapAlignmentResult (size_t que
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_UNGAP_RESULT);
 
-    if (prop && prop->value.compare("UngapAlignmentResult")==0)
+    if (prop && prop->value.compare(STR_CONFIG_CLASS_UngapAlignmentResult)==0)
     {
         result = new UngapAlignmentResult (querySize);
     }

@@ -140,7 +140,7 @@ string ObsfucatedString::obsfucate (const string& s)
     for (size_t i=0; i<obsfucatedVec.size(); i++)   {  ss << obsfucatedVec[i] << ", ";  } 
 
     // obsfucate '0);  /* => "'
-    ss << ObsfucatedString(1339595316, 2317716773261271829, 576882271, 0).toString();
+    ss << ObsfucatedString (1343321365, 4404566817465271842, 3271637, 0).toString();
 
     ss << s;
 

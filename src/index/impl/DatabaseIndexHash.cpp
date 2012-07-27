@@ -166,29 +166,12 @@ void DatabaseIndexHash::build ()
 
             /** We retrieve the value from the kmer. */
             u_int16_t idx = query_retr ((char *) (currentSeed->kmer.letters.data), _hashTable);
-if (idx > _maxSeedsNumber)  { printf ("AAAARRGGG...\n"); }
-
-//printf ("DatabaseIndex::build  kmer=[%d %d %d] => idx=%ld\n",
-//    currentSeed->kmer.buffer[0],
-//    currentSeed->kmer.buffer[1],
-//    currentSeed->kmer.buffer[2],
-//    idx
-//);
 
             /** We add the offset in the database for the current seed. */
             IndexEntry* entry = _indexVector[idx];
 
             entry->push_back (sequenceOffset + currentSeed->offset);
 
-//printf ("code=%ld\n", currentSeed->code);
-
-//            /** We get the vector corresponding to the seed. */
-//            std::vector<SequenceOffset>& occurrences = _index[currentSeed->code];
-//
-//            /** We add the entry into the vector. */
-//            SequenceOffset occur = { nbSequences, currentSeed->offset };
-//            occurrences.push_back (occur);
-//
             /** We count the number of occurrences (debug purpose). */
             nbOccurrences ++;
         }
@@ -223,7 +206,6 @@ IOccurrenceIterator* DatabaseIndexHash::createOccurrenceIterator (const ISeed* s
     u_int16_t idx = query_retr ((char *) (seed.letters), _hashTable);
 if (idx > _maxSeedsNumber)
 {
-    printf ("AAAARRGGG... : idx=%ld [%d %d %d ]\n",
         idx,
         seed.letters[0],
         seed.letters[1],
@@ -255,7 +237,6 @@ IOccurrenceBlockIterator* DatabaseIndexHash::createOccurrenceBlockIterator (
     size_t blockSize
 )
 {
-    printf ("DatabaseIndexHash::createOccurrenceBlockIterator => NOT IMPLEMENTED...\n");
     return 0;
 }
 
@@ -322,7 +303,7 @@ void DatabaseIndexHash::merge (void)
 void DatabaseIndexHash::dump (void)
 {
 #if 0
-    printf ("------------------------ DUMP ------------------------\n");
+    DEBUG (("------------------------ DUMP ------------------------\n"));
     /** We loop over all possible seeds. */
     for (size_t seedCode = 0; seedCode < _maxSeedsNumber; seedCode++)
     {
@@ -334,7 +315,7 @@ void DatabaseIndexHash::dump (void)
             size_t count = 0;
             for (it->first(); ! it->isDone(); it->next())  { count++; }
 
-            printf ("SEED %ld => %ld items\n", seedCode, count);
+            DEBUG (("SEED %ld => %ld items\n", seedCode, count));
         }
     }
 #endif

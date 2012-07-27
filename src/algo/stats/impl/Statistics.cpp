@@ -16,6 +16,7 @@
 
 #include <misc/api/types.hpp>
 #include <misc/api/macros.hpp>
+#include <misc/api/PlastStrings.hpp>
 
 #include <os/impl/DefaultOsFactory.hpp>
 
@@ -109,7 +110,7 @@ bool AbstractGlobalParameters::lookup (AbstractGlobalParameters* globalParams, v
         }
     }
 
-    if (!found) {  throw GlobalParametersFailure ("No found statistical parameters for given matrix and open/extend gap scores..."); }
+    if (!found) {  throw GlobalParametersFailure (MSG_STATS_MSG2); }
 
     return found;
 }
@@ -191,7 +192,7 @@ void GlobalParameters::build (void)
         }
 
         default:
-        	printf ("GlobalParameters::build: unknown matrix %d\n", _parameters->matrixKind);
+        	throw MSG_STATS_MSG1;
             break;
     }
 }
@@ -264,7 +265,6 @@ IQueryInformation::SequenceInfo& QueryInformation::getSeqInfo (const database::I
     }
     else
     {
-    	//printf ("QueryInformation::getSeqInfo: UNKNOWN DATABASE...\n");
 		return _seqInfoMap [seq.database] [seq.index];
     }
 }

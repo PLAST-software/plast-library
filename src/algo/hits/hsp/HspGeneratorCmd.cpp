@@ -21,6 +21,7 @@
 
 #include <misc/api/macros.hpp>
 #include <misc/api/types.hpp>
+#include <misc/api/PlastStrings.hpp>
 
 #include <string.h>
 
@@ -47,6 +48,7 @@ using namespace alignment::core;
 #include <stdio.h>
 #define DEBUG(a)    //printf a
 #define VERBOSE(a)  //printf a
+#define INFO(a)     printf a
 
 /********************************************************************************/
 namespace algo {
@@ -155,7 +157,7 @@ void HSPGenerator::execute ()
             ITER_ON_GOING,
             nbRetrieved,
             nbTotal,
-            "iterating seeds codes",
+            MSG_HITS_MSG6,
             nbRetrieved, nbTotal
         ));
 
@@ -441,32 +443,34 @@ int HSPGenerator::computeExtensionLeft (int code, const LETTER* s1, const LETTER
 *********************************************************************/
 void HSPGenerator::dump (SeedHashCode code, u_int32_t qryIdx, u_int32_t sbjIdx, u_int32_t off1, u_int32_t off2)
 {
+#if 0
     ISequenceDatabase* dbi1 = _indexator->getSubjectDatabase();
     ISequenceDatabase* dbi2 = _indexator->getQueryDatabase();
 
     const ISequence* seq1 = dbi1->getSequenceRefByIndex (sbjIdx);
     const ISequence* seq2 = dbi2->getSequenceRefByIndex (qryIdx);
 
-    printf ("\n");
-    printf ("--------------------------------------------  code=%d '", code);
-    for (size_t i=off1; i<off1+_span; i++)  {  printf ("%c", CONVERT(seq1->getData()[i]) ); }
+    INFO (("\n"));
+    INFO (("--------------------------------------------  code=%d '", code));
+    for (size_t i=off1; i<off1+_span; i++)  {  INFO (("%c", CONVERT(seq1->getData()[i]) )); }
 
-    printf ("' ------------------------------------------------------------\n");
+    INFO (("' ------------------------------------------------------------\n"));
 
-    printf ("SUBJECT (offset=%d  id=%d)   QUERY (offset=%d  id=%d)    diag=%d\n", off1, seq1->index, off2, seq2->index, off1-off2);
+    INFO (("SUBJECT (offset=%d  id=%d)   QUERY (offset=%d  id=%d)    diag=%d\n", off1, seq1->index, off2, seq2->index, off1-off2));
 
     size_t ll = MAX (seq1->getLength(), seq2->getLength());
-    for (size_t i=0; i<ll; i++)  { printf ("%1ld", i/100); } printf ("\n");
-    for (size_t i=0; i<ll; i++)  { printf ("%1ld", (i%100)/10); } printf ("\n");
-    for (size_t i=0; i<ll; i++)  { printf ("%1ld", i%10); } printf ("\n");
+    for (size_t i=0; i<ll; i++)  { INFO (("%1ld", i/100)); }        INFO (("\n"));
+    for (size_t i=0; i<ll; i++)  { INFO (("%1ld", (i%100)/10)); }   INFO (("\n"));
+    for (size_t i=0; i<ll; i++)  { INFO (("%1ld", i%10)); }         INFO (("\n"));
 
-    for (size_t i=0; i<seq2->getLength(); i++)  { printf ("%c", CONVERT(seq2->getData()[i])); } printf ("\n");
-    for (size_t i=0; i<off2; i++)  {  printf (" "); }
-    for (size_t i=0; i<_span; i++)  { printf ("X"); } printf ("\n");
+    for (size_t i=0; i<seq2->getLength(); i++)  { INFO (("%c", CONVERT(seq2->getData()[i]))); }     INFO (("\n"));
+    for (size_t i=0; i<off2; i++)  {  INFO ((" ")); }
+    for (size_t i=0; i<_span; i++)  { INFO (("X")); }   INFO (("\n"));
 
-    for (size_t i=0; i<seq1->getLength(); i++)  { printf ("%c", CONVERT(seq1->getData()[i])); } printf ("\n");
-    for (size_t i=0; i<off1; i++)  {  printf (" "); }
-    for (size_t i=0; i<_span; i++)  { printf ("X"); } printf ("\n");
+    for (size_t i=0; i<seq1->getLength(); i++)  { INFO (("%c", CONVERT(seq1->getData()[i]))); }     INFO (("\n"));
+    for (size_t i=0; i<off1; i++)  {  INFO ((" ")); }
+    for (size_t i=0; i<_span; i++)  { INFO (("X")); }   INFO (("\n"));
+#endif
 }
 
 /*********************************************************************

@@ -51,74 +51,74 @@ PlastOptionsParser::PlastOptionsParser ()
  *********************************************************************/
 void PlastOptionsParser::build ()
 {
-    this->add (new OptionOneParam (STR_OPTION_ALGO_TYPE,                "Program Name [plastp, tplastn, plastx or tplastx]"));
-    this->add (new OptionOneParam (STR_OPTION_SUBJECT_URI,              "Subject database file"));
-    this->add (new OptionOneParam (STR_OPTION_QUERY_URI,                "Query database file"));
-    this->add (new OptionOneParam (STR_OPTION_OUTPUT_FILE,              "PLAST report Output File"));
-    this->add (new OptionOneParam (STR_OPTION_EVALUE,                   "Expectation value"));
-    this->add (new OptionOneParam (STR_OPTION_UNGAP_NEIGHBOUR_LENGTH,   "Size of neighbourhood peforming ungapped extension"));
-    this->add (new OptionOneParam (STR_OPTION_UNGAP_SCORE_THRESHOLD,    "Ungapped threshold trigger a small gapped extension"));
+    this->add (new OptionOneParam (STR_OPTION_ALGO_TYPE,                STR_HELP_ALGO_TYPE));
+    this->add (new OptionOneParam (STR_OPTION_SUBJECT_URI,              STR_HELP_SUBJECT_URI));
+    this->add (new OptionOneParam (STR_OPTION_QUERY_URI,                STR_HELP_QUERY_URI));
+    this->add (new OptionOneParam (STR_OPTION_OUTPUT_FILE,              STR_HELP_OUTPUT_FILE));
+    this->add (new OptionOneParam (STR_OPTION_EVALUE,                   STR_HELP_EVALUE));
+    this->add (new OptionOneParam (STR_OPTION_UNGAP_NEIGHBOUR_LENGTH,   STR_HELP_UNGAP_NEIGHBOUR_LENGTH));
+    this->add (new OptionOneParam (STR_OPTION_UNGAP_SCORE_THRESHOLD,    STR_HELP_UNGAP_SCORE_THRESHOLD));
     //this->add (new OptionOneParam ("-z",                              "Effective length of the database (use zero for the real size)"));
-    this->add (new OptionOneParam (STR_OPTION_SMALLGAP_THRESHOLD,       "threshold for small gapped extension"));
-    this->add (new OptionOneParam (STR_OPTION_SMALLGAP_BAND_WITH,       "bandwith for small gapped extension"));
-    this->add (new OptionOneParam (STR_OPTION_NB_PROCESSORS,            "Number of processors to use"));
-    this->add (new OptionOneParam (STR_OPTION_OPEN_GAP_COST,            "Cost to open a gap"));
-    this->add (new OptionOneParam (STR_OPTION_EXTEND_GAP_COST,          "Cost to extend a gap"));
-    this->add (new OptionOneParam (STR_OPTION_X_DROPOFF_GAPPED,         "X dropoff value for gapped alignment (in bits) (zero invokes default behavior)"));
-    this->add (new OptionOneParam (STR_OPTION_X_DROPOFF_FINAL,          "X dropoff value for final gapped alignment in bits (0.0 invokes default behavior)"));
-    this->add (new OptionOneParam (STR_OPTION_FILTER_QUERY,             "Filter query sequence"));
-    this->add (new OptionOneParam (STR_OPTION_SCORE_MATRIX,             "Score matrix (BLOSUM62 or BLOSUM50)"));
-    this->add (new OptionOneParam (STR_OPTION_STRAND,                   "strands for plastn: 'plus', 'minus' or 'both' (default)"));
-    this->add (new OptionOneParam (STR_OPTION_REWARD,                   "reward for a nucleotide match (plastn)"));
-    this->add (new OptionOneParam (STR_OPTION_PENALTY,                  "penalty for a nucleotide mismatch (plastn)"));
+    this->add (new OptionOneParam (STR_OPTION_SMALLGAP_THRESHOLD,       STR_HELP_SMALLGAP_THRESHOLD));
+    this->add (new OptionOneParam (STR_OPTION_SMALLGAP_BAND_WITH,       STR_HELP_SMALLGAP_BAND_WITH));
+    this->add (new OptionOneParam (STR_OPTION_NB_PROCESSORS,            STR_HELP_NB_PROCESSORS));
+    this->add (new OptionOneParam (STR_OPTION_OPEN_GAP_COST,            STR_HELP_OPEN_GAP_COST));
+    this->add (new OptionOneParam (STR_OPTION_EXTEND_GAP_COST,          STR_HELP_EXTEND_GAP_COST));
+    this->add (new OptionOneParam (STR_OPTION_X_DROPOFF_GAPPED,         STR_HELP_X_DROPOFF_GAPPED));
+    this->add (new OptionOneParam (STR_OPTION_X_DROPOFF_FINAL,          STR_HELP_X_DROPOFF_FINAL));
+    this->add (new OptionOneParam (STR_OPTION_FILTER_QUERY,             STR_HELP_FILTER_QUERY));
+    this->add (new OptionOneParam (STR_OPTION_SCORE_MATRIX,             STR_HELP_SCORE_MATRIX));
+    this->add (new OptionOneParam (STR_OPTION_STRAND,                   STR_HELP_STRAND));
+    this->add (new OptionOneParam (STR_OPTION_REWARD,                   STR_HELP_REWARD));
+    this->add (new OptionOneParam (STR_OPTION_PENALTY,                  STR_HELP_PENALTY));
 
-    this->add (new OptionOneParam (STR_OPTION_FORCE_QUERY_ORDERING,     "Force queries ordering in output file."));
+    this->add (new OptionOneParam (STR_OPTION_FORCE_QUERY_ORDERING,     STR_HELP_FORCE_QUERY_ORDERING));
 
     //this->add (new OptionOneParam ("-S", "Subset seed"));
     //this->add (new OptionOneParam ("-R", "Query strands to search against database (for plastx and tplastx)"));
     //this->add (new OptionOneParam ("-C", "Use composition-based score adjustments as in Bioinformatics 21:902-911 for plastp or tplastn [T/F]"));
 
-    this->add (new OptionOneParam (STR_OPTION_MAX_DATABASE_SIZE,        "Maximum allowed size (in bytes) for a database. If greater, database is segmented."));
-    this->add (new OptionOneParam (STR_OPTION_MAX_HSP_PER_HIT,          "Maximum hits per query. 0 value will dump all hits (default)"));
-    this->add (new OptionOneParam (STR_OPTION_MAX_HIT_PER_ITERATION,    "Maximum hits per iteration (for memory usage control). 1000000 by default"));
+    this->add (new OptionOneParam (STR_OPTION_MAX_DATABASE_SIZE,        STR_HELP_MAX_DATABASE_SIZE));
+    this->add (new OptionOneParam (STR_OPTION_MAX_HSP_PER_HIT,          STR_HELP_MAX_HSP_PER_HIT));
+    this->add (new OptionOneParam (STR_OPTION_MAX_HIT_PER_ITERATION,    STR_HELP_MAX_HIT_PER_ITERATION));
 
-    this->add (new OptionOneParam (STR_OPTION_OUTPUT_FORMAT,            "Output format: 1 for tabulated (default)."));
+    this->add (new OptionOneParam (STR_OPTION_OUTPUT_FORMAT,            STR_HELP_OUTPUT_FORMAT));
 
-    this->add (new OptionOneParam (STR_OPTION_STRANDS_LIST,             "List of the strands (ex: \"1,2,6\") to be used when using algo using nucleotids databases."));
+    this->add (new OptionOneParam (STR_OPTION_STRANDS_LIST,             STR_HELP_STRANDS_LIST));
 
-    this->add (new OptionOneParam (STR_OPTION_CODON_STOP_OPTIM,          "size of the allowed range between the last invalid character and the next stop codon"));
+    this->add (new OptionOneParam (STR_OPTION_CODON_STOP_OPTIM,         STR_HELP_CODON_STOP_OPTIM));
 
     /** Factories. */
-    this->add (new OptionOneParam (STR_OPTION_FACTORY_DISPATCHER,       "Factory that creates dispatcher."));
-    this->add (new OptionOneParam (STR_OPTION_FACTORY_INDEXATION,       "Factory that creates indexation builder."));
+    this->add (new OptionOneParam (STR_OPTION_FACTORY_DISPATCHER,       STR_HELP_FACTORY_DISPATCHER));
+    this->add (new OptionOneParam (STR_OPTION_FACTORY_INDEXATION,       STR_HELP_FACTORY_INDEXATION));
     //this->add (new OptionOneParam ("-factory-hit-seeds",              "Factory that creates seeds hits iterator."));
-    this->add (new OptionOneParam (STR_OPTION_FACTORY_HIT_UNGAP,        "Factory that creates ungap hits iterator."));
-    this->add (new OptionOneParam (STR_OPTION_FACTORY_HIT_SMALLGAP,     "Factory that creates small gap hits iterator."));
-    this->add (new OptionOneParam (STR_OPTION_FACTORY_HIT_FULLGAP,      "Factory that creates full gap hits iterator."));
-    this->add (new OptionOneParam (STR_OPTION_FACTORY_HIT_COMPOSITION,  "Factory that creates composition hits iterator."));
-    this->add (new OptionOneParam (STR_OPTION_FACTORY_GAP_RESULT,       "Factory that creates gap alignments result."));
-    this->add (new OptionOneParam (STR_OPTION_FACTORY_UNGAP_RESULT,     "Factory that creates ungap alignments result."));
+    this->add (new OptionOneParam (STR_OPTION_FACTORY_HIT_UNGAP,        STR_HELP_FACTORY_HIT_UNGAP));
+    this->add (new OptionOneParam (STR_OPTION_FACTORY_HIT_SMALLGAP,     STR_HELP_FACTORY_HIT_SMALLGAP));
+    this->add (new OptionOneParam (STR_OPTION_FACTORY_HIT_FULLGAP,      STR_HELP_FACTORY_HIT_FULLGAP));
+    this->add (new OptionOneParam (STR_OPTION_FACTORY_HIT_COMPOSITION,  STR_HELP_FACTORY_HIT_COMPOSITION));
+    this->add (new OptionOneParam (STR_OPTION_FACTORY_GAP_RESULT,       STR_HELP_FACTORY_GAP_RESULT));
+    this->add (new OptionOneParam (STR_OPTION_FACTORY_UNGAP_RESULT,     STR_HELP_FACTORY_UNGAP_RESULT));
 
-    this->add (new OptionOneParam (STR_OPTION_OPTIM_FILTER_UNGAP,       "Optimization that filters out through ungap alignments."));
+    this->add (new OptionOneParam (STR_OPTION_OPTIM_FILTER_UNGAP,       STR_HELP_OPTIM_FILTER_UNGAP));
 
-    this->add (new OptionNoParam  (STR_OPTION_INFO_BARGRAPH,            "Display a progress bar during execution."));
-    this->add (new OptionOneParam (STR_OPTION_INFO_BARGRAPH_SIZE,       "Nb of characters of the bargraph."));
-    this->add (new OptionOneParam (STR_OPTION_INFO_PROGRESSION,         "Dump in a file the current execution percentage."));
-    this->add (new OptionNoParam  (STR_OPTION_INFO_VERBOSE,             "Display information during algorithm execution."));
-    this->add (new OptionOneParam (STR_OPTION_INFO_FULL_STATS,          "Dump algorithm statistics."));
-    this->add (new OptionOneParam (STR_OPTION_INFO_STATS,               "Dump generic statistics."));
-    this->add (new OptionOneParam (STR_OPTION_INFO_STATS_FORMAT,        "Format of statistics: 'raw' (default) or 'xml'"));
-    this->add (new OptionNoParam  (STR_OPTION_INFO_STATS_AUTO,          "Automatic stats file creation"));
-    this->add (new OptionOneParam (STR_OPTION_INFO_ALIGNMENT_PROGRESS,  "Dump in a file the growing number of ungap/ungap alignments during algorithm."));
-    this->add (new OptionOneParam (STR_OPTION_INFO_RESOURCES_PROGRESS,  "Dump in a file information about resources during algorithm."));
+    this->add (new OptionNoParam  (STR_OPTION_INFO_BARGRAPH,            STR_HELP_INFO_BARGRAPH));
+    this->add (new OptionOneParam (STR_OPTION_INFO_BARGRAPH_SIZE,       STR_HELP_INFO_BARGRAPH_SIZE));
+    this->add (new OptionOneParam (STR_OPTION_INFO_PROGRESSION,         STR_HELP_INFO_PROGRESSION));
+    this->add (new OptionNoParam  (STR_OPTION_INFO_VERBOSE,             STR_HELP_INFO_VERBOSE));
+    this->add (new OptionOneParam (STR_OPTION_INFO_FULL_STATS,          STR_HELP_INFO_FULL_STATS));
+    this->add (new OptionOneParam (STR_OPTION_INFO_STATS,               STR_HELP_INFO_STATS));
+    this->add (new OptionOneParam (STR_OPTION_INFO_STATS_FORMAT,        STR_HELP_INFO_STATS_FORMAT));
+    this->add (new OptionNoParam  (STR_OPTION_INFO_STATS_AUTO,          STR_HELP_INFO_STATS_AUTO));
+    this->add (new OptionOneParam (STR_OPTION_INFO_ALIGNMENT_PROGRESS,  STR_HELP_INFO_ALIGNMENT_PROGRESS));
+    this->add (new OptionOneParam (STR_OPTION_INFO_RESOURCES_PROGRESS,  STR_HELP_INFO_RESOURCES_PROGRESS));
 
-    this->add (new OptionOneParam (STR_OPTION_INFO_CONFIG_FILE,         "Pathname of the plast config file."));
+    this->add (new OptionOneParam (STR_OPTION_INFO_CONFIG_FILE,         STR_HELP_INFO_CONFIG_FILE));
 
-    this->add (new OptionOneParam (STR_OPTION_XML_FILTER_FILE,          "Uri of a XML filter file."));
+    this->add (new OptionOneParam (STR_OPTION_XML_FILTER_FILE,          STR_HELP_XML_FILTER_FILE));
 
-    this->add (new OptionOneParam (STR_OPTION_SEEDS_USE_RATIO,          "Ratio of seeds to be used."));
+    this->add (new OptionOneParam (STR_OPTION_SEEDS_USE_RATIO,          STR_HELP_SEEDS_USE_RATIO));
 
-    this->add (new OptionNoParam  (STR_OPTION_HELP, "help"));
+    this->add (new OptionNoParam  (STR_OPTION_HELP, STR_HELP_HELP));
 }
 
 /********************************************************************************/

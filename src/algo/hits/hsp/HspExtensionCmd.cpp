@@ -22,6 +22,8 @@
 
 #include <designpattern/api/Iterator.hpp>
 
+#include <misc/api/PlastStrings.hpp>
+
 #include <string.h>
 #include <math.h>
 
@@ -130,7 +132,7 @@ void HspExtensionCmd::execute ()
     	 /** We notify about the execution % of the loop. */
     	 if (nbHsp % notifyModulus == 0)
     	 {
-    	     this->notify (new IterationStatusEvent (ITER_ON_GOING, nbHsp,  nbTotal, "iterating HSP", nbHsp,  nbTotal));
+    	     this->notify (new IterationStatusEvent (ITER_ON_GOING, nbHsp,  nbTotal, MSG_HITS_MSG2, nbHsp,  nbTotal));
     	 }
 
          u_int64_t qryStart = hsp->q_start;
@@ -138,10 +140,10 @@ void HspExtensionCmd::execute ()
 
          /** We look for the query sequence. */
          ISequence* seqQry = _db2->getSequenceRefByIndex (hsp->q_idx);
-         if (!seqQry)  { printf ("QRY NOT FOUND...\n"); }
+         if (!seqQry)  { throw MSG_HITS_MSG1; }
 
          ISequence* seqSbj = _db1->getSequenceRefByIndex (hsp->s_idx);
-         if (!seqSbj)  { printf ("SBJ NOT FOUND...\n"); }
+         if (!seqSbj)  { throw MSG_HITS_MSG1; }
 
          /** We shift the two HSP ranges into sequence referential (instead of database). */
          qryStart -= seqQry->offsetInDb;
@@ -198,7 +200,7 @@ void HspExtensionCmd::execute ()
      } /* end of while ( (hsp = _hspContainer->retrieve... */
 
      /** We send a notification about the % of execution. Here, we force to be at 100%. */
-     this->notify (new IterationStatusEvent (ITER_ON_GOING, nbTotal, nbTotal, "iterating HSP", nbTotal, nbTotal));
+     this->notify (new IterationStatusEvent (ITER_ON_GOING, nbTotal, nbTotal, MSG_HITS_MSG2, nbTotal, nbTotal));
 
      DEBUG (("HspExtensionCmd::execute  nbExists=%d\n", nbExists));
 }

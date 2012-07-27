@@ -18,6 +18,8 @@
 
 #include <alignment/tools/impl/AlignmentSplitter.hpp>
 
+#include <misc/api/PlastStrings.hpp>
+
 #include <string.h>
 #include <math.h>
 
@@ -128,15 +130,15 @@ void AlignmentGeneratorCmd::execute ()
     	 /** We notify about the execution % of the loop. */
     	 if (nbHsp % notifyModulus == 0)
     	 {
-    	     this->notify (new IterationStatusEvent (ITER_ON_GOING, nbHsp,  nbTotal, "iterating HSP", nbHsp,  nbTotal));
+    	     this->notify (new IterationStatusEvent (ITER_ON_GOING, nbHsp,  nbTotal, MSG_HITS_MSG2, nbHsp,  nbTotal));
     	 }
 
          /** We look for the query sequence. */
          ISequence* seqQry = _db2->getSequenceRefByIndex (hsp->q_idx);
-         if (!seqQry)  { printf ("QRY NOT FOUND...\n"); }
+         if (!seqQry)  { throw MSG_HITS_MSG1; }
 
          ISequence* seqSbj = _db1->getSequenceRefByIndex (hsp->s_idx);
-         if (!seqSbj)  { printf ("SBJ NOT FOUND...\n"); }
+         if (!seqSbj)  {  throw MSG_HITS_MSG1;  }
 
          int score = hsp->score;
 
@@ -176,7 +178,7 @@ void AlignmentGeneratorCmd::execute ()
      }  /* end of while ( (hsp = ... */
 
      /** We send a notification about the % of execution. Here, we force to be at 100%. */
-     this->notify (new IterationStatusEvent (ITER_ON_GOING, nbTotal, nbTotal, "iterating HSP", nbTotal, nbTotal));
+     this->notify (new IterationStatusEvent (ITER_ON_GOING, nbTotal, nbTotal, MSG_HITS_MSG2, nbTotal, nbTotal));
 }
 
 /********************************************************************************/

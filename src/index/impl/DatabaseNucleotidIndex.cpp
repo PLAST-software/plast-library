@@ -202,7 +202,7 @@ void DatabaseNucleotidIndex::build ()
             /** We retrieve the index corresponding to the seed. */
             IndexEntry& entry = _index[hashCode];
 
-            if (entry.empty())  {  printf ("CAN'T HAPPEN   hash=%d !!!\n", hashCode);  continue;  }
+            if (entry.empty())  {  DEBUG (("CAN'T HAPPEN   hash=%d !!!\n", hashCode));  continue;  }
 
             /** We add the offset in the database for the current seed. */
 #if 0

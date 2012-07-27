@@ -16,6 +16,8 @@
 
 #include <os/impl/DefaultOsFactory.hpp>
 
+#include <misc/api/PlastStrings.hpp>
+
 #include <algo/hits/seed/SeedHitIteratorCached.hpp>
 #include <algo/core/api/IAlgoEvents.hpp>
 
@@ -120,7 +122,7 @@ void SeedHitIteratorCached::iterate (void* aClient, Method method)
     size_t maxNbSeedsOccurPerIteration = 20000;
 
     /** We notify potential clients that we start the iteration. */
-    this->notify (new IterationStatusEvent (ITER_STARTING, nbRetrieved, nbTotal, "starting iterating seeds..."));
+    this->notify (new IterationStatusEvent (ITER_STARTING, nbRetrieved, nbTotal, MSG_HITS_MSG3));
 
     /** We loop over the possible seeds. Note that we use the 'retrieve' method that is protected from
      *  concurrent access by different threads. */
@@ -137,7 +139,7 @@ void SeedHitIteratorCached::iterate (void* aClient, Method method)
             ITER_ON_GOING,
             nbRetrieved,
             nbTotal,
-            "iterating all possible seeds...  (%ld/%ld)",
+            MSG_HITS_MSG4,
             nbRetrieved, nbTotal
         ));
 
@@ -205,7 +207,7 @@ void SeedHitIteratorCached::iterate (void* aClient, Method method)
     } /* end of for (_seedIterator... */
 
     /** We notify potential clients that we finish the iteration. */
-    this->notify (new IterationStatusEvent (ITER_DONE, nbRetrieved, nbTotal, "finishing iterating seeds..."));
+    this->notify (new IterationStatusEvent (ITER_DONE, nbRetrieved, nbTotal, MSG_HITS_MSG5));
 
     DEBUG (("SeedHitIteratorCached::iterate (%p): END SEEDS ITERATION (found %ld seeds, %ld hits)\n",
         this, nbSeeds, _outputHitsNumber

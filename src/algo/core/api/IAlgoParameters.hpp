@@ -29,6 +29,7 @@
 #include <designpattern/impl/Property.hpp>
 
 #include <misc/api/types.hpp>
+#include <misc/api/PlastStrings.hpp>
 
 #include <string>
 #include <vector>
@@ -154,47 +155,47 @@ public:
     {
         dp::IProperties* result = new dp::impl::Properties ();
 
-        result->add (0, "params");
+        result->add (0, STR_PARAM_params);
 
-        result->add (1, "seedModelKind", "%d", seedModelKind);
-        result->add (1, "seedSpan",      "%d", seedSpan);
+        result->add (1, STR_PARAM_seedModelKind, "%d", seedModelKind);
+        result->add (1, STR_PARAM_seedSpan,      "%d", seedSpan);
 
-        result->add (1, "subseedStrings", "%d", subseedStrings.size());
+        result->add (1, STR_PARAM_subseedStrings, "%d", subseedStrings.size());
         for (size_t i=0; i<subseedStrings.size(); i++)
         {
             result->add (2, "str", subseedStrings[i]);
         }
 
-        result->add (1, "matrixKind", "%d", matrixKind);
+        result->add (1, STR_PARAM_matrixKind, "%d", matrixKind);
 
-        result->add (1, "subject", "");
-        result->add (2, "uri",   subjectUri);
-        result->add (3, "range", "");
-        result->add (4, "begin", "%ld", subjectRange.begin);
-        result->add (4, "end",   "%ld", subjectRange.end);
+        result->add (1, STR_PARAM_subject, "");
+        result->add (2, STR_PARAM_uri,   subjectUri);
+        result->add (3, STR_PARAM_range, "");
+        result->add (4, STR_PARAM_begin, "%ld", subjectRange.begin);
+        result->add (4, STR_PARAM_end,   "%ld", subjectRange.end);
 
-        result->add (1, "subject", "");
-        result->add (2, "uri",   queryUri);
-        result->add (3, "range", "");
-        result->add (4, "begin", "%ld", queryRange.begin);
-        result->add (4, "end",   "%ld", queryRange.end);
+        result->add (1, STR_PARAM_subject, "");
+        result->add (2, STR_PARAM_uri,   queryUri);
+        result->add (3, STR_PARAM_range, "");
+        result->add (4, STR_PARAM_begin, "%ld", queryRange.begin);
+        result->add (4, STR_PARAM_end,   "%ld", queryRange.end);
 
-        result->add (1, "filterQuery", "%d", filterQuery);
+        result->add (1, STR_PARAM_filterQuery, "%d", filterQuery);
 
-        result->add (1, "ungapNeighbourLength", "%d", ungapNeighbourLength);
-        result->add (1, "ungapScoreThreshold",  "%d", ungapScoreThreshold);
-        result->add (1, "smallGapBandLength",   "%d", smallGapBandLength);
-        result->add (1, "smallGapBandWidth",    "%d", smallGapBandWidth);
-        result->add (1, "smallGapThreshold",    "%d", smallGapThreshold);
-        result->add (1, "openGapCost",          "%d", openGapCost);
-        result->add (1, "extendGapCost",        "%d", extendGapCost);
-        result->add (1, "evalue",               "%g", evalue);
-        result->add (1, "XdroppofGap",          "%d", XdroppofGap);
-        result->add (1, "finalXdroppofGap",     "%d", finalXdroppofGap);
+        result->add (1, STR_PARAM_ungapNeighbourLength, "%d", ungapNeighbourLength);
+        result->add (1, STR_PARAM_ungapScoreThreshold,  "%d", ungapScoreThreshold);
+        result->add (1, STR_PARAM_smallGapBandLength,   "%d", smallGapBandLength);
+        result->add (1, STR_PARAM_smallGapBandWidth,    "%d", smallGapBandWidth);
+        result->add (1, STR_PARAM_smallGapThreshold,    "%d", smallGapThreshold);
+        result->add (1, STR_PARAM_openGapCost,          "%d", openGapCost);
+        result->add (1, STR_PARAM_extendGapCost,        "%d", extendGapCost);
+        result->add (1, STR_PARAM_evalue,               "%g", evalue);
+        result->add (1, STR_PARAM_XdroppofGap,          "%d", XdroppofGap);
+        result->add (1, STR_PARAM_finalXdroppofGap,     "%d", finalXdroppofGap);
 
-        result->add (1, "outputfile", outputfile);
+        result->add (1, STR_PARAM_outputfile, outputfile);
 
-        result->add (1, "strands", "%d", strands.size());
+        result->add (1, STR_PARAM_strands, "%d", strands.size());
 
         return result;
     }

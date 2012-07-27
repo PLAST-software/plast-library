@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <misc/api/PlastStrings.hpp>
 #include <misc/impl/OptionsParser.hpp>
 #include <designpattern/impl/Property.hpp>
 #include <designpattern/impl/TokenizerIterator.hpp>
@@ -131,13 +132,13 @@ int OptionsParser::parse (int argc, char* argv[])
                 if (!optionMatch->canBeMultiple () && saw (optionMatch->getLabel()))
                 {
                     char buffer[128];
-                    snprintf (buffer, sizeof(buffer), "Option %s already seen, ignored...", optionMatch->getLabel().c_str());
+                    snprintf (buffer, sizeof(buffer), MSG_OPTIONS_MSG1, optionMatch->getLabel().c_str());
                     _warnings.push_back (buffer);
                 }
                 else if ( (exclude = checkExcludingOptions (optionMatch)) != 0)
                 {
                     char buffer[128];
-                    snprintf (buffer, sizeof(buffer), "Option %s can't be used with option %s, ignored...",
+                    snprintf (buffer, sizeof(buffer), MSG_OPTIONS_MSG2,
                         optionMatch->getLabel().c_str(),
                         exclude
                     );
@@ -303,7 +304,7 @@ void OptionsParser::getOptionArgs (const Option* option, std::list<std::string>&
     if (i<=n)
     {
         char buffer [128];
-        snprintf (buffer, sizeof(buffer), "To few arguments for the %s option...", option->getLabel().c_str());
+        snprintf (buffer, sizeof(buffer), MSG_OPTIONS_MSG3, option->getLabel().c_str());
         _errors.push_back (buffer);
     }
 }
@@ -320,7 +321,7 @@ void OptionsParser::displayErrors (FILE* fp)
 {
     for (list<string>::iterator it = _errors.begin();  it != _errors.end();  it++)
     {
-        fprintf (fp, "Error : %s\n", it->c_str());
+        fprintf (fp, MSG_OPTIONS_MSG4, it->c_str());
     }
 }
 
@@ -336,7 +337,7 @@ void OptionsParser::displayWarnings (FILE* fp)
 {
     for (list<string>::iterator it = _warnings.begin();  it != _warnings.end();  it++)
     {
-        fprintf (fp, "Warning : %s\n", it->c_str());
+        fprintf (fp, MSG_OPTIONS_MSG5, it->c_str());
     }
 }
 
@@ -465,7 +466,7 @@ void OptionsParser::checkIncludingOptions ()
             {
                 char buffer[128];
                 snprintf (buffer, sizeof(buffer),
-                    "Option %s must be used with one of the following options : %s",
+                        MSG_OPTIONS_MSG6,
                     (*it)->getLabel().c_str(),
                     include.c_str()
                 );
@@ -498,7 +499,7 @@ void OptionsParser::checkMandatoryOptions ()
         if ((*it)->isMandatory() && !found)
         {
             char buffer[128];
-            snprintf (buffer, sizeof(buffer), "Option %s is mandatory", (*it)->getLabel().c_str());
+            snprintf (buffer, sizeof(buffer), MSG_OPTIONS_MSG7, (*it)->getLabel().c_str());
             _errors.push_back (buffer);
         }
     }
