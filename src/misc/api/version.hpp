@@ -31,7 +31,7 @@ namespace misc {
 #define PLAST_NAME      "plast"
 
 /** Version of the library. */
-#define PLAST_VERSION   "V2.1.0b"
+#define PLAST_VERSION   "V2.1.0c"
 
 /********************************************************************************/
 } /* end of namespaces. */
