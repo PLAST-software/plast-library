@@ -100,8 +100,6 @@ public:
             {
                 /** We get the size of the read line. */
                 _readCurrentSize = strlen (_line);
-                _readTotalSize  += _readCurrentSize;
-                _eof = (_readTotalSize > _range);
 
                 /** We remove the unwanted ending characters. */
                 while (_readCurrentSize > 0)
@@ -112,6 +110,9 @@ public:
 
                     _line[--_readCurrentSize] = 0;
                 }
+
+                _readTotalSize  += _readCurrentSize;
+                _eof = (_readTotalSize > _range);
             }
         }
         return ITER_UNKNOWN;
