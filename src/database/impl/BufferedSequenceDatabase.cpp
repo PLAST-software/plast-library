@@ -632,7 +632,7 @@ void BufferedSequenceBuilder::resetData (void)
 ** REMARKS :
 *********************************************************************/
 BufferedSegmentSequenceBuilder::BufferedSegmentSequenceBuilder (ISequenceCache* cache)
-    : BufferedSequenceBuilder (cache)
+    : BufferedSequenceBuilder (cache), _segMinSize(50)
 {
     _destEncoding = ASCII;
 }
@@ -661,10 +661,11 @@ void BufferedSegmentSequenceBuilder::postTreamtment (void)
      *  Note that this post treatment could be parallelized in several threads. */
     for (size_t i=0; i<_cache->nbSequences; i++)
     {
-        seg_segSequence (
-            data + _cache->offsets.data[i],
-            _cache->offsets.data[i+1] - _cache->offsets.data[i]
-        );
+        /** We get the size of the sequence. */
+        size_t len = _cache->offsets.data[i+1] - _cache->offsets.data[i];
+
+        /** We launch the algorithm only for big enough sequences. */
+        if (len >= _segMinSize)  {  seg_segSequence (data + _cache->offsets.data[i], len);  }
     }
 #endif
 

@@ -355,6 +355,11 @@ public:
 
     /** Post treatment; it consists here to convert from ASCII to SUBSEED encoding schemes. */
     void postTreamtment ();
+
+private:
+
+    /** Theshold size of a sequence for launching the 'seg' algorithm. */
+    size_t _segMinSize;
 };
 
 /********************************************************************************/
