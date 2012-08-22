@@ -32,7 +32,7 @@ double getprob (int* sv, int total);
 double lnperm  (int* sv, int tot);
 double lnass   (int* sv);
 
-void seg_segSequence (char* sequence, size_t length);
+void seg_filterSequence (char* sequence, int length);
 void segseq (struct Sequence* seq, struct Segment** segs, int offset);
 double* seqent (struct Sequence* seq);
 int hasdash (struct Sequence* win);
