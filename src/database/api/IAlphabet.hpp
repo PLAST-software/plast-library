@@ -137,6 +137,11 @@ public:
      */
     void setKind (Kind kind) { _kind = kind; }
 
+    /** Get the kind of alphabet: nucleotid or amino acid (default)
+     * \return alphabet kind
+     */
+    Kind getKind () { return _kind; }
+
     /** Returns an IAlphabet instance given an encoding scheme.
      * \param[in] encoding : encoding scheme
      * \return the IAlphabet instance.
