@@ -358,6 +358,9 @@ public:
 
 private:
 
+    /** We may remove low informative region (seg or dust algorithm). */
+    void (*_filterSequenceCallback) (char* seq, int len);
+
     /** Theshold size of a sequence for launching the 'seg' algorithm. */
     size_t _segMinSize;
 };

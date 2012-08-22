@@ -30,7 +30,8 @@ using namespace dp::impl;
 using namespace os;
 using namespace os::impl;
 
-extern "C" void seg_segSequence (char* sequence, size_t length);
+extern "C" void seg_filterSequence  (char* sequence, int length);
+extern "C" void dust_filterSequence (char* sequence, int length);
 
 u_int64_t nb_getSequenceByOffset = 0;
 
@@ -166,7 +167,10 @@ ISequenceCache* BufferedSequenceDatabase::buildCache (ISequenceIterator* refIter
     result->offsets.resize  (result->nbSequences + 1);
 
     /** We add some extra letters in order to be sure that the BLAST algorithm won't read too far in unauthorized memory. */
-    for (Offset i=result->dataSize; i<result->dataSize + result->shift; i++)  {  result->database.data [i] = CODE_X;  }
+    for (Offset i=result->dataSize; i<result->dataSize + result->shift; i++)
+    {
+        result->database.data [i] = EncodingManager::singleton().getAlphabet(SUBSEED)->any;
+    }
 
     /** Note that we add an extra offset that matches the total size of the data.
      *  => useful for computing the last sequence size by difference of two offsets. */
@@ -632,8 +636,19 @@ void BufferedSequenceBuilder::resetData (void)
 ** REMARKS :
 *********************************************************************/
 BufferedSegmentSequenceBuilder::BufferedSegmentSequenceBuilder (ISequenceCache* cache)
-    : BufferedSequenceBuilder (cache), _segMinSize(50)
+    : BufferedSequenceBuilder (cache),
+      _filterSequenceCallback (seg_filterSequence),
+      _segMinSize(50)
 {
+
+    /** We have a specific sequence filter algorithm (dust) for nucleotide database.
+     * Note that, by default, we use an amino acid algorithm (seg).
+     */
+    if (EncodingManager::singleton().getKind () == EncodingManager::ALPHABET_NUCLEOTID)
+    {
+        _filterSequenceCallback = dust_filterSequence;
+    }
+
     _destEncoding = ASCII;
 }
 
@@ -653,10 +668,6 @@ void BufferedSegmentSequenceBuilder::postTreamtment (void)
     //printf ("BufferedSegmentSequenceBuilder::postTreamtment 1. : size=%ld\n", _cache->dataSize);
     //for (size_t i=0; i<_cache->dataSize; i++)  {  printf ("%c", data[i]); }  printf("\n");
 
-#if 0
-    /** We launch low complexity removal. */
-    seg_segSequence (data, _cache->dataSize);
-#else
     /** We launch low complexity removal for each sequence.
      *  Note that this post treatment could be parallelized in several threads. */
     for (size_t i=0; i<_cache->nbSequences; i++)
@@ -665,9 +676,8 @@ void BufferedSegmentSequenceBuilder::postTreamtment (void)
         size_t len = _cache->offsets.data[i+1] - _cache->offsets.data[i];
 
         /** We launch the algorithm only for big enough sequences. */
-        if (len >= _segMinSize)  {  seg_segSequence (data + _cache->offsets.data[i], len);  }
+        if (len >= _segMinSize &&  _filterSequenceCallback != 0)  {  _filterSequenceCallback (data + _cache->offsets.data[i], len);  }
     }
-#endif
 
     //printf ("BufferedSegmentSequenceBuilder::postTreamtment 2. : size=%ld\n", _cache->dataSize);
     //for (size_t i=0; i<_cache->dataSize; i++)  {  printf ("%c", data[i]); }  printf("\n");
