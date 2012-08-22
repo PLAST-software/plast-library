@@ -61,7 +61,10 @@ public:
         shift = 5;
 
         /** We initialize the extra data with default values. */
-        for (int i=0; i<shift; i++) {   database.data [i] = CODE_X;  }
+        for (int i=0; i<shift; i++)
+        {
+            database.data [i] = EncodingManager::singleton().getAlphabet(SUBSEED)->any;
+        }
 
         /** The initial size of the data is the size of the shift. */
         dataSize = shift;
