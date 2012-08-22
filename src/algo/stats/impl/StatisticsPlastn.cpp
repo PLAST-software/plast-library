@@ -168,9 +168,9 @@ void GlobalParametersPlastn::build (void)
 #define DEFPARAMS(r,p,table,opengap,extendgap)  \
     if (_parameters->reward==r  && _parameters->penalty==p)   \
     { \
-        found = lookup (this, table, ARRAYSIZE(table)); \
         if (_parameters->openGapCost   == 0)   {  _parameters->openGapCost   = opengap;    } \
         if (_parameters->extendGapCost == 0)   {  _parameters->extendGapCost = extendgap;  } \
+        found = lookup (this, table, ARRAYSIZE(table)); \
     }
 
     DEFPARAMS (1,-5, blastn_values_1_5,  3,  3);
@@ -189,7 +189,12 @@ void GlobalParametersPlastn::build (void)
     _parameters->XdroppofGap      = (int)(((_parameters->XdroppofGap)      * 0.693174)/lambda);
     _parameters->finalXdroppofGap = MAX  ((int)(((_parameters->finalXdroppofGap) * 0.693174)/lambda), _parameters->XdroppofGap);
 
-    DEBUG (("GlobalParametersPlastn::build:  xdrop=%d  finalXdrop=%d\n", _parameters->XdroppofGap, _parameters->finalXdroppofGap));
+    DEBUG (("GlobalParametersPlastn::build:  reward=%d  penalty=%d  openCost=%d  extendCost=%d  lambda=%f  xdrop=%d  finalXdrop=%d\n",
+        _parameters->reward, _parameters->penalty,
+        _parameters->openGapCost, _parameters->extendGapCost,
+        lambda,
+        _parameters->XdroppofGap, _parameters->finalXdroppofGap
+    ));
 }
 
 /********************************************************************************/
