@@ -46,7 +46,7 @@ int maxtrim = 100;
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
-void seg_segSequence (char* sequence, size_t length)
+void seg_filterSequence (char* sequence, int length)
 {
     struct Sequence* seq  = 0;
     struct Segment*  segs = 0;
