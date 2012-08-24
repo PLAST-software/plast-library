@@ -19,6 +19,8 @@
 
 #include <string.h>
 
+#include <list>
+
 using namespace std;
 
 using namespace os;
@@ -137,7 +139,7 @@ bool HspContainer::insert (
     u_int64_t s_stop,
     u_int32_t q_idx,
     u_int32_t s_idx,
-    int16_t score
+    int32_t score
 )
 {
     LocalSynchronizer sync (_synchro);
@@ -433,22 +435,49 @@ void  HspContainer::clean ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+bool HspSortCallback (IHspContainer::HSP* first, IHspContainer::HSP* second)
+{
+    if (first->diag  < second->diag)  { return true;  }
+
+    else if (first->diag  == second->diag  &&  (first->q_idx < second->q_idx) ) { return true; }
+
+    else if (first->diag  == second->diag  &&  (first->q_idx == second->q_idx) &&  (first->score >= second->score) ) { return true; }
+
+    else { return false;}
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 void HspContainer::merge (std::vector<IHspContainer*> v)
 {
-	if (v.empty() == false)
-	{
-		DEBUG (("HspContainer::merge  BEGIN\n"));
+    size_t nbRetrieved;
+    HSP* hsp = 0;
 
-		size_t nbRetrieved;
-		HSP* hsp = 0;
+    list<HSP*> hspList;
 
-		for (size_t i=0; i<v.size(); i++)
-		{
-			while ( (hsp = v[i]->retrieve (nbRetrieved)) != 0)  {  this->insert (hsp);  }
-		}
+    /** We aggregate all found HSP in a single list. */
+    for (size_t i=0; i<v.size(); i++)
+    {
+        while ( (hsp = v[i]->retrieve (nbRetrieved)) != 0)  {  hspList.push_back(hsp);  }
+    }
 
-		DEBUG (("HspContainer::merge  END  nbItems=%ld\n", result->getItemsNumber()));
-	}
+    /** IMPORTANT !!! We have to sort this list before inserting all its item into the container.
+     *  Otherwise, we could keep a hsp with diag D and q_idx I with a smaller score of a hsp with the
+     *  same D and I but with a bigger score.
+     */
+    hspList.sort (HspSortCallback);
+
+    /** We insert the sorted hsps into the container. */
+    for (list<HSP*>::iterator it = hspList.begin(); it != hspList.end(); ++it)
+    {
+        this->insert (*it);
+    }
 }
 
 
