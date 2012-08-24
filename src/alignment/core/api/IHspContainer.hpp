@@ -29,6 +29,7 @@
 #include <misc/api/types.hpp>
 
 #include <vector>
+#include <iostream>
 
 /********************************************************************************/
 namespace alignment {
@@ -51,12 +52,28 @@ public:
         u_int32_t  diag;         // no de diag max ou est situe  l'alignement
         u_int32_t  q_idx;
         u_int32_t  s_idx;
-        int16_t    score;
+        int32_t    score;
 
-        static const int16_t BAD_SCORE = ~0;
+        static const int32_t BAD_SCORE = ~0;
 
         /** */
         void invalidate ()  { score = BAD_SCORE; }
+
+        /** */
+        friend std::ostream& operator<< (std::ostream& s, const HSP& h)
+        {
+            return s << "[HSP"
+                 << "  q_start=" << h.q_start
+                 << "  q_stop="  << h.q_stop
+                 << "  q_idx="   << h.q_idx
+                 << "  s_start=" << h.s_start
+                 << "  s_stop="  << h.s_stop
+                 << "  s_idx="   << h.s_idx
+                 << "  score="   << h.score
+                 << "  diag="    << h.diag
+                 << "]";
+        }
+
     };
 
     /** */
@@ -65,7 +82,7 @@ public:
         const misc::Range64& sbj,
         u_int32_t qryId,
         u_int32_t seqId,
-        int16_t score
+        int32_t score
     ) =  0;
 
     /** */
@@ -76,7 +93,7 @@ public:
         u_int64_t s_stop,
         u_int32_t qryId,
         u_int32_t seqId,
-        int16_t score
+        int32_t score
     ) =  0;
 
 	virtual void merge (std::vector<IHspContainer*> v) = 0;

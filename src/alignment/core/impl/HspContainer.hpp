@@ -57,7 +57,7 @@ public:
         u_int64_t s_stop,
         u_int32_t qryId,
         u_int32_t seqId,
-        int16_t score
+        int32_t score
     );
 
     /** */
@@ -66,7 +66,7 @@ public:
         const misc::Range64& sbj,
         u_int32_t qryId,
         u_int32_t seqId,
-        int16_t score
+        int32_t score
     )   {  return insert (qry.begin, qry.end, sbj.begin, sbj.end, qryId, seqId, score);  }
 
     /** */

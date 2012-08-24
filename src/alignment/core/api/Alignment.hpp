@@ -241,7 +241,7 @@ public:
 
     double    getEvalue   ()  const { return _evalue;    }
     double    getBitScore ()  const { return _bitscore;  }
-    u_int16_t getScore    ()  const { return _score;     }
+    u_int32_t getScore    ()  const { return _score;     }
 
     u_int32_t getNbIdentities ()       const { return _nbIdentities; }
     double    getPercentIdentities ()  const { return (double)getNbIdentities() / (double)getLength(); }
@@ -286,7 +286,7 @@ public:
 
     void setEvalue       (double    value)  { _evalue   = value;  }
     void setBitScore     (double    value)  { _bitscore = value;  }
-    void setScore        (u_int16_t value)  { _score    = value;  }
+    void setScore        (u_int32_t value)  { _score    = value;  }
 
     void setNbIdentities (u_int32_t nb)             { _nbIdentities = nb;   }
     void setNbPositives  (u_int32_t nb)             { _nbPositives  = nb;   }
@@ -378,8 +378,8 @@ private:
     /** Bit score. */
     double _bitscore;
 
-    /** HSP score. */
-    u_int16_t _score;
+    /** HSP score (need 32 bits for ADN sequences that can be huge). */
+    u_int32_t _score;
 
     /** Number of identical residues in the alignment. */
     u_int32_t _nbIdentities;
