@@ -129,8 +129,8 @@ int SemiGapAlign::compute (
     ScoreInt next_score    = 0;
     ScoreInt best_score    = score;
 
-    u_int16_t num_extra_cells;
-    u_int16_t dp_mem_alloc = 1000;
+    u_int32_t num_extra_cells;
+    u_int32_t dp_mem_alloc = 1000;
 
     /* do initialization and sanity-checking */
     *a_offset = 0;
