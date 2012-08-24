@@ -110,13 +110,13 @@ int SemiGapAlign::compute (
     int      gap_open_extend    = _openExtendGapCost;
     int      x_dropoff          = _Xdropoff;
 
-    u_int16_t i;                     /* sequence pointers and indices */
-    u_int16_t a_index;
+    u_int32_t i;                     /* sequence pointers and indices */
+    u_int32_t a_index;
 
-    u_int16_t b_index;
-    u_int16_t b_size;
-    u_int16_t first_b_index;
-    u_int16_t last_b_index;
+    u_int32_t b_index;
+    u_int32_t b_size;
+    u_int32_t first_b_index;
+    u_int32_t last_b_index;
 
     int8_t      b_increment = 0;
     const char* b_ptr       = 0;
