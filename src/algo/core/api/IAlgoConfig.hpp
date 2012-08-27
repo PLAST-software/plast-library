@@ -160,9 +160,16 @@ public:
     /** Create a score matrix (BLOSUM50, BLOSUM62...)
      * \param[in] kind : kind of the matrix; likely to be BLOSUM62
      * \param[in] encoding : gives the encoding scheme for the matrix
+     * \param[in] reward  : reward value (used for plastn)
+     * \param[in] penalty : reward value (used for plastn)
      * \return a new IScoreMatrix instance
      */
-    virtual IScoreMatrix* createScoreMatrix (misc::ScoreMatrixKind_e kind, database::Encoding encoding) = 0;
+    virtual IScoreMatrix* createScoreMatrix (
+        misc::ScoreMatrixKind_e kind,
+        database::Encoding encoding,
+        int reward,
+        int penalty
+    ) = 0;
 
     /** Create a Hit iterator used during the ungap part of the PLAST algorithm.
      * \return a new IHitIterator instance

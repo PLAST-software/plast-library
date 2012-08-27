@@ -91,7 +91,7 @@ public:
      * \param[in] matrixName : kind of the score matrix (likely "BLOSUM62")
      * \param[in] encoding   : encoding for the matrix (likely SUBSEED)
      */
-    virtual IScoreMatrix* getMatrix (const char* matrixName, database::Encoding encoding) = 0;
+    virtual IScoreMatrix* getMatrix (const char* matrixName, database::Encoding encoding, int reward, int penalty) = 0;
 };
 
 /********************************************************************************/

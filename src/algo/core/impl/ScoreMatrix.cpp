@@ -34,6 +34,10 @@ namespace core {
 namespace impl {
 /********************************************************************************/
 
+static int8_t M =  1;  // match
+static int8_t P = -2;  // penalty
+static int8_t X =  0;  // any
+
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
@@ -146,41 +150,7 @@ static const int8_t  BLOSUM50_matrix [28][28] = {
 
 /********************************************************************************/
 
-static const int8_t M = 1;  // match
-static const int8_t P = 2;  // penalty
-
-static const int8_t  IDENTITY_NUCLEOTID_matrix [28][28] = {
-
-   /*  A   C   G   T   N                                                                                              */
-    {  M, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P,  M, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P,  M, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P,  M, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-    { -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, -P, },
-};
+static int8_t  IDENTITY_NUCLEOTID_matrix [28][28];
 
 /*********************************************************************
 ** METHOD  :
@@ -204,7 +174,7 @@ ScoreMatrixManager& ScoreMatrixManager::singleton ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IScoreMatrix* ScoreMatrixManager::getMatrix (const char* matrixName, Encoding encoding)
+IScoreMatrix* ScoreMatrixManager::getMatrix (const char* matrixName, Encoding encoding, int reward, int penalty)
 {
     ScoreMatrix* result = 0;
 
@@ -234,6 +204,9 @@ IScoreMatrix* ScoreMatrixManager::getMatrix (const char* matrixName, Encoding en
 
         /** We create the score matrix. */
         result = new ScoreMatrix (encoding, 28, -3);
+
+        /** We set up the nucleotide matrix with reward and penalty. */
+        setupNucleotideMatrix (IDENTITY_NUCLEOTID_matrix, reward, penalty);
 
         /** We fill the matrix. */
         fillMatrix (result, IDENTITY_NUCLEOTID_matrix);
@@ -294,6 +267,24 @@ void ScoreMatrixManager::fillMatrix (ScoreMatrix* sm, const int8_t source[28][28
     }
 
     DEBUG (("ScoreMatrix::fillMatrix : DONE (N=%d  c=%d)\n", N, c));
+}
+
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void ScoreMatrixManager::setupNucleotideMatrix (int8_t m[28][28], int reward, int penalty)
+{
+    /** We set by default the penalty score for all matrix items. */
+    for (int i=0; i<28; i++)  {  for (int j=0; j<28; j++)  {  m[i][j] = penalty;  }  }
+
+    /** We set the reward score on diagonal.*/
+    for (int i=0; i<28; i++)  {  m[i][i] = reward; }
 }
 
 /********************************************************************************/

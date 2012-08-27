@@ -91,12 +91,15 @@ public:
     static ScoreMatrixManager& singleton ();
 
     /** \copydoc IScoreMatrixManager::getMatrix */
-    IScoreMatrix* getMatrix (const char* matrixName, database::Encoding encoding);
+    IScoreMatrix* getMatrix (const char* matrixName, database::Encoding encoding, int reward, int penalty);
 
 private:
     virtual ~ScoreMatrixManager () {}
 
     void fillMatrix (ScoreMatrix* sm, const int8_t source[28][28]);
+
+    /** */
+    void setupNucleotideMatrix (int8_t source[28][28], int reward, int penalty);
 };
 
 /********************************************************************************/
