@@ -79,7 +79,7 @@ public:
     );
 
     /** \copydoc IConfiguration::createScoreMatrix */
-    IScoreMatrix* createScoreMatrix (misc::ScoreMatrixKind_e kind, database::Encoding encoding);
+    IScoreMatrix* createScoreMatrix (misc::ScoreMatrixKind_e kind, database::Encoding encoding, int reward, int penalty);
 
     /** \copydoc IConfiguration::createIndexator */
     IIndexator*  createIndexator (

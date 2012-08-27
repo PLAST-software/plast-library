@@ -128,12 +128,12 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
     params->queryRange           = Range64(0,0);
     params->filterQuery          = false;  // Don't do that for nucleotid/nucleotid comparisons
     params->ungapNeighbourLength = 0;
-    params->ungapScoreThreshold  = 27;
+    params->ungapScoreThreshold  = 0;
     params->smallGapBandLength   = 0;
     params->smallGapBandWidth    = 0;
     params->smallGapThreshold    = 0;
-    params->openGapCost          = 0;
-    params->extendGapCost        = 0;
+    params->openGapCost          = 2;
+    params->extendGapCost        = 1;
     params->evalue               = 10.0;
     params->XdroppofGap          = 25;
     params->finalXdroppofGap     = 100;
@@ -241,11 +241,11 @@ ISeedModel* PlastnConfiguration::createSeedModel (SeedModelKind_e modelKind, siz
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IScoreMatrix* PlastnConfiguration::createScoreMatrix (ScoreMatrixKind_e kind, database::Encoding encoding)
+IScoreMatrix* PlastnConfiguration::createScoreMatrix (ScoreMatrixKind_e kind, database::Encoding encoding, int reward, int penalty)
 {
     DEBUG ((cout << "PlastnConfiguration::createScoreMatrix" << endl));
 
-    return ScoreMatrixManager::singleton().getMatrix ("IDENTITY", encoding);
+    return ScoreMatrixManager::singleton().getMatrix ("IDENTITY", encoding, reward, penalty);
 }
 
 /*********************************************************************

@@ -513,25 +513,30 @@ IIndexator*  DefaultConfiguration::createIndexator (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IScoreMatrix* DefaultConfiguration::createScoreMatrix (ScoreMatrixKind_e kind, database::Encoding encoding)
+IScoreMatrix* DefaultConfiguration::createScoreMatrix (
+    ScoreMatrixKind_e kind,
+    database::Encoding encoding,
+    int reward,
+    int penalty
+)
 {
     IScoreMatrix* result = 0;
 
     switch (kind)
     {
         case ENUM_BLOSUM62:
-            result = ScoreMatrixManager::singleton().getMatrix ("BLOSUM62", encoding);
+            result = ScoreMatrixManager::singleton().getMatrix ("BLOSUM62", encoding, reward, penalty);
             break;
 
         case ENUM_BLOSUM50:
         {
-            result = ScoreMatrixManager::singleton().getMatrix ("BLOSUM50", encoding);
+            result = ScoreMatrixManager::singleton().getMatrix ("BLOSUM50", encoding, reward, penalty);
             break;
         }
 
         case ENUM_NUCLEOTIDE_IDENTITY:
         {
-            result = ScoreMatrixManager::singleton().getMatrix ("IDENTITY", encoding);
+            result = ScoreMatrixManager::singleton().getMatrix ("IDENTITY", encoding, reward, penalty);
             break;
         }
 

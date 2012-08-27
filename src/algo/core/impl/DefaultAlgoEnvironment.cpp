@@ -510,6 +510,9 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
             if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_GAPPED)) != 0)       {  params->XdroppofGap          = atoi (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_FINAL)) != 0)        {  params->finalXdroppofGap     = atoi (prop->value.c_str()); }
 
+            if ( (prop = properties->getProperty (STR_OPTION_REWARD))  != 0)                {  params->reward  = atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_PENALTY)) != 0)                {  params->penalty = atoi (prop->value.c_str()); }
+
             if ( (prop = properties->getProperty (STR_OPTION_SCORE_MATRIX)) != 0)
             {
                      if (prop->value.compare ("BLOSUM62")==0)   {  params->matrixKind = ENUM_BLOSUM62;  }

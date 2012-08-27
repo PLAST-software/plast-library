@@ -119,7 +119,12 @@ AbstractAlgorithm::AbstractAlgorithm (
     ));
 
     /** We set the score matrix. */
-    setScoreMatrix (getConfig()->createScoreMatrix (getParams()->matrixKind, SUBSEED));
+    setScoreMatrix (getConfig()->createScoreMatrix (
+        getParams()->matrixKind,
+        SUBSEED,
+        getParams()->reward,
+        getParams()->penalty
+    ));
 
     /** We set the global statistic parameters. */
     setGlobalStatistics (globalStats);
