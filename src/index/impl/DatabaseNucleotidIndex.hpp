@@ -87,6 +87,9 @@ protected:
     size_t _alphabetSize;
 
     database::LETTER _badLetter;
+
+    /** */
+    seed::SeedHashCode getNextValidCode (const database::LETTER*& data, const database::LETTER* dataEnd);
 };
 
 /********************************************************************************/

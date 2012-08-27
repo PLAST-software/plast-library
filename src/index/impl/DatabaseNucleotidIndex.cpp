@@ -76,6 +76,64 @@ DatabaseNucleotidIndex::~DatabaseNucleotidIndex ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+SeedHashCode DatabaseNucleotidIndex::getNextValidCode (const LETTER*& data, const LETTER* dataEnd)
+{
+    SeedHashCode hashCode = 0;
+
+    DEBUG (("DatabaseNucleotidIndex::getNextValidCode 1: len=%ld\n", dataEnd-data));
+
+    if (data && dataEnd)
+    {
+        /** We look for the next valid letter. */
+        for ( ; data < dataEnd  &&  *data>=_badLetter; data++)  { }
+
+        /** We compute the first valid hash code. */
+        if (dataEnd >= data + _span)
+        {
+            if (data[_span-1] >= _badLetter)
+            {
+                data += _span-1;
+                return getNextValidCode (data, dataEnd);
+            }
+
+            hashCode = data[_span-1];
+            for (int i=_span-2; i>=0; i--)
+            {
+                LETTER s = data[i];
+
+                if (s >= _badLetter)
+                {
+                    /** We make sure that the buffer points to the found bad letter. */
+                    data += i;
+
+                    /** We retry with the updated data. */
+                    return getNextValidCode (data, dataEnd);
+                }
+
+                else
+                {
+                    hashCode = (hashCode << 2) + s;
+                }
+            }
+        }
+    }
+
+    if (hashCode >= _maxSeedsNumber)
+    {
+        throw "DatabaseNucleotidIndex::getNextValidCode  ERROR !!!!!!!!!!!!";
+    }
+
+    return hashCode;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 void DatabaseNucleotidIndex::build ()
 {
     DEBUG (("DatabaseNucleotidIndex::build : START ! \n"));
@@ -97,10 +155,6 @@ void DatabaseNucleotidIndex::build ()
 
     DEBUG (("DatabaseNucleotidIndex::build : BEGIN SEQUENCES LOOP\n"));
 
-    /** Current sequence parsed during index build. */
-    const database::ISequence* currentSequence = 0;
-
-
     vector<size_t> counter (_maxSeedsNumber, 0);
 
 #if 1
@@ -108,48 +162,47 @@ void DatabaseNucleotidIndex::build ()
     for (seqIter->first(); !seqIter->isDone(); seqIter->next())
     {
         /** A little shortcut for the currently iterated sequence. */
-        currentSequence  = seqIter->currentItem();
+        const database::ISequence* currentSequence  = seqIter->currentItem();
 
-        u_int32_t  length = currentSequence->getLength();
-
-        if (length > _span)
+        if (currentSequence->getLength() > _span)
         {
-            const LETTER* data   = currentSequence->getData();
+            const LETTER* data    =        currentSequence->getData();
+            const LETTER* dataEnd = data + currentSequence->getLength();
 
             size_t  nbMatch = _span;
 
-            /** We compute the beginning hash code. */
-            SeedHashCode hashCode = data[_span-1];
-            for (int i=_span-2; i>=0; i--)  {  hashCode = (hashCode << 2) + data[i];  }
+            SeedHashCode hashCode = getNextValidCode (data, dataEnd);
+
         	counter [hashCode] += 1;
 
             VERBOSE (("DatabaseNucleotidIndex::build : first code=%d \n", hashCode));
 
-            /** We loop the remaining data; we update the hash code from the previous one. */
+            /** We loop the remaining data. */
             data += _span;
-            int imax = length - _span;
-            for (int i=1; i<=imax; i++, data++)
+            for (; data < dataEnd; data++)
             {
             	LETTER s = *data;
 
-            	/** We update the hash code from the previous one. */
-            	hashCode = ((hashCode >> 2)  +  (s << bitshift)) & bitmask;
+            	if (s < _badLetter)
+            	{
+                    /** We update the hash code from the previous one. */
+                    hashCode = ((hashCode >> 2)  +  (s << bitshift)) & bitmask;
 
-                if (s < _badLetter)
-                {
                     nbMatch++;
 
                     if (nbMatch >= _span)
                     {
-                    	counter [hashCode] += 1;
-						nbEntries++;
+                        counter [hashCode] += 1;
+                        nbEntries++;
                     }
-                }
-                else
-                {
+            	}
+
+            	else
+            	{
                     nbMatch = 0;
-                }
-            }
+            	}
+
+            } /* end of for (; data < dataEnd; */
         }
     }
 
@@ -173,31 +226,32 @@ void DatabaseNucleotidIndex::build ()
 	DEBUG (("DatabaseNucleotidIndex::build : HERE WE GO  nbEntries=%ld  nbFoundSeeds=%ld ...\n", nbEntries, nbFoundSeeds));
 
 
+	nbEntries = 0;
+
     /** We loop over all the sequences. */
     for (seqIter->first(); !seqIter->isDone(); seqIter->next())
     {
         /** A little shortcut for the currently iterated sequence. */
-        currentSequence  = seqIter->currentItem();
+        const database::ISequence* currentSequence  = seqIter->currentItem();
 
-        VERBOSE (("DatabaseNucleotidIndex::build : current sequence (len=%d)  '%s'\n",
+        VERBOSE (("DatabaseNucleotidIndex::build : current sequence (len=%d) offsetInDb=%ld  '%s'\n",
 			currentSequence->getLength(),
+			currentSequence->offsetInDb,
 			currentSequence->data.toString().c_str()
 		));
-        VERBOSE (("DatabaseNucleotidIndex::build : current sequence len=%d \n", currentSequence->getLength() ));
 
-        u_int32_t  length = currentSequence->getLength();
-
-        if (length > _span)
+        if (currentSequence->getLength() > _span)
         {
-            const LETTER* data   = currentSequence->getData();
+            const LETTER* data      =        currentSequence->getData();
+            const LETTER* dataEnd   = data + currentSequence->getLength();
+            const LETTER* dataBegin = data;
 
             size_t  nbMatch = _span;
 
             /** We compute the beginning hash code. */
-            SeedHashCode hashCode = data[_span-1];
-            for (int i=_span-2; i>=0; i--)  {  hashCode = (hashCode << 2) + data[i];  }
+            SeedHashCode hashCode = getNextValidCode (data, dataEnd);
 
-            VERBOSE (("DatabaseNucleotidIndex::build : first code=%d \n", hashCode));
+            VERBOSE (("DatabaseNucleotidIndex::build : first code=%d   sequenceOffset=%ld\n", hashCode, sequenceOffset));
 
             /** We retrieve the index corresponding to the seed. */
             IndexEntry& entry = _index[hashCode];
@@ -205,54 +259,47 @@ void DatabaseNucleotidIndex::build ()
             if (entry.empty())  {  DEBUG (("CAN'T HAPPEN   hash=%d !!!\n", hashCode));  continue;  }
 
             /** We add the offset in the database for the current seed. */
-#if 0
-            entry.push_back (SeedOccurrence (sequenceOffset + 0, currentSequence->index));
-#else
-            size_t& count = counter[hashCode];
-            SeedOccurrence& occur = entry [count++];
+            size_t&         count = counter[hashCode];
+            SeedOccurrence& occur = entry  [count++];
 
-            occur.offsetInDatabase = sequenceOffset + 0;
+            occur.offsetInDatabase = sequenceOffset + data - dataBegin;
             occur.sequenceIdx      = currentSequence->index;
-#endif
+
             nbEntries++;
 
-            /** We loop the remaining data; we update the hash code from the previous one. */
+            /** We loop the remaining data. */
             data += _span;
-            int imax = length - _span;
-            for (int i=1; i<=imax; i++, data++)
+            for (; data < dataEnd; data++)
             {
             	LETTER s = *data;
 
-            	/** We update the hash code from the previous one. */
-            	hashCode = ((hashCode >> 2)  +  (s << bitshift)) & bitmask;
-
-				VERBOSE (("DatabaseNucleotidIndex::build : s=%d  othercode=%d   (bitshift=%d  bitmask=%d) \n",
-					s, hashCode, bitshift, bitmask
-				));
-
                 if (s < _badLetter)
                 {
+                    /** We update the hash code from the previous one. */
+                    hashCode = ((hashCode >> 2)  +  (s << bitshift)) & bitmask;
+
                     nbMatch++;
 
                     if (nbMatch >= _span)
                     {
-						IndexEntry& entry = _index[hashCode];
-#if 0
-						entry.push_back (SeedOccurrence (sequenceOffset + i, currentSequence->index));
-#else
-			            size_t& count = counter[hashCode];
-			            SeedOccurrence& occur = entry [count++];
-			            occur.offsetInDatabase = sequenceOffset + i;
-			            occur.sequenceIdx      = currentSequence->index;
-#endif
-						nbEntries++;
+                        IndexEntry& entry = _index[hashCode];
+                        size_t&     count = counter[hashCode];
+
+                        SeedOccurrence& occur = entry [count++];
+
+                        occur.offsetInDatabase = sequenceOffset + data-dataBegin - _span + 1;
+                        occur.sequenceIdx      = currentSequence->index;
+
+                        nbEntries++;
                     }
                 }
+
                 else
                 {
                     nbMatch = 0;
                 }
-            }
+
+            } /* end of for (; data < dataEnd; */
         }
 
         /** We update the current sequence offset (ie offset in the whole database). */
