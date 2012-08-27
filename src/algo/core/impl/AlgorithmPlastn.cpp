@@ -93,6 +93,13 @@ AlgorithmPlastn::AlgorithmPlastn (
 
         _nbPasses *= 2;
     }
+
+    /** We may change the ungap score threshold according to the reward value. */
+    if (_params->ungapScoreThreshold == 0)
+    {
+        /** Empirical formula that optimizes the threshold, compared to blastn. */
+        _params->ungapScoreThreshold = 28 * _params->reward - 1;
+    }
 }
 
 /*********************************************************************
@@ -239,10 +246,10 @@ void AlgorithmPlastn::finalizeAlignments (alignment::core::IAlignmentContainer* 
 ** REMARKS :
 *********************************************************************/
 IHspContainer* AlgorithmPlastn::pass0 (
-	ISequenceDatabase*     subjectDb,
-	ISequenceDatabase*     queryDb,
-	ICommandDispatcher*    dispatcher,
-	RangeIterator<u_int32_t>& rangeIterator
+	ISequenceDatabase*              subjectDb,
+	ISequenceDatabase*              queryDb,
+	ICommandDispatcher*             dispatcher,
+	RangeIterator<u_int32_t>&       rangeIterator
 )
 {
 	IHspContainer* result = new HspContainer (queryDb->getSize());
