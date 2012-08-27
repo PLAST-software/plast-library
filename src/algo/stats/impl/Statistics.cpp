@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
+#define VERBOSE(a)  //printf a
 
 using namespace std;
 using namespace misc;
@@ -85,7 +86,7 @@ static GlobalParameters::Info  blosum50_values[] =
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-bool AbstractGlobalParameters::lookup (AbstractGlobalParameters* globalParams, void* table, size_t size)
+bool AbstractGlobalParameters::lookup (AbstractGlobalParameters* globalParams, void* table, size_t size, int openGap, int extendGap)
 {
     bool found = false;
 
@@ -96,7 +97,7 @@ bool AbstractGlobalParameters::lookup (AbstractGlobalParameters* globalParams, v
 
         IParameters* params = globalParams->_parameters;
 
-        if (current.openGap==params->openGapCost  &&  current.extendGap==params->extendGapCost)
+        if (current.openGap==openGap  &&  current.extendGap==extendGap)
         {
             globalParams->lambda  = current.lambda;
             globalParams->K       = current.K;
@@ -145,7 +146,7 @@ void GlobalParameters::build (void)
             }
             else
             {
-                found = lookup (this, blosum62_values, ARRAYSIZE(blosum62_values));
+                found = lookup (this, blosum62_values, ARRAYSIZE(blosum62_values), _parameters->openGapCost, _parameters->extendGapCost);
             }
 
             if (_parameters->smallGapThreshold   == 0)    { _parameters->smallGapThreshold   = 54; }
@@ -176,7 +177,7 @@ void GlobalParameters::build (void)
             }
             else
             {
-                found = lookup (this, blosum50_values, ARRAYSIZE(blosum50_values));
+                found = lookup (this, blosum50_values, ARRAYSIZE(blosum50_values), _parameters->openGapCost, _parameters->extendGapCost);
             }
 
             if (_parameters->smallGapThreshold   == 0)    { _parameters->smallGapThreshold   = 60; }
@@ -345,7 +346,7 @@ void QueryInformation::build (void)
          *  may reference a child database belonging to '_queryDb'. */
         _seqInfoMap[seq->database].push_back (info);
 
-        DEBUG (("[%d]  searchsp=%ld  seqLength=%ld  lenAdjust=%ld  => cuttof=%d  evalue=%f  scoremin=%d\n",
+        VERBOSE (("[%d]  searchsp=%ld  seqLength=%ld  lenAdjust=%ld  => cuttof=%d  evalue=%f  scoremin=%d\n",
             i, eff_searchsp, info.sequence_length, length_adjustment, cutoffs, evalue, _parameters->smallGapThreshold
         ));
 
@@ -516,7 +517,7 @@ int QueryInformation::computeCutoffs (
         E = searchsp * exp((double)(-_globalParams->lambda * S) + _globalParams->logK);
     }
 
-    DEBUG (("QueryInformation::computeCutoffs:  S=%d  E=%f  es=%d  searchsp=%lld  s_changed=%d  esave=%f\n", S, E, es, searchsp, s_changed, esave));
+    VERBOSE (("QueryInformation::computeCutoffs:  S=%d  E=%f  es=%d  searchsp=%lld  s_changed=%d  esave=%f\n", S, E, es, searchsp, s_changed, esave));
 
     return 0;
 }

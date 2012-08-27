@@ -78,7 +78,7 @@ protected:
     /** Looks for statistical parameters according to a score matrix and open/extend gap costs.
      * \return true if parameters are found, false otherwise
      */
-    static bool lookup (AbstractGlobalParameters* globalParams, void* table, size_t size);
+    static bool lookup (AbstractGlobalParameters* globalParams, void* table, size_t size, int openGap, int extendGap);
 };
 
 /********************************************************************************/
