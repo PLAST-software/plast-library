@@ -164,13 +164,28 @@ void GlobalParametersPlastn::build (void)
 {
     bool found = false;
 
+    /** We don't accept default open/extend gap costs. */
+    if (_parameters->openGapCost == 0  &&  _parameters->extendGapCost == 0)  {  throw MSG_STATS_MSG2;  }
+
+    int openGap   = _parameters->openGapCost;
+    int extendGap = _parameters->extendGapCost;
+
+    DEBUG (("GlobalParametersPlastn::build:  reward=%d  penalty=%d  openCost=%d  extendCost=%d  xdrop=%d  finalXdrop=%d\n",
+        _parameters->reward,      _parameters->penalty,
+        _parameters->openGapCost, _parameters->extendGapCost,
+        _parameters->XdroppofGap, _parameters->finalXdroppofGap
+    ));
+
     /** We define a little macro helper for defining params according to [reward,penalty]. */
-#define DEFPARAMS(r,p,table,opengap,extendgap)  \
+#define DEFPARAMS(r,p,table,opengapMax,extendgapMax)  \
     if (_parameters->reward==r  && _parameters->penalty==p)   \
     { \
-        if (_parameters->openGapCost   == 0)   {  _parameters->openGapCost   = opengap;    } \
-        if (_parameters->extendGapCost == 0)   {  _parameters->extendGapCost = extendgap;  } \
-        found = lookup (this, table, ARRAYSIZE(table)); \
+        if (openGap == 0 && extendGap == 0)  \
+        { \
+            openGap   = table[0].openGap;   \
+            extendGap = table[0].extendGap; \
+        } \
+        found = lookup (this, table, ARRAYSIZE(table), openGap, extendGap); \
     }
 
     DEFPARAMS (1,-5, blastn_values_1_5,  3,  3);
