@@ -132,14 +132,14 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
     params->smallGapBandLength   = 0;
     params->smallGapBandWidth    = 0;
     params->smallGapThreshold    = 0;
-    params->openGapCost          = 2;
-    params->extendGapCost        = 1;
+    params->openGapCost          = 5;
+    params->extendGapCost        = 2;
     params->evalue               = 10.0;
     params->XdroppofGap          = 25;
     params->finalXdroppofGap     = 100;
     params->outputfile           = "stdout";
-    params->reward               =  1;
-    params->penalty              = -2;
+    params->reward               =  2;
+    params->penalty              = -3;
     params->strand               = 0;
 
     IProperty* strandProp = _properties->getProperty (STR_OPTION_STRAND);
