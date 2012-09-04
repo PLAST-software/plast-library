@@ -461,11 +461,15 @@ void HspContainer::merge (std::vector<IHspContainer*> v)
 
     list<HSP*> hspList;
 
+    u_int32_t t0 = DefaultFactory::time().gettime();
+
     /** We aggregate all found HSP in a single list. */
     for (size_t i=0; i<v.size(); i++)
     {
         while ( (hsp = v[i]->retrieve (nbRetrieved)) != 0)  {  hspList.push_back(hsp);  }
     }
+
+    u_int32_t t1 = DefaultFactory::time().gettime();
 
     /** IMPORTANT !!! We have to sort this list before inserting all its item into the container.
      *  Otherwise, we could keep a hsp with diag D and q_idx I with a smaller score of a hsp with the
@@ -473,11 +477,22 @@ void HspContainer::merge (std::vector<IHspContainer*> v)
      */
     hspList.sort (HspSortCallback);
 
+    u_int32_t t2 = DefaultFactory::time().gettime();
+
     /** We insert the sorted hsps into the container. */
     for (list<HSP*>::iterator it = hspList.begin(); it != hspList.end(); ++it)
     {
         this->insert (*it);
     }
+
+    u_int32_t t3 = DefaultFactory::time().gettime();
+
+	DEBUG (("HspContainer::merge => phase 1 in %d msec (%.1f), phase 2 in %d msec (%.1f), phase 3 in %d msec (%.1f), total in %d msec\n",
+	    t1-t0,  (double) (t1-t0) / (double)(t3-t0) * 100.0,
+	    t2-t1,  (double) (t2-t1) / (double)(t3-t0) * 100.0,
+	    t3-t2,  (double) (t3-t2) / (double)(t3-t0) * 100.0,
+	    t3-t0
+	));
 }
 
 
