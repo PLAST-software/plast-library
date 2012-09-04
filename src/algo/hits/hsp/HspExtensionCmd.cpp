@@ -71,7 +71,7 @@ HspExtensionCmd::HspExtensionCmd (
     statistics::IQueryInformation*          queryInfo,
     IHspContainer*                          hspContainer,
     IHspContainer*                          hspContainer2,
-    alignment::tools::impl::SemiGapAlign*   dynapro,
+    alignment::tools::ISemiGapAlign*        dynapro,
     algo::core::IParameters*                params,
     dp::IObserver* 							observer
 )

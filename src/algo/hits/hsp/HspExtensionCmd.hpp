@@ -33,7 +33,7 @@
 #include <alignment/core/api/IHspContainer.hpp>
 #include <alignment/core/api/IAlignmentContainer.hpp>
 
-#include <alignment/tools/impl/SemiGappedAlign.hpp>
+#include <alignment/tools/api/ISemiGappedAlign.hpp>
 
 #include <algo/core/api/IAlgoParameters.hpp>
 
@@ -56,7 +56,7 @@ public:
         statistics::IQueryInformation*          queryInfo,
         alignment::core::IHspContainer*         hspContainer,
         alignment::core::IHspContainer*         hspContainer2,
-        alignment::tools::impl::SemiGapAlign*   dynapro,
+        alignment::tools::ISemiGapAlign*        dynapro,
         algo::core::IParameters*                params,
         dp::IObserver* 							observer
     );
@@ -84,8 +84,8 @@ private:
     alignment::core::IHspContainer* _hspContainer2;
     void setHspContainer2 (alignment::core::IHspContainer* hspContainer2)  { SP_SETATTR(hspContainer2); }
 
-    alignment::tools::impl::SemiGapAlign* _dynapro;
-    void setDynapro (alignment::tools::impl::SemiGapAlign* dynapro)  { SP_SETATTR(dynapro); }
+    alignment::tools::ISemiGapAlign* _dynapro;
+    void setDynapro (alignment::tools::ISemiGapAlign* dynapro)  { SP_SETATTR(dynapro); }
 
     algo::core::IParameters* _parameters;
     void setParameters (algo::core::IParameters* parameters)  { SP_SETATTR (parameters); }
