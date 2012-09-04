@@ -34,9 +34,10 @@ namespace impl      {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-TabulatedOutputVisitor::TabulatedOutputVisitor (std::ostream* ostream)
-    : OstreamVisitor (ostream), _currentQuery(0), _currentSubject(0), _sep('\t')
+TabulatedOutputVisitor::TabulatedOutputVisitor (const std::string& uri)
+    : _file(0), _currentQuery(0), _currentSubject(0), _sep('\t')
 {
+    _file = fopen (uri.c_str(), "w");
 }
 
 /*********************************************************************
@@ -47,9 +48,9 @@ TabulatedOutputVisitor::TabulatedOutputVisitor (std::ostream* ostream)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-TabulatedOutputVisitor::TabulatedOutputVisitor (const std::string& uri)
-    : OstreamVisitor (uri), _currentQuery(0), _currentSubject(0), _sep('\t')
+TabulatedOutputVisitor::~TabulatedOutputVisitor ()
 {
+    if (_file)  { fclose (_file); }
 }
 
 /*********************************************************************
@@ -64,12 +65,11 @@ void TabulatedOutputVisitor::visitAlignment (Alignment* align, const misc::Progr
 {
     DEBUG (("TabulatedOutputVisitor::visitAlignment  align=%p\n", align));
 
-    /** We fill the buffer. */
-    char buffer[1024];  memset (buffer, 0, sizeof(buffer));
-    fillBuffer (align, buffer, sizeof(buffer));
+    /** We dump the line. */
+    dumpLine (align);
 
-    /** We dump the buffer to the outputstream. */
-    getStream() << buffer << endl;
+    /** We add a return line. */
+    fprintf (_file, "\n");
 }
 
 /*********************************************************************
@@ -80,13 +80,11 @@ void TabulatedOutputVisitor::visitAlignment (Alignment* align, const misc::Progr
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void TabulatedOutputVisitor::fillBuffer (core::Alignment* align, char* buffer, size_t size)
+void TabulatedOutputVisitor::dumpLine (core::Alignment* align)
 {
     char* locate = 0;  // used for truncating comments to the first space character.
 
-    DEBUG (("TabulatedOutputVisitor::fillBuffer  align=%p\n", align));
-
-    if (buffer == 0  ||  _currentQuery==0  ||  _currentSubject==0) { return ; }
+    DEBUG (("TabulatedOutputVisitor::dumpLine  align=%p\n", align));
 
     char queryName[128];
     snprintf (queryName,   sizeof(queryName),   "%s", _currentQuery->comment);
@@ -106,7 +104,7 @@ void TabulatedOutputVisitor::fillBuffer (core::Alignment* align, char* buffer, s
     else if (ev < 10.0)     {   sprintf (evalueStr, "%2.1lf", ev);  }
     else                    {   sprintf (evalueStr, "%5.0lf", ev);  }
 
-    snprintf (buffer, size, "%s%c%s%c%.2f%c%d%c%d%c%d%c%d%c%d%c%d%c%d%c%s%c%.1lf",
+    fprintf (_file,  "%s%c%s%c%.2f%c%d%c%d%c%d%c%d%c%d%c%d%c%d%c%s%c%.1lf",
         queryName,                              _sep,
         subjectName,                            _sep,
         (100.0* align->getPercentIdentities()), _sep,
@@ -130,15 +128,12 @@ void TabulatedOutputVisitor::fillBuffer (core::Alignment* align, char* buffer, s
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void TabulatedOutputExtendedVisitor::fillBuffer (core::Alignment* align, char* buffer, size_t size)
+void TabulatedOutputExtendedVisitor::dumpLine (core::Alignment* align)
 {
     /** We first call the parent method. */
-    TabulatedOutputVisitor::fillBuffer (align, buffer, size);
+    TabulatedOutputVisitor::dumpLine (align);
 
-    /** We format extra information. */
-    char extra[256];
-
-    snprintf (extra, sizeof(extra), "%c%d%c%d%c%d%c%d%c%d%c%d%c%d",
+    fprintf (_file, "%c%d%c%d%c%d%c%d%c%d%c%d%c%d",
 
         _sep,  align->getSequence (Alignment::QUERY)->getLength(),
         _sep,  align->getNbGaps   (Alignment::QUERY),
@@ -150,9 +145,6 @@ void TabulatedOutputExtendedVisitor::fillBuffer (core::Alignment* align, char* b
 
         _sep,  align->getNbPositives()
     );
-
-    /** We add some information at the end of the buffer. */
-    strcat (buffer, extra);
 }
 
 /********************************************************************************/

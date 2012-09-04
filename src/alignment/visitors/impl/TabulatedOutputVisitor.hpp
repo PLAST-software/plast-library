@@ -25,7 +25,7 @@
 
 /********************************************************************************/
 
-#include <alignment/visitors/impl/OstreamVisitor.hpp>
+#include <alignment/visitors/impl/HierarchyAlignmentVisitor.hpp>
 
 /********************************************************************************/
 namespace alignment {
@@ -60,18 +60,15 @@ namespace impl      {
  * ENSTTRP00000001033  sp|P29673|APTE_DROME    28.40   81   58    0   313   393   369   449   0.018   40.8
  * \endcode
  */
-class TabulatedOutputVisitor : public OstreamVisitor
+class TabulatedOutputVisitor : public HierarchyAlignmentResultVisitor
 {
 public:
-
-    /** \copydoc AbstractAlignmentResultVisitor::AbstractAlignmentResultVisitor */
-    TabulatedOutputVisitor (std::ostream* ostream);
 
     /** */
     TabulatedOutputVisitor (const std::string& uri);
 
     /** Desctructor. */
-    virtual ~TabulatedOutputVisitor () {}
+    virtual ~TabulatedOutputVisitor ();
 
     /** \copydoc AbstractAlignmentResultVisitor::visitQuerySequence */
     void visitQuerySequence   (const database::ISequence* seq, const misc::ProgressInfo& progress)
@@ -84,13 +81,25 @@ public:
     /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */
     void visitAlignment (core::Alignment* align, const misc::ProgressInfo& progress);
 
+    /** \copydoc IAlignmentResultVisitor::finish */
+    void postVisit (core::IAlignmentContainer* result)
+    {
+        /** We should flush the stream. */
+        fflush (_file);
+    }
+
+    /** \copydoc IAlignmentResultVisitor::getPosition */
+    u_int64_t getPosition ()  { return ftell (_file); }
+
 protected:
+
+    FILE* _file;
 
     const database::ISequence* _currentQuery;
     const database::ISequence* _currentSubject;
     char _sep;
 
-    virtual void fillBuffer (core::Alignment* align, char* buffer, size_t size);
+    virtual void dumpLine (core::Alignment* align);
 };
 
 /********************************************************************************/
@@ -103,15 +112,12 @@ class TabulatedOutputExtendedVisitor : public TabulatedOutputVisitor
 {
 public:
 
-    /** \copydoc AbstractAlignmentResultVisitor::AbstractAlignmentResultVisitor */
-    TabulatedOutputExtendedVisitor (std::ostream* ostream) : TabulatedOutputVisitor (ostream)  {}
-
     /** */
     TabulatedOutputExtendedVisitor (const std::string& uri) : TabulatedOutputVisitor(uri)  {}
 
 protected:
 
-    void fillBuffer (core::Alignment* align, char* buffer, size_t size);
+    virtual void dumpLine (core::Alignment* align);
 };
 
 /********************************************************************************/
