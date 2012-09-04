@@ -32,7 +32,7 @@
 #include <alignment/visitors/impl/SortContainerVisitor.hpp>
 
 #include <stdio.h>
-#define DEBUG(a)  //printf a
+#define DEBUG(a)  printf a
 
 using namespace std;
 using namespace dp;
@@ -158,26 +158,21 @@ void AlgorithmPlastn::computeAlignments (
     /**********************************************************************/
     /***************************   PASS 1  ********************************/
     /**********************************************************************/
-    _currentPass++;
-    setHspContainer (pass1 (subjectDb, queryDb, dispatcher, _hspContainer, _params->XdroppofGap));
+    list<int> xdropoffs;
+    xdropoffs.push_back (_params->XdroppofGap / 2);
+    xdropoffs.push_back (_params->finalXdroppofGap);
 
-    timesVec.push_back (DefaultFactory::time().gettime());
+    for (list<int>::iterator it = xdropoffs.begin(); it != xdropoffs.end(); ++it)
+    {
+        _currentPass++;
+        setHspContainer (pass1 (subjectDb, queryDb, dispatcher, _hspContainer, *it));
 
-    DEBUG (("AlgorithmPlastn::computeAlignments: PASS 1:  %ld HSP generated in %d msec\n",
-		_hspContainer->getItemsNumber(), timesVec[timesVec.size()-1] - timesVec[timesVec.size()-2]
-    ));
+        timesVec.push_back (DefaultFactory::time().gettime());
 
-    /**********************************************************************/
-    /***************************   PASS 1b  ********************************/
-    /**********************************************************************/
-    _currentPass++;
-    setHspContainer (pass1 (subjectDb, queryDb, dispatcher, _hspContainer, _params->finalXdroppofGap));
-
-    timesVec.push_back (DefaultFactory::time().gettime());
-
-    DEBUG (("AlgorithmPlastn::computeAlignments: PASS 1b: %ld HSP generated in %d msec\n",
-		_hspContainer->getItemsNumber(), timesVec[timesVec.size()-1] - timesVec[timesVec.size()-2]
-    ));
+        DEBUG (("AlgorithmPlastn::computeAlignments: PASS 1:  %ld HSP generated in %d msec with xdropoff=%d\n",
+            _hspContainer->getItemsNumber(), timesVec[timesVec.size()-1] - timesVec[timesVec.size()-2], *it
+        ));
+    }
 
     /**********************************************************************/
     /***************************   PASS 2  ********************************/
