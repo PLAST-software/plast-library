@@ -297,9 +297,9 @@ void AbstractAlgorithm::execute (void)
             /** We build the indexes (if needed). */
             getIndexator()->build (indexationDispatcher);
 
-            DEBUG (("AbstractAlgorithm::execute : indexation finished...\n"));
-
             timeStats->stopEntry ("indexation");
+
+            DEBUG (("AbstractAlgorithm::execute : indexation finished in %d msec...\n", timeStats->getEntryByKey("indexation") ));
 
             /** We create an ungap alignment result. This ungap alignment will be shared betweed different Hit
              * iterators, in particular for filtering out already processed hits.
