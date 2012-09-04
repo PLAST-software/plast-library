@@ -25,6 +25,7 @@
 
 /********************************************************************************/
 
+#include <alignment/tools/api/ISemiGappedAlign.hpp>
 #include <alignment/tools/api/IAlignmentSplitter.hpp>
 #include <algo/core/api/IScoreMatrix.hpp>
 
@@ -38,7 +39,7 @@ namespace impl      {
  *
  *
  */
-class SemiGapAlign : public dp::SmartPointer
+class SemiGapAlign : public ISemiGapAlign
 {
 public:
 
