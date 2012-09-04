@@ -139,16 +139,7 @@ protected:
         char delta = 0
     )
     {
-        bool found = false;
-        if (container != 0)
-        {
-            for (ContainerLevel3::iterator it = container->begin(); !found  &&  it != container->end(); it++)
-            {
-                found = (*it).getRange(Alignment::SUBJECT) == sbjRange  &&  (*it).getRange(Alignment::QUERY) == qryRange;
-            }
-        }
-
-        return found;
+        return false;
     }
 };
 
