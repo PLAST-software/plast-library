@@ -28,6 +28,7 @@
 #include <index/impl/AbstractDatabaseIndex.hpp>
 #include <seed/api/ISeed.hpp>
 #include <misc/api/Vector.hpp>
+#include <designpattern/impl/IteratorGet.hpp>
 
 #include <list>
 #include <map>
@@ -39,7 +40,7 @@ namespace indexation {
 namespace impl {
 /********************************************************************************/
 
-/** \brief Simple implementation of the IDatabaseIndex interface.
+/** \brief Nucleotide implementation of the IDatabaseIndex interface.
  */
 class DatabaseNucleotidIndex : public AbstractDatabaseIndex
 {
@@ -82,14 +83,51 @@ protected:
     /** The index itself. Defined as a vector of vectors. */
     std::vector <IndexEntry>  _index;
 
-    /* Shortcut & optimization. */
-    size_t _span;
-    size_t _alphabetSize;
+    u_int32_t* _counter;
 
-    database::LETTER _badLetter;
+    /* Shortcut & optimization. */
+    size_t  _span;
+    int32_t _bitshift;
+
+    /*********************************************************************************/
+    /** We create a command that will count the number of occurrences for each seed. */
+    class CountSeedsCmd : public dp::impl::IteratorCommand<const database::ISequence*>
+    {
+    private:
+        DatabaseNucleotidIndex* _ref;
+
+    public:
+        CountSeedsCmd (
+            dp::impl::IteratorGet<const database::ISequence*>* it,
+            DatabaseNucleotidIndex* ref
+        ) : IteratorCommand (it), _ref(ref)  {}
+
+        void execute (const database::ISequence*& currentSequence, size_t& nbGot)
+        {
+            _ref->countSeedsOccurrences (currentSequence);
+        }
+    };
+
+    /*********************************************************************************/
+    /** We create a command that will fill the occurrences index structure for each seed. */
+    class FillSeedsCmd : public dp::impl::IteratorCommand<const database::ISequence*>
+    {
+    private:
+        DatabaseNucleotidIndex* _ref;
+
+    public:
+        FillSeedsCmd (dp::impl::IteratorGet<const database::ISequence*>* it, DatabaseNucleotidIndex* ref)
+            : IteratorCommand (it), _ref(ref){}
+
+        void execute (const database::ISequence*& currentSequence, size_t& nbGot)
+        {
+            _ref->fillSeedsOccurrences (currentSequence);
+        }
+    };
 
     /** */
-    seed::SeedHashCode getNextValidCode (const database::LETTER*& data, const database::LETTER* dataEnd);
+    void countSeedsOccurrences (const database::ISequence*& sequence);
+    void fillSeedsOccurrences  (const database::ISequence*& sequence);
 };
 
 /********************************************************************************/
