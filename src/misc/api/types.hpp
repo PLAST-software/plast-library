@@ -114,8 +114,10 @@ template <class T> struct Range
 };
 
 /** Some shortcuts. */
-typedef Range<int32_t>  Range32;
+typedef Range<int32_t>    Range32;
 typedef Range<u_int64_t>  Range64;
+typedef Range<u_int32_t>  RangeU32;
+
 
 /** Define a pair for [rank;number] that gives information about iteration progression. */
 struct ProgressInfo
