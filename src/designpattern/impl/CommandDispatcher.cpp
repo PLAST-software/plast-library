@@ -23,6 +23,9 @@ using namespace std;
 using namespace os;
 using namespace os::impl;
 
+#include <stdio.h>
+#define DEBUG(a)  //printf a
+
 /********************************************************************************/
 namespace dp {  namespace impl {
 /********************************************************************************/
