@@ -34,10 +34,6 @@ namespace core {
 namespace impl {
 /********************************************************************************/
 
-static int8_t M =  1;  // match
-static int8_t P = -2;  // penalty
-static int8_t X =  0;  // any
-
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
