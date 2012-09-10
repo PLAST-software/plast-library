@@ -41,7 +41,7 @@ namespace misc {
 #define CHECKPTR(ptr)  ((ptr) != 0)
 
 /** Traces management. Minimal right now, should be improved. */
-#define DEBUG(a)  //printf a
+//#define DEBUG(a)  //printf a
 
 /** Mininum of two values. */
 #define MIN(a,b)  ((a) < (b) ? (a) :  (b))
