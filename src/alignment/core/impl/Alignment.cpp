@@ -43,6 +43,7 @@ namespace core      {
 ** REMARKS :
 *********************************************************************/
 Alignment::Alignment (const std::string& source, const std::string& format)
+    : _length(0), _evalue(0), _bitscore(0), _score(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)
 {
     double identitiesPercent = 0.0;
     u_int16_t nbGaps = 0;
