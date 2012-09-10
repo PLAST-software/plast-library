@@ -20,6 +20,9 @@
 using namespace std;
 using namespace alignment::core;
 
+#include <stdio.h>
+#define DEBUG(a)  //printf a
+
 /********************************************************************************/
 namespace alignment {
 namespace visitors  {
