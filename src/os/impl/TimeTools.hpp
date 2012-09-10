@@ -46,7 +46,7 @@ namespace impl {
 class TimeStats : public dp::SmartPointer
 {
 public:
-    TimeStats (ITime& aTime) : _time(aTime)  {  _t0 = _time.gettime();  }
+    TimeStats (ITime& aTime) : _time(aTime), _t0(0), _t1(0)   {  _t0 = _time.gettime();  }
 
     void tick (const char* message, const char* funcname=__PRETTY_FUNCTION__, size_t lineno=__LINE__)
     {
