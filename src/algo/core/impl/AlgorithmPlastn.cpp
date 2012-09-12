@@ -32,7 +32,7 @@
 #include <alignment/visitors/impl/SortContainerVisitor.hpp>
 
 #include <stdio.h>
-#define DEBUG(a)  printf a
+#define DEBUG(a)  //printf a
 
 using namespace std;
 using namespace dp;
