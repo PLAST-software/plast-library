@@ -28,6 +28,7 @@
 #include <seed/api/ISeedModel.hpp>
 
 #include <algo/core/api/IScoreMatrix.hpp>
+#include <algo/core/api/IAlgoConfig.hpp>
 #include <algo/core/api/IAlgoParameters.hpp>
 
 #include <algo/stats/api/IStatistics.hpp>
@@ -67,6 +68,7 @@ public:
      */
     FullGapHitIterator (
         algo::hits::IHitIterator*               sourceIterator,
+        algo::core::IConfiguration*             config,
         seed::ISeedModel*                       model,
         algo::core::IScoreMatrix*               scoreMatrix,
         algo::core::IParameters*                parameters,
@@ -90,11 +92,15 @@ protected:
     /** \copydoc common::AbstractPipeHitIterator::clone */
     virtual AbstractPipeHitIterator* clone (algo::hits::IHitIterator* sourceIterator)
     {
-        return new FullGapHitIterator (sourceIterator, _model, _scoreMatrix, _parameters, _ungapResult, _queryInfo, _globalStats, _alignmentResult);
+        return new FullGapHitIterator (sourceIterator, _config, _model, _scoreMatrix, _parameters, _ungapResult, _queryInfo, _globalStats, _alignmentResult);
     }
 
     /** \copydoc common::AbstractPipeHitIterator::iterateMethod */
     void iterateMethod (algo::hits::Hit* hit);
+
+    /** We may need a way to create instances through a factory with user configuration. */
+    algo::core::IConfiguration* _config;
+    void setConfig (algo::core::IConfiguration* config)  { SP_SETATTR(config); }
 
     /** Information about query sequences. */
     statistics::IQueryInformation*  _queryInfo;
@@ -121,8 +127,8 @@ protected:
     void setAlignmentSplitter (alignment::tools::IAlignmentSplitter* splitter)  { SP_SETATTR (splitter); }
 
     /** Object that computes score through dynamic programming. Ref NCBI. */
-    alignment::tools::impl::SemiGapAlign* _dynpro;
-    void setDynPro (alignment::tools::impl::SemiGapAlign* dynpro)  {  SP_SETATTR (dynpro); }
+    alignment::tools::ISemiGapAlign* _dynpro;
+    void setDynPro (alignment::tools::ISemiGapAlign* dynpro)  {  SP_SETATTR (dynpro); }
 
     u_int64_t _ungapKnownNumber;
     u_int64_t _gapKnownNumber;
