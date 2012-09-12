@@ -101,18 +101,19 @@ public:
                 /** We get the size of the read line. */
                 _readCurrentSize = strlen (_line);
 
+                _readTotalSize  += _readCurrentSize;
+                _eof = (_readTotalSize > _range);
+
                 /** We remove the unwanted ending characters. */
                 while (_readCurrentSize > 0)
                 {
+                    /** Shortcut to the last character of the string. */
                     char c = _line[_readCurrentSize-1];
 
                     if (c!=10 && c!=13)  { break; }
 
                     _line[--_readCurrentSize] = 0;
                 }
-
-                _readTotalSize  += _readCurrentSize;
-                _eof = (_readTotalSize > _range);
             }
         }
         return ITER_UNKNOWN;
@@ -127,7 +128,12 @@ public:
     /** Returns the size of the currently read line.
      * \return current read line size
      */
-    u_int64_t getCurrentReadSize ()  { return _readCurrentSize; }
+    u_int64_t getLineSize ()  { return _readCurrentSize; }
+
+    /** Returns the current position in the file
+     * \return the position in the file
+     */
+    u_int64_t tell ()  { return _currentFile->tell(); }
 
     /** */
     void setRange (u_int64_t offset0, u_int64_t offset1)
@@ -184,9 +190,6 @@ private:
     /** */
     os::IFile* _currentFile;
     os::IFile* getCurrentFile ()   { return _currentFile; }
-
-    /** */
-    u_int64_t _currentFileLength;
 
     /** */
     std::list<os::IFile*>::iterator _filesIterator;
