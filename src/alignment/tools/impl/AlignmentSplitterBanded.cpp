@@ -162,9 +162,9 @@ size_t AlignmentSplitterBanded::splitAlign (
      *          F[0,0] = −∞; F[i,0] = −∞;    F[0,j] = −α − jβ;      1 ≤ i ≤ m, 1 ≤ j ≤ n.
      */
 
-    int s, alignLength, nbGapsOpen, i, j, isGapOpened;
+    int s, alignLength, nbHspOpen, i, j, isHspOpened;
 
-    /** Note: we have to add 1 to the band width because we need need to have fence values (like -1000)
+    /** Note: we have to add 1 to the band width because we need to have fence values (like -1000)
      *  to limit the band in the dynamic programming. */
     int delta = ABS (qryRange.getLength() - sbjRange.getLength()) + _band + 1;
 
@@ -189,7 +189,7 @@ size_t AlignmentSplitterBanded::splitAlign (
     /** We compute the required size of the containers used for processing the dynamic programming. */
     int requiredLen = (qryLen+1) * (2*delta+1);
 
-    /** We check whether the current allocation size is enough. */
+    /** We check whether the current allocation size is big enough. */
     if (requiredLen > _DefaultAlignSize)
     {
         /** We may ask too much memory. In such a case, we just return from the method with a 0 size value. */
@@ -211,12 +211,14 @@ size_t AlignmentSplitterBanded::splitAlign (
 
     for (i=1; i<=qryLen; i++)
     {
+        /** We retrieve the score vector for the current query letter. */
+        int8_t* matrixrow = MATRIX [(int)qryStr[i-1]];
+
         /** Note +1 and -1, used for tagging with -1000 the most left and right diagonals. */
         int j1 = MAX (1,      i-delta+1);
         int j2 = MIN (subLen, i+delta-1);
 
-        int8_t* matrixrow = MATRIX [(int)qryStr[i-1]];
-
+        /** Here, we put the fences on the most left and right diagonals. */
         H1 [j1-1] = -1000;
         E1 [j1-1] = -1000;
         H0 [j2]   = -1000;
@@ -272,11 +274,11 @@ size_t AlignmentSplitterBanded::splitAlign (
     i           = qryLen;
     j           = subLen;
     alignLength = 0;
-    nbGapsOpen  = 0;
-    isGapOpened = 0;
+    nbHspOpen   = 0;
+    isHspOpened = 1;
 
-    if (output.splittab)  {  (output.splittab)[nbGapsOpen++] = qryLen - 1;  }
-    if (output.splittab)  {  (output.splittab)[nbGapsOpen++] = subLen - 1;  }
+    if (output.splittab)  {  (output.splittab)[nbHspOpen++] = qryLen - 1;  }
+    if (output.splittab)  {  (output.splittab)[nbHspOpen++] = subLen - 1;  }
 
     /** We reset some alignments fields to be completed. */
     output.identity = 0;
@@ -315,12 +317,12 @@ size_t AlignmentSplitterBanded::splitAlign (
             j--;
 
             /** If a gap was opened, we finish it. */
-            if (isGapOpened == 1)
+            if (isHspOpened == 0)
             {
-                if (output.splittab)  {  (output.splittab)[nbGapsOpen++] = i;  }
-                if (output.splittab)  {  (output.splittab)[nbGapsOpen++] = j;  }
+                if (output.splittab)  {  (output.splittab)[nbHspOpen++] = i;  }
+                if (output.splittab)  {  (output.splittab)[nbHspOpen++] = j;  }
 
-                isGapOpened = 0;
+                isHspOpened = 1;
             }
 
             /** i changed, we have to retrieve the previous lines. */
@@ -333,14 +335,14 @@ size_t AlignmentSplitterBanded::splitAlign (
         else if (E1[j] > F1[j])
         {
             /** If no gap was opened, we open a new one. */
-            if (isGapOpened==0)
+            if (isHspOpened==1)
             {
-                if (output.splittab)  {  (output.splittab)[nbGapsOpen++] = i;  }
-                if (output.splittab)  {  (output.splittab)[nbGapsOpen++] = j;  }
+                if (output.splittab)  {  (output.splittab)[nbHspOpen++] = i;  }
+                if (output.splittab)  {  (output.splittab)[nbHspOpen++] = j;  }
 
                 output.nbGapQry ++;
 
-                isGapOpened = 1;
+                isHspOpened = 0;
             }
             j--;
         }
@@ -349,14 +351,14 @@ size_t AlignmentSplitterBanded::splitAlign (
         else
         {
             /** If no gap was opened, we open a new one. */
-            if (isGapOpened==0)
+            if (isHspOpened==1)
             {
-                if (output.splittab)  {  (output.splittab)[nbGapsOpen++] = i;  }
-                if (output.splittab)  {  (output.splittab)[nbGapsOpen++] = j;  }
+                if (output.splittab)  {  (output.splittab)[nbHspOpen++] = i;  }
+                if (output.splittab)  {  (output.splittab)[nbHspOpen++] = j;  }
 
                 output.nbGapSbj ++;
 
-                isGapOpened = 1;
+                isHspOpened = 0;
             }
             i--;
 
@@ -369,8 +371,8 @@ size_t AlignmentSplitterBanded::splitAlign (
     } /* end of while ( (i>0) && (j>0) ) */
 
     /** We add a final entry in the list of splits. */
-    if (output.splittab)  {  (output.splittab)[nbGapsOpen++] = i;  }
-    if (output.splittab)  {  (output.splittab)[nbGapsOpen++] = j;  }
+    if (output.splittab)  {  (output.splittab)[nbHspOpen++] = i;  }
+    if (output.splittab)  {  (output.splittab)[nbHspOpen++] = j;  }
 
     output.alignSize = alignLength;
 
@@ -378,8 +380,9 @@ size_t AlignmentSplitterBanded::splitAlign (
     dump (output, qryRange, sbjRange, qryLocal, subLocal);
 #endif
 
-    /** We return the result. */
-    return nbGapsOpen;
+    /** We return the result. Note that the value has to be divided by 4 to get the actual
+     *  number of found gaps. */
+    return nbHspOpen;
 }
 
 /*********************************************************************
