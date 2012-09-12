@@ -94,11 +94,11 @@ SemiGapAlign::~SemiGapAlign ()
 int SemiGapAlign::compute (
 	const char* A,
 	const char* B,
-    int M,
-    int N,
-    int* a_offset,
-    int* b_offset,
-    int reverse_sequence
+	u_int32_t M,
+	u_int32_t N,
+	u_int32_t* a_offset,
+	u_int32_t* b_offset,
+    bool reverse_sequence
 )
 {
     DEBUG (("----------------------------------------------------------------------------------------------------\n"));
