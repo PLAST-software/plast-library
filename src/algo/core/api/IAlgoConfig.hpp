@@ -44,6 +44,8 @@
 
 #include <alignment/core/api/IAlignmentContainer.hpp>
 #include <alignment/filter/api/IAlignmentFilter.hpp>
+#include <alignment/tools/api/IAlignmentSplitter.hpp>
+#include <alignment/tools/api/ISemiGappedAlign.hpp>
 
 #include <string>
 #include <vector>
@@ -252,6 +254,25 @@ public:
      * \return a new AlignmentResultVisitor instance
      */
     virtual alignment::core::IAlignmentContainerVisitor* createResultVisitor () = 0;
+
+    /** Create a splitter object.
+     * \return a new IAlignmentSplitter instance
+     */
+    virtual alignment::tools::IAlignmentSplitter* createAlignmentSplitter (
+        algo::core::IScoreMatrix* scoreMatrix,
+        int openGapCost,
+        int extendGapCost
+    ) = 0;
+
+    /** Create a dynamic programming object.
+     * \return a new ISemiGapAlign instance
+     */
+    virtual alignment::tools::ISemiGapAlign* createSemiGapAlign (
+        algo::core::IScoreMatrix* scoreMatrix,
+        int openGapCost,
+        int extendGapCost,
+        int Xdropoff
+    ) = 0;
 };
 
 /********************************************************************************/
