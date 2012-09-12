@@ -63,13 +63,15 @@ public:
     /** \copydoc IAlignmentSplitter::splitAlign(Alignment&,int*) */
     size_t splitAlign (core::Alignment& align,  SplitOutput& output);
 
-private:
+protected:
 
     algo::core::IScoreMatrix* _scoreMatrix;
     void setScoreMatrix (algo::core::IScoreMatrix* scoreMatrix)  { SP_SETATTR (scoreMatrix); }
 
     int _openGapCost;
     int _extendGapCost;
+
+    int _band;
 
     int16_t** _matrix_H;
     int16_t** _matrix_E;
@@ -82,13 +84,16 @@ private:
     void      freeMatrix (int16_t*** mat);
 
     /** */
-    void dump (
+    virtual void dump (
 		const SplitOutput& output,
 	    const misc::Range32&    qryRange,
 	    const misc::Range32&    sbjRange,
 	    char* qryLocal,
 	    char* subLocal
 	);
+
+    /** */
+    virtual void dumpMatrix (int qryLen, int subLen, int delta);
 };
 
 /********************************************************************************/

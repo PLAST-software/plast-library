@@ -54,9 +54,9 @@ namespace impl      {
 *********************************************************************/
 AlignmentSplitter::AlignmentSplitter (IScoreMatrix* scoreMatrix, int openGapCost, int extendGapCost)
  : _scoreMatrix(0),
-   _openGapCost(openGapCost), _extendGapCost(extendGapCost),
+   _openGapCost(openGapCost), _extendGapCost(extendGapCost), _band(3),
    _matrix_H (0), _matrix_E(0), _matrix_F(0),
-   _DefaultAlignSize(1000), _MaxAlignSize(6000)
+   _DefaultAlignSize(1), _MaxAlignSize(6000)
 {
     setScoreMatrix (scoreMatrix);
 
@@ -104,7 +104,7 @@ size_t AlignmentSplitter::splitAlign (
     int jj = qryRange.begin - sbjRange.begin;
     jj = jj - (qryRange.end - sbjRange.end);
 
-    int delta = (jj>=0 ? (jj + 2) : (-jj + 2));
+    int delta = (jj>=0 ? (jj + _band) : (-jj + _band));
 
     qryLen = qryRange.getLength();
     subLen = sbjRange.getLength();
@@ -161,7 +161,7 @@ size_t AlignmentSplitter::splitAlign (
     E = _matrix_E;
     F = _matrix_F;
 
-    for (i=0; i<=delta+2; i++)  {    H[0][i]=0; F[0][i]=0;  }
+    for (i=0; i<=delta+_band; i++)  {    H[0][i]=0; F[0][i]=0;  }
 
     for (i=1; i<=qryLen; i++)
     {
@@ -409,9 +409,15 @@ void AlignmentSplitter::dump (
     /** SHORTCUTS. */
     LETTER anyLetter  = EncodingManager::singleton().getAlphabet(SUBSEED)->any;
     LETTER dashLetter = EncodingManager::singleton().getAlphabet(SUBSEED)->gap;
-	u_int32_t x = output.alignSize;
+    u_int32_t x = output.alignSize;
 
-    INFO (("\nALIGN: nbGapQry=%d   nbGapSbj=%d   alignSize=%d \n", output.nbGapQry, output.nbGapSbj, output.alignSize));
+    INFO ((" Identities = %d/%d (%d %%), Positives = %d/%d (%d %%), Gaps = %d/%d (%d %%)\n",
+        output.identity, x, (int) (100.0 * (float) output.identity / (float)x),
+        output.positive, x, (int) (100.0 * (float) output.positive/ (float)x),
+        0, x, (int) (100.0 * (float) 0/ (float)x)
+    ));
+    INFO (("\n"));
+
     const LETTER* convert = EncodingManager::singleton().getEncodingConversion(SUBSEED, ASCII);
 
     dp::impl::RangeIterator<int> it (misc::Range<int> (0, output.alignSize-1), 60, 0);
@@ -425,7 +431,7 @@ void AlignmentSplitter::dump (
     while (it.retrieve (r, nbRetrieved))
     {
 
-        INFO (("Query  %3d  ", qryRange.begin + 1 + nbQryChar));
+        INFO (("Query  %-3d  ", qryRange.begin + 1 + nbQryChar));
         for (int ii=r.begin; ii<=r.end; ii++)  { INFO (("%c", convert[(int)qryLocal[x-1-ii]]));  if (qryLocal[x-1-ii]!=dashLetter) {nbQryChar++;} }
         INFO (("  %d", qryRange.begin + nbQryChar));
         INFO (("\n"));
@@ -437,26 +443,55 @@ void AlignmentSplitter::dump (
 
             if (isTheSame && qryLocal[x-1-ii] != anyLetter)
             {
-                INFO (("%c", '|'));
+                INFO (("%c", convert[(int)qryLocal[x-1-ii]]));
             }
             else if (qryLocal[x-1-ii]==dashLetter  ||  subLocal[x-1-ii]==dashLetter)
             {
                 INFO (("%c", ' '));
             }
+            else if ((_scoreMatrix->getMatrix())[(int)qryLocal[x-1-ii]][(int)subLocal[x-1-ii]] > 0)
+            {
+                INFO (("%c", '+'));
+            }
             else
             {
                 INFO (("%c", ' '));
             }
-    //        printf ("%c", (qryLocal[ii]==subLocal[ii] && qryLocal[ii] != CODE_X ? '|' : ' '));
         }
         INFO (("\n"));
 
-        INFO (("Sbjct  %3d  ", sbjRange.begin + 1 + nbSbjChar));
+        INFO (("Sbjct  %-3d  ", sbjRange.begin + 1 + nbSbjChar));
         for (int ii=r.begin; ii<=r.end; ii++)  { INFO (("%c", convert[(int)subLocal[x-1-ii]])); if (subLocal[x-1-ii]!=dashLetter) {nbSbjChar++;} }
         INFO (("  %d", sbjRange.begin + nbSbjChar));
         INFO (("\n"));
 
         INFO (("\n"));
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AlignmentSplitter::dumpMatrix (int qryLen, int subLen, int delta)
+{
+    printf ("\n");
+    printf ("AlignmentSplitter::dumpMatrix   qryLen=%d  subLen=%d  delta=%d   (2*delta+1)=%d   band=%d\n",
+        qryLen, subLen, delta, (2*delta+1), _band
+    );
+
+    printf ("\n");
+    printf ("---------------------------------------- H ----------------------------------------\n");
+    for (int i=0; i<=qryLen; i++)
+    {
+        int j1 = MAX (1,      i-delta) - 1;
+        int j2 = MIN (subLen, i+delta) + 1;
+        for (int j=j1; j<=j2; j++)  {  printf ("%7d ", _matrix_H [i][j]);  }
+        printf ("\n");
     }
 }
 
