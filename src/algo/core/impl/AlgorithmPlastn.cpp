@@ -362,6 +362,7 @@ void AlgorithmPlastn::pass2 (
             getGlobalStatistics(),
             _hspContainer,
             containers[i],
+            _config->createAlignmentSplitter (getScoreMatrix(), _params->openGapCost, _params->extendGapCost),
             getScoreMatrix(),
             _params,
             this
