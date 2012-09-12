@@ -39,6 +39,41 @@ namespace impl      {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+AlignmentFilterBinaryOperator::AlignmentFilterBinaryOperator (list<IAlignmentFilter*>& filters)
+    : _filters (filters)
+{
+    /** We have to 'use' each item of the list. */
+    for (list<IAlignmentFilter*>::iterator it = _filters.begin(); it != _filters.end(); ++it)
+    {
+        (*it)->use();
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+AlignmentFilterBinaryOperator::~AlignmentFilterBinaryOperator ()
+{
+    /** We have to 'forget' each item of the list. */
+    for (list<IAlignmentFilter*>::iterator it = _filters.begin(); it != _filters.end(); ++it)
+    {
+        (*it)->forget();
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 bool AlignmentFilterBinaryOperator::isOk (const core::Alignment& align) const
 {
     bool result = false;

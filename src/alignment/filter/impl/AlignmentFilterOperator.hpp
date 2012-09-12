@@ -55,8 +55,8 @@ class AlignmentFilterBinaryOperator : public AbstractAlignmentFilter
 {
 public:
 
-    AlignmentFilterBinaryOperator (std::list<IAlignmentFilter*>& filters) : _filters(filters) {}
-    virtual ~AlignmentFilterBinaryOperator () {}
+    AlignmentFilterBinaryOperator (std::list<IAlignmentFilter*>& filters);
+    virtual ~AlignmentFilterBinaryOperator ();
 
     bool isOk (const core::Alignment& align) const;
 
