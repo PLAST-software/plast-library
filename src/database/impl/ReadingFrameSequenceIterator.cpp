@@ -15,6 +15,8 @@
  *****************************************************************************/
 
 #include <database/impl/ReadingFrameSequenceIterator.hpp>
+#include <misc/api/macros.hpp>
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -146,6 +148,17 @@ void ReadingFrameSequenceIterator::udpateItem ()
 
     const ISequence* refSeq = _nucleotidIter->currentItem();
     DEBUG (("ReadingFrameSequenceIterator::udpateItem:  inputSeq='%s'\n", refSeq->data.toString().c_str() ));
+
+    CHECK_BLOCK_BEGIN
+        if (refSeq->getLength() == 0)
+        {
+            char message[256];
+            snprintf (message, sizeof(message),
+                "CANT HAPPEN, empty sequence '%s' (index=%d)...", refSeq->comment, refSeq->index
+            );
+            throw message;
+        }
+    CHECK_BLOCK_END
 
     /** We set the comment. */
     _sequence.comment = refSeq->comment;
