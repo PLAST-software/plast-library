@@ -87,6 +87,16 @@ struct ISequence
     /** */
     const LETTER* getData () const  { return data.letters.data; }
 
+    /** */
+    std::string getIdentifier () const
+    {
+        /** Not optimal... */
+        std::string result;
+        char buffer[128];
+        if (retrieveId (buffer, sizeof(buffer)) > 0)  {  result.assign (buffer);  }
+        return result;
+    }
+
     /** Get id and definition of the sequence.
      */
     void retrieveIdAndDefinition (
