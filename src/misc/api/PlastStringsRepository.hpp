@@ -74,6 +74,7 @@ public:
     static const char* m_STR_OPTION_FACTORY_HIT_COMPOSITION () { static misc::impl::ObsfucatedString s (1343381595, 8751179571604677773, 7885630519425063052, 7957695015294003166, 0)  /* => "-factory-hit-composition" */; return s.toString().c_str(); }
     static const char* m_STR_OPTION_FACTORY_GAP_RESULT () { static misc::impl::ObsfucatedString s (1343381595, 8751179571604677773, 8315177826492307340, 7988443, 0)  /* => "-factory-gap-result" */; return s.toString().c_str(); }
     static const char* m_STR_OPTION_FACTORY_UNGAP_RESULT () { static misc::impl::ObsfucatedString s (1343381595, 8751179571604677773, 8227355657922692492, 500036074443, 0)  /* => "-factory-ungap-result" */; return s.toString().c_str(); }
+    static const char* m_STR_OPTION_FACTORY_SPLITTER () { static misc::impl::ObsfucatedString (1347439858, 7310596091278083686, 4933154, 0)  /* => "-splitter" */; return s.toString().c_str(); }
     static const char* m_STR_OPTION_OPTIM_FILTER_UNGAP () { static misc::impl::ObsfucatedString s (1343381595, 7362661265509445005, 7959317885796637896, 8251849, 0)  /* => "-optim-filter-ungap" */; return s.toString().c_str(); }
     static const char* m_STR_OPTION_INFO_BARGRAPH () { static misc::impl::ObsfucatedString s (1343381595, 8097879393611210893, 2502857, 0)  /* => "-bargraph" */; return s.toString().c_str(); }
     static const char* m_STR_OPTION_INFO_BARGRAPH_SIZE () { static misc::impl::ObsfucatedString s (1343381595, 8097879393611210893, 111576427601353, 0)  /* => "-bargraph-size" */; return s.toString().c_str(); }
@@ -146,6 +147,7 @@ public:
     static const char* m_STR_HELP_FACTORY_HIT_COMPOSITION () { static misc::impl::ObsfucatedString s (1343394373, 2340027304412538436, 7310014136219749231, 7885630463573955585, 7957695015292129297, 8388271461197716302, 13073671946387314, 0)  /* => "Factory that creates composition hits iterator." */; return s.toString().c_str(); }
     static const char* m_STR_HELP_FACTORY_GAP_RESULT () { static misc::impl::ObsfucatedString s (1343394373, 2340027304412538436, 7310014136219749231, 8097866994060301313, 7308619160722693697, 8463219665599366912, 604539, 0)  /* => "Factory that creates gap alignments result." */; return s.toString().c_str(); }
     static const char* m_STR_HELP_FACTORY_UNGAP_RESULT () { static misc::impl::ObsfucatedString s (1343394373, 2340027304412538436, 7310014136219749231, 7453023215578977281, 7955443180981276416, 7309940825419126275, 199519582308, 0)  /* => "Factory that creates ungap alignments result." */; return s.toString().c_str(); }
+    static const char* m_STR_HELP_FACTORY_SPLITTER () { static misc::impl::ObsfucatedString (1347439764, 2340027304408860355, 7310014136228024502, 2336912048655163834, 7954884637765327937, 8391447920160585045, 4744267, 0)  /* => "Factory that creates an alignment splitter." */; return s.toString().c_str(); }
     static const char* m_STR_HELP_OPTIM_FILTER_UNGAP () { static misc::impl::ObsfucatedString s (1343394373, 7024042487474714445, 7018987701898070639, 8243122701943717908, 7526676561802436370, 7959303549226097692, 7451606222871407728, 13074792831991234, 0)  /* => "Optimization that filters out through ungap alignments." */; return s.toString().c_str(); }
     static const char* m_STR_HELP_XML_FILTER_FILE () { static misc::impl::ObsfucatedString s (1343394373, 6998706448401397079, 7811887317556820795, 7308332182664381716, 1130319, 0)  /* => "Uri of a XML filter file." */; return s.toString().c_str(); }
     static const char* m_STR_HELP_SEEDS_USE_RATIO () { static misc::impl::ObsfucatedString s (1343394373, 7381153977161639504, 8367814982690295867, 7310315402151870479, 1118469, 0)  /* => "Ratio of seeds to be used." */; return s.toString().c_str(); }
@@ -241,6 +243,7 @@ public:
     static const char* m_STR_OPTION_FACTORY_HIT_COMPOSITION () { return "-factory-hit-composition"; }
     static const char* m_STR_OPTION_FACTORY_GAP_RESULT () { return "-factory-gap-result"; }
     static const char* m_STR_OPTION_FACTORY_UNGAP_RESULT () { return "-factory-ungap-result"; }
+    static const char* m_STR_OPTION_FACTORY_SPLITTER () { return "-splitter"; }
     static const char* m_STR_OPTION_OPTIM_FILTER_UNGAP () { return "-optim-filter-ungap"; }
     static const char* m_STR_OPTION_INFO_BARGRAPH () { return "-bargraph"; }
     static const char* m_STR_OPTION_INFO_BARGRAPH_SIZE () { return "-bargraph-size"; }
@@ -313,6 +316,7 @@ public:
     static const char* m_STR_HELP_FACTORY_HIT_COMPOSITION () { return "Factory that creates composition hits iterator."; }
     static const char* m_STR_HELP_FACTORY_GAP_RESULT () { return "Factory that creates gap alignments result."; }
     static const char* m_STR_HELP_FACTORY_UNGAP_RESULT () { return "Factory that creates ungap alignments result."; }
+    static const char* m_STR_HELP_FACTORY_SPLITTER () { return "Factory that creates an alignment splitter. String: 'normal' or 'banded' (default)"; }
     static const char* m_STR_HELP_OPTIM_FILTER_UNGAP () { return "Optimization that filters out through ungap alignments."; }
     static const char* m_STR_HELP_XML_FILTER_FILE () { return "Uri of a XML filter file."; }
     static const char* m_STR_HELP_SEEDS_USE_RATIO () { return "Ratio of seeds to be used."; }
