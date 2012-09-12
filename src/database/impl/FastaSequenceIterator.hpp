@@ -58,7 +58,7 @@ public:
      */
     FastaSequenceIterator (
         const char* filename,
-        size_t commentMaxSize = 64*1024,
+        size_t commentMaxSize = 128*1024,
         u_int64_t offset0 = 0,
         u_int64_t offset1 = 0
     );
