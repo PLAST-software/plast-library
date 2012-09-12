@@ -139,6 +139,7 @@ public:
         setTimeInfo         (0);
         setUngapResult      (0);
         setAlignmentResult  (0);
+        setAlignmentFilter  (0);
     }
 
     /** Getter for the algorithm.
