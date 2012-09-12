@@ -219,6 +219,11 @@ namespace misc {
  */
 #define STR_OPTION_FACTORY_UNGAP_RESULT     misc::StringRepository::m_STR_OPTION_FACTORY_UNGAP_RESULT ()
 
+/** "-splitter" Command Line option giving the factory name for creating alignment splitter
+ *  String value, one of: "normal" or "banded" (default)
+ */
+#define STR_OPTION_FACTORY_SPLITTER     misc::StringRepository::m_STR_OPTION_FACTORY_SPLITTER ()
+
 /** "-optim-filter-ungap" Command Line option giving the boolean value for filtering out already known ungap alignments before small gap algorithm.
  *  String value (F or T)
  */
@@ -359,6 +364,7 @@ namespace misc {
 #define STR_HELP_FACTORY_HIT_COMPOSITION    misc::StringRepository::m_STR_HELP_FACTORY_HIT_COMPOSITION ()   // Factory that creates composition hits iterator.
 #define STR_HELP_FACTORY_GAP_RESULT         misc::StringRepository::m_STR_HELP_FACTORY_GAP_RESULT ()   // Factory that creates gap alignments result.
 #define STR_HELP_FACTORY_UNGAP_RESULT       misc::StringRepository::m_STR_HELP_FACTORY_UNGAP_RESULT ()   // Factory that creates ungap alignments result.
+#define STR_HELP_FACTORY_SPLITTER           misc::StringRepository::m_STR_HELP_FACTORY_SPLITTER ()   // Factory that creates an alignment splitter
 #define STR_HELP_OPTIM_FILTER_UNGAP         misc::StringRepository::m_STR_HELP_OPTIM_FILTER_UNGAP ()   // Optimization that filters out through ungap alignments.
 #define STR_HELP_XML_FILTER_FILE            misc::StringRepository::m_STR_HELP_XML_FILTER_FILE ()   // Uri of a XML filter file.
 #define STR_HELP_SEEDS_USE_RATIO            misc::StringRepository::m_STR_HELP_SEEDS_USE_RATIO ()   // Ratio of seeds to be used.
