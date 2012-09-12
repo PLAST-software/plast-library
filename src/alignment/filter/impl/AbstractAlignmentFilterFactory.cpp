@@ -87,6 +87,9 @@ AbstractAlignmentFilterFactory::AbstractAlignmentFilterFactory ()
     _filtersList.push_back (new AlignmentFilter_QueryDefinition());
     _filtersList.push_back (new AlignmentFilter_HitDefinition());
 
+    _filtersList.push_back (new AlignmentFilter_QueryIdentifier());
+    _filtersList.push_back (new AlignmentFilter_HitIdentifier());
+
     /** We build the map of [name,filter] couples from the list. */
     for (list<IAlignmentFilter*>::iterator it = _filtersList.begin(); it != _filtersList.end(); it++)
     {
