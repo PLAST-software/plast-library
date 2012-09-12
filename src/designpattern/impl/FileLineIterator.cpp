@@ -66,7 +66,7 @@ FileLineIterator::FileLineIterator (
 	/** We check that we have a non empty range. */
 	if (_offset0 < _offset1)  {  _range = _offset1 - _offset0 + 1;  }
 
-    DEBUG (cout << "FileLineIterator::FileLineIterator   _offset1=" << _offset1 << "  _offset2=" << _offset1 << "  _range=" << _range << endl);
+    DEBUG (cout << "FileLineIterator::FileLineIterator   _offset0=" << _offset0 << "  _offset1=" << _offset1 << "  _range=" << _range << endl);
 }
 
 /*********************************************************************
