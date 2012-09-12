@@ -27,8 +27,8 @@
 
 #include <alignment/filter/api/IAlignmentFilter.hpp>
 #include <designpattern/impl/Property.hpp>
-// TO BE DONE #include <regex.h>
 #include <stdarg.h>
+#include <boost/regex.hpp>
 
 /********************************************************************************/
 namespace alignment {
@@ -196,13 +196,12 @@ public:
     /** */
     AlignmentFilterRegexOperator (const std::vector<std::string>& args);
 
-    AlignmentFilterRegexOperator () : AlignmentFilterUnaryOperator<std::string>()  {}
+    AlignmentFilterRegexOperator () : AlignmentFilterUnaryOperator<std::string>(), _reg(0)  {}
 
     ~AlignmentFilterRegexOperator ();
 
 protected:
-    // TO BE DONE regex_t     _preg;
-    int         _err;
+    boost::regex* _reg;
 };
 
 /********************************************************************************/
@@ -245,11 +244,10 @@ protected:
         AlignmentFilter_##name ()   {} \
         AlignmentFilter_##name (const std::vector<std::string>& args) : AlignmentFilterRegexOperator (args)  {} \
         bool isOk (const core::Alignment& a) const { \
-            if ( (_err != 0) || ((regexp) == 0) )  { return false; } \
             switch(_operator) \
             { \
-                /** TO BE DONE  case HOLD:      return regexec (&_preg, (regexp), 0, NULL, 0) == 0 ;*/ \
-                /** TO BE DONE  case NO_HOLD:   return regexec (&_preg, (regexp), 0, NULL, 0) != 0 ;*/ \
+                case HOLD:      return boost::regex_search (regexp,*_reg) == true;\
+                case NO_HOLD:   return boost::regex_search (regexp,*_reg) == false;\
                 default:        return false; \
             } \
         } \
@@ -310,6 +308,9 @@ DEFINE_ALIGNMENT_EXP_FILTER ("Query rank",              QueryRank,          u_in
 
 DEFINE_ALIGNMENT_REGEXP_FILTER ("Query definition",     QueryDefinition,    a.getSequence(alignment::core::Alignment::QUERY)->comment);
 DEFINE_ALIGNMENT_REGEXP_FILTER ("Hit definition",       HitDefinition,      a.getSequence(alignment::core::Alignment::SUBJECT)->comment);
+
+DEFINE_ALIGNMENT_REGEXP_FILTER ("Query identifier",     QueryIdentifier,    a.getSequence(alignment::core::Alignment::QUERY)->getIdentifier());
+DEFINE_ALIGNMENT_REGEXP_FILTER ("Hit identifier",       HitIdentifier,      a.getSequence(alignment::core::Alignment::SUBJECT)->getIdentifier());
 
 /********************************************************************************/
 }}}; /* end of namespaces. */

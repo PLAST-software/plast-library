@@ -23,6 +23,7 @@
 using namespace std;
 using namespace dp;
 using namespace dp::impl;
+using namespace boost;
 
 /********************************************************************************/
 namespace alignment {
@@ -120,11 +121,12 @@ dp::IProperties* AlignmentFilterBinaryOperator::getProperties ()
 ** REMARKS :
 *********************************************************************/
 AlignmentFilterRegexOperator::AlignmentFilterRegexOperator (const std::vector<std::string>& args)
-    : AlignmentFilterUnaryOperator<std::string>(args), _err(0)
+    : AlignmentFilterUnaryOperator<std::string>(args), _reg(0)
 {
-    //TO BE DONE _err = regcomp (&_preg, _value.c_str(), REG_NOSUB | REG_EXTENDED | REG_ICASE);
+    /** We use the PERL syntax by default. Note that we don't want to be case sensitive. */
+    _reg = new regex (_value.c_str(), boost::regex::perl | boost::regex::icase);
 
-    DEBUG (("AlignmentFilterRegexOperator::AlignmentFilterRegexOperator   _value='%s'   _err=%d \n", _value.c_str(), _err ));
+    DEBUG (("AlignmentFilterRegexOperator::AlignmentFilterRegexOperator   _value='%s'  \n", _value.c_str() ));
 }
 
 /*********************************************************************
@@ -137,7 +139,9 @@ AlignmentFilterRegexOperator::AlignmentFilterRegexOperator (const std::vector<st
 *********************************************************************/
 AlignmentFilterRegexOperator::~AlignmentFilterRegexOperator ()
 {
-    //TO BE DONE regfree (&_preg);
+    if (_reg)  { delete _reg; }
+
+    DEBUG (("AlignmentFilterRegexOperator::~AlignmentFilterRegexOperator\n"));
 }
 
 /********************************************************************************/
