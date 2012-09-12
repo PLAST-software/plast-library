@@ -25,7 +25,6 @@
 
 #include <alignment/core/impl/BasicAlignmentContainer.hpp>
 #include <alignment/core/impl/UngapAlignmentContainer.hpp>
-#include <alignment/tools/impl/AlignmentSplitter.hpp>
 
 #include <math.h>
 
@@ -40,6 +39,7 @@ using namespace indexation;
 using namespace statistics;
 using namespace algo::core;
 using namespace alignment::core;
+using namespace alignment::tools;
 using namespace alignment::tools::impl;
 
 #include <stdio.h>
@@ -69,6 +69,7 @@ namespace gapped {
 *********************************************************************/
 FullGapHitIterator::FullGapHitIterator (
     IHitIterator*           realIterator,
+    IConfiguration*         config,
     ISeedModel*             model,
     IScoreMatrix*           scoreMatrix,
     IParameters*            parameters,
@@ -78,16 +79,21 @@ FullGapHitIterator::FullGapHitIterator (
     IAlignmentContainer*    alignmentResult
 )
     : AbstractPipeHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult),
-      _queryInfo(0), _globalStats(0), _alignmentResult(0), _splitter(0), _dynpro(0),
+      _config(0), _queryInfo(0), _globalStats(0), _alignmentResult(0), _splitter(0), _dynpro(0),
       _ungapKnownNumber(0), _gapKnownNumber(0)
 {
+    setConfig           (config);
     setQueryInfo        (queryInfo);
     setGlobalStats      (globalStats);
     setAlignmentResult  (alignmentResult);
 
-    setAlignmentSplitter (new AlignmentSplitter (scoreMatrix, parameters->openGapCost, parameters->extendGapCost) );
+    setAlignmentSplitter (_config->createAlignmentSplitter (
+        _scoreMatrix, _parameters->openGapCost, _parameters->extendGapCost
+    ));
 
-    setDynPro (new SemiGapAlign (_scoreMatrix, _parameters->openGapCost, _parameters->extendGapCost, _parameters->XdroppofGap));
+    setDynPro (_config->createSemiGapAlign (
+        _scoreMatrix, _parameters->openGapCost, _parameters->extendGapCost, _parameters->XdroppofGap
+    ));
 
     DEBUG  (("xdrop=%d  finalxdrop=%d \n", _parameters->XdroppofGap, _parameters->finalXdroppofGap));
 }
@@ -102,6 +108,7 @@ FullGapHitIterator::FullGapHitIterator (
 *********************************************************************/
 FullGapHitIterator::~FullGapHitIterator ()
 {
+    setConfig            (0);
     setQueryInfo         (0);
     setGlobalStats       (0);
     setAlignmentResult   (0);
@@ -126,7 +133,7 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
     const Vector<const ISeedOccurrence*>& occur2Vector = hit->occur2;
 
     int scoreLeft=0,  scoreRight=0;
-    int leftOffsetInQuery=0, leftOffsetInSubject=0, rightOffsetInQuery=0, rightOffsetInSubject=0;
+    u_int32_t leftOffsetInQuery=0, leftOffsetInSubject=0, rightOffsetInQuery=0, rightOffsetInSubject=0;
     bool shouldKeep = false;
 
     /** Statistics. */
