@@ -101,19 +101,17 @@ void FastaDatabaseQuickReader::read (u_int64_t  maxblocksize)
 
         else
         {
-            u_int64_t currentSize = _iterator.getCurrentReadSize();
-
             if (_readThreshold > 0)
             {
                 /** We read at most 20 characters in the current buffer. */
-                size_t imax = MIN (currentSize, 10);
+                size_t imax = MIN (_iterator.getLineSize(), 10);
                 for (size_t i=0; i<imax; i++)
                 {
                     char c = buffer[i];
 
                     bool isNucleotid =
-                        (c=='A') || (c=='C') || (c=='G') || (c=='T') || (c=='N') ||
-                        (c=='a') || (c=='c') || (c=='g') || (c=='t') || (c=='n');
+                        (c=='A') || (c=='C') || (c=='G') || (c=='T') || (c=='N') || (c=='U') ||
+                        (c=='a') || (c=='c') || (c=='g') || (c=='t') || (c=='n') || (c=='u');
 
                     if (isNucleotid)  { _nbNucleotids++;  }
                     else              { _nbAminoAcids++;  }
@@ -127,11 +125,11 @@ void FastaDatabaseQuickReader::read (u_int64_t  maxblocksize)
             }
 
             /** This is pure data, we increase the total data size with the current read line. */
-            _dataSize += currentSize;
+            _dataSize += _iterator.getLineSize();
         }
 
-        /** We need +1 for counting the '\n' that has been removed by the file line iterator. */
-        _totalSize += _iterator.getCurrentReadSize() + 1;
+        /** We get the position in the stream. */
+        _totalSize = _iterator.tell ();
     }
 
     DEBUG (("FastaDatabaseQuickReader::read  _nbSequences=%d  _nbNucleotids=%d  _nbAminoAcids=%d\n",
