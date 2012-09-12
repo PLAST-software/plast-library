@@ -139,6 +139,7 @@ private:
  */
 #define SP_SETATTR(a)  \
 {  \
+    if (_##a == a)  { return;  }   /* just to be sure that we don't reuse the same object */  \
     if (_##a != 0)  {  _##a->forget (); } \
     _##a = a; \
     if (_##a != 0)  {  _##a->use    (); } \
