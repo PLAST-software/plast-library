@@ -98,6 +98,7 @@ void PlastOptionsParser::build ()
     this->add (new OptionOneParam (STR_OPTION_FACTORY_HIT_COMPOSITION,  STR_HELP_FACTORY_HIT_COMPOSITION));
     this->add (new OptionOneParam (STR_OPTION_FACTORY_GAP_RESULT,       STR_HELP_FACTORY_GAP_RESULT));
     this->add (new OptionOneParam (STR_OPTION_FACTORY_UNGAP_RESULT,     STR_HELP_FACTORY_UNGAP_RESULT));
+    this->add (new OptionOneParam (STR_OPTION_FACTORY_SPLITTER,         STR_HELP_FACTORY_SPLITTER));
 
     this->add (new OptionOneParam (STR_OPTION_OPTIM_FILTER_UNGAP,       STR_HELP_OPTIM_FILTER_UNGAP));
 
