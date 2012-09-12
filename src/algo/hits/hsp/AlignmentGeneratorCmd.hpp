@@ -57,6 +57,7 @@ public:
         statistics::IGlobalParameters*          globalStats,
         alignment::core::IHspContainer*         hspContainer,
         alignment::core::IAlignmentContainer*   alignmentContainer,
+        alignment::tools::IAlignmentSplitter*   alignmentSplitter,
         algo::core::IScoreMatrix*               scoreMatrix,
         algo::core::IParameters*                params,
         dp::IObserver* 							observer

@@ -16,8 +16,6 @@
 
 #include <algo/hits/hsp/AlignmentGeneratorCmd.hpp>
 
-#include <alignment/tools/impl/AlignmentSplitter.hpp>
-
 #include <misc/api/PlastStrings.hpp>
 
 #include <string.h>
@@ -68,6 +66,7 @@ AlignmentGeneratorCmd::AlignmentGeneratorCmd (
     statistics::IGlobalParameters*          globalStats,
     IHspContainer*                          hspContainer,
     IAlignmentContainer*                    alignmentContainer,
+    IAlignmentSplitter*                     alignmentSplitter,
     algo::core::IScoreMatrix*               scoreMatrix,
     algo::core::IParameters*                params,
     dp::IObserver* 							observer
@@ -81,7 +80,7 @@ AlignmentGeneratorCmd::AlignmentGeneratorCmd (
     setGlobalStats        (globalStats);
     setHspContainer       (hspContainer);
     setAlignmentContainer (alignmentContainer);
-    setSplitter           (new AlignmentSplitter (scoreMatrix, params->openGapCost, params->extendGapCost));
+    setSplitter           (alignmentSplitter);
 
     /** We register the provided observer. */
     this->addObserver (observer);
