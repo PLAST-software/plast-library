@@ -172,7 +172,7 @@ void DatabasesProvider::createDatabaseList (
         (*it)->use();
     }
 
-    DEBUG (cout << "AbstractAlgorithm::createDatabaseList: "
+    DEBUG (cout << "DatabasesProvider::createDatabaseList: "
         << " uri="       << uri
         << " range="     << range
         << " filter="    << filtering
