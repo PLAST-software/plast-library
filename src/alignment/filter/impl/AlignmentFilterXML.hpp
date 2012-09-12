@@ -74,7 +74,7 @@ private:
     {
     public:
 
-        XmlFilterListener () : _isReadingValue(false) {}
+        XmlFilterListener () : _exclusive(true), _isReadingValue(false) {}
 
         /** */
         bool isExclusive () { return _exclusive; }
