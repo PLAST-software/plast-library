@@ -50,25 +50,10 @@ void FilterContainerVisitor::visitAlignmentsList (
     {
         size_t removed = 0;
 
-        /** Shortcut. */
-        misc::ProgressInfo& alignProgress = _extraInfo.alignProgress;
-
-        /** We resume the alignment progress. */
-        alignProgress.set (1, alignments.size());
-
-        for (list<Alignment>::iterator it = alignments.begin(); it != alignments.end(); ++alignProgress)
+        for (list<Alignment>::iterator it = alignments.begin(); it != alignments.end(); )
         {
-            /** Shortcut. */
-            Alignment& al = (*it);
-
-            /** We reference the extra info for the current alignment. */
-            al.setExtraInfo (&_extraInfo);
-
             if (_filter->isOk (*it) == false) {  it = alignments.erase (it);   removed++;   }
             else                              {  it++;                                      }
-
-            /** We dereference the extra info from the current alignment. */
-            al.setExtraInfo (0);
         }
 
         /** We increase the number of removed alignments. */
