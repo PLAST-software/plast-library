@@ -67,6 +67,7 @@ public:
      */
         CompositionHitIterator (
         algo::hits::IHitIterator*               sourceIterator,
+        algo::core::IConfiguration*             config,
         seed::ISeedModel*                       model,
         algo::core::IScoreMatrix*               scoreMatrix,
         algo::core::IParameters*                parameters,
@@ -90,7 +91,7 @@ protected:
     /** \copydoc common::AbstractPipeHitIterator::clone */
     virtual CompositionHitIterator* clone (algo::hits::IHitIterator* sourceIterator)
     {
-        return new CompositionHitIterator (sourceIterator, _model, _scoreMatrix, _parameters, _ungapResult, _queryInfo, _globalStats, _alignmentResult);
+        return new CompositionHitIterator (sourceIterator, _config, _model, _scoreMatrix, _parameters, _ungapResult, _queryInfo, _globalStats, _alignmentResult);
     }
 
     /** \copydoc common::AbstractPipeHitIterator::iterateMethod */
