@@ -26,8 +26,6 @@
 #include <alignment/core/impl/BasicAlignmentContainer.hpp>
 #include <alignment/core/impl/UngapAlignmentContainer.hpp>
 #include <alignment/tools/api/IAlignmentSplitter.hpp>
-#include <alignment/tools/impl/AlignmentSplitter.hpp>
-#include <alignment/tools/impl/SemiGappedAlign.hpp>
 
 #include <math.h>
 
@@ -71,6 +69,7 @@ namespace gapped {
 *********************************************************************/
 CompositionHitIterator::CompositionHitIterator (
     IHitIterator*           realIterator,
+    IConfiguration*         config,
     ISeedModel*             model,
     IScoreMatrix*           scoreMatrix,
     IParameters*            parameters,
@@ -79,9 +78,11 @@ CompositionHitIterator::CompositionHitIterator (
     IGlobalParameters*      globalStats,
     IAlignmentContainer*    alignmentResult
 )
-    : FullGapHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult, queryInfo, globalStats, alignmentResult)
+    : FullGapHitIterator (realIterator, config, model, scoreMatrix, parameters, ungapResult, queryInfo, globalStats, alignmentResult)
 {
-    setDynPro (new SemiGapAlign (_scoreMatrix, _parameters->openGapCost, _parameters->extendGapCost, _parameters->finalXdroppofGap));
+    setDynPro (_config->createSemiGapAlign (
+        _scoreMatrix, _parameters->openGapCost, _parameters->extendGapCost, _parameters->finalXdroppofGap
+    ));
 }
 
 /*********************************************************************
@@ -94,10 +95,7 @@ CompositionHitIterator::CompositionHitIterator (
 *********************************************************************/
 CompositionHitIterator::~CompositionHitIterator ()
 {
-    setQueryInfo         (0);
-    setGlobalStats       (0);
-    setAlignmentResult   (0);
-    setAlignmentSplitter (0);
+    setDynPro (0);
 }
 
 /*********************************************************************
@@ -119,7 +117,7 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
     const Vector<const ISeedOccurrence*>& occur2Vector = hit->occur2;
 
     int scoreLeft=0,  scoreRight=0;
-    int leftOffsetInQuery=0, leftOffsetInSubject=0, rightOffsetInQuery=0, rightOffsetInSubject=0;
+    u_int32_t leftOffsetInQuery=0, leftOffsetInSubject=0, rightOffsetInQuery=0, rightOffsetInSubject=0;
 
     /** Statistics. */
     HIT_STATS (_inputHitsNumber += hit->indexes.size();)
