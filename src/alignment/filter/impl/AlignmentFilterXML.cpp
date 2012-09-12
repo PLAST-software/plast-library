@@ -84,7 +84,7 @@ void AlignmentFilterFactoryXML::parseXmlFile (const string& xmlFileUri, XmlFilte
     reader.read();
 
     /** We detach the listener from the reader. */
-    reader.addObserver (&listener);
+    reader.removeObserver (&listener);
 
     /** We close the file. */
     is.close ();
