@@ -176,6 +176,21 @@ public:
     /** \copydoc IConfiguration::createResultVisitor */
     alignment::core::IAlignmentContainerVisitor* createResultVisitor ();
 
+    /** \copydoc IConfiguration::createAlignmentSplitter */
+    alignment::tools::IAlignmentSplitter* createAlignmentSplitter (
+        algo::core::IScoreMatrix* scoreMatrix,
+        int openGapCost,
+        int extendGapCost
+    );
+
+    /** \copydoc IConfiguration::createSemiGapAlign */
+    alignment::tools::ISemiGapAlign* createSemiGapAlign (
+        algo::core::IScoreMatrix* scoreMatrix,
+        int openGapCost,
+        int extendGapCost,
+        int Xdropoff
+    );
+
 protected:
 
     IEnvironment* _environment;

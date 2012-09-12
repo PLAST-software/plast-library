@@ -49,6 +49,12 @@
 #include <alignment/core/impl/BasicAlignmentContainer.hpp>
 #include <alignment/core/impl/NullAlignmentContainer.hpp>
 
+#include <alignment/tools/impl/AlignmentSplitter.hpp>
+#include <alignment/tools/impl/AlignmentSplitterBanded.hpp>
+
+#include <alignment/tools/impl/SemiGappedAlign.hpp>
+#include <alignment/tools/impl/SemiGappedAlignTraceback.hpp>
+
 #include <alignment/visitors/impl/MaxHitsPerQueryVisitor.hpp>
 #include <alignment/visitors/impl/OstreamVisitor.hpp>
 #include <alignment/visitors/impl/TabulatedOutputVisitor.hpp>
@@ -84,6 +90,8 @@ using namespace alignment::core::impl;
 using namespace alignment::filter;
 using namespace alignment::visitors;
 using namespace alignment::visitors::impl;
+using namespace alignment::tools;
+using namespace alignment::tools::impl;
 
 #include <iostream>
 #include <sstream>
@@ -690,6 +698,7 @@ IHitIterator* DefaultConfiguration::createFullGapHitIterator (
     {
         result = new FullGapHitIterator (
             source,
+            this,
             model,
             matrix,
             params,
@@ -716,6 +725,7 @@ IHitIterator* DefaultConfiguration::createFullGapHitIterator (
     {
         result = new FullGapHitIterator (
             source,
+            this,
             model,
             matrix,
             params,
@@ -757,6 +767,7 @@ IHitIterator* DefaultConfiguration::createCompositionHitIterator  (
     {
         result = new CompositionHitIterator (
             source,
+            this,
             model,
             matrix,
             params,
@@ -783,6 +794,7 @@ IHitIterator* DefaultConfiguration::createCompositionHitIterator  (
     {
         result = new CompositionHitIterator (
             source,
+            this,
             model,
             matrix,
             params,
@@ -899,6 +911,55 @@ IAlignmentContainerVisitor* DefaultConfiguration::createResultVisitor ()
 
     /** We return the result. */
     return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+alignment::tools::IAlignmentSplitter* DefaultConfiguration::createAlignmentSplitter (
+    algo::core::IScoreMatrix* scoreMatrix,
+    int openGapCost,
+    int extendGapCost
+)
+{
+    IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_SPLITTER);
+
+    if (prop && prop->value.compare("normal")==0)
+    {
+        return new AlignmentSplitter (scoreMatrix, openGapCost, extendGapCost);
+    }
+    else if (prop && prop->value.compare("banded")==0)
+    {
+        return new AlignmentSplitterBanded (scoreMatrix, openGapCost, extendGapCost);
+    }
+    else
+    {
+        return new AlignmentSplitterBanded (scoreMatrix, openGapCost, extendGapCost);
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+alignment::tools::ISemiGapAlign* DefaultConfiguration::createSemiGapAlign (
+    algo::core::IScoreMatrix* scoreMatrix,
+    int openGapCost,
+    int extendGapCost,
+    int Xdropoff
+)
+{
+    return new SemiGapAlign (scoreMatrix, openGapCost, extendGapCost, Xdropoff);
+    //return new SemiGapAlignTraceback (scoreMatrix, openGapCost, extendGapCost, Xdropoff);
 }
 
 /*********************************************************************
