@@ -149,7 +149,7 @@ void HspExtensionCmd::execute ()
          qryStart -= seqQry->offsetInDb;
          sbjStart -= seqSbj->offsetInDb;
 
-        int leftOffsetInQuery=0, leftOffsetInSubject=0, rightOffsetInQuery=0, rightOffsetInSubject=0;
+        u_int32_t leftOffsetInQuery=0, leftOffsetInSubject=0, rightOffsetInQuery=0, rightOffsetInSubject=0;
 
         int scoreRight=0, scoreLeft=0;
 
