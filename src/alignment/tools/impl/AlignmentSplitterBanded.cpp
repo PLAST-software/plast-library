@@ -277,6 +277,9 @@ size_t AlignmentSplitterBanded::splitAlign (
     nbHspOpen   = 0;
     isHspOpened = 1;
 
+    /** SHORTCUTS. */
+    LETTER anyLetter  = EncodingManager::singleton().getAlphabet(SUBSEED)->any;
+
     if (output.splittab)  {  (output.splittab)[nbHspOpen++] = qryLen - 1;  }
     if (output.splittab)  {  (output.splittab)[nbHspOpen++] = subLen - 1;  }
 
@@ -310,7 +313,7 @@ size_t AlignmentSplitterBanded::splitAlign (
         /******************** SUBSTITUTION ********************/
         if ((H0[j-1] + s) >= MAX (E1[j],F1[j]))
         {
-            if (l0 == l1)  { output.identity ++; }
+            if ( (l0 == l1) || (l0==anyLetter) || (l1==anyLetter))  { output.identity ++; }
             else           { output.nbMis    ++; }
 
             i--;
