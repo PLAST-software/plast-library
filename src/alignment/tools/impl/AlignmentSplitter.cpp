@@ -54,7 +54,7 @@ namespace impl      {
 *********************************************************************/
 AlignmentSplitter::AlignmentSplitter (IScoreMatrix* scoreMatrix, int openGapCost, int extendGapCost)
  : _scoreMatrix(0),
-   _openGapCost(openGapCost), _extendGapCost(extendGapCost), _band(3),
+   _openGapCost(openGapCost), _extendGapCost(extendGapCost), _band(2),
    _matrix_H (0), _matrix_E(0), _matrix_F(0),
    _DefaultAlignSize(1), _MaxAlignSize(6000)
 {
