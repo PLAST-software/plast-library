@@ -102,7 +102,7 @@ IAlignmentFilter* AlignmentFilterFactoryXML::createFilter (const char* name, ...
 {
     IAlignmentFilter* result = 0;
 
-    DEBUG (("AlignmentFilterFactoryXML::createFilter : uri='%s' \n", xmlFileUri.c_str() ));
+    DEBUG (("AlignmentFilterFactoryXML::createFilter : name='%s' \n", name));
 
     /** We will need a XML listener for getting XML nodes information during parsing. */
     XmlFilterListener listener;
