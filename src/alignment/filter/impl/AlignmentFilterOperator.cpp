@@ -18,12 +18,12 @@
 #include <designpattern/impl/Property.hpp>
 
 #include <stdio.h>
-#define DEBUG(a)  //printf a
+#define DEBUG(a)    //printf a
+#define VERBOSE(a)
 
 using namespace std;
 using namespace dp;
 using namespace dp::impl;
-using namespace boost;
 
 /********************************************************************************/
 namespace alignment {
@@ -78,7 +78,7 @@ bool AlignmentFilterBinaryOperator::isOk (const core::Alignment& align) const
 {
     bool result = false;
 
-    DEBUG (("AlignmentFilterBinaryOperator::isOk: size=%ld\n", _filters.size() ));
+    VERBOSE (("AlignmentFilterBinaryOperator::isOk: size=%ld\n", _filters.size() ));
 
     /** A little check. */
     if (_filters.empty())  { return false; }
@@ -94,7 +94,7 @@ bool AlignmentFilterBinaryOperator::isOk (const core::Alignment& align) const
         for (it++  ; result==true && it != _filters.end(); it++)  {  result = getResult (result, (*it), align);  }
     }
 
-    DEBUG (("AlignmentFilterBinaryOperator::isOk: result=%d\n", result ));
+    VERBOSE (("AlignmentFilterBinaryOperator::isOk: result=%d\n", result ));
 
     return result;
 }
@@ -156,12 +156,20 @@ dp::IProperties* AlignmentFilterBinaryOperator::getProperties ()
 ** REMARKS :
 *********************************************************************/
 AlignmentFilterRegexOperator::AlignmentFilterRegexOperator (const std::vector<std::string>& args)
-    : AlignmentFilterUnaryOperator<std::string>(args), _reg(0)
+    : AlignmentFilterUnaryOperator<std::string>(args), _reg(0), _regExtra(0)
 {
-    /** We use the PERL syntax by default. Note that we don't want to be case sensitive. */
-    _reg = new regex (_value.c_str(), boost::regex::perl | boost::regex::icase);
+    const char* pcreErrorStr = 0;
+    int pcreErrorOffset = 0;
 
-    DEBUG (("AlignmentFilterRegexOperator::AlignmentFilterRegexOperator   _value='%s'  \n", _value.c_str() ));
+    /** We compile the regexp. */
+    _reg = pcre_compile (_value.c_str(), 0, &pcreErrorStr, &pcreErrorOffset, NULL);
+
+    /** We optimize the regex. */
+    if (_reg != 0)  {  _regExtra = pcre_study (_reg, 0, &pcreErrorStr);  }
+
+    DEBUG (("AlignmentFilterRegexOperator::AlignmentFilterRegexOperator  _value='%s'  _reg=%p  _regExtra=%p\n",
+        _value.c_str(), _reg, _regExtra
+    ));
 }
 
 /*********************************************************************
@@ -174,7 +182,8 @@ AlignmentFilterRegexOperator::AlignmentFilterRegexOperator (const std::vector<st
 *********************************************************************/
 AlignmentFilterRegexOperator::~AlignmentFilterRegexOperator ()
 {
-    if (_reg)  { delete _reg; }
+    if (_reg)       {  pcre_free (_reg);        }
+    if (_regExtra)  {  pcre_free (_regExtra);   }
 
     DEBUG (("AlignmentFilterRegexOperator::~AlignmentFilterRegexOperator\n"));
 }

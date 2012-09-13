@@ -28,7 +28,7 @@
 #include <alignment/filter/api/IAlignmentFilter.hpp>
 #include <designpattern/impl/Property.hpp>
 #include <stdarg.h>
-#include <boost/regex.hpp>
+#include <pcre/pcre.h>
 
 /********************************************************************************/
 namespace alignment {
@@ -196,12 +196,14 @@ public:
     /** */
     AlignmentFilterRegexOperator (const std::vector<std::string>& args);
 
-    AlignmentFilterRegexOperator () : AlignmentFilterUnaryOperator<std::string>(), _reg(0)  {}
+    AlignmentFilterRegexOperator () : AlignmentFilterUnaryOperator<std::string>(), _reg(0), _regExtra(0) {}
 
     ~AlignmentFilterRegexOperator ();
 
 protected:
-    boost::regex* _reg;
+    pcre*       _reg;
+    pcre_extra* _regExtra;
+
 };
 
 /********************************************************************************/
@@ -244,10 +246,12 @@ protected:
         AlignmentFilter_##name ()   {} \
         AlignmentFilter_##name (const std::vector<std::string>& args) : AlignmentFilterRegexOperator (args)  {} \
         bool isOk (const core::Alignment& a) const { \
+            if (_reg==0)  { return false; } \
+            std::string tmp(regexp); /* Not optimal but we may call with const char* or std::string. */ \
             switch(_operator) \
             { \
-                case HOLD:      return boost::regex_search (regexp,*_reg) == true;\
-                case NO_HOLD:   return boost::regex_search (regexp,*_reg) == false;\
+                case HOLD:      return pcre_exec (_reg, _regExtra, tmp.c_str(), tmp.size(), 0, 0, NULL, 0) >= 0; \
+                case NO_HOLD:   return pcre_exec (_reg, _regExtra, tmp.c_str(), tmp.size(), 0, 0, NULL, 0) < 0;  \
                 default:        return false; \
             } \
         } \
