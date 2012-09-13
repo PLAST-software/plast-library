@@ -170,8 +170,8 @@ void UngapHitIteratorSSE8::iterateMethod (Hit* hit)
             LETTER* neighbour1 = occur1Vector.data[i]->neighbourhood.letters.data;
 
             /** We initialize score computation variables. */
-            vMaxScore = _mm_xor_si128 (vMaxScore, vMaxScore);
-            vscore    = _mm_xor_si128 (vscore, vscore);
+            vMaxScore = _mm_setzero_si128 ();
+            vscore    = _mm_setzero_si128 ();
 
             /** We compute the score for seed and right neighbourhood. */
             for (size_t k=0; k<sizeHalfNeighbour; k++)
