@@ -30,6 +30,8 @@
 #include <os/api/IResource.hpp>
 #include <os/api/ITime.hpp>
 
+#include <os/impl/DefaultOsFactory.hpp>
+
 #include <designpattern/impl/Property.hpp>
 
 #include <map>
@@ -103,6 +105,8 @@ private:
 class TimeInfo : public dp::SmartPointer
 {
 public:
+
+    TimeInfo () : _time(DefaultFactory::time())  { }
 
     TimeInfo (ITime& aTime) : _time(aTime)  { }
 
