@@ -100,7 +100,7 @@ protected:
         CountSeedsCmd (
             dp::impl::IteratorGet<const database::ISequence*>* it,
             DatabaseNucleotidIndex* ref
-        ) : IteratorCommand (it), _ref(ref)  {}
+        ) : dp::impl::IteratorCommand<const database::ISequence*> (it), _ref(ref)  {}
 
         void execute (const database::ISequence*& currentSequence, size_t& nbGot)
         {
@@ -117,7 +117,7 @@ protected:
 
     public:
         FillSeedsCmd (dp::impl::IteratorGet<const database::ISequence*>* it, DatabaseNucleotidIndex* ref)
-            : IteratorCommand (it), _ref(ref){}
+            : dp::impl::IteratorCommand<const database::ISequence*> (it), _ref(ref){}
 
         void execute (const database::ISequence*& currentSequence, size_t& nbGot)
         {
