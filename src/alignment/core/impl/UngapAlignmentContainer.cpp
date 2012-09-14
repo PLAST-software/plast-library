@@ -124,13 +124,20 @@ bool UngapAlignmentResult::insert (Alignment& align, void* context)
 
     if (splitter != 0)
     {
-        u_int32_t  splittab[10000];
+        /** We allocate a split table of size equals to 4 times 25% of the alignment length which is
+         *  at the end the length of the alignment.
+         * This is hugely oversized because the number of gaps is likely to be low compared to the alignment.
+         */
+        u_int32_t* splittab = (u_int32_t*) DefaultFactory::memory().calloc (align.getLength(), sizeof(u_int32_t));
+
         IAlignmentSplitter::SplitOutput output (splittab);
 
         size_t nbSplits = splitter->splitAlign (align, output);
 
-        /** A little check. */
-        if (nbSplits > 0  &&  nbSplits < ARRAYSIZE(splittab))
+        int threshold = 10;
+
+        /** A little check. We allow only when the gaps number is less than 10% of the number of residues. */
+        if (nbSplits > 0  && (4*align.getLength() > threshold*nbSplits))
         {
             u_int32_t q_start=0, q_stop=0, s_start=0, s_stop=0;
 
@@ -163,6 +170,9 @@ bool UngapAlignmentResult::insert (Alignment& align, void* context)
                 }
             }
         }
+
+        /** We get rid of resources. */
+        DefaultFactory::memory().free (splittab);
     }
 
     return result;
