@@ -58,25 +58,6 @@ BufferedCachedSequenceDatabase::BufferedCachedSequenceDatabase (ISequenceIterato
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-BufferedCachedSequenceDatabase::BufferedCachedSequenceDatabase (
-    const string& id,
-    ISequenceCache* cache,
-    size_t firstIdx,
-    size_t lastIdx
-)
-    :  BufferedSequenceDatabase (id, cache, firstIdx, lastIdx), _isBuilt(false)
-{
-    DEBUG (("BufferedCachedSequenceDatabase::BufferedCachedSequenceDatabase  this=%p  [%ld,%ld] \n", this, _firstIdx, _lastIdx));
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
 BufferedCachedSequenceDatabase::~BufferedCachedSequenceDatabase ()
 {
     DEBUG (("BufferedCachedSequenceDatabase::~BufferedCachedSequenceDatabase  this=%p  _sequences.size=%ld\n",

@@ -43,7 +43,7 @@ class ISequenceDatabase;
 /** \brief Genomic sequence definition.
  *
  *  We define here a central concept used by PLAST: a genomic sequence holding
- *  a series of nucleotids or amino acids.
+ *  a series of nucleotides or amino acids.
  *
  *  Such a sequence has also some kind of description (named 'comment' here) that
  *  can hold an identifier and a short descriptive text.
@@ -57,7 +57,7 @@ class ISequenceDatabase;
  */
 struct ISequence
 {
-    /** Constructor. */
+    /** Default constructor. */
     ISequence () : database(0), comment(""), index(0), offsetInDb(0), length(0) {}
 
     /** Constructor. */
@@ -81,13 +81,20 @@ struct ISequence
     /** Length of the sequence (shortcut). */
     u_int32_t           length;
 
-    /** */
+    /** Returns the length of the sequence.
+     * \return the sequence length. */
     u_int32_t getLength ()  const {  return data.letters.size > 0 ? data.letters.size : length;  }
 
-    /** */
+    /** Reutnrs a constant pointer to the raw data.
+     * \return the data pointer. */
     const LETTER* getData () const  { return data.letters.data; }
 
-    /** */
+    /** Return the identifier of the sequence, extracted from the full comment.
+     * Note: this is not an optimal implementation because we have to find each time
+     * where is the first separator. One could imagine some caching procedure for
+     * keeping this information after the database creation.
+     * \return the identifier.
+     */
     std::string getIdentifier () const
     {
         /** Not optimal... */
@@ -98,6 +105,10 @@ struct ISequence
     }
 
     /** Get id and definition of the sequence.
+     * \param[out] bufId  : the string holding the identifier
+     * \param[out] lenId  : the length of the identifier
+     * \param[out] bufDef : the string holding the definition
+     * \param[out] lenDef : the length of the definition
      */
     void retrieveIdAndDefinition (
         char* bufId,  size_t& lenId,
@@ -139,6 +150,9 @@ struct ISequence
     }
 
     /** Get id of the sequence.
+     * \param[out] bufId : the buffer holding the identifier
+     * \param[in] lenId : maximum size of the buffer
+     * \return actual length of the retrieved buffer
      */
     size_t  retrieveId (char* bufId,  size_t lenId) const
     {
@@ -168,6 +182,12 @@ struct ISequence
     }
 
     /********************************************************************************/
+
+    /** Input stream overload.
+     * \param[in] is : the input stream
+     * \param[in] seq : the sequence to be filled
+     * \return the input stream
+     */
     friend std::istream& operator>> (std::istream& is, ISequence& seq)
     {
         char c;
@@ -187,6 +207,12 @@ struct ISequence
     }
 
     /********************************************************************************/
+
+    /** Output stream overload.
+     * \param[in] os : the output stream
+     * \param[in] seq : the sequence to be dumped
+     * \return the output stream
+     */
     friend std::ostream& operator<< (std::ostream& os, const ISequence& seq)
     {
         char c = ' ';
@@ -195,6 +221,11 @@ struct ISequence
     }
 
     /********************************************************************************/
+
+    /** Looks for the first separator character in the sequence comment
+     * \param[in] comment : buffer to search the separator from
+     * \return the buffer beginning by the found separator, NULL if not found.
+     */
     static char* searchIdSeparator (const char* comment)
     {
 		/** A basic implementation would be to return strchr (comment, ' ');

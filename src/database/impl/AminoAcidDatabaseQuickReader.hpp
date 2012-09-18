@@ -36,10 +36,10 @@ namespace impl {
 /** \brief Implementation of IDatabaseQuickReader for amino acid database.
  *
  *  This class takes a IDatabaseQuickReader instance as a reference (reference supposed
- *  to point to a nucleotid database). The different getters are then proxies to the
+ *  to point to a nucleotide database). The different getters are then proxies to the
  *  reference. Most of the getters return the same information than the referenced instance
  *  but note for instance the 'getDataSize' method that divides by 3 the data size (which
- *  means that 3 nucleotids are needed to code an amino acid).
+ *  means that 3 nucleotides are needed to code an amino acid).
  *
  *  This class is a Proxy Design Pattern.
  */
@@ -48,7 +48,7 @@ class AminoAcidDatabaseQuickReader : public IDatabaseQuickReader
 public:
 
     /** Constructor.
-     * \param[in] ref : a IDatabaseQuickReader instance on a nucleotid database.
+     * \param[in] ref : a IDatabaseQuickReader instance on a nucleotide database.
      */
     AminoAcidDatabaseQuickReader (IDatabaseQuickReader* ref)  : _ref(0)   {  setRef (ref);  }
 
@@ -64,7 +64,7 @@ public:
     /** \copydoc IDatabaseQuickReader::getTotalSize */
     u_int64_t    getTotalSize   () { return _ref->getTotalSize();    }
 
-    /** Returns the total read size (including only sequences data). This is the data size of the nucleotid
+    /** Returns the total read size (including only sequences data). This is the data size of the nucleotide
      * reference divided by 3.
      * \return the total size.
      */
@@ -83,7 +83,7 @@ public:
 
 private:
 
-    /** Refered nucleotid instance. */
+    /** Referenced nucleotide instance. */
     IDatabaseQuickReader* _ref;
 
     /** Smart setter for the _ref attribute. */

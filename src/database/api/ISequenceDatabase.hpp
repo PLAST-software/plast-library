@@ -47,6 +47,8 @@ namespace database {
  *  It can also create ISequenceIterator instances, so it has both direct access to
  *  a specific sequence and also iterative access to sequences through a created
  *  iterator.
+ *
+ *  This is interface is a central point of the PLAST library.
  */
 class ISequenceDatabase : public dp::SmartPointer
 {
@@ -69,7 +71,10 @@ public:
      */
     virtual bool getSequenceByIndex (size_t index, ISequence& sequence) = 0;
 
-    /** Returns a sequence reference given its index.
+    /** Returns a sequence reference given its index. Note that all implementations may not support
+     * this feature; indeed, this feature supposes that all ISequences instances that makes the
+     * database are located in memory, so any reference on any of them is legal as long as the database
+     * itself is alive.
      * \param[in]  index : the index of the wanted sequence
      * \return a reference to the sequence if found, NULL otherwise
      */
@@ -90,7 +95,7 @@ public:
         u_int64_t& offsetInDatabase
     ) = 0;
 
-    /** Returns a sequence given a part of its string identifer (in the database).
+    /** Returns a sequence given a part of its string identifier (in the database).
      *  \param[in] id : part of the identifier
      *  \param[in] sequence : the filled sequence if successful
      * \return true if the sequence has been retrieved, false otherwise.

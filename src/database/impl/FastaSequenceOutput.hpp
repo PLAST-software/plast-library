@@ -44,6 +44,10 @@ namespace impl {
 
 /** \brief Dump sequences into a FASTA file
  *
+ * This class is a small utility for dumping sequences into an output FASTA file.
+ *
+ * Note: by now, the length of the data lines is set to 60 and is not a parameter
+ * of the constructor, which could be improved.
  */
 class FastaSequenceOutput : public dp::SmartPointer
 {
@@ -91,7 +95,6 @@ private:
     /** List of comments to be used for file dump. */
     const std::list<std::string> _comments;
 
-    /* */
     std::list<std::string>::const_iterator _itComments;
 };
 

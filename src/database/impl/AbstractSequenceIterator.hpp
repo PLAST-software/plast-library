@@ -88,7 +88,7 @@ private:
     /** Encoding scheme. */
     Encoding          _encoding;
 
-    /** */
+    /** The identifier string. */
     std::string _id;
 };
 

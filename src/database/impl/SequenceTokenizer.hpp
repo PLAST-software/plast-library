@@ -42,6 +42,8 @@ namespace impl {
 /** \brief Tokenizer that splits a sequence in valid sub sequences (with valid letters)
  *
  * It is also possible to retrieve the actual set of iterated items as a vector of indexes pairs.
+ *
+ *  OBSOLETE CLASS.
  */
 class SequenceTokenizer : public dp::Iterator<std::pair<size_t,size_t>& >
 {

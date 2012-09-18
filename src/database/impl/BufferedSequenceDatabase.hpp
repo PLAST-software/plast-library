@@ -40,7 +40,7 @@ namespace database {
 namespace impl {
 /********************************************************************************/
 
-/** \brief ISequenceDatabase implementation with all data kept in RAM.
+/** \brief ISequenceDatabase implementation with memory cache.
  *
  *  This class implements the ISequenceDatabase interface by keeping the whole database
  *  in memory.
@@ -50,10 +50,10 @@ namespace impl {
  *
  *  The cache is built from some sequence iterator by providing to this iterator a ISequenceBuilder instance.
  *  When the iteration is done, the builder has finished to build the full cache. Note that the iterator
- *  is release once the cache has been fully built.
+ *  is released once the cache has been fully built.
  *
- *  From this cache, the BufferedSequenceDatabase class can extract information to be compliant
- *  to the ISequenceDatabase interface.
+ *  From this cache, the BufferedSequenceDatabase class can extract information that fulfills the
+ *  ISequenceDatabase interface.
  *
  *  Code sample:
  *  \code

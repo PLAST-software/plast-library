@@ -15,12 +15,11 @@
  *****************************************************************************/
 
 /** \file ReverseStrandSequenceIterator.hpp
- *  \brief Sequence iterator for one reading frame
+ *  \brief Sequence iterator of the reverse strand
  *  \date 07/11/2011
  *  \author edrezen
  *
- * Provides a way to iterate amino acid sequences from an iterator on nucleotid
- * sequences.
+ * Provides a way to iterate the reverse strand of nucleotides sequences.
  */
 
 #ifndef _REVERSE_STRAND_SEQUENCE_ITERATOR_HPP_
@@ -43,14 +42,36 @@ namespace database {
 namespace impl {
 /********************************************************************************/
 
-/** \brief ISequenceIterator on amino acid sequences from an iterator on nucleotids
+/** \brief ISequenceIterator on reverse strand of nucleotides sequences
+ *
+ * This iterator takes as input an ISequenceIterator (supposed to provide
+ * nucleotides sequences), and provides as output the reverse strand of each
+ * sequence of the input iterator.
+ *
+ * \code
+ * void foo ()
+ * {
+ *      // we read a nucleotides FASTA database
+ *      ISequenceIterator* nuclIt = new FastaSequenceIterator ("adn.fa");
+ *
+ *      // we create an iterator that reverse the incoming sequences
+ *      ISequenceIterator* reverseIt = new ReverseStrandSequenceIterator (nuclIt);
+ *
+ *      // we loop our reversed sequences
+ *      for (reverseIt->first(); !reverseIt->isDone(); reverseIt->next())
+ *      {
+ *          const ISequence* seq = reverseIt->currentItem();  // should be the reversed strand of the initial sequence
+ *      }
+ * }
+ * \endcode
+ *
  */
 class ReverseStrandSequenceIterator : public AbstractSequenceIterator
 {
 public:
 
     /** Constructor.
-     * \param[in] nucleotidIter : iterator over the nucleotid sequences.
+     * \param[in] nucleotidIter : iterator over the nucleotide sequences.
      */
 	ReverseStrandSequenceIterator (ISequenceIterator* nucleotidIter);
 
@@ -95,12 +116,12 @@ private:
 
 /********************************************************************************/
 
-/** */
+/** \brief Implementation that returns instances of ReverseStrandSequenceIterator.
+ */
 class ReverseStrandSequenceIteratorFactory  : public ISequenceIteratorFactory
 {
 public:
-    /** Create a sequence iterator given an uri (and a range).
-     */
+    /** \copydoc ISequenceIteratorFactory::createSequenceIterator  */
     virtual ISequenceIterator* createSequenceIterator (const std::string& uri, const misc::Range64& range)
     {
         return new ReverseStrandSequenceIterator (new FastaSequenceIterator (uri.c_str(), 64*1024, range.begin, range.end));

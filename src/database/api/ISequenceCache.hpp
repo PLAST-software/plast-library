@@ -40,7 +40,7 @@ namespace database {
  *
  *  This class provides attributes containing sequences information in a flat format, which means:
  *     - all sequences comments are contained in a vector
- *     - the whole sequences datas are concatenated in a single table
+ *     - the whole sequences data are concatenated in a single table
  *     - an array of offsets allows to find the start of a sequence in the whole sequences data table.
  */
 class ISequenceCache : public dp::SmartPointer

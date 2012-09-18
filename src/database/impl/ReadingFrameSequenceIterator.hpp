@@ -19,7 +19,7 @@
  *  \date 07/11/2011
  *  \author edrezen
  *
- * Provides a way to iterate amino acid sequences from an iterator on nucleotid
+ * Provides a way to iterate amino acid sequences from an iterator on nucleotide
  * sequences.
  */
 
@@ -41,12 +41,29 @@ namespace database {
 namespace impl {
 /********************************************************************************/
 
-/** \brief ISequenceIterator on amino acid sequences from an iterator on nucleotids
+/** \brief ISequenceIterator on amino acid sequences from an iterator on nucleotides
  *
- *  This class implements sequences iterator on amino acid sequences from an iterator on nucleotids
+ *  This class implements sequences iterator on amino acid sequences from an iterator on nucleotides
  *  for a given reading frame.
  *
  *  This is the kind of sequence iterator created by the ReadingFrameSequenceDatabase class.
+ *
+ * \code
+ * void foo ()
+ * {
+ *      // we read a nucleotides FASTA database
+ *      ISequenceIterator* nuclIt = new FastaSequenceIterator ("adn.fa");
+ *
+ *      // we create an iterator that will interpret the nucleotides iterator as amino acids for the first reading frame
+ *      ISequenceIterator* aaIt = new ReadingFrameSequenceIterator (FRAME_1, nuclIt);
+ *
+ *      // we loop our amino acids sequences
+ *      for (aaIt->first(); !aaIt->isDone(); aaIt->next())
+ *      {
+ *          const ISequence* seq = aaIt->currentItem();  // should be an amino acids sequence
+ *      }
+ * }
+ * \endcode
  *
  *  \see ReadingFrameSequenceDatabase
  */
@@ -55,8 +72,8 @@ class ReadingFrameSequenceIterator : public AbstractSequenceIterator
 public:
 
     /** Constructor.
-     * \param[in] frame : opening reading frame used for translating the referenced nucleotid database
-     * \param[in] nucleotidIter : iterator over the nucleotid sequences.
+     * \param[in] frame : opening reading frame used for translating the referenced nucleotide database
+     * \param[in] nucleotidIter : iterator over the nucleotide sequences.
      */
     ReadingFrameSequenceIterator (misc::ReadingFrame_e frame, ISequenceIterator* nucleotidIter);
 
@@ -83,7 +100,7 @@ private:
     /** The reading frame used for conversion. */
     misc::ReadingFrame_e _frame;
 
-    /** Reference on the nucleotid sequences iterator. */
+    /** Reference on the nucleotide sequences iterator. */
     ISequenceIterator* _nucleotidIter;
 
     /** Smart setter for the_nucleotidIter attribute. */

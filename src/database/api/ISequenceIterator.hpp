@@ -87,11 +87,15 @@ protected:
 
 /********************************************************************************/
 
-/** */
+/** \brief Interface of a Factory that builds ISequenceIterator instances.
+ */
 class ISequenceIteratorFactory : public dp::SmartPointer
 {
 public:
     /** Create a sequence iterator given an uri (and a range).
+     * \param[in] uri   : uri of the sequence iterator to be built.
+     * \param[in] range : range of offsets to be used for parsing the uri
+     * \return the created ISequenceIterator instance
      */
     virtual ISequenceIterator* createSequenceIterator (const std::string& uri, const misc::Range64& range) = 0;
 };

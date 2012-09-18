@@ -46,6 +46,9 @@ namespace impl {
  *  Instead of having several databases, one may want to have a 'parent' database
  *  that seems to be composed of our initial several databases. In that sense, we
  *  want to have a composite database.
+ *
+ *  With this feature, iterating the 'parent' database consists in iterating each
+ *  child database.
  */
 class CompositeSequenceDatabase : public ISequenceDatabase
 {
@@ -128,7 +131,6 @@ private:
     std::vector <u_int32_t> _sequencesOffsets;
     std::vector <u_int64_t> _databasesOffsets;
 };
-
 
 /********************************************************************************/
 

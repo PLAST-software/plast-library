@@ -34,19 +34,36 @@ namespace database {
 namespace impl {
 /********************************************************************************/
 
-/** \brief ISequenceDatabase implementation with all data kept in RAM.
-  */
+/** \brief ISequenceDatabase implementation with all data kept in memory.
+ *
+ * This implementation inherits from BufferedSequenceDatabase, which maintains
+ * all data in a cache, but doesn't keep a vector of ISequence in order to provide
+ * the getSequenceRefByIndex service.
+ *
+ * Here, we implement the getSequenceRefByIndex by using such a vector that is built
+ * during construction.
+ *
+ * Note: it should be the implementation of choice for the ISequenceDatabase interface
+ * in terms of speed, in particular due to the direct access to a ISequence through the
+ * getSequenceRefByIndex method. As a matter of fact, this method may be called quite
+ * often by some indexation implementations.
+ *
+ * \see BufferedSequenceDatabase
+ */
 class BufferedCachedSequenceDatabase : public BufferedSequenceDatabase
 {
 public:
 
-    /** */
+    /** Constructor.
+     * \param[in] refIterator : sequence iterator used for building the database.
+     * \param[in] filterLowComplexity : true means that we want to remove regions with low complexity.
+     */
     BufferedCachedSequenceDatabase (ISequenceIterator* refIterator, bool filterLowComplexity);
 
     /** Destructor. */
     virtual ~BufferedCachedSequenceDatabase ();
 
-    /** */
+    /** \copydoc BufferedSequenceDatabase::getSequenceRefByIndex */
     ISequence* getSequenceRefByIndex (size_t index)
     {
         return (index < _sequences.size() ? _sequences[index] : NULL);
@@ -58,19 +75,13 @@ public:
 
 private:
 
-    /** */
-    BufferedCachedSequenceDatabase (
-        const std::string& id,
-        ISequenceCache* cache,
-        size_t firstIdx,
-        size_t lastIdx
-    );
-
-    /** */
+    /** Boolean telling whether the ISequence vector has been built or not. */
     bool _isBuilt;
+
+    /** Build the ISequence vector. */
     void buildSequencesCache (void);
 
-    /** */
+    /** Vector holding all ISequence instances of the database. */
     std::vector<ISequence*> _sequences;
 
     /********************************************************************************/
@@ -81,32 +92,44 @@ private:
     {
     public:
 
+        /** Constructor.
+         * \param[in] db : the database to be iterated.
+         * \param[in] firstIdx : index of the first sequence to be iterated
+         * \param[in] lastIdx  : index of the last sequence to be iterated.
+         */
         BufferedCachedSequenceIterator (BufferedCachedSequenceDatabase* db, size_t firstIdx, size_t lastIdx)
             : _db(db), _firstIdx(firstIdx), _lastIdx(lastIdx), _currentIdx(0)
         {
         }
 
+        /** Destructor. */
         ~BufferedCachedSequenceIterator ()  { }
 
+        /** \copydoc AbstractSequenceIterator::first */
         void first()
         {
             _currentIdx = _firstIdx;
         }
 
+        /** \copydoc AbstractSequenceIterator::next */
         dp::IteratorStatus  next()
         {
             _currentIdx ++;
             return dp::ITER_UNKNOWN;
         }
 
+        /** \copydoc AbstractSequenceIterator::isDone */
         bool isDone()  { return _currentIdx > _lastIdx;                           }
+
+        /** \copydoc AbstractSequenceIterator::currentItem */
         const ISequence* currentItem ()  { return _db->_sequences[_currentIdx];   }
 
+        /** \copydoc AbstractSequenceIterator::clone */
         ISequenceIterator* clone ()  {  return new BufferedCachedSequenceIterator (_db, _firstIdx, _lastIdx);  }
 
     private:
 
-        /** */
+        /** Reference on the database to be iterated. */
         BufferedCachedSequenceDatabase* _db;
 
         size_t _firstIdx;

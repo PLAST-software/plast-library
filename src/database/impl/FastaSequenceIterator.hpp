@@ -45,6 +45,20 @@ namespace impl {
  *  It is also possible to set a range to be read in the file. This range is given
  *  by two offsets (begin, end); such offsets may have been computed through the
  *  IDatabaseQuickReader::getOffsets method. If (0,0) is provided, the full file is read.
+ *
+ *  \code
+ *  void foo ()
+ *  {
+ *      // We create a FASTA iterator
+ *      FastaSequenceIterator itSeq ("myDb");
+ *      for (itSeq.first(); !itSeq.isDone(); itSeq.next())
+ *      {
+ *          // We can retrieve the current sequence
+ *          const ISequence* seq = itSeq.currentItem();
+ *      }
+ *  }
+ *  \endcode
+ *
  */
 class FastaSequenceIterator : public AbstractSequenceIterator
 {
@@ -53,8 +67,8 @@ public:
     /** Constructor.
      * \param[in] filename : path of the FASTA file to be read.
      * \param[in] commentMaxSize : maximum size of sequences comments
-     * \param[in] offset0 : starting offset
-     * \param[in] offset1 : ending offset
+     * \param[in] offset0 : starting offset in the file
+     * \param[in] offset1 : ending offset in the file
      */
     FastaSequenceIterator (
         const char* filename,
@@ -95,15 +109,17 @@ private:
 
 /********************************************************************************/
 
-/** */
+/** \brief Implementation of ISequenceIteratorFactory interface.
+ *
+ * This implementation creates FastaSequenceIterator instances.
+ */
 class FastaSequenceIteratorFactory  : public ISequenceIteratorFactory
 {
 public:
-    /** Create a sequence iterator given an uri (and a range).
-     */
+    /** \copydoc ISequenceIteratorFactory::createSequenceIterator */
     virtual ISequenceIterator* createSequenceIterator (const std::string& uri, const misc::Range64& range)
     {
-        return new FastaSequenceIterator (uri.c_str(), 64*1024, range.begin, range.end);
+        return new FastaSequenceIterator (uri.c_str(), 128*1024, range.begin, range.end);
     }
 };
 

@@ -41,10 +41,39 @@ namespace impl {
  *  Implementation of IDatabaseQuickReader interface for FASTA format. Should be
  *  as fast as possible.
  *
- *  Note that we can try to find what kind of genomic database it is (nucleotids or
+ *  Note that we can try to find what kind of genomic database it is (nucleotides or
  *  amino acids). This may be useful for PLAST users because it allows not to specify
  *  the kind of algorithm (protein/protein, ADN/protein...) only by analyzing subject
  *  and query databases contents.
+ *
+ *  The following sample shows how to read a FASTA database with a quick reader by blocks
+ *  of 10 MBytes, then creating FASTA iterators for each found ranges of blocks (about)
+ *  10 MBytes.
+ *
+ *  \code
+ *  void foo ()
+ *  {
+ *      // We create the database reader
+ *      IDatabaseQuickReader* reader = new FastaDatabaseQuickReader ("myDb", true, false);
+ *
+ *      // We read the database by blocks of 10 MBytes
+ *      reader.read (10*1024*1024);
+ *
+ *      vector<u_int64_t>& offsets = reader.getOffsets();
+ *
+ *      // Now, we loop over all found offsets ranges
+ *      for (size_t i=0; i<offsets.size()-1; i++)
+ *      {
+ *          // We create a FASTA iterator for the current range.
+ *          FastaSequenceIterator itSeq ("myDb", 64*1024, offsets[i], offsets[i+1]);
+ *          for (itSeq.first(); !itSeq.isDone(); itSeq.next())
+ *          {
+ *              // We can retrieve the current sequence
+ *              const ISequence* seq = itSeq.currentItem();
+ *          }
+ *      }
+ *  }
+ *  \endcode
  */
 class FastaDatabaseQuickReader : public IDatabaseQuickReader
 {
@@ -52,7 +81,9 @@ public:
 
     /** Constructor.
      * \param[in] uri : uri of the FASTA file to be read.
-     * \param[in] shouldInferType : tells whether we should try to find the kind of genomic database we read. */
+     * \param[in] shouldInferType : tells whether we should try to find the kind of genomic database we read.
+     * \param[in]  getOnlyType : if true, parse only a few residues in order to get the type; if false, parse the whole database.
+     */
     FastaDatabaseQuickReader (const std::string& uri, bool shouldInferType, bool getOnlyType=false);
 
     /** Destructor. */
@@ -101,10 +132,10 @@ private:
     /** Offsets of beginning of sequences in the file. */
     std::vector<u_int64_t> _offsets;
 
-    /** Threshold for infering database kind. */
+    /** Threshold for inferring database kind. */
     int32_t _readThreshold;
 
-    /** Number of nucleotids. */
+    /** Number of nucleotides. */
     u_int32_t _nbNucleotids;
 
     /** Number of amino acids. */

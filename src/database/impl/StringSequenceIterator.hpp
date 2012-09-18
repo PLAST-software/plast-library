@@ -41,7 +41,7 @@ namespace impl {
 /** \brief Sequence iterator parsing a simple string
  *
  * Implementation of the ISequenceIterator interface by parsing a simple string
- * holding letters (nucleotids or amino acids).
+ * holding letters (nucleotides or amino acids).
  *
  * Note that the comments of the iterated ISequence instances are fake.
  *

@@ -41,7 +41,7 @@ class ISequence;
 /********************************************************************************/
 /** \brief Interface that can modify a ISequence instance internals
  *
- * The ISequence structure just holds information but doesn't explain how to instanciate objects.
+ * The ISequence structure just holds information but doesn't explain how to instantiate objects.
  *
  * This interface provides means for building the content (comment and data) of a ISequence instance.
  * In that sense, it can be seen as a Builder Design Pattern, where instances of ISequence are built
