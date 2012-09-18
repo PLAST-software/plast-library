@@ -33,13 +33,39 @@ namespace dp {
 namespace impl {
 /********************************************************************************/
 
-/** \brief
-  */
+/** \brief Iterator that splits a range in several range of given size.
+ *
+ *  This class is useful for splitting some integer range into small parts of given size.
+ *
+ * \code
+ * void foo ()
+ * {
+ *     // We create some range.
+ *     Range<u_int32_t> r (1,1000);
+ *
+ *     // We create an iterator on this range with step 100
+ *     RangeIterator it (r, 100, 0);
+ *
+ *     // We loop over the sub ranges
+ *     size_t nbRetrieved = 0;
+ *     Range<u_int32_t> loop;
+ *
+ *     while (it.retrieve (loop,nbRetrieved) == true)
+ *     {
+ *          // here we should get ranges [1,100], [101,200], ...
+ *     }
+ * }
+ *
+ * \endcode
+ */
 template <class T> class RangeIterator : public SmartPointer
 {
 public:
 
     /** Constructors.
+     * \param[in] range : the range to be split
+     * \param[in] step : size of the sub ranges to be iterated
+     * \param[in] synchro : if provided, used for protecting from concurrent access
      */
     RangeIterator (const misc::Range<T>& range, T step, os::ISynchronizer* synchro)
         : _range(range),  _step(step), _synchro(synchro), _nbItems(0), _nbRetrieved(0)
@@ -60,10 +86,16 @@ public:
         if (_synchro)  { delete _synchro; }
     }
 
-    /** */
+    /** Return the number of sub ranges to be iterated.
+     * \return the number of ranges
+     */
     size_t getNbItems ()  {  return _nbItems;  }
 
-    /** */
+    /** Retrieve the current iterated range.
+     * \param[in] range : the retrieved iterated range
+     * \param[in] nbRetrieved : the number of ranges iterated so far
+     * \return false if the iteration is finished, false otherwise.
+     */
     bool retrieve (misc::Range<T>& range, size_t& nbRetrieved)
     {
         bool result = false;

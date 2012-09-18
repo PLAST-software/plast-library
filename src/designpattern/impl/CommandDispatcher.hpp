@@ -94,6 +94,18 @@ private:
  *  This implementation launches commands through different ICommandInvoker => parallelization.
  *  A provided ICommandInvokerFactory is used for creating ICommandInvoker instances.
  *
+ *  This implementation of ICommandDispatcher is central in the PLAST design because it allows
+ *  to uses all available cores. If one knows the number N of available cores on the computer,
+ *  one has just to split some job by creating N ICommand instances and then just dispatch these
+ *  commands through a ParallelCommandDispatcher: each command will be launched in a separated
+ *  thread, and, thanks to the operating system architecture, each thread should be processed
+ *  on an available core.
+ *
+ *  Note: it wouldn't be reasonable to use more ICommand instances than available cores.
+ *  By default, if the number of dispatching units is not provided in the constructor of
+ *  ParallelCommandDispatcher, it retrieves the number of available cores through the
+ *  DefaultFactory::thread().getNbCores() method, and uses it as default value. This means
+ *  that default constructor will use by default the whole CPU multicore power.
  */
 class ParallelCommandDispatcher : public ICommandDispatcher
 {
@@ -126,9 +138,13 @@ private:
 
 /********************************************************************************/
 
-/** \brief Launches commands in current threads
+/** \brief Launches commands in current thread
  *
- * A dispatcher that uses the calling thread, so no parallization.
+ * A dispatcher that uses the calling thread, so no parallelization.
+ *
+ * This implementation can be useful to process ICommand instances in an serial way
+ * when it is required, while keeping an uniform API (ie. call dispatchCommands)
+ * for running ICommand instances.
  */
 class SerialCommandDispatcher : public ICommandDispatcher
 {

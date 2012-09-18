@@ -37,6 +37,27 @@ namespace impl {
  *
  *   This class provides a constructor that can read a file holding properties as [key,value] entries
  *   (one per line). This is useful for instance for managing a configuration file.
+ *
+ * Sample of use:
+ * \code
+ * void sample ()
+ * {
+ *      // we create a IProperties instance.
+ *      IProperties* props = new Properties ();
+ *
+ *      // we add some entries. Note the different depth used: we have a root property having 3 children properties.
+ *      props->add (0, "root", "");
+ *      props->add (1, "loud",   "len=%d", 3);
+ *      props->add (1, "louder", "great");
+ *      props->add (1, "stop",   "[x,y]=[%f,%f]", 3.14, 2.71);
+ *
+ *      // we create some visitor for dumping the props into a XML file
+ *      IPropertiesVisitor* v = new XmlDumpPropertiesVisitor ("/tmp/test.xml");
+ *
+ *      // we accept the visitor; after that, the output file should have been created.
+ *      props->accept (v);
+ * }
+ * \endcode
  */
 class Properties : public IProperties
 {
@@ -150,6 +171,12 @@ private:
 /********************************************************************************/
 
 /** \brief Raw dump of a IProperties instance.
+ *
+ * This file format is simply a list of lines, with each line holding the key and the value
+ * (separated by a space character). Note that the depth information is lost.
+ *
+ * This kind of output is perfect for keeping properties in a configuration file for instance.
+ * This is used by PLAST for its configuration file '.plastrc'
  */
 class RawDumpPropertiesVisitor : public IPropertiesVisitor
 {

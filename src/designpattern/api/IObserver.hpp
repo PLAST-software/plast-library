@@ -44,7 +44,7 @@ typedef u_int32_t InterfaceId;
 
 /********************************************************************************/
 
-/** \brief Piece of information attached to a notification.
+/** \brief Piece of information linked to a notification.
  *
  *  The EventInfo class is intended to be received by clients during a notification.
  *  Subclasses are meant to provide specific information related to specific notifications.
@@ -80,18 +80,22 @@ protected:
 /** \brief Interface of the Observer Design Pattern.
  *
  *  The Observer Design Pattern is an object oriented way for managing a notification
- *  system in a software.
+ *  system in a software. This is an extremely useful pattern because it allows
+ *  the communication between software components without having strong dependencies
+ *  between them.
  *
  *  For instance, PLAST sends notifications about its progression. This is useful for
  *  potential clients that want to know whether they have to wait a long time before
- *  the algorithm finishes.
+ *  the algorithm finishes. The important point is that PLAST is not polluted by clients
+ *  concerns, it just notifies some information, without even know who in particular will
+ *  receive the information.
  *
  *  This interface merely defines an 'update' method that can be called by some subjects
- *  for telling that some notification is occuring. Some information can be provided to
+ *  for telling that some notification is occurring. Some information can be provided to
  *  the IObserver instance through an EventInfo instance.
  *
  *  Note that the subject that initiated the notification is also provided to the observer.
- *  This may be useful for discrimating some unwanted behavior, for instance the IObserver
+ *  This may be useful for discriminating some unwanted behavior, for instance the IObserver
  *  being itself the subject.
  *
  *  \see ISubject

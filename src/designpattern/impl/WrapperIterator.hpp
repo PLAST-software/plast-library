@@ -35,6 +35,21 @@ namespace impl {
 /** \brief  String wrapper as an Iterator.
  *
  *  Tool for wrapping a string in sub strings of N characters.
+ *
+ *  \code
+ *  void foo ()
+ *  {
+ *      // We create an wrapper on a string, in order to split it in substrings of size 10
+ *      WrapperIterator it ("EFLMDIFJDFMLSIHDFOAIEJFEOIFHMSLDIFJODUFHSLDKFUGMAEIF", 10);
+ *
+ *      // We loop over each sub strings
+ *      for (it.first(); ! it.isDone(); it.next())
+ *      {
+ *          // We can retrieve the current sub string.
+ *          const char* current = it.currentItem();
+ *      }
+ *  }
+ *  \endcode
  */
 class WrapperIterator : public Iterator<const char*>
 {

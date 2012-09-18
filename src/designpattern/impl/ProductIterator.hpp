@@ -38,7 +38,9 @@ namespace impl {
  * We define a "product" iterator for two iterators, i.e. it will loop each possible
  * couple of the two provided iterators.
  *
- *  It is useful for having only one loop instead of two loops.
+ *  It is useful for having only one loop instead of two loops. Note however that it
+ *  may still be more efficient to have two loops. The ProductIterator is just here
+ *  for easing the product iteration on small sets.
  */
 template <class T1, class T2> class ProductIterator : public Iterator<std::pair<T1,T2>&>
 {
@@ -127,12 +129,52 @@ private:
 
 /** \brief Iterator over several iterators of same type.
  *
- * We define a "product" iterator for several iterators that iterate the same kind of objects.
+ * We define a cartesian iterator for several iterators that iterate the same kind of objects.
  *
- *  It is useful for having only one loop instead of two loops.
+ *  It is useful for having only one loop instead of several loops. Note however the constraint:
+ *  each provided iterator must iterate the same kind of objects.
+ *
+ *  This is a generalization of the ProductIterator class with the distinction that the ProductIterator
+ *  can iterate the product of two iterators having different kinds of objects.
+ *
+ *  \code
+ *  void foo ()
+ *  {
+ *      const char* sep = ",";
+ *
+ *      // We create three iterators
+ *      TokenizerIterator it1 ("a,b,c,d", sep);
+ *      TokenizerIterator it2 ("1,2,3",   sep);
+ *      TokenizerIterator it3 ("X,Y",     sep);
+ *
+ *      // We build a list holding the three iterators.
+ *      list <Iterator<char*>* > itList;
+ *      itList.push_back (&it1);
+ *      itList.push_back (&it2);
+ *      itList.push_back (&it3);
+ *
+ *      // We define an iterator that will iterate on the product of the three iterators.
+ *      // Here, each iterated item will be a list of char*
+ *      CartesianIterator <char*> p (itList);
+ *
+ *      // We loop over the cartesian iterator. Note that we have only one iteration loop
+ *      for (p.first(); ! p.isDone(); p.next())
+ *      {
+ *          // We retrieve the current item as a list of char*
+ *          list<char*>& current = p.currentItem();
+ *
+ *          // We can display the guts of our iteration current item.
+ *          for (list<char*>::iterator itStr = current.begin(); itStr != current.end() ; itStr++)
+ *          {
+ *              printf ("%s ", *itStr);
+ *          }
+ *          printf ("\n");
+ *      }
+ * }
+ *  \endcode
  */
 
-template <typename T1, typename T2> class CartesianIterator : public dp::Iterator <std::list<T2>& >
+template <typename T1> class CartesianIterator : public dp::Iterator <std::list<T1>& >
 {
 public:
 
@@ -172,7 +214,7 @@ public:
         return _isDone;
     }
 
-    std::list<T2>& currentItem()
+    std::list<T1>& currentItem()
     {
         _currentItem.clear ();
 
@@ -187,7 +229,7 @@ public:
 private:
    std::list<Iterator<T1>*>& _itList;
 
-    std::list<T2> _currentItem;
+    std::list<T1> _currentItem;
 
     bool _isDone;
 };

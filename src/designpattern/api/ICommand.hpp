@@ -96,14 +96,14 @@ public:
  *
  * It also provides a tool for creating a list of commands from a list of factories.
  * This may be useful for classes that need some data whose retrieval may take a long time.
- * Instead of being themself a ICommand, they delegate the data retrieval to some ICommand
- * that they know how to instanciate.
+ * Instead of being themselves a ICommand, they delegate the data retrieval to some ICommand
+ * that they know how to instantiate.
  */
 class ICommandFactory : public SmartPointer
 {
 public:
 
-    /** Create a command. A name is provided for discriminating the kind of ICommand to be instanciated.
+    /** Create a command. A name is provided for discriminating the kind of ICommand to be instantiated.
      * \param[in] name : name used for solving the type of ICommand to create
      * \return the created command if any.
      */
@@ -177,6 +177,18 @@ public:
  *  a list of ICommand instances, each of them iterating a set of seeds. It has then just to
  *  use a ICommandDispatcher instance for launching the whole iterators and therefore, parallelization
  *  of the algorithm is just a matter of choice in a specific implementation of this interface.
+ *
+ *  Note that this interface could also be implemented for dispatching commands over a network in order
+ *  to use a grid of computers. We could imagine that the commands dispatching consists in
+ *  launching some RCP calls, or creating some web services calls. The important point is that, from the
+ *  client point of view, her/his code should not change, except the actual kind of ICommandDispatcher instance
+ *  provided to the algorithm.
+ *
+ *  According to the previous note, PLAST is a good candidate for network dispatching. Indeed, when databases
+ *  to be compared are too big to be in memory, they are split in small blocks and the full PLAST algorithm
+ *  consists in a list of ICommand, each of them dealing with some couple of databases blocks. With the appropriate
+ *  "network" command dispatcher, this list of commands could be processed over a network without modifying
+ *  the current PLAST algorithm.
  *
  *  Sample of use:
  *  \code

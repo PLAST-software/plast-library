@@ -82,6 +82,38 @@ enum IteratorStatus
  *      MyType* item = it->currentItem ();
  *   }
  *  \endcode
+ *
+ *
+ *  A remark on the STL: the Standard Template Library provides also the iterator concept. For instance, one could write:
+ *  \code
+ *   std::list<MyType*> l;
+ *
+ *   // we suppose here that we add some items to the list.
+ *
+ *   for (std::list<MyType*>::iterator it = l.begin(); it != l.end(); it++)
+ *   {
+ *      // retrieve the current item of some type
+ *      MyType* item = *it;
+ *   }
+ *  \endcode
+ *
+ *  We can see the following differences with our own iterator.
+ *   \li the iteration loop with the STL needs to know the iterated list, through the beginning iterator 'l.begin()'
+ *   and the ending iterator 'l.end()'. In our case, we don't have any reference of the iterated container, we can see
+ *   only a reference on the iterator itself.
+ *   \li the iteration loop with the STL makes apparent the actual type of the container ('list' in the example), which
+ *   is not the case for our iterator, where we can see only the type of the iterated items.
+ *   \li the STL iterators can only iterate contents of containers, ie. some items already in memory. Our iterator concept
+ *   is more general because it can iterate items that it builds on the fly, without having the whole items mounted in memory.
+ *   A typical use is the parsing of a huge FASTA database (say 8 GBytes for instance). With a STL iterator, we should have
+ *   the whole sequences lying in some containers before iterating them; with our iterator, it is enough to know a sequence
+ *   at a given time. Note however that clients of such iterators must not reference a sequence that is transient by nature.
+ *   In such a case, clients have to copy, if needed, the iterated sequence for some local work.
+ *
+ *  In brief, our iterator encapsulates more information that the STL iterator, allows to iterate potential containers (versus
+ *  actual containers) and may be easier to use.
+ *
+ *  Moreover, we can use our iterator as a basis for other ways for iteration. See \ref dp::impl::IteratorGet
  */
 template <class Item> class Iterator : public SmartPointer
 {
@@ -124,16 +156,27 @@ public:
 
 /********************************************************************************/
 
-/** Iterators that can return the number of items it can iterate.
+/** \brief Iterators that can return the number of items it can iterate.
+ *
+ *  In general, an iterator is not supposed to know the number of items it is about
+ *  to iterate. For instance, when parsing a FASTA file with a FastaSequenceIterator,
+ *  we are aware of the number of items at the end of the iteration.
+ *
+ *  In some case, when the set of items to be iterated is known (read "is in memory"),
+ *  we can reach the number of items before the iteration.
+ *
+ *  This SmartIterator interface improves the Iterator interface in that way by providing
+ *  a 'size' method returning the number of items.
  */
 template <class Item> class SmartIterator : public Iterator<Item>
 {
 public:
 
-    /** */
+    /** Destructor. */
     virtual ~SmartIterator () {}
 
-    /** */
+    /** Return the number of iterated items.
+     * \return number of iterated items*/
     virtual u_int32_t size () = 0;
 };
 
@@ -141,7 +184,8 @@ public:
 
 /** \brief Null implementation of the Iterator interface.
  *
- * This iterator iterates no item at all.
+ * This iterator iterates no item at all. This is achieved by returning always true
+ * in the isDone method implementation.
  */
 template <class Item> class NullIterator : public Iterator<Item>
 {
@@ -198,16 +242,20 @@ public:
         va_end(ap);
     }
 
-    /** */
+    /** Returns the status of the iteration.
+     * \return the iteration status. */
     IteratorStatus  getStatus       () { return _status;        }
 
-    /** */
+    /** Return the current index of the iteration.
+     * \return current index in the iteration. */
     u_int64_t       getCurrentIndex () { return _currentIndex;  }
 
-    /** */
+    /** Returns the total number of iterated items.
+     * \return  total number of iterated items */
     u_int64_t       getTotalNumber  () { return _totalNumber;   }
 
-    /** */
+    /** Return an informative message associated to the notification.
+     * \return the message. */
     const char*     getMessage      () { return _buffer;        }
 
 private:

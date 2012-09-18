@@ -48,6 +48,26 @@ namespace dp {
  *  for instance) that some subclass needs to refine them.
  *
  *  This pattern is often known as Smart Pointer.
+ *
+ *  Note that the STL provides its own smart pointer mechanism, known as auto_ptr.
+ *  Here, our approach relies on subclassing instead of template use. The interest of our
+ *  approach is to ease methods prototypes writing; with STL approach, one needs to uses
+ *  every time auto_ptr<T> instead of only T, which can lower the readability.
+ *
+ *  On the other hand, our approach may be a little more dangerous than the STL approach
+ *  since one has to be sure to forget an instance when needed. In our case, we use Smart
+ *  Pointers mainly for attributes in class, so only have to be careful in constructors
+ *  and destructors. Moreover, one can use the SP_SETATTR macro which eases this process.
+ *  Note also the LOCAL macro that eases the local usage of an instance.
+ *
+ * This class implements also a security against concurrent access by several clients acting
+ * from different threads. This is achieved by using intrinsics __sync_fetch_and_add and
+ * __sync_fetch_and_sub in use and forget respectively.
+ *
+ * This class can't be instantiated since its default constructor is protected.
+ *
+ *  \see SP_SETATTR
+ *  \see LOCAL
  */
 class SmartPointer
 {
@@ -93,20 +113,22 @@ private:
  *  a smart pointer and get rid of it when the execution is out of the statements
  *  block holding the local object.
  *
+ *  Note that the LocalObject class is very close to the std::auto_ptr. The first
+ *  one uses inheritance, the second uses templates.
+ *
  *  Sample:
  *  \code
  *  void foo ()
  *  {
  *     {
- *        // we create an instance of a class that inherits from SmartPointer
- *        MyClass* object = new MyClass ();
+ *        // we create an instance of a class that inherits from SmartPointer and link it to a LocalObject
+ *        LocalObject object (new MyClass ());
  *
- *        // we want that this object lives only inside the englobing statements block.
- *        // note that we use the LOCAL macro
- *        LOCAL (object);
+ *        // we can access the referenced instance
+ *        object.getPtr ();
  *     }
  *
- *     // Here, the object should have been automtically deleted.
+ *     // Here, the MyClass instance should have been automatically deleted.
  *  }
  *  \endcode
  *
@@ -123,6 +145,10 @@ public:
     /** Destructor. */
     ~LocalObject () { if (_ptr)  {  _ptr->forget ();  } }
 
+    /** Getter on the referenced instance.
+     * \return the referenced SmartPointer instance. */
+    SmartPointer* getPtr ()  { return _ptr; }
+
 private:
     /** The SmartPointer instance we want local life cycle management. */
     SmartPointer* _ptr;
@@ -131,11 +157,54 @@ private:
 /********************************************************************************/
 
 /** Macro that creates an instance of type LocalObject whose name is the prefix '__' followed by the provided argument.
+ *
+ *  Sample:
+ *  \code
+ *  void foo ()
+ *  {
+ *     {
+ *        // we create an instance of a class that inherits from SmartPointer
+ *        MyClass* object = new MyClass ();
+ *
+ *        // we want that this object lives only inside the including statements block.
+ *        // note that we use the LOCAL macro
+ *        LOCAL (object);
+ *     }
+ *
+ *     // Here, the object should have been automatically deleted.
+ *  }
+ *  \endcode
+ *
+ *  \see LocalObject
  */
 #define LOCAL(object)  dp::LocalObject __##object (object)
 
 /** Macro that generates an instructions block that manages life cycle of a class attributes.
- * Dedicated for simply write clever setter methods.
+ *  It is dedicated to simply write clever setter methods.
+ *
+ * As a convention, the attribute name must begin by an underscore. Then the provided argument here
+ * is the attribute name without this leading underscore.
+ *
+ * A typical use of this macro is the following:
+ * \li in the constructor, use the default initialization of the attribute as 0
+ * \li in the constructor body, use the smart setter with a provided argument
+ * \li in the destructor body, use the smart setter with null argument.
+ * \li in the private (or protected) part, defines a smart setter for the attribute by using the SP_SETATTR macro
+ *
+ * Sample of code:
+ *  \code
+ *  class MyClass
+ *  {
+ *  public:
+ *       MyClass (SomeSmartPointerClass* ptr) : _ptr(0)  { setPtr (ptr); }
+ *      ~MyClass ()  { setPtr (0); }
+ *  private:
+ *      SomeSmartPointerClass* _ptr;
+ *      void setPtr (SomeSmartPointerClass* ptr)  { SP_SETATTR(ptr); }
+ *  };
+ *  \endcode
+ *
+ *  \see SmartPointer
  */
 #define SP_SETATTR(a)  \
 {  \

@@ -38,6 +38,8 @@ namespace impl {
  *
  * Then, classes that want subject-like behavior can inherit from Subject or have a Subject
  * attribute.
+ *
+ * \see ISubject
  */
 class Subject : public ISubject
 {

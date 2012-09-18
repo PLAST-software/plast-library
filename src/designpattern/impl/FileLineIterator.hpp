@@ -34,13 +34,32 @@ namespace dp {
 namespace impl {
 /********************************************************************************/
 
-/** \brief Iterator that loops over the line of a file.
+/** \brief Iterator that loops over the lines of a file.
  *
- *  This iterator loops over the line of a file.
+ *  This iterator loops over the lines of a file.
  *  One must give the name of the file to be iterated and the maximum size of a read line.
+ *
+ * This is the object oriented version of the classical way of parsing lines in a file
+ * with the 'fgets' function. Note that we use our Iterator interface.
  *
  *  It inherits from Iterator class by expliciting the type (char*) of the iterated items.
  *  Some inlined methods for optimization.
+ *
+ *  It is possible to provide a range of two offsets [begin,end] that will be used for
+ *  reading only a part of the file (namely from offset 'begin' to offset 'end'). This possibility
+ *  is hugely used by PLAST for partitioning huge FASTA databases in blocks of given size.
+ *  A first pass of reading is done for finding offsets couples that split the database in similar
+ *  given block size. Then the PLAST algorithm can read each block separately by providing the
+ *  offsets range to a FileLineIterator.
+ *
+ *  Another feature is the possibility to provide, for the filename, a comma separated list of actual
+ *  filenames. The FileLineIterator will parse all actual files. This is useful for instance to parse
+ *  a set of FASTA files that come from the split of a huge database.
+ *
+ *  This is class is used in several parts of PLAST; in particular, it is used for parsing:
+ *    - FASTA files
+ *    - IProperties files
+ *    - FastaDatabaseQuickReader class
  *
  *  Code sample:
  *  \code
@@ -58,17 +77,18 @@ namespace impl {
  *  }
  *  \endcode
  *
- *  This is used for instance for parsing FASTA files.
+ *  \see Iterator
+ *  \see database::impl::FastaDatabaseQuickReader
  */
 class FileLineIterator : public Iterator<char*>
 {
 public:
 
     /** Constructor. Note that one can provide a range [offset0,offset1] of characters to be read within the file.
-     * \param[in]  filename     : file name of the file to be iterated
+     * \param[in]  filename     : file name of the file to be iterated; can be a list of filenames separated by a comma
      * \param[in]  lineMaxSize  : number of characters to be read in a line
-     * \param[in]  offset0      : if not 0, provides the first character index to be read in the file
-     * \param[in]  offset1      : if not 0, provides the last character index to be read in the file
+     * \param[in]  offset0      : if not 0, provides the first character offset to be read in the file
+     * \param[in]  offset1      : if not 0, provides the last character offset to be read in the file
      */
     FileLineIterator (const char* filename, size_t lineMaxSize=64*1024, u_int64_t offset0=0, u_int64_t offset1=0);
 
@@ -126,6 +146,7 @@ public:
     char* currentItem()  {  return _line;  }
 
     /** Returns the size of the currently read line.
+     * Note that the end of line (code 0x10 and/or 0x13) character is not taken into account.
      * \return current read line size
      */
     u_int64_t getLineSize ()  { return _readCurrentSize; }
@@ -135,7 +156,10 @@ public:
      */
     u_int64_t tell ()  { return _currentFile->tell(); }
 
-    /** */
+    /** Reinitialize the offsets range to be parsed in the file.
+     * \param[in] offset0 : begin offset
+     * \param[in] offset1 : end offset
+     */
     void setRange (u_int64_t offset0, u_int64_t offset1)
     {
         _offset0 = offset0;
@@ -145,7 +169,9 @@ public:
         first ();
     }
 
-    /** */
+    /** Reinitialize the beginning offset from where the file will be parsed.
+     * \param[in] offset : begin offset
+     */
     void setRange (u_int64_t offset)
     {
         _offset0 = offset;

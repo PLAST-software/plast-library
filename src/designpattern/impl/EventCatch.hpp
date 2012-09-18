@@ -32,7 +32,7 @@ namespace dp {
 namespace impl {
 /********************************************************************************/
 
-/** \brief Tool for catching specifing notification information
+/** \brief Tool for catching specific notification information
  */
 template <class Item> class EventCatch : public SmartPointer, public IObserver
 {

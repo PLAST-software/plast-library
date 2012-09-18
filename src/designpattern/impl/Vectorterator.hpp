@@ -38,6 +38,24 @@ namespace impl {
  *  abstraction.
  *
  *  Note that the class is still a template one since we can iterate on vector of anything.
+ *
+ *  \code
+ *  void foo ()
+ *  {
+ *      // We create a std::vector holding some values.
+ *      int table[] = {16,2,77,29};
+ *      std::vector<int> vec (table, table + sizeof(table) / sizeof(int) );
+ *
+ *      // We create an iterator on this vector.
+ *      VectorIterator it (vec);
+ *
+ *      // We loop over the items of the vector.
+ *      for (it.first(); !it.isDone(); it.next())
+ *      {
+ *          // we can retrieve the current item with it.currentItem()
+ *      }
+ *  }
+ *  \endcode
  */
 template <class T1> class VectorIterator : public SmartIterator<T1>
 {

@@ -283,7 +283,7 @@ std::list<IProperties*> Properties::map (const char* separator)
     }
     DEBUG (("Properties::map : nbIt=%ld\n", itList.size() ));
 
-    CartesianIterator <char*,char*> p (itList);
+    CartesianIterator <char*> p (itList);
 
     for (p.first(); ! p.isDone(); p.next())
     {

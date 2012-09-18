@@ -38,6 +38,19 @@ namespace impl {
  *  abstraction.
  *
  *  Note that the class is still a template one since we can iterate on list of anything.
+ *
+ *  \code
+ *  void foo ()
+ *  {
+ *      list<int> l;
+ *      l.push_back (1);
+ *      l.push_back (2);
+ *      l.push_back (4);
+ *
+ *      ListIterator<int> it (l);
+ *      for (it.first(); !it.isDone(); it.next())       {   cout << it.currentItem() << endl;   }
+ *  }
+ *  \endcode
  */
 template <class T1> class ListIterator : public Iterator<T1>
 {

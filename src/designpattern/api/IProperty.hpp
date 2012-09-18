@@ -50,6 +50,11 @@ namespace dp {
  * Define what a property can be. This is an extension of the [key,value] concept
  * since we add a notion a depth to this couple, which makes possible to have a tree
  * vision of a simple list of [depth,key,value] entries.
+ *
+ * Such instances are managed by the IProperties class, that acts as a container of IProperty
+ * instances.
+ *
+ *  \see IProperties
  */
 struct IProperty
 {
@@ -85,7 +90,9 @@ struct IProperty
      */
     const char*         getString ()  { return value.c_str();        }
 
-    /** */
+    /** Serializes as a string the content of the current IProperty.
+     * \return the serialization string
+     */
     std::string toString ()
     {
         std::stringstream ss;
@@ -103,6 +110,8 @@ struct IProperty
  *  In this case, we have only the IProperty class to visit (not a true classes hierarchy like one can
  *  find more classically for the Visitor DP), but we add two methods, one called before the IProperty
  *  visit, and one called after.
+ *
+ *  This can be seen as a improved way to iterate the IProperty items of a IProperties instance.
  *
  *  It is defined as a SmartPointer for easing instance life cycle management.
  */
@@ -137,27 +146,6 @@ public:
  *  called for each IProperty instance.
  *
  *  It is defined as a SmartPointer for easing instance life cycle management.
- *
- * Sample of use:
- * \code
- * void sample ()
- * {
- *      // we create a IProperties instance.
- *      IProperties* props = new Properties ();
- *
- *      // we add some entries
- *      props->add (0, "root", "");
- *      props->add (1, "loud",   "len=%d", 3);
- *      props->add (1, "louder", "great");
- *      props->add (1, "stop",   "[x,y]=[%f,%f]", 3.14, 2.71);
- *
- *      // we create some visitor for dumping the props into a XML file
- *      IPropertiesVisitor* v = new XmlDumpPropertiesVisitor ("/tmp/test.xml");
- *
- *      // we accept the visitor; after that, the output file should have been created.
- *      props->accept (v);
- * }
- * \endcode
  *
  *  \see IProperty
  *  \see IPropertiesVisitor
@@ -216,7 +204,7 @@ public:
      */
     virtual std::list<IProperties*> map (const char* separator) = 0;
 
-    /** Get the know keys.
+    /** Get the known keys.
      * \return the set of keys
      */
     virtual std::set<std::string> getKeys () = 0;
