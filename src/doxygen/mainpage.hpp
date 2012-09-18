@@ -16,6 +16,8 @@
 
 /** \mainpage PlastLibrary Documentation
  *
+ ****************************************************************************************************
+ *
  * \section intro What is PlastLibrary ?
  *
  * The PlastLibrary is a library containing all the needed software components
@@ -29,6 +31,8 @@
  *
  * You will find here the code documentation for namespaces, classes, methods of the different
  * components that makes the PlastLibrary design.
+ *
+ ****************************************************************************************************
  *
  * \section concepts Main concepts
  *
@@ -94,6 +98,8 @@
  * PLAST algorithm. This 'run' method has an argument that provides all the parametrization of the algorithm (for instance
  * the path of the two genomic databases to be compared).
  *
+ ****************************************************************************************************
+ *
  * \section namespaces Namespaces architecture
  *
  * The top level namespaces are the following:
@@ -103,8 +109,12 @@
  *  - seed : provides concepts related to seeds (ie. small words of genomic letters)
  *  - index : provides tools for indexation of genomic databases, with seeds as indexes
  *  - statistics : provides tools for managing statistical aspects of the PLAST algorithm
+ *  - alignment: provides structures representing alignments containers; also holds some tools to work on such containers
+ *  - seg: algorithms for removing low informative regions from databases (seg for amino acids, dust for nucleotides)
  *  - algorithm : components of the PLAST algorithm
+ *  - pcre: tool for perl like regular expressions (see http://www.pcre.org/)
  *  - misc : miscellanous (types definitions for instance)
+ *  - launcher : high level API for running PLAST algorithm; also contains a JNI interface for launching PLAST from Java world.
  *
  *  Most of these top level namespaces hold:
  *      - a sub namespace 'api' containing interface definitions
@@ -117,6 +127,8 @@
  *      - hits   : hits iterators management; PLAST algorithm parts are implemented there
  *      - result : alignments management (dumping alignments result into a file for instance)
  *
+ *
+ ****************************************************************************************************
  *
  * \section headers Including header files
  *
@@ -138,6 +150,23 @@
  *      - compilation command only have to provide the path of the global source directory, ie.
  *        something like -I/somepath/PlastLibrary/src
  *
+ ****************************************************************************************************
+ *
+ * \section compile_plast  How to compile the PLAST library ?
+ *
+ * The PLAST library can be compiled in a terminal with the cmake tool.
+ * Once the source archive has been retrieved and unzipped, one just has to do 'cmake .' followed by 'make'.
+ * As a result, one should get a dynamic library (in 'lib' directory) and a binary (in 'bin' directory).
+ *
+ * This procedure works both on Linux and MacOs.
+ *
+ * For Windows, the Mingw64 environment has first to be deployed since the GCC compiler is used for compiling PLAST.
+ * Then, one has to do 'cmake -G "MSYS Makefiles" .' followed by 'make'.
+ *
+ * Note that the target architecture must support SSE instructions set (at least SSE2).
+ * For instance, most of Intel recent processors support SSE2.
+ *
+ ****************************************************************************************************
  *
  * \section compilation Compiling with the PlastLibrary
  *

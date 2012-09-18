@@ -16,6 +16,20 @@
 
 /**\page howto_page How to
  *
+ * \ref dp_command
+ *
+ * \ref dp_synchronizer
+ *
+ * \ref dp_iterator
+ *
+ * \ref dp_observer
+ *
+ * \ref database
+ *
+ * \ref indexation
+ *
+ * \ref environment
+ *
  * We provide here some code snippets to see how to use some concepts of the PlastLibrary.
  *
  * Note that, for readibility reasons, these snippets don't take care about some aspects
