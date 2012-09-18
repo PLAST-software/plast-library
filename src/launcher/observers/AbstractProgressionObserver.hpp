@@ -42,7 +42,7 @@ namespace observers {
  * The idea of this class is to maintain a set of attributes according to notifications
  * received from the PlastLibrary. These attributes are related to:
  *      - current and global percentage of algorithm execution
- *      - ellapsed time and remaining time
+ *      - elapsed time and remaining time
  *      - used memory
  *      - number of found alignments
  *      - opening reading frames information
@@ -59,7 +59,7 @@ namespace observers {
  * The method start() is called when something is starting (like hits iteration).
  *
  * The method dump() is called when one of the attributes has changed.
- * Concrete implementions of dump() must be provided by subclasses. For instance, the
+ * Concrete implementations of dump() must be provided by subclasses. For instance, the
  * BargraphObserver implementation will dump some progression bargraph in the console where
  * the PLAST binary has been launched.
  */

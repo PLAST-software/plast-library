@@ -41,6 +41,8 @@ namespace observers {
  *
  * This implementation will dump textual messages in a FILE descriptor in response
  * to the reception of AlgoEventWithStatus events.
+ *
+ * By default, the output file is the standard output.
  */
 class AlgoVerboseObserver : public AbstractObserver
 {

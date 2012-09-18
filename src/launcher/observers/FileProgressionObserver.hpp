@@ -41,10 +41,11 @@ namespace observers {
 /** \brief  Dump the progression percentage into a file.
  *
  * This observer receives information about algorithm progression
- * and dumps the execution percentage into a file as an integer value in range [0:100]
+ * and dumps these information into a XML file.
  *
  * This is useful for external clients (other applications) that want to know the
- * progression status of the algorithm.
+ * progression status of the algorithm. They can access to the XML file (here, the
+ * file system serves as the common resource between PLAST and third parties programs).
  */
 class FileProgressionObserver : public AbstractProgressionObserver
 {
@@ -70,34 +71,82 @@ protected:
 
 /********************************************************************************/
 
+/** \brief Dump into a file information about HSP number, alignments number and execution time
+ *
+ * This observers reacts on the AlignmentProgressionEvent event. From this event, it keeps
+ * the number of HSP, alignments and current execution time.
+ *
+ * During the destruction, the whole gathered information is dumped into a file (one line per
+ * AlignmentProgressionEvent received):
+ *  - column 1: raw index i (starting at 0)
+ *  - column 2: percentage of algorithm execution (ie raw index i divided by total number of lines)
+ *  - column 3: execution time at index i
+ *  - column 4: number of HSP found at index i
+ *  - column 5: number of alignments found at index i
+ *  - column 6: percentage of execution time (ie execution time at index i divided by total time)
+ *  - column 7: percentage of found HSP (ie number of HSP found at index i divided by total number of HSPs)
+ *  - column 8: percentage of found alignments (ie number of alignments found at index i divided by total number of alignments)
+ *
+ *  Such statistics file makes it possible to trace graphs like column 6, 7 and 8 in function of column 2.
+ *  One can then observe that many alignments are found quickly (read with a low percentage of execution, or in other
+ *  words with a low percentage of processed seeds).
+ */
 class AlignmentProgressionObserver : public AbstractObserver
 {
 public:
 
+    /** Constructor.
+     * \param[in] filename : name of the file where to put the statistics information into.
+     */
     AlignmentProgressionObserver (const std::string& filename);
+
+    /** Destructor. */
     virtual ~AlignmentProgressionObserver ();
 
+    /** \copydoc AbstractObserver::update */
     void update (dp::EventInfo* evt, dp::ISubject* subject);
 
 protected:
+
+    /** File for dumping statistics. */
     FILE*     _file;
+
+    /** Counts the number of received AlignmentProgressionEvent notifications. */
     u_int32_t _count;
+
+    /** Keeps the time of reception of the first AlignmentProgressionEvent notification. */
     u_int32_t _t0;
 
+    /** We may need some synchronizer for managing concurrent accesses. */
     os::ISynchronizer* _synchro;
 
+    /** Container holding successive number of HSPs. */
     std::vector<u_int32_t> ungapAlignsNb;
+
+    /** Container holding successive number of alignments. */
     std::vector<u_int32_t> gapAlignNb;
+
+    /** Container holding successive execution times. */
     std::vector<float>     execTime;
 };
 
 /********************************************************************************/
 
+/** \brief Dump into a file information about algorithm observables and resources observables
+ *
+ * This observer reacts on the AlgorithmReportEvent event. It dumps into a file several
+ * information extracted from this event.
+ */
 class ResourcesObserver : public AbstractProgressionObserver
 {
 public:
 
+    /** Constructor.
+     * \param[in] filename : name of the file where to put the statistics information into.
+     */
     ResourcesObserver (const std::string& filename);
+
+    /** Destructor. */
     virtual ~ResourcesObserver ();
 
     /** \copydoc AbstractObserver::update */

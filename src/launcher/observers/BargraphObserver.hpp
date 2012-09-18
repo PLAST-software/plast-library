@@ -37,10 +37,10 @@ namespace launcher {
 namespace observers {
 /********************************************************************************/
 
-/** \brief Observer that display a progression bargraph.
+/** \brief Observer that displays a progression bargraph.
  *
- * The purpose of this observer is to retrieve the PLAST algorithm progression
- * and to display it as a progression bargraph on the console.
+ * The purpose of this observer is to retrieve information about the PLAST algorithm
+ * progression and to display it as a progression bargraph on the console.
  *
  * This is useful because the PLAST algorithm can take a long time, so we can
  * have then a precise idea of what have been executed so far.

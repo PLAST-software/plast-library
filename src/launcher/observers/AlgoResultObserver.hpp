@@ -48,7 +48,7 @@ namespace observers {
  * This is useful to have statistics about the algorithm that just finished.
  * For instance, one can retrieve the number of hits having been filtered out during
  * the small gap algorithm, or any other information like this. It is therefore
- * useful for post analyzing the global behaviour of the algorithm.
+ * useful for post analyzing the global behavior of the algorithm.
  */
 class AlgoPropertiesObserver : public AbstractObserver
 {

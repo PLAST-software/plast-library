@@ -45,11 +45,20 @@ namespace observers {
 
 /** \brief Observer that dumps statistics about hits iterators.
  *
- * On AlgorithmReportEvent events reception, this observer builds a Properties instance
- * and configures it with the information in the AlgorithmReportEvent instance.
+ * On several events reception, this observer builds a Properties instance
+ * according to the actual kind of notification information.
  *
- * In particular, it keeps hits iterators information (input/output hits) and aggregate
- * results numbers.
+ * Then the built properties accepts the properties visitor (provided at construction).
+ * For instance, if the visitor is a file dump visitor, we have a mean to dump different
+ * information about the algorithm execution while this latter is running. A good choice of
+ * visitor is the dp::impl::XmlDumpPropertiesVisitor; with this implementation, we will get
+ * at the end of the PLAST execution an XML file gathering many information about the PLAST
+ * execution.
+ *
+ * By now, the kind of supported notifications are:
+ *  - algo::core::AlgorithmReportEvent
+ *  - algo::core::AlgorithmConfigurationEvent
+ *  - algo::core::DatabasesInformationEvent
  */
 class AlgoHitsPropertiesObserver : public AbstractProgressionObserver
 {
@@ -80,20 +89,32 @@ protected:
     /** Smart visitor for the \ref _visitor attribute. */
     void setVisitor (dp::IPropertiesVisitor* visitor)  { SP_SETATTR (visitor); }
 
-    /** */
+    /** Null implementation of dump method. */
     void dump (void) {}
 
-    /** */
+    /** List of names of the IHitIterator instances. */
     std::list<std::string>           _names;
+
+    /** Map associating IHitIterator names with the output hits number. */
     std::map<std::string, u_int64_t> _theMap;
 
-    /** */
+    /** Creates and visit a IProperties with miscellaneous information (tool name, version...)
+     */
     void fillMiscInfo ();
 
-    /** */
+    /** Fills a provided IProperties with information related with a database.
+     * \param[in] db : a quick reader holding information about the database
+     * \param[in] props : the IProperties instance to be filled
+     * \param[in] name  : name of the node to be added to the provided IProperties instance
+     * \param[in] depth : depth of the node to be added to the provided IProperties instance
+     */
     void fillPropsFromDbInfo (database::IDatabaseQuickReader* db, dp::IProperties* props, const std::string& name, size_t depth);
 
-    /** */
+    /** Extract some property instances from a IProperties for copying them in the destination IProperties instance.
+     * \param[in] props : the source properties
+     * \param[in] destination : the destination properties
+     * \param[in] depth : the depth of the nodes copied in destination
+     */
     void fillParamsInfo (dp::IProperties* props, dp::IProperties& destination, size_t depth);
 };
 

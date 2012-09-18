@@ -36,7 +36,7 @@ namespace core     {
 
 /** \brief Specific parser for PLAST command line options
  *
- * This implementation defines all the command line PLAST should recognize.
+ * This implementation defines all the command line options PLAST should recognize.
  */
 class PlastOptionsParser : public misc::impl::OptionsParser
 {
