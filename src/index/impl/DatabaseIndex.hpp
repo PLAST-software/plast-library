@@ -225,7 +225,7 @@ protected:
         /** We need a seed occurrences range (evolves as iteration goes on). */
         misc::Range<size_t> _range;
 
-        /** Configuration of neighbourhoods for a range of seed occurrences. */
+        /** Configuration of neighborhoods for a range of seed occurrences. */
         void configure ();
     };
 };

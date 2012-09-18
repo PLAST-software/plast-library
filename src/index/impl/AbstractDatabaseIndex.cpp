@@ -78,36 +78,6 @@ AbstractDatabaseIndex::~AbstractDatabaseIndex ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void AbstractDatabaseIndex::setDatabase (ISequenceDatabase* database)
-{
-    if (_database)  { _database->forget (); }
-    _database = database;
-    if (_database)  { _database->use    (); }
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-void AbstractDatabaseIndex::setModel (ISeedModel* model)
-{
-    if (_model)  { _model->forget (); }
-    _model = model;
-    if (_model)  { _model->use    (); }
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
 void AbstractDatabaseIndex::addChildIndex (IDatabaseIndex* child)
 {
     if (CHECKPTR(child))

@@ -41,6 +41,28 @@ namespace impl {
 /********************************************************************************/
 
 /** \brief Nucleotide implementation of the IDatabaseIndex interface.
+ *
+ * The indexation here is done in three steps:
+ *   - 1) counting the occurrences number for each possible seed.
+ *   - 2) resizing the structures with the found occurrences numbers
+ *   - 3) filling the structures for all possible seeds.
+ *
+ * The interesting remark here is that steps 1 and 3 can be parallelized. Indeed, once the
+ * structures are correctly sized in step 2, all found occurrences can be filled in the
+ * related structures, each occurrence using a specific memory location. The only potential
+ * issue is to determine this specific memory location. Here, care must be taken about the
+ * concurrent accesses from the different threads (done with intrinsics '__sync_fetch_and_add')
+ *
+ * This implementation works for nucleotides databases but could be generalized for
+ * amino acids databases. Right now, the only difficulty for doing so is that the nucleotides
+ * hash codes can be easily (and efficiently) computed on the fly, which is not the case for
+ * the subset seeds models.
+ *
+ *  The parallelization scheme is the following: each sequence data to be indexated is done in a
+ *  specific thread, so if we have 8 cores, we can deal with 8 sequences at the same time. For this
+ *  purpose, we use a single IteratorGet instance that iterates on the sequences of the provided database.
+ *  The N commands that do the actual indexation will use this single iterator and that's the way we get
+ *  our parallelization scheme.
  */
 class DatabaseNucleotidIndex : public AbstractDatabaseIndex
 {
@@ -125,8 +147,17 @@ protected:
         }
     };
 
-    /** */
+    /** Count the number of occurrences for each seed found in the provided sequence. This method
+     * updates the '_counter' attribute of the current instance.
+     * \param[in] sequence : the sequence to extract the seeds occurrences number from.
+     */
     void countSeedsOccurrences (const database::ISequence*& sequence);
+
+    /** Fill the index with the occurrences information for each seed found in the provided sequence.
+     * This method updates the '_index' attribute of the current instance. It also relies on the '_counter'
+     * attribute for finding the correct cell to be filled in the '_index' attribute.
+     * \param[in] sequence : the sequence to extract the seeds occurrences number from.
+     */
     void fillSeedsOccurrences  (const database::ISequence*& sequence);
 };
 

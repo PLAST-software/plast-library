@@ -40,7 +40,7 @@ namespace impl {
  *  This class factorizes some common behaviours between implementors of the
  *  IDatabaseIndex interface, like getters and add/remove children.
  *
- *  It is still abstract and can't be instanciated.
+ *  It is still abstract and can't be instantiated.
  */
 class AbstractDatabaseIndex : public IDatabaseIndex
 {
@@ -74,15 +74,11 @@ protected:
 
     /** Database to be indexed. */
     database::ISequenceDatabase* _database;
-
-    /** Smart setter for the _database attribute. */
-    void setDatabase (database::ISequenceDatabase* database);
+    void setDatabase (database::ISequenceDatabase* database)  { SP_SETATTR(database); }
 
     /** Seed model to be used for the indexation. */
     seed::ISeedModel* _model;
-
-    /** Smart setter for the _model attribute. */
-    void setModel (seed::ISeedModel* model);
+    void setModel (seed::ISeedModel* model)  { SP_SETATTR(model); }
 
     /** A little shortcut. */
     size_t _maxSeedsNumber;

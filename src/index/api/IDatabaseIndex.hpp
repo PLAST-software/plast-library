@@ -39,7 +39,7 @@ namespace indexation {
  *  PLAST algorithm relies on an initial indexation of the two genomic databases
  *  to be compared.
  *
- *  An index in this context is a seed, ie. a short word of nucleotids or amino acids.
+ *  An index in this context is a seed, ie. a short word of nucleotides or amino acids.
  *
  *  We need also a way to enumerate all the seeds that can serve as indexes. For this
  *  purpose, we use a seeds model that is able to iterate all wanted seeds.
@@ -52,7 +52,7 @@ namespace indexation {
  *  occurrences of a given seed by creating IOccurrenceBlockIterator instances.
  *  This kind of iterator will iterate over ISeedOccurrence instances; such an instance
  *  gathers information about the seed, the sequence where it occurs, the offset of
- *  the occurrence within the sequence and the left and right sequence neighbourhoods of
+ *  the occurrence within the sequence and the left and right sequence neighborhoods of
  *  the seed occurrence.
  *
  *  Note: actually, the IDatabaseIndex interface can create two kinds of iterator: the first
@@ -79,7 +79,24 @@ class IDatabaseIndex : public dp::SmartPointer
 {
 public:
 
-    /** Data type for storing a list of <offsets,sequenceIndex>. */
+    /** Data type for storing a list of <offsets,sequenceIndex>. Note that this choice may lead
+     *  to huge usage of memory, ie. if we note N the size in bytes of the database to be indexated,
+     *  we will need about 8.N bytes for storing the full index, namely for each seed occurrence:
+     *    - we need 4 bytes for its offset in the database
+     *    - we need 4 bytes for the index of the sequence it belongs to.
+     *
+     *  Note that the sequence index may be computed from the offset in database (by dichotomy), but this
+     *  process may take a lot of time. So, the presence of 'sequenceIdx' is here for speeding up the
+     *  algorithm, with the memory big usage drawback.
+     *
+     *  If we cope with the time to recompute sequence index, we would use about 4.N bytes, but we can do
+     *  better: instead of keeping the absolute offset in the whole database, we can keep the difference
+     *  between two offsets, number likely to be lower that the offset itself and hopefully this number
+     *  could be coded on 2 bytes instead of 4. In such a scheme, this difference could be big enough to
+     *  require a 4 bytes storage. We could then keep the most significant bit to tell if the difference
+     *  requires 2 or 4 bytes of storage. A crude estimation shows that we could need something lower than
+     *  3.N (maybe close to 2.5 N)
+     */
     struct SeedOccurrence
     {
         SeedOccurrence () : offsetInDatabase(0), sequenceIdx(0) {}

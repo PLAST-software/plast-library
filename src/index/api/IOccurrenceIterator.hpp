@@ -42,11 +42,11 @@ namespace indexation {
  *      - the sequence where the seed has been found,
  *      - the offset in the sequence  where the seed has been found
  *      - the offset in the database where the seed has been found
- *      - left and right neighbourhoods of the seed in the sequence
+ *      - left and right neighborhoods of the seed in the sequence
  *
  *  Since we have the seed occurrence offset in the sequence, we could retrieve
- *  these neighbourhoods from the sequence; the ISeedOccurrence interface directly
- *  provides the neighbourhoods without needing to read the neighbourhoods from
+ *  these neighborhoods from the sequence; the ISeedOccurrence interface directly
+ *  provides the neighborhoods without needing to read the neighborhoods from
  *  the sequence.
  *
  *  This structure doesn't tell how the attributes are filled, which should be done
@@ -76,22 +76,22 @@ struct ISeedOccurrence
     /** Offset of the seed within the database. */
     u_int64_t   offsetInDatabase;
 
-    /** Global neighbourhood of the seed occurrence. Stored as IWord whose content is
-     *  seed + right neighbourhood + left neighbourhood. Note that the left neighbourhood
+    /** Global neighborhood of the seed occurrence. Stored as IWord whose content is
+     *  seed + right neighborhood + left neighborhood. Note that the left neighborhood
      *  is coded from right to left for easing scores computing by the PLAST algorithm.
      *
-     *  For instance, (seed of 3 letters, neighbourhoods of 5 letters):
+     *  For instance, (seed of 3 letters, neighborhoods of 5 letters):
      *  \code
      *      NEKKQQMGREKIEAELQDICNDVLELLDKYLIPNA...
      *                 ^ seed start
      *  \endcode
-     *  In this sample, the global neighbourhood would be:
+     *  In this sample, the global neighborhood would be:
      *      - IEAELQDIKERGM  (ie 3+5+5=13 letters)
      *
-     *  If there is not enough letters for building a neighbourhood, we fill X letters instead.
+     *  If there is not enough letters for building a neighborhood, we fill X letters instead.
      *
      *  Note that this information may be not provided by some implementation.
-     *  In such a case, the 'size' attribute of the neighbourhood would be 0.
+     *  In such a case, the 'size' attribute of the neighborhood would be 0.
      */
     database::IWord neighbourhood;
 
@@ -100,7 +100,7 @@ struct ISeedOccurrence
         : offsetInSequence(0), offsetInDatabase(0), neighbourhood(0)  {}
 
     /** Constructor.
-     * \param[in] neighbourhoodSize : size of the left and right neighbourhood
+     * \param[in] neighbourhoodSize : size of the left and right neighborhood
      */
     ISeedOccurrence (size_t neighbourhoodSize)
         : offsetInSequence(0), offsetInDatabase(0), neighbourhood(neighbourhoodSize)
@@ -159,7 +159,7 @@ class IOccurrenceBlockIterator : public dp::Iterator<misc::Vector<const ISeedOcc
 {
 public:
 
-    /** Returns the all the neighbourhoods in a single buffer. */
+    /** Returns the all the neighborhoods in a single buffer. */
     virtual database::LETTER* getNeighbourhoods () = 0;
 };
 
