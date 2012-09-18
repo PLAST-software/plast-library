@@ -18,6 +18,9 @@
  *  \brief Strings definition for PLAST.
  *  \date 07/11/2011
  *  \author edrezen
+ *
+ *  Defines the StringRepository class. Two implementations are provided (according to a compilation flag), one with obfuscated strings,
+ *  the other with readable strings.
  */
 
 #ifndef _PLAST_STRINGS_REPOSITORY_HPP_

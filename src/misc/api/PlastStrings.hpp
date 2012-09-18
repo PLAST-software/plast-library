@@ -19,15 +19,22 @@
  *  \date 07/11/2011
  *  \author edrezen
  *
- *   We define here a bunch of string constants that will be shared for many aspects
- *  (command line options, configuration file...)
+ * We define here several sets of strings constants:
+ *    - command line options strings
+ *    - command line help strings
+ *    - exception messages strings
+ *    - Miscellaneous strings.
+ *
+ * Note that these macros are just shortcuts for constant strings located in StringRepository class.
+ *
  */
 
 #ifndef _PLAST_STRINGS_HPP_
 #define _PLAST_STRINGS_HPP_
 
 /** \namespace misc
- * \brief Miscellanous definitions
+ * \brief Strings constants definitions.
+ *
  */
 
 #include <misc/api/PlastStringsRepository.hpp>
@@ -37,7 +44,11 @@ namespace misc {
 /********************************************************************************/
 
 /** "-p"    Command Line option telling which kind of comparison we are interested in.
- *  String value (one of: plastp, tplastn, plastx)
+ *  String value (one of: plastp, tplastn, plastx, tplastx, plastn)
+ *
+ *  Note: user can omit this option in case of protein/protein, protein/ADN, ADN/protein
+ *  searches. For ADN/ADN searches, there would be an ambiguity between tplastx and plastn,
+ *  so the option has to be set in such a case.
  */
 #define STR_OPTION_ALGO_TYPE                misc::StringRepository::m_STR_OPTION_ALGO_TYPE ()
 
@@ -61,7 +72,7 @@ namespace misc {
  */
 #define STR_OPTION_EVALUE                   misc::StringRepository::m_STR_OPTION_EVALUE ()
 
-/** "-n"    Command Line option giving the neighbourhood size (ie. number of amino acids or nucleotids)
+/** "-n"    Command Line option giving the neighborhood size (ie. number of amino acids or nucleotides)
  *  used for computing left and right scores during the ungap algorithm.
  *  Integer value.
  */
@@ -85,6 +96,9 @@ namespace misc {
 #define STR_OPTION_SMALLGAP_BAND_WITH       misc::StringRepository::m_STR_OPTION_SMALLGAP_BAND_WITH ()
 
 /** "-a"    Command Line option giving the number of cores to be used for computation.
+ *
+ * If not set, PLAST will take all available cores. Note that the number of available cores is displayed
+ * when launching PLAST with -h option.
  *  Integer value.
  */
 #define STR_OPTION_NB_PROCESSORS            misc::StringRepository::m_STR_OPTION_NB_PROCESSORS ()
@@ -115,7 +129,7 @@ namespace misc {
  */
 #define STR_OPTION_FILTER_QUERY             misc::StringRepository::m_STR_OPTION_FILTER_QUERY ()
 
-/** "-M"    Command Line option telling which score matrix is wanted
+/** "-M"    Command Line option telling which score matrix is wanted. BLOSUM62 is used by default.
  *  String value (BLOSUM62 or BLOSUM50).
  */
 #define STR_OPTION_SCORE_MATRIX             misc::StringRepository::m_STR_OPTION_SCORE_MATRIX ()
@@ -128,7 +142,7 @@ namespace misc {
  *  Integer value */
 #define STR_OPTION_PENALTY                  misc::StringRepository::m_STR_OPTION_PENALTY ()
 
-/** "-outfmt"   Command Line option giving the output format.
+/** "-outfmt"   Command Line option giving the output format. Tabulated output by default.
  *  Enum value (1 for tabulated output, 2 for XML output)
  */
 #define STR_OPTION_OUTPUT_FORMAT            misc::StringRepository::m_STR_OPTION_OUTPUT_FORMAT ()
@@ -138,16 +152,16 @@ namespace misc {
  */
 #define STR_OPTION_STRAND                   misc::StringRepository::m_STR_OPTION_STRAND ()
 
-/** "-force-query-order"    Command Line option forcing the ordering of queries identifiers in the final output file
- *  No parameters
+/** "-force-query-order"    Command Line option forcing the ordering of queries identifiers in the final output file.
+ *  Integer: number of query per notification
  */
 #define STR_OPTION_FORCE_QUERY_ORDERING     misc::StringRepository::m_STR_OPTION_FORCE_QUERY_ORDERING ()
 
 /** "-max-database-size"    Command Line option giving the maximum database size (in bytes) the algorithm can deal with.
  *  If the subject and/or the query databases are greater than this threshold, the algorithm
- *  will segment the database by blocks of this "max-database-size" size, so even huge file
+ *  will segment the databases by blocks of this "max-database-size" size, so even huge file
  *  may be handled by the algorithm.
- *  Integer value
+ *  Integer value (default 20000000)
  */
 #define STR_OPTION_MAX_DATABASE_SIZE        misc::StringRepository::m_STR_OPTION_MAX_DATABASE_SIZE ()
 
@@ -160,7 +174,7 @@ namespace misc {
 
 /** "-max-hit-per-iteration"    Command Line option giving the maximum number of hits handled in a row for one seed.
  *  By default, for one seed, all possible matches between subject and query are handled in a row.
- *  Since the neighbourhoods for all these matches are copied into memory, it may lead to huge
+ *  Since the neighborhoods for all these matches are copied into memory, it may lead to huge
  *  memory usage in case we have a lot of matches for one seed. This option gives a threshold that
  *  allows to handle all the matches (for the current seed) by blocks of "max-hit-per-iteration" size.
  *  Integer value
@@ -180,32 +194,32 @@ namespace misc {
 #define STR_OPTION_CODON_STOP_OPTIM         misc::StringRepository::m_STR_OPTION_CODON_STOP_OPTIM ()
 
 /** "-factory-dispatcher"   Command Line option giving the factory name for creating commands dispatcher.
- *  String value, one of: SerialCommandDispatcher, ParallelCommandDispatcher
+ *  String value, one of: SerialCommandDispatcher, ParallelCommandDispatcher (default)
  */
 #define STR_OPTION_FACTORY_DISPATCHER       misc::StringRepository::m_STR_OPTION_FACTORY_DISPATCHER ()
 
 /** "-factory-indexation"   Command Line option giving the factory name for creating indexator instances.
- *  String value, one of: BasicIndexator, BasicSortedIndexator
+ *  String value, one of: BasicIndexator, BasicSortedIndexator (default)
  */
 #define STR_OPTION_FACTORY_INDEXATION       misc::StringRepository::m_STR_OPTION_FACTORY_INDEXATION ()
 
 /** "-factory-hit-ungap"    Command Line option giving the factory name for creating ungap algorithm part instances.
- *  String value, one of: UngapHitIteratorNull, UngapHitIterator, UngapHitIteratorSSE16
+ *  String value, one of: UngapHitIteratorNull, UngapHitIterator, UngapHitIteratorSSE16 (default)
  */
 #define STR_OPTION_FACTORY_HIT_UNGAP        misc::StringRepository::m_STR_OPTION_FACTORY_HIT_UNGAP ()
 
 /** "-factory-hit-smallgap" Command Line option giving the factory name for creating small gap algorithm part instances.
- *  String value, one of: SmallGapHitIteratorNull, SmallGapHitIteratorSSE8
+ *  String value, one of: SmallGapHitIteratorNull, SmallGapHitIteratorSSE8 (default)
  */
 #define STR_OPTION_FACTORY_HIT_SMALLGAP     misc::StringRepository::m_STR_OPTION_FACTORY_HIT_SMALLGAP ()
 
 /** "-factory-hit-fullgap"  Command Line option giving the factory name for creating small gap algorithm part instances.
- *  String value, one of: FullGapHitIteratorNull, FullGapHitIterator
+ *  String value, one of: FullGapHitIteratorNull, FullGapHitIterator (default)
  */
 #define STR_OPTION_FACTORY_HIT_FULLGAP      misc::StringRepository::m_STR_OPTION_FACTORY_HIT_FULLGAP ()
 
 /** "-factory-hit-composition"  Command Line option giving the factory name for creating composition gap algorithm part instances.
- *  String value, one of: CompositionHitIteratorNull, CompositionHitIterator
+ *  String value, one of: CompositionHitIteratorNull, CompositionHitIterator (default)
  */
 #define STR_OPTION_FACTORY_HIT_COMPOSITION  misc::StringRepository::m_STR_OPTION_FACTORY_HIT_COMPOSITION ()
 
@@ -225,7 +239,8 @@ namespace misc {
 #define STR_OPTION_FACTORY_SPLITTER     misc::StringRepository::m_STR_OPTION_FACTORY_SPLITTER ()
 
 /** "-optim-filter-ungap" Command Line option giving the boolean value for filtering out already known ungap alignments before small gap algorithm.
- *  String value (F or T)
+ * This option may lead to great time optimization.
+ *  String value (F or T). Default to true
  */
 #define STR_OPTION_OPTIM_FILTER_UNGAP       misc::StringRepository::m_STR_OPTION_OPTIM_FILTER_UNGAP ()
 
@@ -257,7 +272,8 @@ namespace misc {
 /** "-stats-fmt"    Format of the stats: 'raw' (default) or 'xml' */
 #define STR_OPTION_INFO_STATS_FORMAT        misc::StringRepository::m_STR_OPTION_INFO_STATS_FORMAT ()
 
-/** "-stats-auto"   Command Line option for automatic statistics creation
+/** "-stats-auto"   Command Line option for automatic statistics creation. When set, a statistics file will be created
+ * at each PLAST execution, the file being created in the current directory with a name holding the current date.
  */
 #define STR_OPTION_INFO_STATS_AUTO          misc::StringRepository::m_STR_OPTION_INFO_STATS_AUTO ()
 
@@ -281,13 +297,16 @@ namespace misc {
  */
 #define STR_OPTION_INFO_CONFIG_FILE         misc::StringRepository::m_STR_OPTION_INFO_CONFIG_FILE ()
 
-/** "-xmlfilter"    Command Line option giving the uri of a XML filter file
+/** "-xmlfilter"    Command Line option giving the uri of a XML filter file. Such a filter may be useful to reduce the number
+ * of final alignments. The syntax of such filters is provided by Korilog.
  *  String.
  */
 #define STR_OPTION_XML_FILTER_FILE         misc::StringRepository::m_STR_OPTION_XML_FILTER_FILE ()
 
-/** "-seeds-use-ratio"  Command Line option giving the ratio of seeds to be used
- *  String.
+/** "-seeds-use-ratio"  Command Line option giving the ratio of seeds to be used. Setting a value less than 1.0 will speed up
+ * the algorithm with the drawback to get fewer alignments. In some cases, setting the value to 0.05 with a evalue to 1e-30 will
+ * lead to x2 speed up with a loss of about 1% of alignements.
+ *  float (1.0 by default).
  */
 #define STR_OPTION_SEEDS_USE_RATIO         misc::StringRepository::m_STR_OPTION_SEEDS_USE_RATIO ()
 

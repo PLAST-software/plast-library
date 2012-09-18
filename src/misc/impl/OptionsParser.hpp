@@ -61,9 +61,6 @@ namespace impl {
  *      // we parse the provided options
  *      int nbErrors = parser.parse (argc, argv);
  *
- *      // we may want to display help
- *      if (parser.saw("-h"))    {   parser.displayHelp  (stdout);   }
- *
  *      // we retrieve options information as properties
  *      dp::IProperties* props = parser.getProperties ();
  * }

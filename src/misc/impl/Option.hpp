@@ -25,6 +25,8 @@
 
 /********************************************************************************/
 
+#include <designpattern/api/SmartPointer.hpp>
+
 #include <string>
 #include <list>
 
@@ -38,11 +40,11 @@ namespace impl {
  *
  * Define an interface for what is and what contains an option.
  *
- * It can't be instanciated since the constructor is protected and so, has to be derived.
+ * It can't be instantiated since the constructor is protected and so, has to be derived.
  *
  * \see OptionsParser
  */
-class Option
+class Option : public dp::SmartPointer
 {
 public:
 
@@ -64,8 +66,7 @@ public:
         const std::string& include,
         const std::string& exclude
     )
-        : _name(name), _nbArgs(nbArgs), _mandatory(mandatory), _help(help), _multiple(multiple), _include(include), _exclude(exclude),
-          _counterRef(0)
+        : _name(name), _nbArgs(nbArgs), _mandatory(mandatory), _help(help), _multiple(multiple), _include(include), _exclude(exclude)
     {
     }
 
@@ -82,21 +83,7 @@ public:
      */
     const std::string& getParam ()  const { return _param; }
 
-    /** Take a token on the smart pointer. */
-    virtual void use    ()  {   __sync_fetch_and_add (&_counterRef, 1 );  }
-
-    /** Release a token on the smart pointer. May lead to instance destruction if no more token is taken. */
-    virtual void forget ()
-    {
-        __sync_fetch_and_sub (&_counterRef, 1 );
-        if (_counterRef<=0)  { delete this; }
-    }
-
 protected:
-
-    /** Default constructor. */
-    Option () : _counterRef(0)
-    {}
 
     /** Gives the number of arguments that must follow the option.
      * \return the arguments number.
@@ -149,9 +136,6 @@ protected:
     /* Since the CheckOption class is responsable to the full job, we let it access to the internal informations
      of one Option. */
     friend class OptionsParser;
-
-private:
-    int _counterRef;
 };
 
 /********************************************************************************/

@@ -17,7 +17,7 @@
 /** \file ObsfucatedString.hpp
  *  \date 07/11/2011
  *  \author edrezen
- *  \brief String obsfucation
+ *  \brief String obfuscation
  */
 
 #include <string>
@@ -30,41 +30,59 @@ namespace misc {
 namespace impl {
 /********************************************************************************/
 
-/**
+/** \brief Class that can encode/decode strings
+ *
+ * This class provides a simple algorithm for encoding strings, in order to make
+ * them unreadable by humans.
+ *
+ * A string is encoded as an array of integers. Note that it uses a custom (and simple)
+ * pseudo-random numbers generator.
  */
 class ObsfucatedString 
 {
 public:
 
+    /** Define a specific integer type for this class. */
     typedef unsigned long long LONG;
 
-    /** Constructor. */
+    /** Constructor.
+     * \param[in] l : the first integer elements of the encoding array.
+     * \param[in] ellipsis : the rest of the integers of the encoding array.
+     */
     ObsfucatedString (LONG l, ...);
 
     /** Destructor. */
     ~ObsfucatedString () {}
 
-    /** Getting clear string. */
+    /** Getting clear string.
+     * \return the clear string.
+     */
     std::string toString ()  { return s; }
 
-    /** Obsfucation. */
+    /** Obfuscation.
+     * \param[in] s : the (clear) strings to be encoded.
+     * \return the string holding the encoding array
+     */
     static std::string obsfucate (const std::string& s);
 
 private:
 
-    /** */
+    /** The clear string. */
     std::string s;
 
-    /** */
     static void toBytes (LONG l, char* bytes, size_t length, int off);
 
-    /** */
     static LONG toLong (const char* bytes, size_t length, int off);
 
-    /** */
+    /** Initialization of the pseudo random numbers generator.
+     * \param[in] s : the initial seed of the generator.
+     */
     static void srand (LONG s) { seed = s; }
+
+    /** The initial seed of the pseudo random numbers generator. */
     static LONG seed;
 
+    /** Return a pseudo random number. */
     static LONG rand ();
 };
 

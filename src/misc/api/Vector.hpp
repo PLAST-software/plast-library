@@ -40,7 +40,7 @@ namespace misc {
  *  \brief std::vector-like class.
  *
  *  The idea is to directly provide the data buffer instead of accessing data through
- *  the refine [] operator like in std::vector. This simple fact may speed up intensive
+ *  the overloaded [] operator like in std::vector. This simple fact may speed up intensive
  *  memory access.
  *
  *  WARNING !!! Use only with basic types and not with class objects.

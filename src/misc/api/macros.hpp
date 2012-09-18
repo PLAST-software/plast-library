@@ -40,9 +40,6 @@ namespace misc {
 /** Macro that checks validity of a pointer. */
 #define CHECKPTR(ptr)  ((ptr) != 0)
 
-/** Traces management. Minimal right now, should be improved. */
-//#define DEBUG(a)  //printf a
-
 /** Mininum of two values. */
 #define MIN(a,b)  ((a) < (b) ? (a) :  (b))
 
@@ -55,7 +52,17 @@ namespace misc {
 /** Size of an array (computed through sizeof). */
 #define ARRAYSIZE(t)  (sizeof(t) / sizeof(t[0]))
 
-/** Some macros for add checks in the code. */
+/** Some macros for add checks in the code. When this flag is activated, the flags
+ *  CHECK_BLOCK_BEGIN and CHECK_BLOCK_END are then used to include some code intended
+ *  to control internals of the execution, and eventually launch an exception if something
+ *  strange is happening.
+ *
+ *  Note that this control blocks may take some time at execution, so, when a version seems
+ *  to be ok with the WITH_CHECK activated, one could choose to deactivate it in order to
+ *  gain some execution time.
+ *
+ *  By default, the flag WITH_CHECK is activated.
+ */
 #define WITH_CHECK
 
 #ifdef WITH_CHECK
