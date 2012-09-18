@@ -35,6 +35,12 @@
 /** \brief Abstraction of what an operating resource is.
  *
  *  We define here just a name for grouping os-related interfaces.
+ *
+ *  Note: we could have inherited from dp::SmartPointer; the point here is to
+ *  have no dependency from 'os' namespace to 'dp' namespace.
+ *
+ *  The consequence is that IResource instances have to be deallocated with
+ *  traditional 'delete'.
  */
 class IResource // :  public dp::SmartPointer
 {

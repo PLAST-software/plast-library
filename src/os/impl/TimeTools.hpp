@@ -43,85 +43,70 @@ namespace os {
 namespace impl {
 /********************************************************************************/
 
-/** \brief tool for time statistics.
- */
-class TimeStats : public dp::SmartPointer
-{
-public:
-    TimeStats (ITime& aTime) : _time(aTime), _t0(0), _t1(0)   {  _t0 = _time.gettime();  }
+/** \brief Tool for time statistics.
+ *
+ * This class provides methods for getting time information between two execution points.
+ *
+ * One can use a label for getting a specific time duration; it is possible later to get
+ * this duration by giving the label.
+ *
+ * Example of use:
+ * \code
+ void foo ()
+ {
+     TimeInfo t;
 
-    void tick (const char* message, const char* funcname=__PRETTY_FUNCTION__, size_t lineno=__LINE__)
-    {
-        _t1 = _time.gettime();
-        Entry e = { (_t1-_t0), message, funcname, lineno };
-        _entries.push_back (e);
-        _t0 = _t1;
-    }
+     t.addEntry ("part1");
+     // do something here
+     t.stopEntry ("part1");
 
-    void dump (int (*trace) (const char*, ...) = printf)
-    {
-        u_int32_t total = 0;
-        for (std::list <Entry>::iterator it=_entries.begin(); it!=_entries.end(); it++)
-        {
-            Entry& e = *it;
-            trace ("[STATS %30s:%ld] %4ld msec '%s'\n", e.function, e.lineno, e.duration, e.message.c_str());
-            total += e.duration;
-        }
-        trace ("[STATS TOTAL %ld msec]\n", total);
-    }
+     t.addEntry ("part2");
+     // do something here
+     t.stopEntry ("part2");
 
-private:
-
-    struct Entry
-    {
-        u_int32_t   duration;
-        std::string message;
-
-        const char* function;
-        size_t      lineno;
-    };
-
-    ITime& _time;
-
-    u_int32_t _t0;
-    u_int32_t _t1;
-
-    std::list <Entry> _entries;
-};
-
-/** Define a macro for having the function name and the line. */
-#if 0
-    #define TIME_TICK(t,msg)  t.tick (msg,__FILE__, __LINE__)
-    #define TIME_DUMP(t)      t.dump ()
-#else
-    #define TIME_TICK(t,msg)
-    #define TIME_DUMP(t)
-#endif
-
-/********************************************************************************/
-
-/** \brief tool for time statistics.
- */
+     // now, we dump the duration of part1 and part2:
+     cout << "part1: " << t.getEntryByKey("part1") << "  "
+          << "part2: " << t.getEntryByKey("part2") << endl;
+ }
+ * \endcode
+  */
 class TimeInfo : public dp::SmartPointer
 {
 public:
 
+    /** Default constructor. */
     TimeInfo () : _time(DefaultFactory::time())  { }
 
+    /** Constructor taking a time factory.
+     * \param[in] aTime : the time factory to be used.
+     */
     TimeInfo (ITime& aTime) : _time(aTime)  { }
 
+    /** Get the start time for a given label.
+     * \param[in] name : the label
+     */
     virtual void addEntry (const char* name)
     {
         _entries [name] = _time.gettime();
     }
 
+    /** Get the stop time for a given label.
+     * \param[in] name : the label
+     */
     virtual void stopEntry (const char* name)
     {
         _entries [name] = _time.gettime() - _entries [name];
     }
 
+    /** Provides (as a map) all got durations for each known label/
+     * \return a map holding all retrieved timing information.
+     */
     const std::map <std::string, u_int32_t>& getEntries ()  { return _entries; }
 
+    /** Retrieve the duration for a given label.
+     * \param[in] key : the label we want the duration for.
+     * \return the duration.
+     */
     u_int32_t getEntryByKey (const std::string& key)
     {
         u_int32_t result = 0;
@@ -130,7 +115,10 @@ public:
         return result;
     }
 
-    /** Return properties about the instance. */
+    /** Creates and return as a IProperties instance the whole timing information.
+     * \param[in] root : root name of the properties to be returned.
+     * \return the created IProperties instance.
+     */
     virtual dp::IProperties* getProperties (const std::string& root)
     {
         dp::impl::Properties* props = new dp::impl::Properties();
