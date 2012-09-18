@@ -54,10 +54,11 @@ namespace impl {
  *
  *  For instance, consider a 4 span subseed model (so each seed has 4 characters) for the
  *  amino acid alphabet. Now consider the 4 defining strings:
- *      [0]  "H,FY,W,IV,LM,C,RK,Q,E,N,D,A,S,T,G,P"
- *      [1]  "HFYWIVLMC,RKQENDASTGP"
- *      [2]  "H,FYW,IVLM,C,RK,QE,ND,A,ST,G,P"
- *      [3]  "H,FY,W,IV,LM,C,R,K,Q,E,N,D,A,S,T,G,P"
+ *   - [0]  "H,FY,W,IV,LM,C,RK,Q,E,N,D,A,S,T,G,P"
+ *   - [1]  "HFYWIVLMC,RKQENDASTGP"
+ *   - [2]  "H,FYW,IVLM,C,RK,QE,ND,A,ST,G,P"
+ *   - [3]  "H,FY,W,IV,LM,C,R,K,Q,E,N,D,A,S,T,G,P"
+ *
  *  Here, the string [0] defines some subsets of equivalent letters for the character 0 of
  *  a seed. For instance, letter F and Y belong to the same subset; by convention, we
  *  take the first letter of each subset as the representant of the subset. So, a seed whose
