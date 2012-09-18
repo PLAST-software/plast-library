@@ -50,7 +50,7 @@ public:
     /** Result information of a dynamic prog. */
     struct SplitOutput
     {
-        u_int32_t*          splittab;
+        misc::Vector<u_int32_t> splittab;
         u_int32_t           identity;
         u_int32_t           positive;
         u_int32_t           nbGapQry;
@@ -60,8 +60,8 @@ public:
         database::LETTER*   subjectAlign;
         database::LETTER*   queryAlign;
 
-        SplitOutput (u_int32_t* tab=0, database::LETTER* sbjAlign=0, database::LETTER* qryAlign=0)
-            : splittab(tab),
+        SplitOutput (u_int32_t splitSize=1, database::LETTER* sbjAlign=0, database::LETTER* qryAlign=0)
+            : splittab(splitSize),
               identity(0), positive(0), nbGapQry(0), nbGapSbj(0), nbMis(0), alignSize(0),
               subjectAlign(sbjAlign), queryAlign(qryAlign) {}
      };

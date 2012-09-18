@@ -120,6 +120,9 @@ size_t AlignmentSplitter::splitAlign (
     LETTER anyLetter  = EncodingManager::singleton().getAlphabet(SUBSEED)->any;
     LETTER dashLetter = EncodingManager::singleton().getAlphabet(SUBSEED)->gap;
 
+    int        splitVectorSize = output.splittab.size;
+    u_int32_t* splittab        = output.splittab.data;
+
     /** Shortcuts. */
     int8_t** MATRIX = _scoreMatrix->getMatrix();
 
@@ -203,8 +206,11 @@ size_t AlignmentSplitter::splitAlign (
     i=qryLen;  j=subLen;  x=0;  y=0;
     lg=0; nbg=0;
 
-    if (output.splittab)  {  (output.splittab)[y++] = qryLen - 1;  }
-    if (output.splittab)  {  (output.splittab)[y++] = subLen - 1;  }
+    if (y+2 < splitVectorSize)
+    {
+        splittab[y++] = qryLen - 1;
+        splittab[y++] = subLen - 1;
+    }
 
     char qryLocal [10000];
     char subLocal [10000];
@@ -236,8 +242,11 @@ size_t AlignmentSplitter::splitAlign (
 
             if (lg == 1)
             {
-                if (output.splittab)  {  (output.splittab)[y++]=i;  }
-                if (output.splittab)  {  (output.splittab)[y++]=j;  }
+                if (y+2 < splitVectorSize)
+                {
+                    splittab[y++]=i;
+                    splittab[y++]=j;
+                }
             }
 
             lg=0;
@@ -252,8 +261,11 @@ size_t AlignmentSplitter::splitAlign (
 
                 if (lg==0)
                 {
-                    if (output.splittab)  {  (output.splittab)[y++]=i;  }
-                    if (output.splittab)  {  (output.splittab)[y++]=j;  }
+                    if (y+2 < splitVectorSize)
+                    {
+                        splittab[y++] = i;
+                        splittab[y++] = j;
+                    }
                     nbg++;
                     lg=1;
                 }
@@ -270,8 +282,11 @@ size_t AlignmentSplitter::splitAlign (
 
                 if (lg==0)
                 {
-                    if (output.splittab)  {  (output.splittab)[y++]=i;  }
-                    if (output.splittab)  {  (output.splittab)[y++]=j;  }
+                    if (y+2 < splitVectorSize)
+                    {
+                        splittab[y++] = i;
+                        splittab[y++] = j;
+                    }
                     nbg++;
                     lg=1;
                 }
@@ -301,9 +316,11 @@ size_t AlignmentSplitter::splitAlign (
 #endif
     }
 
-    if (output.splittab)  {  (output.splittab)[y++]=0;  }
-    if (output.splittab)  {  (output.splittab)[y++]=0;  }
-
+    if (y+2 < splitVectorSize)
+    {
+        splittab[y++] = 0;
+        splittab[y++] = 0;
+    }
     output.alignSize = x;
 
     if (output.subjectAlign != 0)  { memcpy (output.subjectAlign, subLocal, output.alignSize); }

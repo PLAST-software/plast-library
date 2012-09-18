@@ -177,6 +177,9 @@ size_t AlignmentSplitterBanded::splitAlign (
     const char* qryStr = qrySeq + qryRange.begin;
     const char* subStr = sbjSeq + sbjRange.begin;
 
+    int        splitVectorSize = output.splittab.size;
+    u_int32_t* splittab        = output.splittab.data;
+
 #if 0
     const LETTER* convert = EncodingManager::singleton().getEncodingConversion(SUBSEED, ASCII);
     printf ("QRY: "); for (int ii=0; ii<qryLen; ii++)  { printf ("%c", convert[(int)qryStr[ii]]);  }  printf("\n\n");
@@ -280,8 +283,11 @@ size_t AlignmentSplitterBanded::splitAlign (
     /** SHORTCUTS. */
     LETTER anyLetter  = EncodingManager::singleton().getAlphabet(SUBSEED)->any;
 
-    if (output.splittab)  {  (output.splittab)[nbHspOpen++] = qryLen - 1;  }
-    if (output.splittab)  {  (output.splittab)[nbHspOpen++] = subLen - 1;  }
+    if (nbHspOpen+2 < splitVectorSize)
+    {
+        splittab [nbHspOpen++] = qryLen - 1;
+        splittab [nbHspOpen++] = subLen - 1;
+    }
 
     /** We reset some alignments fields to be completed. */
     output.identity = 0;
@@ -322,8 +328,11 @@ size_t AlignmentSplitterBanded::splitAlign (
             /** If a gap was opened, we finish it. */
             if (isHspOpened == 0)
             {
-                if (output.splittab)  {  (output.splittab)[nbHspOpen++] = i;  }
-                if (output.splittab)  {  (output.splittab)[nbHspOpen++] = j;  }
+                if (nbHspOpen+2 < splitVectorSize)
+                {
+                    splittab[nbHspOpen++] = i;
+                    splittab[nbHspOpen++] = j;
+                }
 
                 isHspOpened = 1;
             }
@@ -340,8 +349,11 @@ size_t AlignmentSplitterBanded::splitAlign (
             /** If no gap was opened, we open a new one. */
             if (isHspOpened==1)
             {
-                if (output.splittab)  {  (output.splittab)[nbHspOpen++] = i;  }
-                if (output.splittab)  {  (output.splittab)[nbHspOpen++] = j;  }
+                if (nbHspOpen+2 < splitVectorSize)
+                {
+                    splittab[nbHspOpen++] = i;
+                    splittab[nbHspOpen++] = j;
+                }
 
                 output.nbGapQry ++;
 
@@ -356,8 +368,11 @@ size_t AlignmentSplitterBanded::splitAlign (
             /** If no gap was opened, we open a new one. */
             if (isHspOpened==1)
             {
-                if (output.splittab)  {  (output.splittab)[nbHspOpen++] = i;  }
-                if (output.splittab)  {  (output.splittab)[nbHspOpen++] = j;  }
+                if (nbHspOpen+2 < splitVectorSize)
+                {
+                    splittab[nbHspOpen++] = i;
+                    splittab[nbHspOpen++] = j;
+                }
 
                 output.nbGapSbj ++;
 
@@ -374,8 +389,11 @@ size_t AlignmentSplitterBanded::splitAlign (
     } /* end of while ( (i>0) && (j>0) ) */
 
     /** We add a final entry in the list of splits. */
-    if (output.splittab)  {  (output.splittab)[nbHspOpen++] = i;  }
-    if (output.splittab)  {  (output.splittab)[nbHspOpen++] = j;  }
+    if (nbHspOpen+2 < splitVectorSize)
+    {
+        splittab[nbHspOpen++] = i;
+        splittab[nbHspOpen++] = j;
+    }
 
     output.alignSize = alignLength;
 
