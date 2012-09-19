@@ -42,6 +42,8 @@ extern "C" void iLE (char* isAllowed);
 
 #define CONTROL_CHECKS 1
 
+static bool isVersionNumberValid = false;
+
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
@@ -131,14 +133,19 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager_
     const char* codeBuffer = env->GetStringUTFChars (code, NULL);
     if (codeBuffer)
     {
-        if (CheckCode (codeBuffer) == false)
-        {
-            /** LIBRARY NOT ENABLED !!! We launch an exception. */
-            env->ThrowNew (CLASS(DisabledLibraryException), "Library disabled... Bad version...");
-        }
+        /** We see whether the version number is good or not. */
+        isVersionNumberValid = CheckCode (codeBuffer) == true;
 
+        /** We release resources. */
         env->ReleaseStringUTFChars (code, codeBuffer);
     }
+
+    if (isVersionNumberValid == false)
+    {
+        /** LIBRARY NOT ENABLED !!! We launch an exception. */
+        env->ThrowNew (CLASS(DisabledLibraryException), "Library disabled... Bad version...");
+    }
+
 #endif
 
     DEBUG (cout << "Java_org_inria_genscale_plast_impl_RequestManager_initIDs 2" << endl << flush);
@@ -159,6 +166,17 @@ JNIEXPORT jlong JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager
 )
 {
 #ifdef CONTROL_CHECKS
+
+    /** We check whether the version number is good or not. */
+    if (isVersionNumberValid == false)
+    {
+        /** LIBRARY NOT ENABLED !!! We launch an exception. */
+        env->ThrowNew (CLASS(DisabledLibraryException), "Library disabled... Bad version...");
+
+        /** We return a null object as a result. */
+        return 0;
+    }
+
     /** We check whether the library is enabled or not. */
     char isEnabled=0;   iLE (&isEnabled);
 
@@ -166,6 +184,9 @@ JNIEXPORT jlong JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager
     {
         /** LIBRARY NOT ENABLED !!! We launch an exception. */
         env->ThrowNew (CLASS(DisabledLibraryException), "Library disabled...");
+
+        /** We return a null object as a result. */
+        return 0;
     }
 #endif
 
