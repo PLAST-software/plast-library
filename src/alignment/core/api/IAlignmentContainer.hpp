@@ -36,8 +36,6 @@
 #include <string>
 #include <vector>
 
-/** Forward declarations. */
-
 /********************************************************************************/
 namespace alignment {
 namespace core      {
@@ -49,14 +47,11 @@ namespace core      {
  *      - providing means for the algorithm for checking existence of an alignment and inserting new ones
  *      - providing means for iterating alignments through the IAlignmentResultVisitor interface
  *
- * Some other auxiliaries methods are available, like shrinking the alignments list (in case of redundant
- * alignments) or reading some alignments from a file.
- *
- * The PLAST algorithm will initially creates IAlignmentResult instances that are filled by the algorithm
+ * The PLAST algorithm will initially creates IAlignmentContainer instances that are filled by the algorithm
  * during its execution when some significant similarities are found between the subject and query
  * databases. For doing so, the PLAST algorithm will mainly use doesExist() and insert() methods.
  * Once the algorithm is finished, it is possible for the end user to iterate the found alignments
- * by giving a IAlignmentResultVisitor instance to the accept() method.
+ * by giving a IAlignmentContainerVisitor instance to the accept() method.
  *
  * Note that the interface makes no difference between ungap and gap alignments. Actually, it is used
  * for both cases (see for instance FullGapHitIterator class).
@@ -100,10 +95,15 @@ public:
     virtual bool insert (Alignment& align, void* context) = 0;
 
     /** Insert an alignment.
+     * \param[in] qry : range of offsets [begin,end] in the query sequence
+     * \param[in] sbj : range of offsets [begin,end] in the subject sequence
+     * \param[in] qryIndex : index of the query sequence
      * \return true if insertion ok, false otherwise. */
     virtual bool insert (const misc::Range64& qry, const misc::Range64& sbj, u_int32_t qryIndex) = 0;
 
-    /** Merge */
+    /** Merge several containers into the current one.
+     * \param[in] containers : vectors of containers to be merged.
+     */
     virtual void merge (const std::vector<IAlignmentContainer*> containers) = 0;
 
     /** Give the number of known alignments.
@@ -112,6 +112,8 @@ public:
     virtual u_int32_t getAlignmentsNumber () = 0;
 
     /** Get the list of alignments for a given [query,subject] pair
+     * \param[in] seqLevel1 : sequence at level 1 (likely the query)
+     * \param[in] seqLevel2 : sequence at level 2 (likely the subject)
      * \return the alignments list
      */
     virtual std::list<Alignment>* getContainer (

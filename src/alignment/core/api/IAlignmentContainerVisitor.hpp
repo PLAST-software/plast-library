@@ -37,31 +37,32 @@ namespace alignment {
 namespace core      {
 /********************************************************************************/
 
-/** Forward declarations. */
+/* Forward declarations. */
 class IAlignmentContainer;
 
 /********************************************************************************/
 
-/** \brief Visitor Design Pattern that can visit IAlignmentResult instances.
+/** \brief Visitor Design Pattern that can visit IAlignmentContainer instances.
  *
- * IAlignmentResult instances manage some set of Alignment instances.
+ * IAlignmentContainer instances manage some set of Alignment instances.
  *
  * A mean for iterating these alignments would have to add a factory method in the
- * IAlignmentResult interface creating iterators on the contained Alignment instances.
+ * IAlignmentContainer interface creating iterators on the contained Alignment instances.
  *
- * By doing so, we would have lost some hierarchic information. For instance, it is
+ * By doing so, we would have lost some hierarchical information. For instance, it is
  * interesting to sort the alignments per query, and then to sort them per subject.
  *
  * Using a visitor approach allows to keep this structural information. In our visitor
- * definition here, we have three methods:
+ * definition here, we have several methods:
  *      - 1. visitQuerySequence()   : called each time a new query sequence is found in the whole alignments set
  *      - 2. visitSubjectSequence() : called each time a new subject sequence is found in the whole alignments set
- *      - 3. visitAlignment()       : called each time a new alignment is found for the currently visited query/subject sequences.
+ *      - 3. visitAlignmentsList()  : called for each found subject sequence
+ *      - 4. visitAlignment()       : called each time a new alignment is found for the currently visited query/subject sequences.
  *
- * For instance, we could have a series of calls like this: 1,2,3,3,2,3,3,3,1,2,3,3,3,3 which means that we found alignements
+ * For instance, we could have a series of calls like this: 1,2,3,3,2,3,3,3,1,2,3,3,3,3 which means that we found alignments
  * in two different query sequences, with two subject sequences matches for the first one, and only one for the other.
  *
- * Implementors of this interface therefore can use this hierarchy for structuring themself what they want; this is useful
+ * Implementors of this interface therefore can use this hierarchy for structuring themselves what they want; this is useful
  * for instance for dumping the alignment in a XML file.
  */
 class IAlignmentContainerVisitor : public dp::SmartPointer, public dp::impl::Subject
@@ -70,6 +71,7 @@ public:
 
     /** Called when a new query sequence is visited.
      * \param[in] seq : the visited query sequence.
+     * \param[in] progress : progress information about the visit
      */
     virtual void visitQuerySequence   (
         const database::ISequence*  seq,
@@ -78,6 +80,7 @@ public:
 
     /** Called when a new subject sequence is visited for the currently visited query sequence
      * \param[in] seq : the visited subject sequence.
+     * \param[in] progress : progress information about the visit
      */
     virtual void visitSubjectSequence (
         const database::ISequence*  seq,
@@ -85,7 +88,9 @@ public:
     ) = 0;
 
     /** Called for a list of alignments for the currently visited [query,subject] pair.
-     * \param[in] align : the visited alignments list.
+     * \param[in] qry        : the visited query sequence.
+     * \param[in] sbj        : the visited subject sequence.
+     * \param[in] alignments : the visited alignments list.
      */
     virtual void visitAlignmentsList (
         const database::ISequence* qry,
@@ -93,8 +98,9 @@ public:
         std::list<Alignment>& alignments
     ) = 0;
 
-    /** Called when a new alignment is visited for the currenlyt visited query and subject sequences.
+    /** Called when a new alignment is visited for the currently visited query and subject sequences.
      * \param[in] align : the visited alignment.
+     * \param[in] progress : progress information about the visit
      */
     virtual void visitAlignment (
         Alignment*                  align,
@@ -102,6 +108,7 @@ public:
     ) = 0;
 
     /** Called at the end of the 'accept' method.
+     * \param[in] result : the container being visited
      */
     virtual void postVisit (IAlignmentContainer* result) = 0;
 

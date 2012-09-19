@@ -18,6 +18,8 @@
  *  \brief Interface for some HSP container.
  *  \date 07/11/2011
  *  \author edrezen
+ *
+ *  This file contains material for mainly PlastN algorithm.
  */
 
 #ifndef _IHSP_CONTAINER_HPP_
@@ -36,30 +38,59 @@ namespace alignment {
 namespace core      {
 /********************************************************************************/
 
-/**
+/** \brief Interface of what an HSP container can be
+ *
+ * This interface is very similar to the IAlignmentContainer interface. As a matter of
+ * fact, IHspContainer has been used for implementing the PlastN algorithm. Since the
+ * amino acids algorithms were already working (and using IAlignmentContainer), precaution
+ * has been taken to not disturb this working algorithms and interface duplication has
+ * been preferred.
+ *
+ * In the future, it would be nice to merge IHspContainer and IAlignmentContainer interfaces.
+ *
+ * \see IAlignmentContainer
  */
 class IHspContainer : public dp::SmartPointer
 {
 public:
 
-    /** */
+    /** Define an HSP with several information. */
     struct HSP
     {
-        u_int64_t  q_start;      // start position of alignment in the query
-        u_int64_t  q_stop;       // stop position of alignment in the query
-        u_int64_t  s_start;      // start position of alignment in the bank
-        u_int64_t  s_stop;       // stop position of alignment in the bank
-        u_int32_t  diag;         // no de diag max ou est situe  l'alignement
+        /** start position of alignment in the query database. */
+        u_int64_t  q_start;
+
+        /** stop position of alignment in the query database. */
+        u_int64_t  q_stop;
+
+        /** start position of alignment in the bank */
+        u_int64_t  s_start;
+
+        /** stop position of alignment in the bank */
+        u_int64_t  s_stop;
+
+        /** diagonal number of the HSP */
+        u_int32_t  diag;
+
+        /** index of the query sequence. */
         u_int32_t  q_idx;
+
+        /** index of the subject sequence. */
         u_int32_t  s_idx;
+
+        /** score of the HSP */
         int32_t    score;
 
         static const int32_t BAD_SCORE = ~0;
 
-        /** */
+        /** Invalidate the HSP by setting a dummy score. */
         void invalidate ()  { score = BAD_SCORE; }
 
-        /** */
+        /** Overload output stream operator for HSP.
+         * \param[in] s : the output stream object
+         * \param[in] h : the HSP to be output
+         * \return the output stream object
+         */
         friend std::ostream& operator<< (std::ostream& s, const HSP& h)
         {
             return s << "[HSP"
@@ -73,10 +104,16 @@ public:
                  << "  diag="    << h.diag
                  << "]";
         }
-
     };
 
-    /** */
+    /** Insert an HSP in the container.
+     * \param[in] qry : range of absolute offsets [begin,end] of the HSP in the query database
+     * \param[in] sbj : range of absolute offsets [begin,end] of the HSP in the query database
+     * \param[in] qryId : index of the query sequence
+     * \param[in] sbjId : index of the subject sequence
+     * \param[in] score : score of the HSP to be inserted.
+     * \return true if insertion is ok, false otherwise (like already existing HSP)
+     */
     virtual bool insert (
         const misc::Range64& qry,
         const misc::Range64& sbj,
@@ -85,7 +122,16 @@ public:
         int32_t score
     ) =  0;
 
-    /** */
+    /** Insert an HSP in the container.
+     * \param[in] q_start : absolute beginning offset of the HSP in the query database
+     * \param[in] q_stop  : absolute ending  offset of the HSP in the query database
+     * \param[in] s_start : absolute beginning offset of the HSP in the subject database
+     * \param[in] s_stop  : absolute ending  offset of the HSP in the subject database
+     * \param[in] qryId : index of the query sequence
+     * \param[in] sbjId : index of the subject sequence
+     * \param[in] score : score of the HSP to be inserted.
+     * \return true if insertion is ok, false otherwise (like already existing HSP)
+     */
     virtual bool insert (
         u_int64_t q_start,
         u_int64_t q_stop,
@@ -96,24 +142,40 @@ public:
         int32_t score
     ) =  0;
 
+    /** Merge several containers in the current one.
+     * \param[in] v : the vector of HSP containers to be merged.
+     */
 	virtual void merge (std::vector<IHspContainer*> v) = 0;
 
-    /** */
+    /** Insert an HSP into the container.
+     * \param[in] hsp : the HSP to be inserted
+     * \return true if insertion is ok, false otherwise (like already existing HSP)
+     */
     virtual bool insert (HSP* hsp) = 0;
 
-    /** */
+    /** Returns the size of the query database.
+     * \return the database size */
     virtual u_int32_t getDbSize () = 0;
 
-    /** */
+    /** Tells whether the provided HSP already exists or not in this container.
+     * \param[in] q_start : absolute beginning offset of the HSP in the query database
+     * \param[in] s_start : absolute beginning offset of the HSP in the subject database
+     * \param[in] delta   : value for discriminating the diagonal
+     */
     virtual bool doesExist (u_int64_t q_start, u_int64_t s_start, u_int32_t delta) = 0;
 
-    /** */
+    /** Returns one HSP (kind of iterator)
+     * \param[out] nbRetrieved : number of HSP so far iterated
+     * \return the current iterated HSP.
+     */
     virtual HSP* retrieve (size_t& nbRetrieved) = 0;
 
-    /** */
+    /** Reset the iteration of the container. */
     virtual void resetRetrieve () = 0;
 
-    /** */
+    /** Return the total number of HSP in this container.
+     * \return the number of HSP.
+     */
     virtual u_int64_t getItemsNumber () = 0;
 };
 

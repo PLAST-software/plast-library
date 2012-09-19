@@ -33,7 +33,9 @@
 #include <sstream>
 
 /********************************************************************************/
+/** Namespace holding material related to several aspects of alignments (information, containers, filter...) */
 namespace alignment {
+/** Definition of alignment concept and the associated containers. */
 namespace core      {
 /********************************************************************************/
 
@@ -55,7 +57,7 @@ namespace core      {
  *      - bit score of the alignment
  *      - number of gaps in the alignment
  *      - number of identical residues between the two databases
- *      - number of misses between the two databases
+ *      - number of mismatches between the two databases
  *
  * Note that we have here redundant information; for instance, the offsets in the sequence may
  * be retrieved from the offsets in the database. The redundancy is here only to avoid some
@@ -101,7 +103,7 @@ public:
         }
     };
 
-    /** Structure that provides transient information.  */
+    /** Structure that provides transient information (useful during containers visit).  */
     struct AlignExtraInfo
     {
         misc::ProgressInfo qryProgress;
@@ -109,17 +111,16 @@ public:
         misc::ProgressInfo alignProgress;
     };
 
-    /**********************************************************************/
+    /** Enumeration that distinguish the two kinds of databases. */
     enum DbKind { QUERY=0, SUBJECT=1 };
 
-    /**********************************************************************
-     * Default constructor.
-     **********************************************************************/
+    /** Default constructor. */
     Alignment ()  :  _length(0), _evalue(0), _bitscore(0), _score(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)  {}
 
-    /**********************************************************************
-     * Constructor that just define query and subject ranges (mainly for test purpose).
-     **********************************************************************/
+    /** Constructor that just define query and subject ranges (mainly for test purpose).
+     * \param[in] sbjRange : range in the subject sequence
+     * \param[in] qryRange : range in the query sequence.
+     */
     Alignment (const misc::Range32& sbjRange, const misc::Range32& qryRange)
         :  _length(0), _evalue(0), _bitscore(0), _score(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)
     {
@@ -127,9 +128,10 @@ public:
         setRange (QUERY,   qryRange);
     }
 
-    /**********************************************************************
-     * Constructor that just define query and subject ranges (mainly for test purpose).
-     **********************************************************************/
+    /** Constructor that just define query and subject AlignSequenceInfo (mainly for test purpose).
+     * \param[in] sbjInfo : information related to the subject database
+     * \param[in] qryInfo : information related to the querydatabase
+     */
     Alignment (const AlignSequenceInfo& sbjInfo, const AlignSequenceInfo& qryInfo)
         :  _length(0), _evalue(0), _bitscore(0), _score(0), _nbIdentities(0), _nbPositives(0), _nbMisses(0), _extraInfo(0)
     {
@@ -137,12 +139,19 @@ public:
         _info[SUBJECT] = sbjInfo;
     }
 
-    /**********************************************************************
-     * Constructor. This is the typical constructor used when some HSP has
-     * been computed and ranges in query/subject have been computed by some
-     * dynamic programmation. Here, we memorize these information and provide
-     * getter to access it.
-     **********************************************************************/
+    /** Constructor. This is the typical constructor used when some HSP has
+     *  been computed and ranges in query/subject have been computed by some
+     *  dynamic programming. Here, we memorize these information and provide
+     *  getter to access it.
+     *  \param[in] qrySequence    : reference to the query sequence
+     *  \param[in] sbjSequence    : reference to the subject sequence
+     *  \param[in] qryOffset      : offset in the query sequence of the initial seed
+     *  \param[in] sbjOffset      : offset in the subject sequence of the initial seed
+     *  \param[in] qryLeftOffset  : length in the query sequence of the alignment extension to the left of the initial seed
+     *  \param[in] sbjLeftOffset  : length in the subject sequence of the alignment extension to the left of the initial seed
+     *  \param[in] qryRightOffset : length in the query sequence of the alignment extension to the right of the initial seed
+     *  \param[in] sbjRightOffset : length in the subject sequence of the alignment extension to the right of the initial seed
+     */
     Alignment (
         const database::ISequence* qrySequence,
         const database::ISequence* sbjSequence,
@@ -166,12 +175,15 @@ public:
         _length = 1 + MAX (sbjRightOffset + sbjLeftOffset,  qryRightOffset + qryLeftOffset);
     }
 
-    /**********************************************************************
-     * Constructor. This is the typical constructor used when some HSP has
+    /** Constructor. This is the typical constructor used when some HSP has
      * been computed and ranges in query/subject have been computed by some
-     * dynamic programmation. Here, we memorize these information and provide
+     * dynamic programming. Here, we memorize these information and provide
      * getter to access it.
-     **********************************************************************/
+     * \param[in] qrySequence : reference to the query sequence
+     * \param[in] sbjSequence : reference to the subject sequence
+     * \param[in] qryRange    : range of [left,right] offsets of the alignment in the query sequence
+     * \param[in] sbjRange    : range of [left,right] offsets of the alignment in the subject sequence
+     */
     Alignment (
         const database::ISequence* qrySequence,
         const database::ISequence* sbjSequence,
@@ -189,14 +201,13 @@ public:
         _length = MAX (qryRange.getLength(), sbjRange.getLength());
     }
 
-    /**********************************************************************
-     * Constructor that configure an alignment from some string source (mainly for test purpose).
-     **********************************************************************/
+    /** Constructor that configure an alignment from some string source (mainly for test purpose).
+     * \param[in] source : line to be parsed (looks like a tabulated line output from blast)
+     * \param[in] format : kind of format of the source line
+     */
     Alignment (const std::string& source, const std::string& format="tabulated");
 
-    /**********************************************************************
-     * Define some way to compare two alignments. It returns the overlap ratio
-     *  of the two provided alignments.
+    /** Define some way to compare two alignments. It returns the overlap ratio of the two provided alignments.
      * \param[in] a1 : first alignment
      * \param[in] a2 : second alignment
      * \return overlap value; it is a ratio, so it lies in [0;1]
@@ -237,22 +248,42 @@ public:
     /**********************************************************************
      * Getters.
      **********************************************************************/
+
+    /** Return the length of the alignment. This length may include gaps.
+     * \return the length of the alignment. */
     u_int32_t getLength ()  const { return _length; }
 
+    /** \return the evalue */
     double    getEvalue   ()  const { return _evalue;    }
+
+    /** \return the bit score */
     double    getBitScore ()  const { return _bitscore;  }
+
+    /** \return the raw score */
     u_int32_t getScore    ()  const { return _score;     }
 
+    /** \return the number of identical residues between the two sequences for this alignment */
     u_int32_t getNbIdentities ()       const { return _nbIdentities; }
+
+    /** \return the identity percentage */
     double    getPercentIdentities ()  const { return (double)getNbIdentities() / (double)getLength(); }
 
+    /** \return the number of residues having a positive score (with BLOSUM62 for instance) */
     u_int32_t getNbPositives ()        const { return _nbPositives; }
+
+    /** \return the positive percentage */
     double    getPercentPositives ()   const { return (double)getNbPositives() / (double)getLength(); }
 
+    /** \return the number of mismatches between the two sequences for this alignment */
     u_int32_t getNbMisses ()           const { return _nbMisses; }
+
+    /** \return the mismatch percentage */
     double    getPercentMisses ()      const { return (double)getNbMisses() / (double)getLength(); }
 
+    /** \return the number of gaps in the alignment. */
     u_int32_t getNbGaps ()        const { return getNbGaps(QUERY) + getNbGaps(SUBJECT); }
+
+    /** \return the percentage of gaps */
     double    getPercentGaps ()   const { return (double)getNbGaps() / (double)getLength(); }
 
     const misc::ProgressInfo& getQryProgress () const
@@ -276,33 +307,80 @@ public:
     /**********************************************************************
      * Setters.
      **********************************************************************/
+
+    /** Set the number of gaps
+     * \param[in] nb : the number of gaps */
     void setNbGaps       (u_int16_t nb)
     {
         setNbGaps (QUERY,   (nb%2==0 ? nb/2 : (nb-1)/2));
         setNbGaps (SUBJECT, (nb%2==0 ? nb/2 : (nb+1)/2));
     }
 
+    /** Set the alignment length
+     * \param[in] nb : the alignment length */
     void setLength       (u_int32_t nb)  { _length = nb; }
 
+    /** Set the evalue
+     * \param[in] value : the evalue */
     void setEvalue       (double    value)  { _evalue   = value;  }
+
+    /** Set the bit score
+     * \param[in] value : the bit score */
     void setBitScore     (double    value)  { _bitscore = value;  }
+
+    /** Set the raw score
+     * \param[in] value : the raw score */
     void setScore        (u_int32_t value)  { _score    = value;  }
 
+    /** Set the number of identities
+     * \param[in] nb : the identities number */
     void setNbIdentities (u_int32_t nb)             { _nbIdentities = nb;   }
+
+    /** Set the number of positives
+     * \param[in] nb : the positives number */
     void setNbPositives  (u_int32_t nb)             { _nbPositives  = nb;   }
+
+    /** Set the number of mismatches
+     * \param[in] nb : the mismatches number */
     void setNbMisses     (u_int32_t nb)             { _nbMisses     = nb;   }
+
     void setExtraInfo    (AlignExtraInfo* info)     { _extraInfo    = info; }
 
     /**********************************************************************
      * Getters and setters (generic).
      **********************************************************************/
+
+    /** Get alignment information for query or subject
+     * \param[in] kind : QUERY or SUBJECT
+     * \return the alignment information */
     const AlignSequenceInfo&    getInfo       (DbKind kind) const  { return _info[kind]; }
 
+    /** Get sequence reference for query or subject
+     * \param[in] kind : QUERY or SUBJECT
+     * \return the sequence reference */
     const database::ISequence*  getSequence   (DbKind kind) const  { return getInfo(kind)._sequence;  }
+
+    /** Get range for query or subject
+     * \param[in] kind : QUERY or SUBJECT
+     * \return the range
+     */
     const misc::Range32&        getRange      (DbKind kind) const  { return getInfo(kind)._range;     }
+
+    /** Get number of gaps for query or subject
+     * \param[in] kind : QUERY or SUBJECT
+     * \return the number of gaps
+     */
     u_int16_t                   getNbGaps     (DbKind kind) const  { return getInfo(kind)._nbGaps;    }
+
+    /** Get frame number for query or subject
+     * \param[in] kind : QUERY or SUBJECT
+     * \return the frame number
+     */
     int8_t                      getFrame      (DbKind kind) const  { return getInfo(kind)._frame; }
 
+    /** Get alignment coverage for query or subject
+     * \param[in] kind : QUERY or SUBJECT
+     * \return the alignment coverage as a ratio */
     double getCoverage   (DbKind kind) const
     {
         u_int32_t seqLen = getSequence(kind)->getLength();
@@ -314,15 +392,28 @@ public:
         return  (double)(getRange(kind).getLength()) / (double) seqLen;
     }
 
+    /** Set the sequence reference for QUERY or SUBJECT
+     * \param[in] kind : QUERY or SUBJECT
+     * \param seq : the reference on the sequence */
     void setSequence  (DbKind kind, database::ISequence* seq)    {  _info[kind]._sequence = seq;    }
+
+    /** Set the range for QUERY or SUBJECT
+     * \param[in] kind : QUERY or SUBJECT
+     * \param range : the range */
     void setRange     (DbKind kind, const misc::Range32& range)  {  _info[kind]._range    = range;  }
+
+    /** Set the number of gaps for QUERY or SUBJECT
+     * \param[in] kind : QUERY or SUBJECT
+     * \param nb : the number of gaps */
     void setNbGaps    (DbKind kind, u_int16_t nb)                {  _info[kind]._nbGaps   = nb;     }
+
+    /** Set the frame number for QUERY or SUBJECT
+     * \param[in] kind : QUERY or SUBJECT
+     * \param frame : the frame number */
     void setFrame     (DbKind kind, int8_t frame)                {  _info[kind]._frame    = frame;  }
 
-    /**********************************************************************
-     * Debug string.
-     * \return a string.
-     **********************************************************************/
+    /** Return a string representing some information of the alignment (for test/debug purpose).
+     * \return a string. */
     std::string toString ()  const
     {
         std::stringstream ss;
@@ -332,8 +423,10 @@ public:
         return ss.str ();
     }
 
-    /**********************************************************************
-     **********************************************************************/
+    /** Overload of output stream for Alignment class
+     * \param[in] s : the output stream
+     * \param[in] o : the alignment to be output
+     * \return the output stream */
     friend std::ostream& operator<< (std::ostream& s, const Alignment& o)
     {
         char c = ' ';
@@ -348,8 +441,10 @@ public:
         return s;
     }
 
-    /**********************************************************************
-     **********************************************************************/
+    /** Overload of input stream for Alignment class
+     * \param[in] s : the input stream
+     * \param[in] o : the alignment to be input
+     * \return the input stream */
     friend std::istream& operator>> (std::istream& s, Alignment& o)
     {
         char c = ' ';
@@ -366,7 +461,7 @@ public:
 
 private:
 
-    /** */
+    /** Factorized information holding sequence, range and number of gaps. */
     AlignSequenceInfo _info[2];
 
     /** Length of the alignment. */
@@ -384,10 +479,10 @@ private:
     /** Number of identical residues in the alignment. */
     u_int32_t _nbIdentities;
 
-    /** Number of positive residues alignments (ie substition score > 0). */
+    /** Number of positive residues alignments (ie substitution score > 0). */
     u_int32_t _nbPositives;
 
-    /** Number of missed residues alignments. */
+    /** Number of mismatches residues alignments. */
     u_int32_t _nbMisses;
 
     /** Extra information. Can be transient (ie reference may change during Alignment instance life). */

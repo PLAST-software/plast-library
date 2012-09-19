@@ -36,8 +36,12 @@ namespace alignment {
 namespace core      {
 /********************************************************************************/
 
-/** \brief Factory
-  */
+/** \brief Factory that builds IAlignmentContainer instances.
+ *
+ * This interface allows to create IAlignmentContainer instances. It may return
+ * empty instances (without any alignments) or instances filled by alignments found
+ * in some file.
+ */
 class IAlignmentContainerFactory : public dp::SmartPointer
 {
 public:
@@ -49,11 +53,13 @@ public:
 
     /** Read alignments from some uri resource. Different implementations could read from different file format.
      * \param[in]  uri : uri of the resource to be used
+     * \param[in] context : some context for customizing the uri reading
      */
     virtual IAlignmentContainer* createContainerFromUri (const std::string& uri, void* context) = 0;
 
     /** Read alignments from some uri resource. Different implementations could read from different file format.
-     * \param[in]  it : file iterator
+     * \param[in]  it : file line iterator
+     * \param[in] context : some context for customizing the uri reading
      */
     virtual IAlignmentContainer* createContainerFromUri (dp::impl::FileLineIterator* it, void* context) = 0;
 };
