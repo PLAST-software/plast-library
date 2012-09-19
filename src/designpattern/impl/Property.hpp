@@ -126,7 +126,10 @@ class XmlDumpPropertiesVisitor : public IPropertiesVisitor
 public:
 
     /** Constructor.
-     * \param filename : uri of the file where to serialiaze the instance. */
+     * \param[in] filename : uri of the file where to serialize the instance.
+     * \param[in] propertiesAsRoot
+     * \param[in] shouldIndent : tells whether we should use indentation
+     */
     XmlDumpPropertiesVisitor (const std::string& filename, bool propertiesAsRoot=true, bool shouldIndent = true);
 
     /** Desctructor. */
@@ -183,11 +186,11 @@ class RawDumpPropertiesVisitor : public IPropertiesVisitor
 public:
 
     /** Constructor.
-     * \param filename : uri of the file where to serialiaze the instance. */
+     * \param file : file where to serialize the instance. */
     RawDumpPropertiesVisitor (FILE* file = stdout) : _file(file),_fileToClose(false) {}
 
     /** Constructor.
-     * \param filename : uri of the file where to serialiaze the instance. */
+     * \param filename : uri of the file where to serialize the instance. */
     RawDumpPropertiesVisitor (const std::string& filename);
 
     /** Desctructor. */

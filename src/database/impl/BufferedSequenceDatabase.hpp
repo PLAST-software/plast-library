@@ -85,6 +85,7 @@ public:
     BufferedSequenceDatabase (ISequenceIterator* refIterator, bool filterLowComplexity);
 
     /** Constructor that uses a provided cache and an index range for iterating the cache.
+     * \param[in] id : identifier of the database
      * \param[in] cache : cache to be used
      * \param[in] firstIdx : first index to be used in the cache
      * \param[in] lastIdx  : last index to be used in the cache

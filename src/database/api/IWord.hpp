@@ -99,8 +99,7 @@ struct IWord
     /** Update instance by providing a reference to a buffer. There is no data copy here, just references.
      * When using this, it is important to ensure that the referenced data lives longer than the IWord
      * instance that refers it.
-     * \param[in]  size : size of the data to be referenced.
-     * \param[in] aBuffer : buffer to be referenced.
+     * \param[in]  w : the word instance to be referenced
      */
     void setReference (const IWord& w)
     {

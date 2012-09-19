@@ -221,7 +221,7 @@ protected:
 
     /** Primitive of the ICommand::execute method.
      * \param[in] current : current item of the iteration.
-     * \parma[in] nbGot : number of items so far retrieved during the iteration.
+     * \param[in] nbGot : number of items so far retrieved during the iteration.
      */
     virtual void execute (T& current, size_t& nbGot) = 0;
 

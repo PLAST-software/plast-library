@@ -27,7 +27,7 @@
  * specific binaries using this library, for instance:
  *  - PlastCmd : binary for end user that wants to compare genomic databases
  *  - PlastLibraryTest : unit tests for components of the PLAST library
- *  - PlastDiff : binary for comparing different tools (PLAST vs BLAST for instance)
+ *  - GatTool : binary for comparing different tools (PLAST vs BLAST for instance)
  *
  * You will find here the code documentation for namespaces, classes, methods of the different
  * components that makes the PlastLibrary design.
@@ -43,20 +43,20 @@
  * similarities (3 or 4 letters for instance) between the two databases.
  *
  * For efficiency issues, PLAST first indexes the two databases with an index model based on seeds,
- * ie. small words of nucleotids or amino acids. Once the indexes are built, it looks for each occurrence
+ * ie. small words of nucleotides or amino acids. Once the indexes are built, it looks for each occurrence
  * in the subject and query databases of each possible seed. Such an occurrence in both databases
  * is called a hit.
  *
- * Then, the PLAST algorighm tries to keep only the best alignments from these initial hits set.
+ * Then, the PLAST algorithm tries to keep only the best alignments from these initial hits set.
  * This is done through different steps:
- *      - ungap alignments : score computed on ungap alignments (about 40 letters in each databases)
- *      - small gap alignments : score computed on small gap alignments (about 130 letters in each databases)
+ *      - ungap alignments : score computed on ungap alignments (about 40 letters in each hit)
+ *      - small gap alignments : score computed on small gap alignments (about 130 letters in each hit)
  *      - full gap alignments  : dynamic programming for finding gap alignments (arbitrary length)
  *
- * Then, the PLAST algorighm is composed of several steps, each step filtering out the result of previous step.
+ * Then, the PLAST algorithm is composed of several steps, each step filtering out the result of previous step.
  * At the end, only the alignments that fulfill the end user parameters are kept.
  *
- * So, the PLAST algorithm looks like a unix pipe; actually, the choosen design will keep this point of view:
+ * So, the PLAST algorithm looks like a unix pipe; actually, the chosen design will keep this point of view:
  * an initial set of hits (from the subject and query indexations) is iterated at each step and filtered out
  * if needed.
  *
@@ -84,7 +84,7 @@
  * interface for iterating hits (called IHitIterator) that will be used throughout the algorithm steps. Different implementations
  * of the IHitIterator interface will correspond to the ungap alignments step, small gap alignments step and so on.
  *
- * Beyond this uniformization aspect, the Iterator pattern can be used for implementing our parallization scheme for multicores
+ * Beyond this uniformization aspect, the Iterator pattern can be used for implementing our parallelization scheme for multicores
  * architectures. We can split an Iterator instance in several Iterator instances, where the iterated set of the initial instance
  * is the same as the union of the iterated sets of split instances. It is then easy to iterate each split iterator in a specific
  * thread, running on a specific core and we are done with this parallelization aspect.
@@ -92,11 +92,15 @@
 
  * \subsection concepts_entrypoint Entry point
  *
- * People who wants to use the library have to know its "entry point", ie. what they have to call in their main function.
+ * People who wants to use the library for comparing two databases have to know its "entry point", ie.
+ * what they have to call in their main function.
  *
- * The IEnvironment interface may be seen as such an "entry point". It provide a 'run' method to be called for launching the
- * PLAST algorithm. This 'run' method has an argument that provides all the parametrization of the algorithm (for instance
- * the path of the two genomic databases to be compared).
+ * The launcher::core::PlastCmd class may be seen as such an "entry point". It provides an 'execute' method to be called for
+ * launching the PLAST algorithm. The parameterization of the algorithm (for instance the path of the two genomic databases
+ * to be compared) is provided to the constructor of this class.
+ *
+ * Note that launcher::core::PlastCmd is an implementation of the dp::ICommand interface. Therefore, one can use some
+ * command dispatcher instead of using directly the 'execute' method for launching the algorithm.
  *
  ****************************************************************************************************
  *
@@ -107,13 +111,12 @@
  *  - designpattern : contains several Design Pattern (Iterator, Command, Observer...) used throughout the code
  *  - database : provides concepts for using genomic databases
  *  - seed : provides concepts related to seeds (ie. small words of genomic letters)
- *  - index : provides tools for indexation of genomic databases, with seeds as indexes
- *  - statistics : provides tools for managing statistical aspects of the PLAST algorithm
- *  - alignment: provides structures representing alignments containers; also holds some tools to work on such containers
+ *  - index : provides tools for indexing genomic databases, with seeds as indexes
  *  - seg: algorithms for removing low informative regions from databases (seg for amino acids, dust for nucleotides)
+ *  - alignment: provides structures representing alignments containers; also holds some tools to work on such containers
  *  - algorithm : components of the PLAST algorithm
  *  - pcre: tool for perl like regular expressions (see http://www.pcre.org/)
- *  - misc : miscellanous (types definitions for instance)
+ *  - misc : miscellaneous (types definitions for instance)
  *  - launcher : high level API for running PLAST algorithm; also contains a JNI interface for launching PLAST from Java world.
  *
  *  Most of these top level namespaces hold:
@@ -160,7 +163,8 @@
  *
  * This procedure works both on Linux and MacOs.
  *
- * For Windows, the Mingw64 environment has first to be deployed since the GCC compiler is used for compiling PLAST.
+ * For Windows, the Mingw64 environment has first to be deployed since the GCC compiler is needed for compiling PLAST
+ * (due to GCC intrinsics use).
  * Then, one has to do 'cmake -G "MSYS Makefiles" .' followed by 'make'.
  *
  * Note that the target architecture must support SSE instructions set (at least SSE2).

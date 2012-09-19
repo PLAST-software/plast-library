@@ -14,7 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/**\page howto_page How to
+/**\page snippets_page Snippets for PlastLibrary
  *
  * \ref dp_command
  *
@@ -26,13 +26,15 @@
  *
  * \ref database
  *
+ * \ref database2
+ *
  * \ref indexation
  *
  * \ref environment
  *
  * We provide here some code snippets to see how to use some concepts of the PlastLibrary.
  *
- * Note that, for readibility reasons, these snippets don't take care about some aspects
+ * Note that, for readability reasons, these snippets don't take care about some aspects
  * (memory leak for instance).
  *
  ***************************************************************************************************
@@ -104,8 +106,8 @@ int main (int argc, char* argv[])
  *
  * \section dp_synchronizer How to protect data against concurrent accesses ?
  *
- * It may happen that the same piece of data have to be read and writen by several threads at the same
- * time. Doing it carelessely may lead to program crashes.
+ * It may happen that the same piece of data have to be read and written by several threads at the same
+ * time. Doing it carelessly may lead to program crashes.
  *
  * Classical solutions for this issue are known as mutex, semaphores, etc...
  *
@@ -119,7 +121,7 @@ int main (int argc, char* argv[])
  * Note how we secure the way the variable is increased in the execute() method; we use a
  * LocalSynchronizer object that will lock/unlock our shared synchronizer in its visibility
  * domain, here the 'for' statements block. In other words, the _synchro attribute will be locked
- * at the begining of the for-loop block and unlocked at its end (so lock/unlock will happen 2000
+ * at the beginning of the for-loop block and unlocked at its end (so lock/unlock will happen 2000
  * times in our example).
  *
  * If one tries to comment the line where the LocalSynchronizer object is declared, the result
@@ -357,7 +359,7 @@ int main (int argc, char* argv[])
  *
  * Two interfaces (IObserver and ISubject) are defined for managing this notifications system:
  *  - the IObserver::update() method must be implemented by clients that want to behave like observers
- *  - the Subect implementation provides methods for adding/removing observers to itself.
+ *  - the Subject implementation provides methods for adding/removing observers to itself.
  *
  * \code
 #include <designpattern/api/IObserver.hpp>
@@ -423,12 +425,12 @@ int main (int argc, char* argv[])
  * \section database How to read a genomic database ?
  *
  * Databases files contain a list of sequences, one sequence being identified by some textual
- * comment and by the actual genomic letters data  (nucleotids or amino acids).
+ * comment and by the actual genomic letters data  (nucleotides or amino acids).
 
  * Given the location of the genomic database in the filesystem, clients may want to parse
  * the database (FASTA format for instance), ie. they want to have access to the sequence information.
  *
- * They have two possibilies:
+ * They have two possibilities:
  *      - 1. they want to iterate the sequences, one by one
  *      - 2. they want to have more flexible access to the sequences
  *
@@ -540,6 +542,64 @@ int main (int argc, char* argv[])
  * \endcode
  *
  *
+ ****************************************************************************************************
+ *
+ * \section database2  How to read sequences from a database in an parallel fashion ?
+ *
+ * Here, we want to iterate all sequences of a database, and we also want to take full
+ * advantage of a multicore architecture in order to speed up the process.
+ *
+ * We need a special kind of iterator that provides items references to several clients that can be
+ * present on different threads. For this, we can use the dp::impl::IteratorGet. Such an iterator encapsulates
+ * an instance of dp::Iterator and ensures that it provides references on the iterated items in a safe
+ * manner in regard to the potential concurrent accesses from different clients.
+ *
+ * \code
+ *
+ * #include <database/impl/BufferedCachedSequenceDatabase.hpp>
+ * #include <database/impl/FastaSequenceIterator.hpp>
+ * #include <designpattern/impl/CommandDispatcher.hpp>
+ * #include <designpattern/impl/IteratorGet.hpp>
+ *
+ * using namespace database;
+ * using namespace database::impl;
+ * using namespace dp;
+ * using namespace dp::impl;
+ *
+ * ///////////////////////////////////////////////////////////////////
+ * void callback (const ISequence*& seq, size_t& nbRetrieved, void* data)
+ * {
+ *      // we can do whatever we want with the current sequence
+ * }
+ *
+ * ///////////////////////////////////////////////////////////////////
+ * int main (int argc, char* argv[])
+ * {
+ *    // we create a database object.
+ *    // Note that we use the BufferedCachedSequenceDatabase class that ensures that the iterated ISequence instances exist in memory
+ *    ISequenceDatabase* db = new BufferedCachedSequenceDatabase (
+ *        new FastaSequenceIterator ("/tmp/tursiops.fa"),
+ *        false
+ *    );
+ *
+ *    // we create a special sequences iterator from the database
+ *    IteratorGet<const ISequence*>* it = new IteratorGet<const ISequence*> (db->createSequenceIterator());
+ *
+ *    // we create some commands that will use this iterator.
+ *    list<ICommand*> commands;
+ *    for (size_t i=1; i <= 8; i++)
+ *    {
+ *        // we create an IteratorCommand instance with a given callback
+ *        commands.push_back (new IteratorCommand<const ISequence*> (it, callback, NULL));
+ *    }
+ *
+ *    // We dispatch the commands.
+ *    // Each sequence will be iterated through the 'callback' function, each call being done in one of the 8 created threads
+ *    ParallelCommandDispatcher().dispatchCommands (commands,0);
+ * }
+ *
+ * \endcode
+ *
  ***************************************************************************************************
  *
  * \section indexation How to index a genomic database ?
@@ -548,7 +608,7 @@ int main (int argc, char* argv[])
  * to make quick lookups in the database for some kind of keys.
  *
  * The keys we consider here are called seeds, and represent a small word with genomic
- * letters (nucleotids or amino acids). For instance, a seed may be 4 amino acids long.
+ * letters (nucleotides or amino acids). For instance, a seed may be 4 amino acids long.
  *
  * The index is built according to a given set of seeds. Such a set is defined by a seed
  * model, reified as the ISeedModel interface.
@@ -635,35 +695,33 @@ int main (int argc, char* argv[])
  *
  * \section environment  How to run the PLAST algorithm ?
  *
- * The entry point of the PLAST algorithm is the IEnvironment interface.
- * You have to simply call the run() method with an argument gathering
- * all the options to be used for algorithm configuration.
+ * The entry point of the PLAST algorithm is the launcher::core::PlastCmd interface.
  *
  * The minimal set of options you can provide only holds the URIs of the subject
  * and the query databases to be compared.
  *
  * Code sample
  * \code
+ * #include <launcher/core/PlastCmd.hpp>
+ * #include <designpattern/impl/CommandDispatcher.hpp>
  * #include <designpattern/impl/Property.hpp>
- * #include <algo/core/impl/DefaultAlgoEnvironment.hpp>
  *
  * using namespace dp;
  * using namespace dp::impl;
- * using namespace algo::core;
- * using namespace algo::core::impl;
+ * using namespace launcher::core;
  *
  * int main (int argc, char* argv[])
  * {
- *      // we create our entry point for the PLAST algorithm
- *      IEnvironment* env = new DefaultEnvironment ();
- *
  *      // we create a IProperties instance holding the subject and query databases URIs
  *      IProperties* props = new Properties ();
  *      props->add (0, "-d", "/tmp/tursiops.fa");
  *      props->add (0, "-i", "/tmp/query.fa");
  *
- *      // we launch the PLAST algorithm
- *      env->run (props);
+ *      // We create the PLAST command with the arguments above
+ *      ICommand* cmd = new PlastCmd (props);
+ *
+ *      // We launch the request through some dispatcher.
+ *      SerialCommandDispatcher().dispatchCommand (cmd);
  *
  *      return 0;
  * }

@@ -81,7 +81,7 @@ public:
     /** \copydoc Iterator<T1>::currentItem */
     T1 currentItem()  { return *_iter; }
 
-    /** \copydoc Iterator<T1>::size */
+    /** \copydoc SmartIterator<T1>::size */
     u_int32_t size()  { return _l.size(); }
 
 private:

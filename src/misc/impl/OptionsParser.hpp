@@ -90,7 +90,7 @@ public:
     int parse (int argc, char* argv[]);
 
     /** Perform the analyze of the arguments.
-     * \param[in] line : string containing the options to be parsed
+     * \param[in] s : string containing the options to be parsed
      * \return number of parsing errors.
      */
     int parse (const std::string& s);
