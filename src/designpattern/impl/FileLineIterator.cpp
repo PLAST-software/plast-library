@@ -45,7 +45,7 @@ FileLineIterator::FileLineIterator (
 )
     : _filename(filename), _lineMaxSize(lineMaxSize), _line(0),
       _offset0(offset0), _offset1(offset1), _range(~0),
-      _readTotalSize(0), _readCurrentSize(0),
+      _readTotalSize(0), _readCurrentSize(0), _cummulatedFilesLength(0),
       _eof(false), _currentFile(0)
 {
     DEBUG (cout << "FileLineIterator::FileLineIterator: filename=" << filename << endl);
@@ -100,12 +100,10 @@ void FileLineIterator::first()
 {
 	if (_files.empty() == false)
 	{
-		/** */
-		u_int64_t cummulatedFilesLength = 0;
-
 		/** We reset some attributes. */
-		_readTotalSize   = 0;
-		_readCurrentSize = 0;
+	    _cummulatedFilesLength = 0;
+		_readTotalSize         = 0;
+		_readCurrentSize       = 0;
 
 	    /** We have to find the file that matches the provided beginning offset. */
         for (_filesIterator = _files.begin(); _filesIterator != _files.end();  _filesIterator++)
@@ -119,12 +117,12 @@ void FileLineIterator::first()
 
             DEBUG (cout << "FileLineIterator::first  filelen=" << len << "  offset=" << _offset0 << "  cummulatedFilesLength=" << cummulatedFilesLength << endl);
 
-            if (cummulatedFilesLength + len >= _offset0)
+            if (_cummulatedFilesLength + len >= _offset0)
             {
                 /** The current iterated files are large enough to contain the beginning offset. */
 
                 /** We can shift to the correct location into the file. */
-                _currentFile->seeko (_offset0 - cummulatedFilesLength, SEEK_SET);
+                _currentFile->seeko (_offset0 - _cummulatedFilesLength, SEEK_SET);
 
                 DEBUG (cout << "FileLineIterator::first  currentSeek=" << (_offset0 - cummulatedFilesLength) << endl);
 
@@ -133,7 +131,7 @@ void FileLineIterator::first()
             }
 
             /** We increase the cumulated sizes of files. */
-            cummulatedFilesLength += len;
+            _cummulatedFilesLength += len;
 
         } /* for (_filesIterator = _files.begin()... */
 
@@ -162,6 +160,12 @@ bool FileLineIterator::retrieveNextFile ()
 
     if (_filesIterator != _files.end())
     {
+        /** We go to the end of the current file in order to get its size. */
+        _currentFile->seeko (0, SEEK_END);
+
+        /** We add this size to the current aggregated files length. */
+        _cummulatedFilesLength += _currentFile->tell();
+
         /** We update the current file. */
         _currentFile = *_filesIterator;
 

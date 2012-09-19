@@ -151,10 +151,12 @@ public:
      */
     u_int64_t getLineSize ()  { return _readCurrentSize; }
 
-    /** Returns the current position in the file
+    /** Returns the current position in the file.
+     * Warning ! when the file is a 'composite' file (ie. comma separated list of files), we must
+     * return the aggregated length.
      * \return the position in the file
      */
-    u_int64_t tell ()  { return _currentFile->tell(); }
+    u_int64_t tell ()  { return _cummulatedFilesLength + _currentFile->tell(); }
 
     /** Reinitialize the offsets range to be parsed in the file.
      * \param[in] offset0 : begin offset
@@ -209,6 +211,9 @@ private:
 
     /** Size of the currently read line. */
     u_int64_t _readCurrentSize;
+
+    /** Size of all files already parsed. */
+    u_int64_t _cummulatedFilesLength;
 
     /** Tells if the iteration is finished or not. */
     bool _eof;
