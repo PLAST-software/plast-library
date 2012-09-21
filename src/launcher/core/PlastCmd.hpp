@@ -102,7 +102,7 @@ public:
     /** Constructor. */
     virtual ~PlastCmd ();
 
-    /** \copydoc dp::ICommand::update*/
+    /** \copydoc dp::ICommand::execute */
     void execute ();
 
     /** Cancel the command. */

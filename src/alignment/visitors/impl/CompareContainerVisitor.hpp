@@ -86,17 +86,17 @@ public:
         if (_visitorDistinct)   {  _visitorDistinct->postVisit (result);    }
     }
 
-    /** \copydoc IAlignmentResultVisitor::visitAlignmentsList */
+    /** \copydoc IAlignmentContainerVisitor::visitAlignmentsList */
     void visitAlignmentsList (
         const database::ISequence* qry,
         const database::ISequence* sbj,
         std::list<core::Alignment>& alignments
     );
 
-    /** \copydoc IAlignmentResultVisitor::finalize */
+    /** \copydoc IAlignmentContainerVisitor::finalize */
     void finalize (void)  { }
 
-    /** \copydoc IAlignmentResultVisitor::getPosition */
+    /** \copydoc IAlignmentContainerVisitor::getPosition */
     u_int64_t getPosition ()  { return 0; }
 
     size_t getTotalSize    ()  { return _commonSize + _specificSize; }

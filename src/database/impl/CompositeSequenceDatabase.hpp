@@ -95,7 +95,7 @@ public:
         u_int64_t& offsetInDatabase
     );
 
-    /** \copydoc ISequenceDatabase::getSequenceByOffset
+    /** \copydoc ISequenceDatabase::getSequenceByName
      * The cache is supposed to be already built. */
     bool getSequenceByName (
         const std::string& id,

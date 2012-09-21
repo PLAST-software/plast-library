@@ -56,25 +56,25 @@ public:
     /** Destructor. */
     virtual ~AbstractAlignmentContainer ();
 
-    /** \copydoc IAlignmentResult::getProperties */
+    /** \copydoc IAlignmentContainer::getProperties */
     dp::IProperties* getProperties (const std::string& root);
 
-    /** \copydoc IAlignmentResult::getSize */
+    /** \copydoc IAlignmentContainer::getAlignmentsNumber */
     u_int32_t getAlignmentsNumber ()  { return _nbAlignments; }
 
     /** Ugly... */
     void setSize (u_int32_t s)  { _nbAlignments = s; }
 
-    /** \copydoc IAlignmentResult::insertFirstLevel */
+    /** \copydoc IAlignmentContainer::insertFirstLevel */
     bool insertFirstLevel (const database::ISequence* sequence)  { return false; }
 
-    /** \copydoc IAlignmentResult::getFirstLevelNumber */
+    /** \copydoc IAlignmentContainer::getFirstLevelNumber */
     u_int32_t getFirstLevelNumber () { return 0; }
 
-    /** \copydoc IAlignmentResult::insert */
+    /** \copydoc IAlignmentContainer::insert(const misc::Range64&,const misc::Range64&,u_int32_t) */
     bool insert (const misc::Range64& qry, const misc::Range64& sbj, u_int32_t qryIndex)  { return false; }
 
-    /** \copydoc IAlignmentResult::merge */
+    /** \copydoc IAlignmentContainer::merge */
     void merge (const std::vector<IAlignmentContainer*> containers) {  }
 
 protected:
@@ -82,7 +82,7 @@ protected:
     /** Synchronizer for preventing for concurrent accesses. */
     os::ISynchronizer* _synchro;
 
-    /** */
+    /** Number of alignments. */
     u_int32_t _nbAlignments;
 };
 

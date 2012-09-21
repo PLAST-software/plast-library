@@ -84,7 +84,6 @@ public:
     virtual void flush () = 0;
 
     /** Get the size of a file.
-     * \param[in] filename : the name of the file
      * \return the size of the file.
      */
     virtual u_int64_t getSize () = 0;

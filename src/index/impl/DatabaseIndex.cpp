@@ -667,7 +667,7 @@ ISeedIterator* DatabaseIndexCodonStopOptim::createSeedsIterator (const database:
     Offset previousOffset = 0;
     vector<Offset> badIntervals;
 
-    /** We loop the seeds iterator for tagging itervals of holding bad letters. */
+    /** We loop the seeds iterator for tagging intervals of holding bad letters. */
     for (itSeed->first(); !itSeed->isDone(); itSeed->next())
     {
         Offset currentOffset = itSeed->currentItem()->offset;

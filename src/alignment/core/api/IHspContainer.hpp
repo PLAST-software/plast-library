@@ -110,7 +110,7 @@ public:
      * \param[in] qry : range of absolute offsets [begin,end] of the HSP in the query database
      * \param[in] sbj : range of absolute offsets [begin,end] of the HSP in the query database
      * \param[in] qryId : index of the query sequence
-     * \param[in] sbjId : index of the subject sequence
+     * \param[in] seqId : index of the subject sequence
      * \param[in] score : score of the HSP to be inserted.
      * \return true if insertion is ok, false otherwise (like already existing HSP)
      */
@@ -128,7 +128,7 @@ public:
      * \param[in] s_start : absolute beginning offset of the HSP in the subject database
      * \param[in] s_stop  : absolute ending  offset of the HSP in the subject database
      * \param[in] qryId : index of the query sequence
-     * \param[in] sbjId : index of the subject sequence
+     * \param[in] seqId : index of the subject sequence
      * \param[in] score : score of the HSP to be inserted.
      * \return true if insertion is ok, false otherwise (like already existing HSP)
      */

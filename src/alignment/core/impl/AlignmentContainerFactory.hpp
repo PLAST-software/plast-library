@@ -15,7 +15,7 @@
  *****************************************************************************/
 
 /** \file AlignmentContainerFactory.hpp
- *  \brief Abstract implementation of IAlignmentContainer interface.
+ *  \brief Default implementation of AlignmentContainerFactory interface.
  *  \date 07/11/2011
  *  \author edrezen
  */
@@ -33,7 +33,16 @@ namespace core      {
 namespace impl      {
 /********************************************************************************/
 
-/** \brief TO DO
+/** \brief Implementation of the IAlignmentContainerFactory interface
+ *
+ * This implementation creates BasicAlignmentContainer instances.
+ *
+ * The createContainerFromUri method is able to read tabular output files (like blast
+ * can do with -outfmt 6). This is useful for instance for GatTool that reads result
+ * files through this API; it can then compare alignments containers from two results
+ * files (one from blast, one from plast for instance) and estimate the global overlap
+ * between the two containers.
+ *
  */
 class AlignmentContainerFactory : public IAlignmentContainerFactory
 {
@@ -49,10 +58,10 @@ public:
     /** \copydoc IAlignmentContainerFactory::createContainer  */
     IAlignmentContainer* createContainer ();
 
-    /** \copydoc IAlignmentContainerFactory::createFromFile  */
+    /** \copydoc IAlignmentContainerFactory::createContainerFromUri(const std::string&,void*)  */
     IAlignmentContainer* createContainerFromUri (const std::string& uri, void* context=0);
 
-    /** */
+    /** \copydoc IAlignmentContainerFactory::createContainerFromUri(dp::impl::FileLineIterator*,void*)  */
     IAlignmentContainer* createContainerFromUri (dp::impl::FileLineIterator* it, void* context=0);
 };
 

@@ -56,16 +56,16 @@ public:
     /** Destructor. */
     virtual ~SequenceTokenizer ()  {}
 
-    /** \copydoc Iterator::first */
+    /** \copydoc dp::Iterator::first */
     void first()  { _currentIdx = 0; }
 
-    /** \copydoc Iterator::next */
+    /** \copydoc dp::Iterator::next */
     dp::IteratorStatus next()  { _currentIdx++;   return dp::ITER_UNKNOWN; }
 
-    /** \copydoc Iterator::isDone */
+    /** \copydoc dp::Iterator::isDone */
     bool isDone()  { return _currentIdx >= _size; }
 
-    /** \copydoc Iterator::currentItem */
+    /** \copydoc dp::Iterator::currentItem */
     std::pair<size_t,size_t>& currentItem()  { return _pairs[_currentIdx]; }
 
     /** Retrieve the indexes couples.

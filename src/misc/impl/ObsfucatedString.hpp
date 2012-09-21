@@ -47,7 +47,7 @@ public:
 
     /** Constructor.
      * \param[in] l : the first integer elements of the encoding array.
-     * \param[in] ellipsis : the rest of the integers of the encoding array.
+     * \param[in] ... : the rest of the integers of the encoding array.
      */
     ObsfucatedString (LONG l, ...);
 

@@ -244,8 +244,9 @@ class DatabaseIndexCodonStopOptim : public DatabaseIndex
 public:
 
     /** Constructor.
-     * \param[in] database : the database to be indexed.
-     * \param[in] model : the seed model to be used for indexation.
+     * \param[in] database  : the database to be indexed.
+     * \param[in] model     : the seed model to be used for indexation.
+     * \param[in] skipRange : minimal number of valid letters in a row for not invalidating data
      */
     DatabaseIndexCodonStopOptim (
         database::ISequenceDatabase* database,

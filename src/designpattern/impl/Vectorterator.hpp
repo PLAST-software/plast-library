@@ -14,7 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/** \file VectorIterator.hpp
+/** \file Vectorterator.hpp
  *  \date 07/11/2011
  *  \author edrezen
  *  \brief Implementation of an Iterator that loops over std::vector

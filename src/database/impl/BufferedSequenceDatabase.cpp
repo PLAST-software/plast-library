@@ -33,8 +33,6 @@ using namespace os::impl;
 extern "C" void seg_filterSequence  (char* sequence, int length);
 extern "C" void dust_filterSequence (char* sequence, int length);
 
-u_int64_t nb_getSequenceByOffset = 0;
-
 /********************************************************************************/
 namespace database { namespace impl {
 /********************************************************************************/
@@ -309,8 +307,6 @@ bool BufferedSequenceDatabase::getSequenceByOffset (
     u_int64_t& actualOffsetInDatabase
 )
 {
-    nb_getSequenceByOffset++;
-
     /** Shortcut. */
     ISequenceCache* cache = getCache ();
 
