@@ -42,20 +42,36 @@ class AbstractAlignmentOverlapCmd : public dp::ICommand
 public:
 
     AbstractAlignmentOverlapCmd (
-        const std::list<core::Alignment>* ref,
-        const std::list<core::Alignment>* comp,
+        std::list<core::Alignment>* ref,
+        std::list<core::Alignment>* comp,
         misc::Range<double> overlapRange
-    ) : _ref(ref), _comp(comp), _overlapRange(overlapRange) {}
+    );
 
     void execute ();
 
 protected:
 
+    void execute (std::list<core::Alignment>& ref, std::list<core::Alignment>& comp, int direction);
+
     virtual void handleCommonAlignment   (const core::Alignment& a) = 0;
     virtual void handleDistinctAlignment (const core::Alignment& a) = 0;
 
-    const std::list<core::Alignment>* _ref;
-    const std::list<core::Alignment>* _comp;
+    //enum Directions { LL=0,LR,RR,RL,NBMAX };
+    struct Partition
+    {
+        std::list<core::Alignment>  LL;
+        std::list<core::Alignment>  LR;
+        std::list<core::Alignment>  RR;
+        std::list<core::Alignment>  RL;
+    };
+
+    Partition refParts;
+    Partition compParts;
+
+    void partition (std::list<core::Alignment>& in, Partition& out);
+
+    std::list<core::Alignment>* _ref;
+    std::list<core::Alignment>* _comp;
 
     misc::Range<double> _overlapRange;
 };
@@ -69,8 +85,8 @@ class AlignmentOverlapCmd : public AbstractAlignmentOverlapCmd
 public:
 
     AlignmentOverlapCmd (
-        const std::list<core::Alignment>* ref,
-        const std::list<core::Alignment>* comp,
+        std::list<core::Alignment>* ref,
+        std::list<core::Alignment>* comp,
         misc::Range<double> overlapRange,
         core::IAlignmentContainerVisitor* visitorCommon   = 0,
         core::IAlignmentContainerVisitor* visitorDistinct = 0
@@ -97,14 +113,12 @@ protected:
     void handleCommonAlignment   (const core::Alignment& a)
     {
         _commonSize++;
-        _count++;
         if (_visitorCommon)  { _visitorCommon->visitAlignment ((core::Alignment*)&a, _dummyProgress); }
     }
 
     void handleDistinctAlignment (const core::Alignment& a)
     {
         _specificSize++;
-        _count++;
         if (_visitorDistinct)  { _visitorDistinct->visitAlignment ((core::Alignment*)&a, _dummyProgress); }
     }
 
@@ -120,8 +134,6 @@ private:
     void setVisitorDistinct (core::IAlignmentContainerVisitor* visitorDistinct)  { SP_SETATTR(visitorDistinct); }
 
     misc::ProgressInfo _dummyProgress;
-
-    static int _count;
 };
 
 /********************************************************************************/
