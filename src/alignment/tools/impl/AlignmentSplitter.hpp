@@ -77,8 +77,8 @@ protected:
     int16_t** _matrix_E;
     int16_t** _matrix_F;
 
-    int _DefaultAlignSize;
-    int _MaxAlignSize;
+    u_int64_t _DefaultAlignSize;
+    u_int64_t _MaxAlignSize;
 
     int16_t** newMatrix  (int nrows, int ncols);
     void      freeMatrix (int16_t*** mat);

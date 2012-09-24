@@ -66,7 +66,7 @@ private:
     int16_t* _vector_E;
     int16_t* _vector_F;
 
-    bool allocVectors (int newSize);
+    bool allocVectors (u_int64_t newSize);
 
     void dumpMatrix (int qryLen, int subLen, int delta);
 };

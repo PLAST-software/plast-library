@@ -68,7 +68,7 @@ AlignmentSplitterBanded::AlignmentSplitterBanded (IScoreMatrix* scoreMatrix, int
     /** We set a maximum size for the 3 vectors allocations. Note that the AlignmentSplitter class uses N*N matrix
      * allocations, so its _MaxAlignSize can't be so big. Here, we use vectors (and not matrixes) since
      * the underlying matrixes are sparse (banded in other words). */
-    _MaxAlignSize = 50*1024*1024;
+    _MaxAlignSize = 100*1024*1024;
 }
 
 /*********************************************************************
@@ -96,11 +96,11 @@ AlignmentSplitterBanded::~AlignmentSplitterBanded ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-bool AlignmentSplitterBanded::allocVectors (int newSize)
+bool AlignmentSplitterBanded::allocVectors (u_int64_t newSize)
 {
     bool result = false;
 
-    DEBUG (("AlignmentSplitterBanded::allocVectors : this=%p _DefaultAlignSize=%d  _MaxAlignSize=%d  newSize=%d \n",
+    DEBUG (("AlignmentSplitterBanded::allocVectors : this=%p _DefaultAlignSize=%d  _MaxAlignSize=%d  newSize=%ld \n",
         this, _DefaultAlignSize, _MaxAlignSize, newSize
     ));
 
@@ -113,9 +113,9 @@ bool AlignmentSplitterBanded::allocVectors (int newSize)
         _vector_F = (int16_t*) DefaultFactory::memory().realloc (_vector_F, _DefaultAlignSize*sizeof (int16_t));
 
         int16_t val = MINFTY;
-        for (int i=0; i<_DefaultAlignSize; i++)  { _vector_H[i] = val; }
-        for (int i=0; i<_DefaultAlignSize; i++)  { _vector_E[i] = val; }
-        for (int i=0; i<_DefaultAlignSize; i++)  { _vector_F[i] = val; }
+        for (u_int64_t i=0; i<_DefaultAlignSize; i++)  { _vector_H[i] = val; }
+        for (u_int64_t i=0; i<_DefaultAlignSize; i++)  { _vector_E[i] = val; }
+        for (u_int64_t i=0; i<_DefaultAlignSize; i++)  { _vector_F[i] = val; }
 
         result = true;
     }
@@ -190,7 +190,7 @@ size_t AlignmentSplitterBanded::splitAlign (
     int extendgap = _extendGapCost;
 
     /** We compute the required size of the containers used for processing the dynamic programming. */
-    int requiredLen = (qryLen+1) * (2*delta+1);
+    u_int64_t requiredLen = (qryLen+1) * (2*delta+1);
 
     /** We check whether the current allocation size is big enough. */
     if (requiredLen > _DefaultAlignSize)
