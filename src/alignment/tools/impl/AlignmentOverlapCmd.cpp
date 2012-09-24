@@ -89,6 +89,10 @@ AbstractAlignmentOverlapCmd::AbstractAlignmentOverlapCmd (
     /** We split the alignments lists into sorted partitions. */
     partition (*ref,  refParts);
     partition (*comp, compParts);
+
+    /** We clear the ref and comp lists. */
+    ref->clear  ();
+    comp->clear ();
 }
 
 /*********************************************************************
