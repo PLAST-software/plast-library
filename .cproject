@@ -9,7 +9,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/PlastLibrary"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/PlastLibrary/Debug"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="PlastLibrary"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="PlastLibrary" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -43,6 +43,7 @@
 									<listOptionValue builtIn="false" value="__LINUX__"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.debugging.prof.830190972" name="Generate prof information (-p)" superClass="gnu.cpp.compiler.option.debugging.prof" value="true" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.other.other.2269041" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 " valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1755057582" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool command="gcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.lib.debug.1438255439" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.debug">
@@ -88,7 +89,7 @@
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/PlastLibrary"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/PlastLibrary/Release"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="PlastLibrary"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="PlastLibrary" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -117,10 +118,11 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.optimization.flags.1805101323" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="-funroll-loops  -fomit-frame-pointer" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.other.pic.1603070318" name="Position Independent Code (-fPIC)" superClass="gnu.cpp.compiler.option.other.pic" value="true" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.other.other.605619474" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 " valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.973155241" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.lib.release.1372791480" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.lib.release">
-								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.lib.release.option.optimization.level.540591797" name="Optimization Level" superClass="gnu.c.compiler.lib.release.option.optimization.level" valueType="enumerated"/>
+								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.lib.release.option.optimization.level.540591797" name="Optimization Level" superClass="gnu.c.compiler.lib.release.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.c.compiler.lib.release.option.debugging.level.1181036625" name="Debug Level" superClass="gnu.c.compiler.lib.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1047195631" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PlastLibrary/src}&quot;"/>
@@ -180,4 +182,5 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 </cproject>
