@@ -23,6 +23,10 @@
 #include <string.h>
 #include <pthread.h>
 
+#include <unistd.h>
+
+using namespace std;
+
 /********************************************************************************/
 namespace os { namespace impl {
 /********************************************************************************/
@@ -119,6 +123,27 @@ size_t LinuxThreadFactory::getNbCores ()
     }
 
     if (result==0)  { result = 1; }
+
+    return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+string LinuxThreadFactory::getHostName ()
+{
+    string result;
+
+    char hostname[1024];
+    hostname[1023] = '\0';
+    gethostname (hostname, sizeof(hostname)-1);
+
+    result.assign (hostname, strlen(hostname));
 
     return result;
 }

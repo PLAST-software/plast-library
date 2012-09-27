@@ -32,6 +32,7 @@
 
 #include <os/api/IResource.hpp>
 #include <stddef.h>
+#include <string>
 
 /********************************************************************************/
 /** \brief Operating System abstraction layer */
@@ -106,6 +107,10 @@ public:
     /** Returns the number of available cores.
      * \return the number of cores. */
     virtual size_t getNbCores () = 0;
+
+    /** Returns the host name.
+     * \return the host name. */
+    virtual std::string getHostName () = 0;
 };
 
 /********************************************************************************/

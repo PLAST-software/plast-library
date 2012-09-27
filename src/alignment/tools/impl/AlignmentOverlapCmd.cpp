@@ -41,9 +41,9 @@ static Alignment::DbKind KIND = Alignment::QUERY;
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-static bool compare_alignments_plus (const Alignment& i, const Alignment& j)
+static bool compare_alignments_plus (const Alignment* i, const Alignment* j)
 {
-    return  (i.getRange(KIND).begin < j.getRange(KIND).begin);
+    return  (i->getRange(KIND).begin < j->getRange(KIND).begin);
 }
 
 /*********************************************************************
@@ -54,9 +54,9 @@ static bool compare_alignments_plus (const Alignment& i, const Alignment& j)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-static bool compare_alignments_minus (const Alignment& i, const Alignment& j)
+static bool compare_alignments_minus (const Alignment* i, const Alignment* j)
 {
-    return  (i.getRange(KIND).end < j.getRange(KIND).end);
+    return  (i->getRange(KIND).end < j->getRange(KIND).end);
 }
 
 /*********************************************************************
@@ -84,15 +84,11 @@ AbstractAlignmentOverlapCmd::AbstractAlignmentOverlapCmd (
     std::list<core::Alignment>* ref,
     std::list<core::Alignment>* comp,
     misc::Range<double> overlapRange
-) : _ref(ref), _comp(comp), _overlapRange(overlapRange)
+) : _overlapRange(overlapRange)
 {
     /** We split the alignments lists into sorted partitions. */
-    partition (*ref,  refParts);
-    partition (*comp, compParts);
-
-    /** We clear the ref and comp lists. */
-    ref->clear  ();
-    comp->clear ();
+    partition (ref,  refParts);
+    partition (comp, compParts);
 }
 
 /*********************************************************************
@@ -103,19 +99,21 @@ AbstractAlignmentOverlapCmd::AbstractAlignmentOverlapCmd (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void AbstractAlignmentOverlapCmd::partition (std::list<core::Alignment>& in, Partition& out)
+void AbstractAlignmentOverlapCmd::partition (std::list<core::Alignment>* in, Partition& out)
 {
+    if (!in)  { return; }
+
     /** We split the comp in partitions. */
-    for (std::list<core::Alignment>::iterator it = in.begin(); it != in.end(); it++)
+    for (std::list<core::Alignment>::iterator it = in->begin(); it != in->end(); it++)
     {
         /** Shortcuts. */
         int8_t qryDir = getAlignmentDirection(*it,Alignment::QUERY);
         int8_t sbjDir = getAlignmentDirection(*it,Alignment::SUBJECT);
 
-              if (qryDir== PLUS && sbjDir== PLUS)  {  out.LL.push_back (*it); }
-        else  if (qryDir== PLUS && sbjDir==MINUS)  {  out.LR.push_back (*it); }
-        else  if (qryDir==MINUS && sbjDir== PLUS)  {  out.RL.push_back (*it); }
-        else  if (qryDir==MINUS && sbjDir==MINUS)  {  out.RR.push_back (*it); }
+              if (qryDir== PLUS && sbjDir== PLUS)  {  out.LL.push_back (&(*it)); }
+        else  if (qryDir== PLUS && sbjDir==MINUS)  {  out.LR.push_back (&(*it)); }
+        else  if (qryDir==MINUS && sbjDir== PLUS)  {  out.RL.push_back (&(*it)); }
+        else  if (qryDir==MINUS && sbjDir==MINUS)  {  out.RR.push_back (&(*it)); }
     }
 
     /** We sort the partitions. */
@@ -133,8 +131,6 @@ void AbstractAlignmentOverlapCmd::partition (std::list<core::Alignment>& in, Par
         out.RL.sort (compare_alignments_plus);
         out.RR.sort (compare_alignments_minus);
     }
-
-    //printf ("LL=%ld  LR=%ld  RL=%ld  RR=%ld \n",  out.LL.size(), out.LR.size(), out.RL.size(), out.RR.size());
 }
 
 /*********************************************************************
@@ -171,25 +167,29 @@ void AbstractAlignmentOverlapCmd::execute ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void AbstractAlignmentOverlapCmd::execute (list<Alignment>& ref, list<Alignment>& comp, int direction)
+void AbstractAlignmentOverlapCmd::execute (list<Alignment*>& ref, list<Alignment*>& comp, int direction)
 {
     double bestOverlap = 0;
 
-    list<Alignment>::iterator itCompLeft = comp.begin();
-    list<Alignment>::iterator itDelete   = comp.end();
+    list<Alignment*>::iterator itCompLeft = comp.begin();
+    list<Alignment*>::iterator itDelete   = comp.end();
 
-    for (list<Alignment>::iterator itRef = ref.begin(); itRef != ref.end(); itRef++)
+    for (list<Alignment*>::iterator itRef = ref.begin(); itRef != ref.end(); itRef++)
     {
+        Alignment* refAlign = *itRef;
+
         /** We check that we are not to far on the right. */
         for (; itCompLeft != comp.end(); itCompLeft++)
         {
+            Alignment* compAlign = *itCompLeft;
+
             if (direction == PLUS)
             {
-                if (itCompLeft->getRange(KIND).end >= itRef->getRange(KIND).begin)  { break; }
+                if (compAlign->getRange(KIND).end >= refAlign->getRange(KIND).begin)  { break; }
             }
             else
             {
-                if (itCompLeft->getRange(KIND).begin >= itRef->getRange(KIND).end)  { break; }
+                if (compAlign->getRange(KIND).begin >= refAlign->getRange(KIND).end)  { break; }
             }
         }
 
@@ -197,20 +197,22 @@ void AbstractAlignmentOverlapCmd::execute (list<Alignment>& ref, list<Alignment>
         itDelete    = comp.end();
 
         /** We loop over alignments of the comp list. */
-        for (list<Alignment>::iterator itComp=itCompLeft; itComp != comp.end(); itComp++)
+        for (list<Alignment*>::iterator itComp=itCompLeft; itComp != comp.end(); itComp++)
         {
+            Alignment* compAlign = *itComp;
+
             /** We check that we are not to far on the right. */
             if (direction == PLUS)
             {
-                if (itComp->getRange(KIND).begin > itRef->getRange(KIND).end)  { break; }
+                if (compAlign->getRange(KIND).begin > refAlign->getRange(KIND).end)  { break; }
             }
             else
             {
-                if (itComp->getRange(KIND).end > itRef->getRange(KIND).begin)  { break; }
+                if (compAlign->getRange(KIND).end > refAlign->getRange(KIND).begin)  { break; }
             }
 
             /** We compute the overlap of the two Alignment instances. */
-            double overlap = Alignment::overlap (*itRef, *itComp);
+            double overlap = Alignment::overlap (*refAlign, *compAlign);
 
             /** We may memorize this overlap value and the current index. */
             if (overlap > bestOverlap)
@@ -221,7 +223,6 @@ void AbstractAlignmentOverlapCmd::execute (list<Alignment>& ref, list<Alignment>
             }
 
         } /* end of for (list<Alignment>::const_iterator itComp... */
-
 
         if (_overlapRange.includes (bestOverlap) == true)
         {

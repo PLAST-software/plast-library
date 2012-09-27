@@ -51,27 +51,24 @@ public:
 
 protected:
 
-    void execute (std::list<core::Alignment>& ref, std::list<core::Alignment>& comp, int direction);
+    void execute (std::list<core::Alignment*>& ref, std::list<core::Alignment*>& comp, int direction);
 
-    virtual void handleCommonAlignment   (const core::Alignment& a) = 0;
-    virtual void handleDistinctAlignment (const core::Alignment& a) = 0;
+    virtual void handleCommonAlignment   (const core::Alignment* a) = 0;
+    virtual void handleDistinctAlignment (const core::Alignment* a) = 0;
 
     //enum Directions { LL=0,LR,RR,RL,NBMAX };
     struct Partition
     {
-        std::list<core::Alignment>  LL;
-        std::list<core::Alignment>  LR;
-        std::list<core::Alignment>  RR;
-        std::list<core::Alignment>  RL;
+        std::list<core::Alignment*>  LL;
+        std::list<core::Alignment*>  LR;
+        std::list<core::Alignment*>  RR;
+        std::list<core::Alignment*>  RL;
     };
 
     Partition refParts;
     Partition compParts;
 
-    void partition (std::list<core::Alignment>& in, Partition& out);
-
-    std::list<core::Alignment>* _ref;
-    std::list<core::Alignment>* _comp;
+    void partition (std::list<core::Alignment>* in, Partition& out);
 
     misc::Range<double> _overlapRange;
 };
@@ -110,16 +107,16 @@ public:
 
 protected:
 
-    void handleCommonAlignment   (const core::Alignment& a)
+    void handleCommonAlignment   (const core::Alignment* a)
     {
         _commonSize++;
-        if (_visitorCommon)  { _visitorCommon->visitAlignment ((core::Alignment*)&a, _dummyProgress); }
+        if (_visitorCommon)  { _visitorCommon->visitAlignment ((core::Alignment*)a, _dummyProgress); }
     }
 
-    void handleDistinctAlignment (const core::Alignment& a)
+    void handleDistinctAlignment (const core::Alignment* a)
     {
         _specificSize++;
-        if (_visitorDistinct)  { _visitorDistinct->visitAlignment ((core::Alignment*)&a, _dummyProgress); }
+        if (_visitorDistinct)  { _visitorDistinct->visitAlignment ((core::Alignment*)a, _dummyProgress); }
     }
 
 private:

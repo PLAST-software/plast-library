@@ -20,7 +20,12 @@
 #include <designpattern/impl/FileLineIterator.hpp>
 #include <designpattern/impl/TokenizerIterator.hpp>
 #include <designpattern/impl/ProductIterator.hpp>
+#include <designpattern/impl/XmlReader.hpp>
+
 #include <stdarg.h>
+
+#include <iostream>
+#include <fstream>
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -271,6 +276,77 @@ void Properties::readFile (const char* filename)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+void Properties::readXML (std::istream& stream)
+{
+    /** We create an XML reader. */
+    XmlReader reader (stream);
+
+    /** We create some specific observer class. */
+    class XmlObserver : public IObserver
+    {
+    public:
+        XmlObserver (Properties* ref) : _ref(ref), _depth(-1), _currentProperty(0)  {}
+
+        void update (EventInfo* evt, ISubject* subject)
+        {
+            XmlTagOpenEvent* e1 = dynamic_cast<XmlTagOpenEvent*> (evt);
+            if (e1)
+            {
+                /** We open a tag => increase the depth. */
+                _depth ++;
+
+                /** We add a property and keep a reference on it. */
+                _currentProperty = _ref->add (_depth, e1->_name.c_str(), _txt.c_str());
+
+                DEBUG (("XmlTagOpenEvent (%d): name=%s\n", _depth, e1->_name.c_str()));
+                return;
+            }
+
+            XmlTagCloseEvent* e2 = dynamic_cast<XmlTagCloseEvent*> (evt);
+            if (e2)
+            {
+                /** We close a tag => decrease the depth. */
+                _depth --;
+
+                DEBUG (("XmlTagCloseEvent(%d) : name=%s\n", _depth, e2->_name.c_str()));
+                return;
+            }
+
+            XmlTagTextEvent* e3 = dynamic_cast<XmlTagTextEvent*> (evt);
+            if (e3)
+            {
+                /** We find a text => set it to the current property.  */
+                if (_currentProperty)  { _currentProperty->value = e3->_txt; }
+
+                DEBUG (("XmlTagTextEvent (%d) : txt=%s\n", _depth, e3->_txt.c_str()));
+                return;
+            }
+        }
+
+    private:
+        Properties* _ref;
+        string      _name;
+        string      _txt;
+        int         _depth;
+        IProperty*  _currentProperty;
+    };
+
+    /** We attach this kind of observer to the reader. */
+    XmlObserver observer (this);
+    reader.addObserver (&observer);
+
+    /** We read the stream. */
+    reader.read ();
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 std::list<IProperties*> Properties::map (const char* separator)
 {
     list<IProperties*> result;
@@ -367,16 +443,89 @@ void Properties::setToFront (const std::string& key)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+AbstractOutputPropertiesVisitor::AbstractOutputPropertiesVisitor (std::ostream& aStream)
+    : _stream(0)
+{
+    /** A stream is provided, we keep a reference on it. */
+    _stream = &aStream;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+AbstractOutputPropertiesVisitor::AbstractOutputPropertiesVisitor (const std::string& filename)
+    : _stream(0), _filename(filename)
+{
+    if (_filename.empty() == false)
+    {
+        /** We create a file. */
+        _stream = new fstream (_filename.c_str(), ios::out);
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+AbstractOutputPropertiesVisitor::~AbstractOutputPropertiesVisitor ()
+{
+    if (_filename.empty() == false)
+    {
+        delete _stream;
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 XmlDumpPropertiesVisitor::XmlDumpPropertiesVisitor (
     const std::string& filename,
     bool propertiesAsRoot,
     bool shouldIndent
 )
-    : _file (0), _name (propertiesAsRoot ? "properties" : ""), _deltaDepth(0), _firstIndent(true), _shouldIndent(shouldIndent)
+    : AbstractOutputPropertiesVisitor (filename),
+      _name (propertiesAsRoot ? "properties" : ""), _deltaDepth(0), _firstIndent(true), _shouldIndent(shouldIndent)
 {
-    /** We open the file. */
-    _file = fopen (filename.c_str(), "w");
+    /** We add the initial tag. */
+    if (_name.empty() == false)
+    {
+        indent (0);
+        safeprintf ("<%s>", _name.c_str());
+    }
 
+    _deltaDepth = _name.empty() == false ? 0 : 1;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+XmlDumpPropertiesVisitor::XmlDumpPropertiesVisitor (
+    std::ostream& aStream,
+    bool propertiesAsRoot,
+    bool shouldIndent
+)
+    : AbstractOutputPropertiesVisitor (aStream),
+      _name (propertiesAsRoot ? "properties" : ""), _deltaDepth(0), _firstIndent(true), _shouldIndent(shouldIndent)
+{
     /** We add the initial tag. */
     if (_name.empty() == false)
     {
@@ -405,9 +554,6 @@ XmlDumpPropertiesVisitor::~XmlDumpPropertiesVisitor ()
     }
 
     safeprintf ("\n");
-
-    /** Some clean up. */
-    if (_file != 0)    {  fclose (_file);  }
 }
 
 /*********************************************************************
@@ -533,12 +679,16 @@ void XmlDumpPropertiesVisitor::indent (size_t n)
 void XmlDumpPropertiesVisitor::safeprintf (const char* format, ...)
 {
     /** A safe printf method that check that the output file is ok. */
-    if (_file != 0)
+    if (_stream != 0)
     {
+        char buffer[4*1024];
+
         va_list ap;
         va_start (ap, format);
-        vfprintf (_file, format, ap);
+        vsnprintf (buffer, sizeof(buffer), format, ap);
         va_end (ap);
+
+        (*_stream) << buffer;
     }
 }
 

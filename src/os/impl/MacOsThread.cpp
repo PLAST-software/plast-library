@@ -25,6 +25,10 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 
+#include <unistd.h>
+
+using namespace std;
+
 #define DEBUG(a)  //printf a
 
 /********************************************************************************/
@@ -127,6 +131,27 @@ size_t MacOsThreadFactory::getNbCores ()
     if (numCPU < 1)  {  numCPU = 1;  }
 
     return numCPU;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+string MacOsThreadFactory::getHostName ()
+{
+    string result;
+
+    char hostname[1024];
+    hostname[1023] = '\0';
+    gethostname (hostname, sizeof(hostname)-1);
+
+    result.assign (hostname, strlen(hostname));
+
+    return result;
 }
 
 /********************************************************************************/

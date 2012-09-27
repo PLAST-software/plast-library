@@ -52,6 +52,9 @@ public:
 
     /** \copydoc IThreadFactory::getNbCores */
     size_t getNbCores ();
+
+    /** \copydoc IThreadFactory::getHostName */
+    std::string getHostName ();
 };
 
 /********************************************************************************/

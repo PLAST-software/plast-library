@@ -114,6 +114,9 @@ IAlignmentContainer* AlignmentContainerFactory::createContainerFromUri (dp::impl
         {
             char* token = tokenizer.currentItem();
 
+            /** We may have comment lines => just skip them. */
+            if (token[0] == '#')  {  continue; }
+
             if (idx==0)
             {
                 map<string,int>::iterator qsearch = queryMapComments.find (token);

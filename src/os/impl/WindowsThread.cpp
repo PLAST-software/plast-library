@@ -24,6 +24,10 @@
 
 #include <windows.h>
 
+#include <unistd.h>
+
+using namespace std;
+
 #define DEBUG(a)  //printf a
 
 /********************************************************************************/
@@ -143,6 +147,29 @@ size_t WindowsThreadFactory::getNbCores ()
     result = sysinfo.dwNumberOfProcessors;
 
     if (result==0)  { result = 1; }
+
+    return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+string WindowsThreadFactory::getHostName ()
+{
+    string result;
+
+    TCHAR  infoBuf[1024];
+    DWORD  bufCharCount = sizeof(infoBuf)/sizeof(infoBuf[0]);
+
+    if (GetComputerName( infoBuf, &bufCharCount ) )
+    {
+        result.assign (infoBuf, strlen(infoBuf));
+    }
 
     return result;
 }

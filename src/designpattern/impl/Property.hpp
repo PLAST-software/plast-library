@@ -101,6 +101,10 @@ public:
     /** \copydoc IProperties::setToFront  */
     void setToFront (const std::string& key);
 
+    /** Fill a Properties instance from an XML stream.
+     * \param[in] stream: the stream to be read (file, string...) */
+    void readXML (std::istream& stream);
+
 private:
 
     /** List of IProperty instances. */
@@ -114,6 +118,26 @@ private:
 
 /********************************************************************************/
 
+class AbstractOutputPropertiesVisitor : public IPropertiesVisitor
+{
+public:
+    /** */
+    AbstractOutputPropertiesVisitor (std::ostream& aStream);
+
+    /** */
+    AbstractOutputPropertiesVisitor (const std::string& filename);
+
+    /** */
+    ~AbstractOutputPropertiesVisitor ();
+
+protected:
+
+    std::ostream* _stream;
+    std::string   _filename;
+};
+
+/********************************************************************************/
+
 /** \brief XML serialization of a IProperties instance.
  *
  *  This kind of visitor serializes into a file the content of a IProperties instance.
@@ -121,7 +145,7 @@ private:
  *  The output format is XML; the 'depth' attribute of each IProperty instance is used
  *  as a basis for building the XML tree.
  */
-class XmlDumpPropertiesVisitor : public IPropertiesVisitor
+class XmlDumpPropertiesVisitor : public AbstractOutputPropertiesVisitor
 {
 public:
 
@@ -131,6 +155,13 @@ public:
      * \param[in] shouldIndent : tells whether we should use indentation
      */
     XmlDumpPropertiesVisitor (const std::string& filename, bool propertiesAsRoot=true, bool shouldIndent = true);
+
+    /** Constructor.
+     * \param[in] aStream : output stream
+     * \param[in] propertiesAsRoot
+     * \param[in] shouldIndent : tells whether we should use indentation
+     */
+    XmlDumpPropertiesVisitor (std::ostream& aStream, bool propertiesAsRoot=true, bool shouldIndent = true);
 
     /** Desctructor. */
     virtual ~XmlDumpPropertiesVisitor ();
@@ -145,9 +176,6 @@ public:
     void visitProperty (IProperty* prop);
 
 private:
-
-    /** The file where to serialiaze the instance. */
-    FILE*                   _file;
 
     /** The name of the serialization file. */
     std::string             _name;

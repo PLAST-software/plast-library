@@ -194,6 +194,9 @@ public:
     /** \copydoc IThreadFactory::getNbCores */
     size_t getNbCores ()  { return 1; }
 
+    /** \copydoc IThreadFactory::getHostName */
+    std::string getHostName ()  { return "127.0.0.1"; }
+
 private:
 
     class SerialThread : public IThread
