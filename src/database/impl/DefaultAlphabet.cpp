@@ -161,19 +161,21 @@ const LETTER* EncodingManager::getEncodingConversion (Encoding from, Encoding to
 *********************************************************************/
 const LETTER* EncodingManager::getEncodingConversion_aminoacid (Encoding from, Encoding to)
 {
+    static const LETTER bad = CODE_X;
+
     static const LETTER Encoding_ascii2subseed [] = {
 
-    CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,
-    CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,
+      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,       bad,      bad,
+      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,       bad,      bad,
 
-    CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_STAR, CODE_BAD, CODE_BAD, CODE_DASH,CODE_BAD, CODE_BAD,
-    CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,  CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,
+      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,       CODE_STAR, bad,     bad,      CODE_DASH,bad,      bad,
+      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,      bad,       bad,      bad,      bad,      bad,      bad,      bad,
 
-    CODE_BAD,   CODE_A,   CODE_B,   CODE_C,   CODE_D,   CODE_E,   CODE_F,   CODE_G,   CODE_H,   CODE_I,    CODE_J,   CODE_K,   CODE_L,   CODE_M,   CODE_N,   CODE_O,
-      CODE_P,   CODE_Q,   CODE_R,   CODE_S,   CODE_T,   CODE_U,   CODE_V,   CODE_W,   CODE_X,   CODE_Y,    CODE_Z, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,
+      bad,      CODE_A,   CODE_B,   CODE_C,   CODE_D,   CODE_E,   CODE_F,   CODE_G,   CODE_H,   CODE_I,    CODE_J,   CODE_K,   CODE_L,   CODE_M,   CODE_N,   CODE_O,
+      CODE_P,   CODE_Q,   CODE_R,   CODE_S,   CODE_T,   CODE_U,   CODE_V,   CODE_W,   CODE_X,   CODE_Y,    CODE_Z,   bad,      bad,      bad,      bad,      bad,
 
-    CODE_BAD,   CODE_A,   CODE_B,   CODE_C,   CODE_D,   CODE_E,   CODE_F,   CODE_G,   CODE_H,   CODE_I,    CODE_J,   CODE_K,   CODE_L,   CODE_M,   CODE_N,   CODE_O,
-      CODE_P,   CODE_Q,   CODE_R,   CODE_S,   CODE_T,   CODE_U,   CODE_V,   CODE_W,   CODE_X,   CODE_Y,    CODE_Z, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD
+      bad,      CODE_A,   CODE_B,   CODE_C,   CODE_D,   CODE_E,   CODE_F,   CODE_G,   CODE_H,   CODE_I,    CODE_J,   CODE_K,   CODE_L,   CODE_M,   CODE_N,   CODE_O,
+      CODE_P,   CODE_Q,   CODE_R,   CODE_S,   CODE_T,   CODE_U,   CODE_V,   CODE_W,   CODE_X,   CODE_Y,    CODE_Z,   bad,      bad,      bad,      bad,      bad
     };
 
     static const LETTER Encoding_ascii2ncbi [] = {
@@ -232,19 +234,21 @@ const LETTER* EncodingManager::getEncodingConversion_aminoacid (Encoding from, E
 *********************************************************************/
 const LETTER* EncodingManager::getEncodingConversion_nucleotid (Encoding from, Encoding to)
 {
+    static const LETTER bad = 4;
+
     static const LETTER Encoding_ascii2subseed [] = {
 
-    CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,
-    CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,
+    bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
+    bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
 
-    CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_STAR, CODE_BAD, CODE_BAD, CODE_DASH,CODE_BAD, CODE_BAD,
-    CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,  CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,
+    bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
+    bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
 
-    CODE_BAD,        0, CODE_BAD,        1, CODE_BAD, CODE_BAD, CODE_BAD,        2, CODE_BAD, CODE_BAD, CODE_STAR, CODE_BAD, CODE_BAD, CODE_DASH,       4, CODE_BAD,
-    CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,        3, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,  CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,
+    bad,   0, bad,   1, bad, bad, bad,   2, bad, bad, bad, bad, bad, bad,   4, bad,
+    bad, bad, bad, bad,   3, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
 
-    CODE_BAD,        0, CODE_BAD,        1, CODE_BAD, CODE_BAD, CODE_BAD,        2, CODE_BAD, CODE_BAD, CODE_STAR, CODE_BAD, CODE_BAD, CODE_DASH,       4, CODE_BAD,
-    CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,        3, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD,  CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD, CODE_BAD
+    bad,   0, bad,   1, bad, bad, bad,   2, bad, bad, bad, bad, bad, bad,   4, bad,
+    bad, bad, bad, bad,   3, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad
 };
 
     static const LETTER Encoding_ascii2ncbi [] = {
