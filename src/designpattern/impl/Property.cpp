@@ -261,9 +261,15 @@ void Properties::readFile (const char* filename)
         if (buffer && *buffer)
         {
             char* key   = strtok (buffer, " \t");
-            char* value = strtok (NULL,   " \t");
 
-            add (0, key, (value ? value : ""));
+            if (key != 0)
+            {
+                char* value = key + strlen (key) + 1;
+
+                for ( ;  value; ++value)  {  if (*value != ' '  &&  *value != '\t')  { break; }  }
+
+                add (0, key, (value ? value : ""));
+            }
         }
     }
 }
