@@ -87,7 +87,7 @@ public:
      */
     virtual void addEntry (const char* name)
     {
-        _entries [name] = _time.gettime();
+        _entriesT0 [name] = _time.gettime();
     }
 
     /** Get the stop time for a given label.
@@ -95,7 +95,7 @@ public:
      */
     virtual void stopEntry (const char* name)
     {
-        _entries [name] = _time.gettime() - _entries [name];
+        _entries [name] += _time.gettime() - _entriesT0 [name];
     }
 
     /** Provides (as a map) all got durations for each known label/
@@ -137,6 +137,7 @@ public:
 private:
 
     ITime&  _time;
+    std::map <std::string, u_int32_t>  _entriesT0;
     std::map <std::string, u_int32_t>  _entries;
 };
 
