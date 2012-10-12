@@ -58,7 +58,7 @@ namespace observers {
  ** REMARKS :
  *********************************************************************/
 AlgoHitsPropertiesObserver::AlgoHitsPropertiesObserver (dp::IPropertiesVisitor* visitor)
-    : _visitor (0), _t0(0), _t1(0)
+    : _visitor (0), _t0(0), _t1(0), _timeProps(0)
 {
     /** We get a reference on the provided visitor. */
     setVisitor (visitor);
@@ -66,6 +66,10 @@ AlgoHitsPropertiesObserver::AlgoHitsPropertiesObserver (dp::IPropertiesVisitor* 
     /** We get the current time. */
     _t0    = DefaultFactory::time().gettime();
     time (&_time0);
+
+    /** We use a time properties; it will aggregate several time statistics. */
+    setTimeProps (new Properties());
+    _timeProps->add (0, "time", "");
 }
 
 /*********************************************************************
@@ -81,7 +85,11 @@ AlgoHitsPropertiesObserver::~AlgoHitsPropertiesObserver ()
     /** We add some basic properties and visit them.*/
     fillMiscInfo ();
 
-    setVisitor (0);
+    /** We visit the time properties. */
+    _timeProps->accept (_visitor);
+
+    setVisitor   (0);
+    setTimeProps (0);
 }
 
 /*********************************************************************
@@ -217,6 +225,17 @@ void AlgoHitsPropertiesObserver::update (dp::EventInfo* evt, dp::ISubject* subje
 
         /** We accept the visitor. */
         props.accept (_visitor);
+
+        return;
+    }
+
+    TimeInfoEvent* e4 = dynamic_cast<TimeInfoEvent*> (evt);
+    if (e4 != 0)
+    {
+        TimeInfo* timeInfo = e4->getTimeInfo();
+
+        /** We define the root of our properties. */
+        if (_timeProps != 0)  {  _timeProps->add (1, timeInfo->getProperties (e4->getTitle()));  }
 
         return;
     }

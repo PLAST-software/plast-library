@@ -19,6 +19,9 @@
 
 #include <designpattern/api/IProperty.hpp>
 
+#include <os/impl/DefaultOsFactory.hpp>
+#include <os/impl/TimeTools.hpp>
+
 #include <algo/core/api/IAlgoEvents.hpp>
 #include <algo/core/api/IAlgoEnvironment.hpp>
 
@@ -44,6 +47,9 @@ using namespace std;
 using namespace dp;
 using namespace dp::impl;
 
+using namespace os;
+using namespace os::impl;
+
 using namespace algo::core;
 
 using namespace alignment::core;
@@ -55,16 +61,18 @@ using namespace launcher::jni;
 
 /********************************************************************************/
 
-class RequestLink : public AbstractProgressionObserver
+class RequestLink : public AbstractProgressionObserver, public dp::impl::Subject
 {
 public:
 
     RequestLink (JNIEnv* env, jobject obj, bool progressiveAlignNotif)
-        : _env(env), _obj(obj), _progressiveAlignNotif(progressiveAlignNotif),
+        : _env(env), _obj(obj), _progressiveAlignNotif(progressiveAlignNotif), _timeInfo(0),
           _firstResultNotification(true)
-    {}
+    {
+        setTimeInfo (new TimeInfo());
+    }
 
-    ~RequestLink ()  { }
+    ~RequestLink ()  {   setTimeInfo (0); }
 
     void update (dp::EventInfo* evt, dp::ISubject* subject)
     {
@@ -122,8 +130,14 @@ protected:
 
     void dump () {}
 
-    void updateStarted       ()  {  _env->CallObjectMethod (_obj, METHOD (Request,notifyStarted));   }
-    void updateFinished      ()  {  _env->CallObjectMethod (_obj, METHOD (Request,notifyFinished));  }
+    void updateStarted  ()  {  _env->CallObjectMethod (_obj, METHOD (Request,notifyStarted));   }
+
+    void updateFinished ()
+    {
+        _env->CallObjectMethod (_obj, METHOD (Request,notifyFinished));
+
+        notify (new TimeInfoEvent ("jni", _timeInfo));
+    }
 
     /**********************************************************************/
     void notifyExecInfoAvailable  (void)
@@ -135,6 +149,11 @@ protected:
     /**********************************************************************/
     void notifyRequestResultAvailable  (IAlignmentContainer* alignments)
     {
+        const char* keyModel = "cpp";
+        const char* keyJni   = "java";
+
+        _timeInfo->addEntry (keyModel);
+
         /** We create a model for the container. */
         ModelBuilderVisitor v;
         alignments->accept (&v);
@@ -146,6 +165,10 @@ protected:
 
         /** We use the model. */
         LOCAL (model);
+
+        _timeInfo->stopEntry (keyModel);
+
+        _timeInfo->addEntry (keyJni);
 
         /** We update some values for the execution info properties. */
         if (_firstResultNotification == true)
@@ -180,6 +203,8 @@ protected:
 
         /** We notify potential java listeners. */
         _env->CallObjectMethod (_obj, METHOD (Request,notifyRequestResultAvailable), requestResult);
+
+        _timeInfo->stopEntry (keyJni);
     }
 
 private:
@@ -188,6 +213,9 @@ private:
     jobject _obj;
 
     bool _progressiveAlignNotif;
+
+    TimeInfo* _timeInfo;
+    void setTimeInfo (TimeInfo* timeInfo)  { SP_SETATTR(timeInfo); }
 
     /** */
     template <class T> void fillJavaProperties (jobject props, const char* key, T value)
@@ -239,6 +267,9 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_Request_run (
     /** We attach the link to the plast request. */
     cmd->addObserver (link);
 
+    /** We attach the plast request to the link. */
+    link->addObserver (cmd);
+
     /** We launch the request. Note that we should try to retrieve C++ exceptions here. */
     try
     {
@@ -255,7 +286,8 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_Request_run (
         if (newExcCls != NULL)  {  env->ThrowNew (newExcCls, "Generic exception");  }
     }
 
-    cmd->removeObserver (link);
+    link->removeObserver (cmd);
+    cmd->removeObserver  (link);
 
     /** We reset the peers. */
     env->CallObjectMethod (obj, METHOD (Request,setExecInfoPeer), 0);

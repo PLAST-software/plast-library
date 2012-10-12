@@ -31,6 +31,8 @@
 
 #include <misc/api/types.hpp>
 
+#include <os/impl/TimeTools.hpp>
+
 #include <time.h>
 #include <string>
 #include <list>
@@ -85,6 +87,9 @@ protected:
 
     time_t _time0;
     time_t _time1;
+
+    dp::IProperties* _timeProps;
+    void setTimeProps (dp::IProperties* timeProps)  { SP_SETATTR(timeProps); }
 
     /** Smart visitor for the \ref _visitor attribute. */
     void setVisitor (dp::IPropertiesVisitor* visitor)  { SP_SETATTR (visitor); }

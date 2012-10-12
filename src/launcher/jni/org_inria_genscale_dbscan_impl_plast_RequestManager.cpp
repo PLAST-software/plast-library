@@ -193,6 +193,14 @@ JNIEXPORT jlong JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager
     /** We convert the JAVA properties as C++ properties. */
     IProperties* props = Wrapper(env).convertProperties (javaProps);
 
+#if 1
+    /** We try to see if we have a provided rc file. */
+    string plastrc = getenv ("HOME") ? string (getenv("HOME")) + string("/.plastrc") : "";
+
+    /** We read properties from the init file (if any). */
+    props->add (0, new Properties (plastrc.c_str()));
+#endif
+
     /** We create a Plast request. */
     PlastCmd* cmd = new PlastCmd (props);
 

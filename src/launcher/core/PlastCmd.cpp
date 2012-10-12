@@ -243,7 +243,11 @@ IPropertiesVisitor* PlastCmd::getPropertiesVisitor (IProperties* props, const st
 void PlastCmd::update (dp::EventInfo* evt, dp::ISubject* subject)
 {
     /** We just forward the notification to potential listener. */
-    if (subject != this  &&  _isRunning==true)  {  notify (evt);  }
+    if (subject != this  &&  _isRunning==true)
+    {
+        if (subject != _env)  { _env->notify (evt);  }
+        else                  { this->notify (evt);  }
+    }
 }
 
 /*********************************************************************
