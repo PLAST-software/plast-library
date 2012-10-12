@@ -342,6 +342,36 @@ public:
     /** Constructor.  */
     CancelRequestedEvent () :  dp::EventInfo(1) {}
 };
+
+/********************************************************************************/
+
+/** \brief Notification that provides time information
+ */
+class TimeInfoEvent : public dp::EventInfo
+{
+public:
+
+    /** Constructor.  */
+    TimeInfoEvent (const std::string& title, os::impl::TimeInfo* timeInfo)
+        :  dp::EventInfo(0), _title(title), _timeInfo(0)   { setTimeInfo   (timeInfo);  }
+
+    /** Destructor. */
+    ~TimeInfoEvent ()   { setTimeInfo (0);  }
+
+    /** */
+    std::string getTitle ()  { return _title; }
+
+    /** */
+    os::impl::TimeInfo* getTimeInfo ()  { return _timeInfo; }
+
+private:
+
+    std::string _title;
+
+    os::impl::TimeInfo* _timeInfo;
+    void setTimeInfo (os::impl::TimeInfo* timeInfo)  { SP_SETATTR (timeInfo); }
+};
+
 /********************************************************************************/
 }} /* end of namespaces. */
 /********************************************************************************/

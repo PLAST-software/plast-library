@@ -337,6 +337,19 @@ dp::ICommandDispatcher* DefaultConfiguration::createIndexationDispatcher ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+os::impl::TimeInfo* DefaultConfiguration::createTimeInfo ()
+{
+    return new TimeInfo ();
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 database::ISequenceIteratorFactory* DefaultConfiguration::createSequenceIteratorFactory ()
 {
     return new FastaSequenceIteratorFactory ();

@@ -54,6 +54,7 @@ public:
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
         statistics::IGlobalParameters*                  statistics,
+        os::impl::TimeInfo*                             timeStats,
         bool&                                           isRunning,
         int                                             actualStrand
     );

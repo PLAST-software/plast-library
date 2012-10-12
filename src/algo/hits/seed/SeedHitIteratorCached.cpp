@@ -143,8 +143,8 @@ void SeedHitIteratorCached::iterate (void* aClient, Method method)
             nbRetrieved, nbTotal
         ));
 
-        VERBOSE (("ITERATE SEED '%s' [%ld,%ld]  nb1=%ld  nb2=%ld (%ld) \n",
-            seed.kmer.toString().c_str(), nbRetrieved, nbTotal, nbOccur1, nbOccur2, nbOccur1*nbOccur2
+        VERBOSE (("ITERATE SEED  code=%d  '%s' [%ld,%ld]  nb1=%ld  nb2=%ld (%ld) \n",
+            seed.code, seed.kmer.toString().c_str(), nbRetrieved, nbTotal, nbOccur1, nbOccur2, nbOccur1*nbOccur2
         ));
 
         /** We test whether this seed has occurrences in both databases. */

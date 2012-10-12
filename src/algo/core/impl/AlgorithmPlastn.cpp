@@ -78,10 +78,11 @@ AlgorithmPlastn::AlgorithmPlastn (
     alignment::core::IAlignmentContainerVisitor*    resultVisitor,
     algo::core::IDatabasesProvider*                 dbProvider,
     statistics::IGlobalParameters*                  statistics,
+    os::impl::TimeInfo*                             timeStats,
     bool&                                           isRunning,
     int                                             actualStrand
 )
-	: AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, statistics, isRunning),
+	: AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, statistics, timeStats, isRunning),
   	  _hspContainer(0), _nbPasses(4), _currentPass(0)
 {
     DEBUG (("AlgorithmPlastn::AlgorithmPlastn\n"));

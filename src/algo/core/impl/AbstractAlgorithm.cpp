@@ -95,11 +95,12 @@ AbstractAlgorithm::AbstractAlgorithm (
     IAlignmentContainerVisitor* resultVisitor,
     IDatabasesProvider*         dbProvider,
     IGlobalParameters*          globalStats,
+    os::impl::TimeInfo*         timeStats,
     bool&                       isRunning
 )
     : _config(0), _reader(0), _params(0), _filter(0), _resultVisitor(0), _dbProvider(0),
       _seedsModel(0), _scoreMatrix(0), _globalStats(0), _queryInfo(0),
-      _indexator(0), _hitIterator(0),
+      _indexator(0), _hitIterator(0), _timeStats(0),
       _ungapAlignmentResult(0), _gapAlignmentResult(0),
       _isRunning (isRunning)
 {
@@ -110,6 +111,7 @@ AbstractAlgorithm::AbstractAlgorithm (
     setFilter            (filter);
     setResultVisitor     (resultVisitor);
     setDatabasesProvider (dbProvider);
+    setTimeStats         (timeStats);
 
     /** We create the seeds model. */
     setSeedsModel (getConfig()->createSeedModel (
@@ -155,6 +157,7 @@ AbstractAlgorithm::~AbstractAlgorithm (void)
     setQueryInfo         (0);
     setIndexator         (0);
     setHitIterator       (0);
+    setTimeStats         (0);
 
     setUngapAlignmentResult (0);
     setGapAlignmentResult   (0);
@@ -188,15 +191,16 @@ void AbstractAlgorithm::execute (void)
      *  of the algorithm may change according to the kind of configuration is used.
      */
 
-    /** We want to have some time statistics so we create a TimeInfo instance. Note that we create
-     *  specific TimeInfo instances here that are 1) retrieve time information for statistics and
+    /** We want to have some time statistics Note that we need here specific TimeInfo instances here that are
+     *  1) retrieve time information for statistics and
      *  2) send some information notification for telling to potential listeners that we begin some
      *  particular part of the algorithm.
-     *  */
-    TimeInfo* timeStats = createTimeInfo ();
-    LOCAL (timeStats);
+     */
 
     DEBUG (("AbstractAlgorithm::execute : starting...\n"));
+
+    const char* keyRead  = "reading";
+    const char* keyIndex = "indexation";
 
     /** We create a command dispatcher used for indexation commands. */
     ICommandDispatcher* indexationDispatcher = getConfig()->createIndexationDispatcher();
@@ -206,7 +210,7 @@ void AbstractAlgorithm::execute (void)
     ICommandDispatcher* dispatcher = getConfig()->createDispatcher ();
     LOCAL (dispatcher);
 
-    timeStats->addEntry ("reading");
+    _timeStats->addEntry (keyRead);
 
     /** We create the subject database (more than one for tplastn) and the
      *  query database   (more than one for plastx) */
@@ -216,18 +220,22 @@ void AbstractAlgorithm::execute (void)
     ListIterator<ISequenceDatabase*> subjectDbIt = getDatabasesProvider()->getSubjectDbIterator();
     ListIterator<ISequenceDatabase*> queryDbIt   = getDatabasesProvider()->getQueryDbIterator();
 
+    _timeStats->stopEntry (keyRead);
+
     DEBUG (("AbstractAlgorithm::execute : databases created...\n"));
 
     /** We notify some report to potential listeners. */
     this->notify (new AlgorithmReadingFrameEvent (this, getSubjectFrames(), getQueryFrames()));
 
-    timeStats->stopEntry ("reading");
-
     /** We create an object for indexing subject and query databases. This object will be in
      * charge to feed the algorithm with the source Hit Iterator, ie the one that provides for
      * a given seed all the occurrences in subject and query databases.
      */
+    _timeStats->addEntry (keyIndex);
+
     setIndexator (getConfig()->createIndexator (getSeedsModel(), getParams(), _isRunning) );
+
+    _timeStats->stopEntry (keyIndex);
 
     DEBUG (("AbstractAlgorithm::execute : indexator created...\n"));
 
@@ -274,8 +282,6 @@ void AbstractAlgorithm::execute (void)
         {
             DEBUG (("AbstractAlgorithm::execute : SUBJECT LOOP...\n"));
 
-            timeStats->addEntry ("algorithm");
-
             /** Shortcuts. */
             ISequenceDatabase* subjectDb = subjectDbIt.currentItem();
 
@@ -290,14 +296,14 @@ void AbstractAlgorithm::execute (void)
             getIndexator()->setSubjectDatabase (subjectDb);
 
             /** We want to have indexation execution time statistics. */
-            timeStats->addEntry ("indexation");
+            _timeStats->addEntry (keyIndex);
 
             DEBUG (("AbstractAlgorithm::execute : indexation start...\n"));
 
             /** We build the indexes (if needed). */
             getIndexator()->build (indexationDispatcher);
 
-            timeStats->stopEntry ("indexation");
+            _timeStats->stopEntry (keyIndex);
 
             DEBUG (("AbstractAlgorithm::execute : indexation finished in %d msec...\n", timeStats->getEntryByKey("indexation") ));
 
@@ -319,7 +325,7 @@ void AbstractAlgorithm::execute (void)
             DEBUG (("AbstractAlgorithm::execute : gap alignments container created...\n"));
 
             /** Now, everything should be configured, we can compute the alignments. */
-            computeAlignments (alignmentResult, ungapAlignmentResult, subjectDb, queryDb, dispatcher, timeStats);
+            computeAlignments (alignmentResult, ungapAlignmentResult, subjectDb, queryDb, dispatcher, _timeStats);
 
             DEBUG (("AbstractAlgorithm::execute : dispatching done  nbAlign=%d  firstLevelNb=%d...\n",
                 alignmentResult->getAlignmentsNumber(),
@@ -327,16 +333,14 @@ void AbstractAlgorithm::execute (void)
             ));
 
             /** We may have specific post treatment on the found alignments (in particular serialization into a file). */
-            finalizeAlignments (alignmentResult, timeStats);
-
-            timeStats->stopEntry ("algorithm");
+            finalizeAlignments (alignmentResult, _timeStats);
 
             /** We notify some report to potential listeners. */
             this->notify (new AlgorithmReportEvent (
                 this,
                 subjectDb,
                 queryDb,
-                timeStats,
+                _timeStats,
                 ungapAlignmentResult,
                 alignmentResult,
                 _filter
@@ -364,6 +368,8 @@ void AbstractAlgorithm::computeAlignments (
     TimeInfo*               timeStats
 )
 {
+    const char* keyIter = "iteration";
+
     /** We create the Hit iterator to be used by the algorithm, a Hit being an occurrence of a kmer in both subject
      *  and query databases.
      *  See the 'createHitIterator' to see how the different created iterators are connected (seed, ungap, small gap...)  */
@@ -398,7 +404,7 @@ void AbstractAlgorithm::computeAlignments (
     DEBUG (("AbstractAlgorithm::execute : commands created...\n"));
 
     /** We want to have iteration execution time. */
-    timeStats->addEntry ("iteration");
+    timeStats->addEntry (keyIter);
 
     DEBUG (("AbstractAlgorithm::execute : dispatching %ld commands for execution...\n", commands.size()));
 
@@ -409,7 +415,7 @@ void AbstractAlgorithm::computeAlignments (
      */
     dispatcher->dispatchCommands (commands, 0);
 
-    timeStats->stopEntry ("iteration");
+    timeStats->stopEntry (keyIter);
 
     DEBUG (("AbstractAlgorithm::execute : dispatching done  nbAlign=%d  firstLevelNb=%d...\n",
         alignmentResult->getAlignmentsNumber(),
@@ -427,6 +433,10 @@ void AbstractAlgorithm::computeAlignments (
 *********************************************************************/
 void AbstractAlgorithm::finalizeAlignments (IAlignmentContainer* alignmentResult, TimeInfo* timeStats)
 {
+    const char* keyOutput = "output";
+
+    timeStats->addEntry (keyOutput);
+
     /** Now, our alignment result instance should hold found alignments, with possible redundancies, so we try to
      * remove redundant alignments now. */
     ShrinkContainerVisitor shrinker (_params->nbAlignPerHit);
@@ -442,9 +452,9 @@ void AbstractAlgorithm::finalizeAlignments (IAlignmentContainer* alignmentResult
      *  but it is likely a 'file dump' visitor that will dump all the alignments into a file. Note by the way that
      *  the actual format of the output file has not to be known here (it could be tabulated columns or xml) and relies
      *  on the actual type of the getResultVisitor. */
-    timeStats->addEntry ("output");
     alignmentResult->accept (getResultVisitor());
-    timeStats->stopEntry ("output");
+
+    timeStats->stopEntry (keyOutput);
 }
 
 /*********************************************************************

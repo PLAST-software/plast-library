@@ -40,6 +40,8 @@
 #include <alignment/visitors/impl/ReverseStrandVisitor.hpp>
 
 using namespace std;
+using namespace os;
+using namespace os::impl;
 using namespace dp;
 using namespace dp::impl;
 using namespace misc;
@@ -75,7 +77,7 @@ namespace impl {
 DefaultEnvironment::DefaultEnvironment (IProperties* properties, bool& isRunning)
     : _properties(0), _isRunning(isRunning),
       _config(0), _filter(0), _quickSubjectDbReader(0), _quickQueryDbReader(0),
-      _resultVisitor(0), _dbProvider(0)
+      _resultVisitor(0), _dbProvider(0), _timeInfo(0), _timeInfoAlgo(0)
 {
     setProperties (properties);
 
@@ -100,6 +102,8 @@ DefaultEnvironment::~DefaultEnvironment ()
     setQuickQueryDbReader   (0);
     setResultVisitor        (0);
     setDatabasesProvider    (0);
+    setTimeInfo             (0);
+    setTimeInfoAlgo         (0);
 }
 
 /*********************************************************************
@@ -112,8 +116,18 @@ DefaultEnvironment::~DefaultEnvironment ()
 *********************************************************************/
 void DefaultEnvironment::configure ()
 {
+    const char* keyConfig = "config";
+
     /** We create a configuration object for the provided program name (plastp, tplasn...) */
     setConfig (createConfiguration (_properties));
+
+    /** We create a TimeInfo instance for the current instance. */
+    setTimeInfo (_config->createTimeInfo());
+
+    /** We create a TimeInfo instance for the algorithm instances. */
+    setTimeInfoAlgo (_config->createTimeInfo());
+
+    _timeInfo->addEntry (keyConfig);
 
     /** We create a subject/query databases provider. */
     setDatabasesProvider (new DatabasesProvider (_config));
@@ -197,6 +211,8 @@ void DefaultEnvironment::configure ()
 
     /** We build a list of Parameters. We will launch the algorithm for each item of this list. */
     _parametersList = createParametersList (_config, _properties, uriList);
+
+    _timeInfo->stopEntry (keyConfig);
 }
 
 /*********************************************************************
@@ -238,6 +254,11 @@ IConfiguration* DefaultEnvironment::createConfiguration (dp::IProperties* proper
 *********************************************************************/
 void DefaultEnvironment::run ()
 {
+    const char* keyTotal  = "total";
+    const char* keyFinal  = "finalization";
+
+    _timeInfo->addEntry (keyTotal);
+
     /** We may launch an event with information about the two databases. */
     if (_quickSubjectDbReader != 0  &&  _quickQueryDbReader != 0)
     {
@@ -261,6 +282,7 @@ void DefaultEnvironment::run ()
             _resultVisitor,
             _dbProvider,
             _config->createGlobalParameters (_parametersList[i]),
+            _timeInfoAlgo,
             _isRunning
         );
         if (algos.empty())  { continue; }
@@ -284,10 +306,20 @@ void DefaultEnvironment::run ()
     }
 
     /** We finalize the output result visitor. */
+    _timeInfo->addEntry (keyFinal);
+
     _resultVisitor->finalize ();
+
+    _timeInfo->stopEntry (keyFinal);
+
+    _timeInfo->stopEntry (keyTotal);
 
     /** We send a notification telling we are done (ie. current==total). */
     this->notify (new AlgorithmConfigurationEvent (_properties, _parametersList.size(), _parametersList.size()));
+
+    /** We also send a notification that provides time information. */
+    this->notify (new TimeInfoEvent ("environment", _timeInfo));
+    this->notify (new TimeInfoEvent ("algorithm",   _timeInfoAlgo));
 }
 
 /*********************************************************************
@@ -306,6 +338,7 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
     IAlignmentContainerVisitor* resultVisitor,
     IDatabasesProvider*         dbProvider,
     IGlobalParameters*          globalStats,
+    TimeInfo*                   timeInfo,
     bool&                       isRunning
 )
 {
@@ -322,6 +355,7 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
                 resultVisitor,
                 dbProvider,
                 globalStats,
+                timeInfo,
                 isRunning
             ));
             break;
@@ -335,6 +369,7 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
                 resultVisitor, //new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT),
                 dbProvider,
                 globalStats,
+                timeInfo,
                 isRunning
             ));
             break;
@@ -348,6 +383,7 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
                 resultVisitor, //new NucleotidConversionVisitor (resultVisitor, Alignment::QUERY),
                 dbProvider,
                 globalStats,
+                timeInfo,
                 isRunning
             ));
             break;
@@ -364,6 +400,7 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
                 //),
                 dbProvider,
                 globalStats,
+                timeInfo,
                 isRunning
             ));
             break;
@@ -386,6 +423,7 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
                     new ReverseStrandVisitor (resultVisitor, Alignment::SUBJECT),
                     new DatabasesProviderProxy (new DatabasesProvider (config), config, new ReverseStrandSequenceIteratorFactory(), 0),
                     globalStats,
+                    timeInfo,
                     isRunning,
                     -1  // actual strand
                 ));
@@ -402,6 +440,7 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
                     resultVisitor,
                     dbProvider,
                     globalStats,
+                    timeInfo,
                     isRunning,
                     1  // actual strand
                 ));

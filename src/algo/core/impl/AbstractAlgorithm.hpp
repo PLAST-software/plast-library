@@ -103,6 +103,7 @@ public:
         alignment::core::IAlignmentContainerVisitor*  resultVisitor,
         algo::core::IDatabasesProvider*               dbProvider,
         statistics::IGlobalParameters*                globalStats,
+        os::impl::TimeInfo*                           timeStats,
         bool&                                         isRunning
     );
 
@@ -150,6 +151,9 @@ public:
     /** \copydoc IAlgorithm::getHitIterator */
     algo::hits::IHitIterator*               getHitIterator      ()  { return _hitIterator;      }
 
+    /** \copydoc IAlgorithm::getTimeStats */
+    virtual os::impl::TimeInfo*             getTimeStats        ()  { return _timeStats;        }
+
     /** \copydoc IAlgorithm::setConfig */
     void setConfig           (IConfiguration*                       config)             { SP_SETATTR (config);          }
 
@@ -185,6 +189,9 @@ public:
 
     /** \copydoc IAlgorithm::setHitIterator */
     void setHitIterator      (algo::hits::IHitIterator*             hitIterator)        { SP_SETATTR (hitIterator);     }
+
+    /** \copydoc IAlgorithm::setTimeStats */
+    void setTimeStats        (os::impl::TimeInfo*                   timeStats)          { SP_SETATTR(timeStats); }
 
 protected:
 
@@ -242,6 +249,7 @@ protected:
     statistics::IQueryInformation*                  _queryInfo;
     IIndexator*                                     _indexator;
     algo::hits::IHitIterator*                       _hitIterator;
+    os::impl::TimeInfo*                             _timeStats;
 
     /** */
     alignment::core::IAlignmentContainer* _ungapAlignmentResult;
@@ -263,8 +271,6 @@ protected:
     private:
         AbstractAlgorithm* _algo;
     };
-
-    os::impl::TimeInfo* createTimeInfo ()  { return new AlgoTimeInfo (this); }
 };
 
 /********************************************************************************/
@@ -289,9 +295,10 @@ public:
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
         statistics::IGlobalParameters*                  globalStats,
+        os::impl::TimeInfo*                             timeStats,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, isRunning) {}
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, timeStats, isRunning) {}
 };
 
 /********************************************************************************/
@@ -314,9 +321,10 @@ public:
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
         statistics::IGlobalParameters*                  globalStats,
+        os::impl::TimeInfo*                             timeStats,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, isRunning)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, timeStats, isRunning)
     {
         if (params->strands.empty() )   { _queryFrames.assign (allframes, allframes + 6);                       }
         else                            { _queryFrames.assign (params->strands.begin(), params->strands.end()); }
@@ -343,9 +351,10 @@ public:
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
         statistics::IGlobalParameters*                  globalStats,
+        os::impl::TimeInfo*                             timeStats,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, isRunning)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, timeStats, isRunning)
     {
         if (params->strands.empty() )   { _subjectFrames.assign (allframes, allframes + 6);                         }
         else                            { _subjectFrames.assign (params->strands.begin(), params->strands.end());   }
@@ -372,9 +381,10 @@ public:
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
         statistics::IGlobalParameters*                  globalStats,
+        os::impl::TimeInfo*                             timeStats,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, isRunning)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, timeStats, isRunning)
     {
     	_queryFrames.push_back (misc::FRAME_1);
     	_queryFrames.push_back (misc::FRAME_2);

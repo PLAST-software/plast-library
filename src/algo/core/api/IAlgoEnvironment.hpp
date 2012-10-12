@@ -123,6 +123,7 @@ protected:
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
         statistics::IGlobalParameters*                  globalStats,
+        os::impl::TimeInfo*                             timeInfo,
         bool&                                           isRunning
     ) = 0;
 };

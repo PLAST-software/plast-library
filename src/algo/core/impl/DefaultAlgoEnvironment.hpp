@@ -27,6 +27,8 @@
 
 #include <algo/core/api/IAlgoEnvironment.hpp>
 
+#include <os/impl/TimeTools.hpp>
+
 /********************************************************************************/
 namespace algo {
 namespace core {
@@ -99,6 +101,12 @@ protected:
     algo::core::IDatabasesProvider* _dbProvider;
     void setDatabasesProvider  (algo::core::IDatabasesProvider* dbProvider)  { SP_SETATTR(dbProvider); }
 
+    os::impl::TimeInfo* _timeInfo;
+    void setTimeInfo (os::impl::TimeInfo* timeInfo)  { SP_SETATTR(timeInfo); }
+
+    os::impl::TimeInfo* _timeInfoAlgo;
+    void setTimeInfoAlgo (os::impl::TimeInfo* timeInfoAlgo)  { SP_SETATTR(timeInfoAlgo); }
+
     /** \copydoc IEnvironment::createAlgorithm */
     std::list<IAlgorithm*> createAlgorithm (
         IConfiguration*                                 config,
@@ -108,6 +116,7 @@ protected:
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
         algo::core::IDatabasesProvider*                 dbProvider,
         statistics::IGlobalParameters*                  globalStats,
+        os::impl::TimeInfo*                             timeInfo,
         bool&                                           isRunning
     );
 

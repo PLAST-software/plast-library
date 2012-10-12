@@ -25,6 +25,8 @@
 
 /********************************************************************************/
 
+#include <os/impl/TimeTools.hpp>
+
 #include <designpattern/api/SmartPointer.hpp>
 #include <designpattern/api/ICommand.hpp>
 #include <designpattern/api/IProperty.hpp>
@@ -94,6 +96,11 @@ public:
      *  \return a new ICommandDispatcher instance
      */
     virtual dp::ICommandDispatcher* createDispatcher () = 0;
+
+    /** Create a TimeInfo instance. Such an instance can be used for getting time information
+     *  \return a new TimeInfo instance
+     */
+    virtual os::impl::TimeInfo* createTimeInfo () = 0;
 
     /** Create a factory that builds ISequenceIterator objects.
      * \return the factory instance.

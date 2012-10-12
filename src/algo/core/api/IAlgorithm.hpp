@@ -29,6 +29,8 @@
 #include <designpattern/impl/Observer.hpp>
 #include <designpattern/impl/ListIterator.hpp>
 
+#include <os/impl/TimeTools.hpp>
+
 #include <database/api/IDatabaseQuickReader.hpp>
 #include <database/impl/ReadingFrameSequenceIterator.hpp>
 
@@ -122,6 +124,9 @@ public:
     /** Getter for the IHitIterator instance. */
     virtual algo::hits::IHitIterator*               getHitIterator      () = 0;
 
+    /** Getter for the TimeInfo attribute. */
+    virtual os::impl::TimeInfo*                     getTimeStats        () = 0;
+
     /** Setter for the IConfiguration attribute. */
     virtual void setConfig           (IConfiguration*                 config) = 0;
 
@@ -157,6 +162,9 @@ public:
 
     /** Setter for the IHitIterator attribute. */
     virtual void setHitIterator      (algo::hits::IHitIterator*       iterator) = 0;
+
+    /** Setter for the TimeInfo attribute. */
+    virtual void setTimeStats        (os::impl::TimeInfo*             timeStats) = 0;
 
 protected:
 

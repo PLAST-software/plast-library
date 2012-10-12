@@ -68,6 +68,9 @@ public:
     /** \copydoc IConfiguration::createDispatcher */
     dp::ICommandDispatcher* createDispatcher ();
 
+    /** \copydoc IConfiguration::createTimeInfo */
+    os::impl::TimeInfo* createTimeInfo ();
+
     /** \copydoc IConfiguration::createSequenceIteratorFactory */
     database::ISequenceIteratorFactory* createSequenceIteratorFactory ();
 
