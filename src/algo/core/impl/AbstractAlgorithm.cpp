@@ -305,7 +305,7 @@ void AbstractAlgorithm::execute (void)
 
             _timeStats->stopEntry (keyIndex);
 
-            DEBUG (("AbstractAlgorithm::execute : indexation finished in %d msec...\n", timeStats->getEntryByKey("indexation") ));
+            DEBUG (("AbstractAlgorithm::execute : indexation finished in %d msec...\n", _timeStats->getEntryByKey(keyIndex) ));
 
             /** We create an ungap alignment result. This ungap alignment will be shared betweed different Hit
              * iterators, in particular for filtering out already processed hits.
