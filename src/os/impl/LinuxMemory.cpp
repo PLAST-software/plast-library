@@ -45,7 +45,7 @@ u_int32_t LinuxMemoryAllocator::getMemUsage ()
         char buffer[128];
         fgets (buffer, sizeof(buffer), file);
         char* locate = strchr (buffer, ' ');
-        if (locate)  {  val = atol(locate); }
+        if (locate)  {  val = misc::atol(locate); }
         fclose (file);
     }
 
