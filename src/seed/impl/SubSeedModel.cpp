@@ -65,7 +65,7 @@ SubSeedModel::SubSeedModel (const char* filename)
 
     /** The first line should be the span. */
     it.first ();
-    _span = atoi (it.currentItem());
+    _span = misc::atoi (it.currentItem());
     it.next ();
 
     /** We can now build some attributes. */
