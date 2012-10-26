@@ -30,6 +30,7 @@
 #define _IPROPERTY_H_
 
 #include <designpattern/api/SmartPointer.hpp>
+#include <misc/api/types.hpp>
 
 #include <string>
 #include <list>
@@ -83,7 +84,7 @@ struct IProperty
     /** Returns the value of the property as an integer (it supposes that the string represents an integer).
      * \return the value
      */
-    long                getInt    ()  { return atol (value.c_str()); }
+    long                getInt    ()  { return misc::atol (value.c_str()); }
 
     /** Returns the value of the property as a C string.
      * \return the value
