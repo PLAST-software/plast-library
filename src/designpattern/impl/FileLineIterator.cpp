@@ -57,7 +57,9 @@ FileLineIterator::FileLineIterator (
     TokenizerIterator tokenizer (filename, ",");
     for (tokenizer.first (); !tokenizer.isDone(); tokenizer.next())
     {
-        _files.push_back (DefaultFactory::file().newFile (tokenizer.currentItem(), "r"));
+        /** IMPORTANT ! We open the file with binary option, otherwise Windows may provide
+         * bad physical offsets with the ftell function. */
+        _files.push_back (DefaultFactory::file().newFile (tokenizer.currentItem(), "rb"));
     }
 
     /** We create a buffer for reading lines from the file(s). */
