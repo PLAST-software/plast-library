@@ -539,18 +539,18 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
             if ( (prop = properties->getProperty (STR_OPTION_OUTPUT_FILE)) != 0)            {  params->outputfile           = prop->value; }
             if ( (prop = properties->getProperty (STR_OPTION_FILTER_QUERY)) != 0)           {  params->filterQuery          = prop->value.compare ("T") == 0;  }
 
-            if ( (prop = properties->getProperty (STR_OPTION_UNGAP_NEIGHBOUR_LENGTH)) != 0) {  params->ungapNeighbourLength = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty (STR_OPTION_UNGAP_SCORE_THRESHOLD)) != 0)  {  params->ungapScoreThreshold  = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty (STR_OPTION_SMALLGAP_BAND_WITH)) != 0)     {  params->smallGapBandWidth    = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty (STR_OPTION_SMALLGAP_THRESHOLD)) != 0)     {  params->smallGapThreshold    = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty (STR_OPTION_OPEN_GAP_COST)) != 0)          {  params->openGapCost          = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty (STR_OPTION_EXTEND_GAP_COST)) != 0)        {  params->extendGapCost        = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty (STR_OPTION_EVALUE)) != 0)                 {  params->evalue               = atof (prop->value.c_str()); }
-            if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_GAPPED)) != 0)       {  params->XdroppofGap          = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_FINAL)) != 0)        {  params->finalXdroppofGap     = atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_UNGAP_NEIGHBOUR_LENGTH)) != 0) {  params->ungapNeighbourLength = misc::atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_UNGAP_SCORE_THRESHOLD)) != 0)  {  params->ungapScoreThreshold  = misc::atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_SMALLGAP_BAND_WITH)) != 0)     {  params->smallGapBandWidth    = misc::atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_SMALLGAP_THRESHOLD)) != 0)     {  params->smallGapThreshold    = misc::atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_OPEN_GAP_COST)) != 0)          {  params->openGapCost          = misc::atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_EXTEND_GAP_COST)) != 0)        {  params->extendGapCost        = misc::atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_EVALUE)) != 0)                 {  params->evalue               = misc::atof (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_GAPPED)) != 0)       {  params->XdroppofGap          = misc::atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_FINAL)) != 0)        {  params->finalXdroppofGap     = misc::atoi (prop->value.c_str()); }
 
-            if ( (prop = properties->getProperty (STR_OPTION_REWARD))  != 0)                {  params->reward  = atoi (prop->value.c_str()); }
-            if ( (prop = properties->getProperty (STR_OPTION_PENALTY)) != 0)                {  params->penalty = atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_REWARD))  != 0)                {  params->reward  = misc::atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_PENALTY)) != 0)                {  params->penalty = misc::atoi (prop->value.c_str()); }
 
             if ( (prop = properties->getProperty (STR_OPTION_SCORE_MATRIX)) != 0)
             {
@@ -564,7 +564,7 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
                 TokenizerIterator it (prop->getString(), ",");
                 for (it.first(); !it.isDone(); it.next())
                 {
-                    ReadingFrame_e val = (ReadingFrame_e) (atoi(it.currentItem()) - 1);
+                    ReadingFrame_e val = (ReadingFrame_e) (misc::atoi(it.currentItem()) - 1);
                     params->strands.push_back (val);
                 }
             }

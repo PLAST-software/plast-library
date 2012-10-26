@@ -266,7 +266,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
 
     /** We may want to restrict the number of dumped alingments. */
     IProperty* maxHspPerHitProp = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT);
-    if (maxHspPerHitProp != 0)  { params->nbAlignPerHit = atoi (maxHspPerHitProp->value.c_str());  }
+    if (maxHspPerHitProp != 0)  { params->nbAlignPerHit = misc::atoi (maxHspPerHitProp->value.c_str());  }
     else                        { params->nbAlignPerHit = 0; }
 
     return params;
@@ -501,7 +501,7 @@ IIndexator*  DefaultConfiguration::createIndexator (
     float seedsUseRatio = 1.0;
     if ( (prop = _properties->getProperty (STR_OPTION_SEEDS_USE_RATIO)) != 0)
     {
-        seedsUseRatio = atof (prop->getString());
+        seedsUseRatio = misc::atof (prop->getString());
 
         /** A little check. */
         if (seedsUseRatio<0.0 || seedsUseRatio>1.0)  { seedsUseRatio = 1.0; }

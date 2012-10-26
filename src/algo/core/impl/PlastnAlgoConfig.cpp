@@ -151,7 +151,7 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
 
     /** We may want to restrict the number of dumped alignments. */
     IProperty* maxHspPerHitProp = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT);
-    if (maxHspPerHitProp != 0)  { params->nbAlignPerHit = atoi (maxHspPerHitProp->value.c_str());  }
+    if (maxHspPerHitProp != 0)  { params->nbAlignPerHit = misc::atoi (maxHspPerHitProp->value.c_str());  }
     else                        { params->nbAlignPerHit = 0; }
 
     return params;
