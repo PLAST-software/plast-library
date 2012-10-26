@@ -88,10 +88,6 @@ private:
     std::string _outputUri;
 
     /** */
-    core::IAlignmentContainerVisitor* _realVisitor;
-    void setRealVisitor (core::IAlignmentContainerVisitor* realVisitor) { SP_SETATTR(realVisitor); }
-
-    /** */
     core::IAlignmentContainerVisitor* _finalVisitor;
     void setFinalVisitor (core::IAlignmentContainerVisitor* finalVisitor) { SP_SETATTR(finalVisitor); }
 

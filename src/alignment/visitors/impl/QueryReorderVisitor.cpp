@@ -380,13 +380,12 @@ QueryReorderVisitor::QueryReorderVisitor (
     :  AlignmentsProxyVisitor(realVisitor),
        _config (config),
        _outputUri(outputUri),
-       _realVisitor(0), _finalVisitor(0),
+       _finalVisitor(0),
        _qryReader(0),
        _prevPos(0), _newPos(0),
        _nbAlignmentsThreshold(nbAlignmentsThreshold)
 {
     /** We keep a reference on the provided visitors. */
-    setRealVisitor  (realVisitor);
     setFinalVisitor (finalVisitor);
 
     /** We keep a reference on the query reader. */
@@ -407,13 +406,25 @@ QueryReorderVisitor::QueryReorderVisitor (
 QueryReorderVisitor::~QueryReorderVisitor ()
 {
     /** We clean up resources. */
-    setRealVisitor  (0);
     setFinalVisitor (0);
     setQryReader    (0);
 
-    /** We delete index and temporary files. */
-    remove (getTmpFileUri().c_str());
+    /** Important ! Normally, the reference should be released by the destructor of
+     * the parent class (which should occur just after this destructor call).
+     * However, we need to remove the temporary file (ie. the file of the referenced
+     * visitor), and we need to have this file closed before doing the remove. A way
+     * to achieve this is to anticipate the setRef(0) of the parent class destructor
+     * with the consequence of closing the file.
+     */
+    setRef (0);
+
+    /** We close the indexes file and delete it. */
+    _indexesFile.close();
     remove (getIndexesFileUri().c_str());
+
+    /** We delete the temporary file.
+     *  Note that we should be sure that it has been closed before doing this. */
+    remove (getTmpFileUri().c_str());
 }
 
 /*********************************************************************
@@ -430,7 +441,7 @@ void QueryReorderVisitor::visitQuerySequence (const database::ISequence* seq, co
     dumpIndex ();
 
     /** We call the delegate. */
-    _realVisitor->visitQuerySequence (seq, progress);
+    _ref->visitQuerySequence (seq, progress);
 
     /** We retrieve the query sequence identifier. */
     if (seq)  {  seq->retrieveId (_queryId, sizeof(_queryId));  }
@@ -450,7 +461,7 @@ void QueryReorderVisitor::visitQuerySequence (const database::ISequence* seq, co
 void QueryReorderVisitor::dumpIndex (void)
 {
     /** We get the new cursor location in the output stream. */
-    _newPos = _realVisitor->getPosition ();
+    _newPos = _ref->getPosition ();
 
     if (_newPos > _prevPos &&  _indexesFile.is_open())
     {
