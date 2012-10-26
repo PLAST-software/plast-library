@@ -64,16 +64,16 @@ Alignment::Alignment (const std::string& source, const std::string& format)
         {
         }
 
-        else if (idx==2)   {  identitiesPercent = atof (token);     }
-        else if (idx==3)   {  this->setLength   (atoi (token));     }
-        else if (idx==4)   {  this->setNbMisses (atoi (token));     }
-        else if (idx==5)   {  nbGaps = atoi (token);                }
-        else if (idx==6)   {  qryRange.begin = atoi (token);        }
-        else if (idx==7)   {  qryRange.end   = atoi (token);        }
-        else if (idx==8)   {  sbjRange.begin = atoi (token);        }
-        else if (idx==9)   {  sbjRange.end   = atoi (token);        }
-        else if (idx==10)  {  this->setEvalue   (atof (token));     }
-        else if (idx==11)  {  this->setBitScore (atof (token));     }
+        else if (idx==2)   {  identitiesPercent = misc::atof (token);     }
+        else if (idx==3)   {  this->setLength   (misc::atoi (token));     }
+        else if (idx==4)   {  this->setNbMisses (misc::atoi (token));     }
+        else if (idx==5)   {  nbGaps = misc::atoi (token);                }
+        else if (idx==6)   {  qryRange.begin = misc::atoi (token);        }
+        else if (idx==7)   {  qryRange.end   = misc::atoi (token);        }
+        else if (idx==8)   {  sbjRange.begin = misc::atoi (token);        }
+        else if (idx==9)   {  sbjRange.end   = misc::atoi (token);        }
+        else if (idx==10)  {  this->setEvalue   (misc::atof (token));     }
+        else if (idx==11)  {  this->setBitScore (misc::atof (token));     }
     }
 
     /** We read from a human readable file that counts range with a 1 starting position.
