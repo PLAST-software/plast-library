@@ -62,6 +62,12 @@ ReadingFrame_e AbstractAlgorithm::allframes[]    = {FRAME_1, FRAME_2, FRAME_3, F
 ReadingFrame_e AbstractAlgorithm::topframes[]    = {FRAME_1, FRAME_2, FRAME_3};
 ReadingFrame_e AbstractAlgorithm::bottomframes[] = {FRAME_4, FRAME_5, FRAME_6};
 
+static const char* keyRead      = "reading";
+static const char* keyIndex     = "indexation";
+static const char* keyIter      = "iteration";
+static const char* keyOutput    = "output";
+static const char* keyAlgorithm = "algorithm";
+
 /********************************************************************************/
 
 /** Command that launch 'iterate' method on a IHitIterator instance. Using a Command allows to
@@ -199,9 +205,6 @@ void AbstractAlgorithm::execute (void)
 
     DEBUG (("AbstractAlgorithm::execute : starting...\n"));
 
-    const char* keyRead  = "reading";
-    const char* keyIndex = "indexation";
-
     /** We create a command dispatcher used for indexation commands. */
     ICommandDispatcher* indexationDispatcher = getConfig()->createIndexationDispatcher();
     LOCAL (indexationDispatcher);
@@ -231,11 +234,7 @@ void AbstractAlgorithm::execute (void)
      * charge to feed the algorithm with the source Hit Iterator, ie the one that provides for
      * a given seed all the occurrences in subject and query databases.
      */
-    _timeStats->addEntry (keyIndex);
-
     setIndexator (getConfig()->createIndexator (getSeedsModel(), getParams(), _isRunning) );
-
-    _timeStats->stopEntry (keyIndex);
 
     DEBUG (("AbstractAlgorithm::execute : indexator created...\n"));
 
@@ -281,6 +280,8 @@ void AbstractAlgorithm::execute (void)
         for (subjectDbIt.first(); !subjectDbIt.isDone(); subjectDbIt.next())
         {
             DEBUG (("AbstractAlgorithm::execute : SUBJECT LOOP...\n"));
+
+            _timeStats->addEntry (keyAlgorithm);
 
             /** Shortcuts. */
             ISequenceDatabase* subjectDb = subjectDbIt.currentItem();
@@ -335,6 +336,8 @@ void AbstractAlgorithm::execute (void)
             /** We may have specific post treatment on the found alignments (in particular serialization into a file). */
             finalizeAlignments (alignmentResult, _timeStats);
 
+            _timeStats->stopEntry (keyAlgorithm);
+
             /** We notify some report to potential listeners. */
             this->notify (new AlgorithmReportEvent (
                 this,
@@ -368,8 +371,6 @@ void AbstractAlgorithm::computeAlignments (
     TimeInfo*               timeStats
 )
 {
-    const char* keyIter = "iteration";
-
     /** We create the Hit iterator to be used by the algorithm, a Hit being an occurrence of a kmer in both subject
      *  and query databases.
      *  See the 'createHitIterator' to see how the different created iterators are connected (seed, ungap, small gap...)  */
@@ -433,8 +434,6 @@ void AbstractAlgorithm::computeAlignments (
 *********************************************************************/
 void AbstractAlgorithm::finalizeAlignments (IAlignmentContainer* alignmentResult, TimeInfo* timeStats)
 {
-    const char* keyOutput = "output";
-
     timeStats->addEntry (keyOutput);
 
     /** Now, our alignment result instance should hold found alignments, with possible redundancies, so we try to
