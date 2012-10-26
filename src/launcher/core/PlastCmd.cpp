@@ -134,7 +134,7 @@ void PlastCmd::configureObservers (
     {
         size_t bargraphSize = 0;
         IProperty* p = properties->getProperty(STR_OPTION_INFO_BARGRAPH_SIZE);
-        if (p != 0)  { bargraphSize = atoi (p->value.c_str()); }
+        if (p != 0)  { bargraphSize = misc::atoi (p->value.c_str()); }
 
         observers.push_back (new BargraphObserver ("seeds", stdout, bargraphSize));
     }
