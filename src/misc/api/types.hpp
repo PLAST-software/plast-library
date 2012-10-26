@@ -34,6 +34,9 @@
 #define _TYPES_HPP_
 
 #include <iostream>
+#include <sstream>
+
+#include <stdlib.h>
 
 #if defined(__LINUX__) or defined (__DARWIN__)
     #include <sys/types.h>
@@ -193,6 +196,31 @@ struct ProgressInfo
         return s >> c >> o.rank >> c >> o.number >> c;
     }
 };
+
+/********************************************************************************/
+
+extern "C" int printf (const char* fmt, ...);
+
+/** We provide some string conversions functions. */
+
+/** This version should ensure that both entries "0.5" and "0,5" may be converted as 0.5 */
+inline double atof (const char* str)
+{
+    double result = 0.0;
+
+    /** We copy the string. */
+    std::string tmp (str);
+
+    size_t idx = tmp.find (',');
+    if (idx != std::string::npos)  { tmp.replace (idx, 1, 1, '.');   }
+
+    std::istringstream ss (tmp);   ss.imbue (std::locale("C"));   ss >> result;
+    return result;
+}
+
+/** */
+inline int  atoi (const char* str)  { return ::atoi (str); }
+inline long atol (const char* str)  { return ::atol (str); }
 
 /********************************************************************************/
 
