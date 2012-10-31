@@ -62,7 +62,8 @@ public:
         algo::core::IScoreMatrix*               scoreMatrix,
         algo::core::IParameters*                parameters,
         alignment::core::IAlignmentContainer*   ungapResult,
-        u_int32_t                               maxHitsPerIteration
+        u_int32_t                               maxHitsPerIteration,
+        bool&                                   isRunning
     );
 
     /** Destructor. */
@@ -79,7 +80,7 @@ protected:
     /** \copydoc common::AbstractPipeHitIterator::clone */
     virtual common::AbstractPipeHitIterator* clone (IHitIterator* sourceIterator)
     {
-        return new UngapHitIteratorSSE16 (sourceIterator, _model, _scoreMatrix, _parameters, _ungapResult, _maxHitsPerIteration);
+        return new UngapHitIteratorSSE16 (sourceIterator, _model, _scoreMatrix, _parameters, _ungapResult, _maxHitsPerIteration, _isRunning);
     }
 
     /** \copydoc common::AbstractPipeHitIterator::iterateMethod */
@@ -92,6 +93,9 @@ protected:
 
     /** Inner buffer. */
     char* _databk;
+
+    /** */
+    bool& _isRunning;
 };
 
 /********************************************************************************/

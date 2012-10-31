@@ -122,7 +122,8 @@ public:
         seed::ISeedModel*                       model,
         algo::core::IScoreMatrix*               matrix,
         algo::core::IParameters*                params,
-        alignment::core::IAlignmentContainer*   ungapResult
+        alignment::core::IAlignmentContainer*   ungapResult,
+        bool&                                   isRunning
     );
 
     /** \copydoc IConfiguration::createUngapExtendHitIterator */
@@ -133,7 +134,8 @@ public:
         algo::core::IParameters*                params,
         alignment::core::IAlignmentContainer*   ungapResult,
         statistics::IGlobalParameters*          globalStats,
-        statistics::IQueryInformation*          queryInfo
+        statistics::IQueryInformation*          queryInfo,
+        bool&                                   isRunning
     );
 
     /** \copydoc IConfiguration::createSmallGapHitIterator */
@@ -143,7 +145,8 @@ public:
         algo::core::IScoreMatrix*               matrix,
         algo::core::IParameters*                params,
         alignment::core::IAlignmentContainer*   ungapResult,
-        alignment::core::IAlignmentContainer*   alignmentResult
+        alignment::core::IAlignmentContainer*   alignmentResult,
+        bool&                                   isRunning
     );
 
     /** \copydoc IConfiguration::createFullGapHitIterator */
@@ -155,7 +158,8 @@ public:
         statistics::IQueryInformation*          queryInfo,
         statistics::IGlobalParameters*          globalStats,
         alignment::core::IAlignmentContainer*   ungapResult,
-        alignment::core::IAlignmentContainer*   alignmentResult
+        alignment::core::IAlignmentContainer*   alignmentResult,
+        bool&                                   isRunning
     );
 
     /** \copydoc IConfiguration::createCompositionHitIterator */
@@ -167,7 +171,8 @@ public:
         statistics::IQueryInformation*          queryInfo,
         statistics::IGlobalParameters*          globalStats,
         alignment::core::IAlignmentContainer*   ungapResult,
-        alignment::core::IAlignmentContainer*   alignmentResult
+        alignment::core::IAlignmentContainer*   alignmentResult,
+        bool&                                   isRunning
     );
 
     /** \copydoc IConfiguration::createGapAlignmentResult */

@@ -477,12 +477,12 @@ IHitIterator* AbstractAlgorithm::createHitIterator (
      *  may need different information for their construction. */
 
     IHitIterator* ungapHitIterator = getConfig()->createUngapHitIterator (
-        hitSource, getSeedsModel(), getScoreMatrix(), getParams(), ungapAlignResult
+        hitSource, getSeedsModel(), getScoreMatrix(), getParams(), ungapAlignResult, _isRunning
     );
     DEBUG (("AbstractAlgorithm::createHitIterator => ungapHitIterator=%p\n", ungapHitIterator));
 
     IHitIterator* smallGapIterator = getConfig()->createSmallGapHitIterator (
-        ungapHitIterator, getSeedsModel(), getScoreMatrix(), getParams(), ungapAlignResult, alignResult
+        ungapHitIterator, getSeedsModel(), getScoreMatrix(), getParams(), ungapAlignResult, alignResult, _isRunning
     );
     DEBUG (("AbstractAlgorithm::createHitIterator => smallGapIterator=%p\n", smallGapIterator));
 
@@ -494,7 +494,8 @@ IHitIterator* AbstractAlgorithm::createHitIterator (
         getQueryInfo(),
         getGlobalStatistics(),
         ungapAlignResult,
-        alignResult
+        alignResult,
+        _isRunning
     );
 
     IHitIterator* compositionHitIterator  = getConfig()->createCompositionHitIterator  (
@@ -505,7 +506,8 @@ IHitIterator* AbstractAlgorithm::createHitIterator (
         getQueryInfo(),
         getGlobalStatistics(),
         ungapAlignResult,
-        alignResult
+        alignResult,
+        _isRunning
     );
 
     /** We subscribe to the seeds hit iteration events. Therefore, we will get as many number
@@ -565,12 +567,12 @@ IHitIterator* AlgorithmTplastx::createHitIterator (
 )
 {
     IHitIterator* ungapHitIterator = getConfig()->createUngapHitIterator (
-        hitSource, getSeedsModel(), getScoreMatrix(), getParams(), ungapAlignResult
+        hitSource, getSeedsModel(), getScoreMatrix(), getParams(), ungapAlignResult, _isRunning
     );
 
     IHitIterator* ungapExtendHitIterator =  getConfig()->createUngapExtendHitIterator (
         ungapHitIterator, getSeedsModel(), getScoreMatrix(), getParams(), alignResult,
-        getGlobalStatistics(), getQueryInfo()
+        getGlobalStatistics(), getQueryInfo(), _isRunning
     );
 
     return ungapExtendHitIterator;

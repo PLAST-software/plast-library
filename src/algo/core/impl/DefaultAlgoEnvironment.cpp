@@ -305,12 +305,16 @@ void DefaultEnvironment::run ()
         dispatcher->dispatchCommands (algosCmd, 0);
     }
 
-    /** We finalize the output result visitor. */
-    _timeInfo->addEntry (keyFinal);
+    /** We may check whether we are actually done or the request has been canceled. */
+    if (_isRunning == true)
+    {
+        /** We finalize the output result visitor. */
+        _timeInfo->addEntry (keyFinal);
 
-    _resultVisitor->finalize ();
+        _resultVisitor->finalize ();
 
-    _timeInfo->stopEntry (keyFinal);
+        _timeInfo->stopEntry (keyFinal);
+    }
 
     _timeInfo->stopEntry (keyTotal);
 

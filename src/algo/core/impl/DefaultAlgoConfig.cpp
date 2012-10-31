@@ -582,7 +582,8 @@ IHitIterator* DefaultConfiguration::createUngapHitIterator (
     ISeedModel*             model,
     IScoreMatrix*           matrix,
     IParameters*            params,
-    IAlignmentContainer*    ungapResult
+    IAlignmentContainer*    ungapResult,
+    bool&                   isRunning
 )
 {
     IHitIterator* result = 0;
@@ -608,11 +609,11 @@ IHitIterator* DefaultConfiguration::createUngapHitIterator (
     }
     else if (prop && prop->value.compare(STR_CONFIG_CLASS_UngapHitIteratorSSE16)==0)
     {
-        result = new UngapHitIteratorSSE16 (source, model, matrix, params, actualUngapResult, maxHitsPerIter);
+        result = new UngapHitIteratorSSE16 (source, model, matrix, params, actualUngapResult, maxHitsPerIter, isRunning);
     }
     else
     {
-        result = new UngapHitIteratorSSE16 (source, model, matrix, params, actualUngapResult, maxHitsPerIter);
+        result = new UngapHitIteratorSSE16 (source, model, matrix, params, actualUngapResult, maxHitsPerIter, isRunning);
     }
 
     return result;
@@ -633,7 +634,8 @@ algo::hits::IHitIterator* DefaultConfiguration::createUngapExtendHitIterator (
     algo::core::IParameters*                params,
     alignment::core::IAlignmentContainer*   ungapResult,
     statistics::IGlobalParameters*          globalStats,
-    statistics::IQueryInformation*          queryInfo
+    statistics::IQueryInformation*          queryInfo,
+    bool&                                   isRunning
 )
 {
     return new UngapExtendHitIterator (
@@ -655,7 +657,8 @@ IHitIterator* DefaultConfiguration::createSmallGapHitIterator (
     IScoreMatrix*           matrix,
     IParameters*            params,
     IAlignmentContainer*    ungapResult,
-    IAlignmentContainer*    alignmentResult
+    IAlignmentContainer*    alignmentResult,
+    bool&                   isRunning
 )
 {
     IHitIterator* result = 0;
@@ -699,7 +702,8 @@ IHitIterator* DefaultConfiguration::createFullGapHitIterator (
     IQueryInformation*      queryInfo,
     IGlobalParameters*      globalStats,
     IAlignmentContainer*    ungapResult,
-    IAlignmentContainer*    alignmentResult
+    IAlignmentContainer*    alignmentResult,
+    bool&                   isRunning
 )
 {
     IHitIterator* result = 0;
@@ -768,7 +772,8 @@ IHitIterator* DefaultConfiguration::createCompositionHitIterator  (
     IQueryInformation*      queryInfo,
     IGlobalParameters*      globalStats,
     IAlignmentContainer*    ungapResult,
-    IAlignmentContainer*    alignmentResult
+    IAlignmentContainer*    alignmentResult,
+    bool&                   isRunning
 )
 {
     IHitIterator* result = 0;

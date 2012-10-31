@@ -111,10 +111,10 @@ public:
     /** \copydoc dp::IObserver::update */
     void update (dp::EventInfo* evt, dp::ISubject* subject);
 
-    /** Tells whether the command is running or not.
-     * \return true if the command is running, false otherwise.
+    /** Tells whether the command is finished or not.
+     * \return true if the command is finished, false otherwise.
      */
-    bool isRunning ()  { return _isRunning; }
+    bool isRunning ()  { return _isFinished == false; }
 
     /** Returns the properties of the command
      * \return the command properties.
@@ -131,6 +131,9 @@ private:
 
     /** */
     bool _isRunning;
+
+    /** */
+    bool _isFinished;
 
     /** */
     void configureObservers (

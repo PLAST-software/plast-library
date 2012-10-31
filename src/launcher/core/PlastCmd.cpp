@@ -53,7 +53,7 @@ namespace core     {
  ** REMARKS :
  *********************************************************************/
 PlastCmd::PlastCmd (IProperties* properties)
-    : _env(0), _properties(0)
+    : _env(0), _properties(0), _isRunning(false), _isFinished(false)
 {
     setEnv        (new DefaultEnvironment (properties, _isRunning));
     setProperties (properties);
@@ -83,7 +83,8 @@ PlastCmd::~PlastCmd ()
  *********************************************************************/
 void PlastCmd::execute ()
 {
-    _isRunning = true;
+    _isRunning  = true;
+    _isFinished = false;
 
     /** We subscribe ourself as listener. */
     _env->addObserver (this);
@@ -111,7 +112,8 @@ void PlastCmd::execute ()
     /** We unsubscribe ourself as listener. */
     _env->removeObserver (this);
 
-    _isRunning = false;
+    _isRunning  = false;
+    _isFinished = true;
 }
 
 /*********************************************************************
@@ -243,10 +245,12 @@ IPropertiesVisitor* PlastCmd::getPropertiesVisitor (IProperties* props, const st
 void PlastCmd::update (dp::EventInfo* evt, dp::ISubject* subject)
 {
     /** We just forward the notification to potential listener. */
-    if (subject != this  &&  _isRunning==true)
+    if (subject != this)
     {
-        if (subject != _env)  { _env->notify (evt);  }
-        else                  { this->notify (evt);  }
+        AlgorithmConfigurationEvent* e2 = dynamic_cast<AlgorithmConfigurationEvent*> (evt);
+        if (e2 != 0  &&  e2->_current == e2->_total)  {   _isFinished = true;  }
+
+        this->notify (evt);
     }
 }
 

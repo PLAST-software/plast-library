@@ -188,7 +188,8 @@ public:
         seed::ISeedModel*                       model,
         algo::core::IScoreMatrix*               matrix,
         algo::core::IParameters*                params,
-        alignment::core::IAlignmentContainer*   ungapResult
+        alignment::core::IAlignmentContainer*   ungapResult,
+        bool&                                   isRunning
     ) = 0;
 
     /** Create a Hit iterator used during the ungap part of the PLAST algorithm.
@@ -201,7 +202,8 @@ public:
         algo::core::IParameters*                params,
         alignment::core::IAlignmentContainer*   ungapResult,
         statistics::IGlobalParameters*          globalStats,
-        statistics::IQueryInformation*          queryInfo
+        statistics::IQueryInformation*          queryInfo,
+        bool&                                   isRunning
     ) = 0;
 
     /** Create a Hit iterator used during the small gap part of the PLAST algorithm.
@@ -213,7 +215,8 @@ public:
         algo::core::IScoreMatrix*               matrix,
         algo::core::IParameters*                params,
         alignment::core::IAlignmentContainer*   ungapResult,
-        alignment::core::IAlignmentContainer*   alignmentResult
+        alignment::core::IAlignmentContainer*   alignmentResult,
+        bool&                                   isRunning
     ) = 0;
 
     /** Create a Hit iterator used during the full gap part of the PLAST algorithm.
@@ -227,7 +230,8 @@ public:
         statistics::IQueryInformation*          queryInfo,
         statistics::IGlobalParameters*          globalStats,
         alignment::core::IAlignmentContainer*   ungapResult,
-        alignment::core::IAlignmentContainer*   alignmentResult
+        alignment::core::IAlignmentContainer*   alignmentResult,
+        bool&                                   isRunning
     ) = 0;
 
     /** Create a Hit iterator used during the composition part of the PLAST algorithm.
@@ -241,7 +245,8 @@ public:
         statistics::IQueryInformation*          queryInfo,
         statistics::IGlobalParameters*          globalStats,
         alignment::core::IAlignmentContainer*   ungapResult,
-        alignment::core::IAlignmentContainer*   alignmentResult
+        alignment::core::IAlignmentContainer*   alignmentResult,
+        bool&                                   isRunning
     ) = 0;
 
     /** Create a IAlignmentResult instance for holding generated ungap alignments.

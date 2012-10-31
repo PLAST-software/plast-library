@@ -64,10 +64,11 @@ UngapHitIteratorSSE16::UngapHitIteratorSSE16 (
     IScoreMatrix*        scoreMatrix,
     IParameters*         parameters,
     IAlignmentContainer* ungapResult,
-    u_int32_t            maxHitsPerIteration
+    u_int32_t            maxHitsPerIteration,
+    bool&                isRunning
 )
     : AbstractPipeHitIterator (realIterator, model, scoreMatrix, parameters, ungapResult),
-      _ungapKnownNumber(0), _databk(0)
+      _ungapKnownNumber(0), _databk(0), _isRunning (isRunning)
 {
     DEBUG (("UngapHitIteratorSSE16::UngapHitIteratorSSE16:  span=%ld  _neighbourLength=%d \n",
         _model->getSpan(),
@@ -148,7 +149,7 @@ void UngapHitIteratorSSE16::iterateMethod (Hit* hit)
     const LETTER* neighboursOccur2 = hit->neighbourhoodsOccur2;
 
     /** We loop over query occurrences. */
-    for (size_t j=0; j<nb2; j+=NB)
+    for (size_t j=0; _isRunning && j<nb2; j+=NB)
     {
         /** We first reset to 0 all scores of the pseudo SSE score matrix. */
         memset (databk, 0, (sizeMatrix*sizeNeighbour + 64) * sizeof(__m128i));
