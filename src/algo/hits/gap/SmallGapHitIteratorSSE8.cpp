@@ -158,7 +158,7 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
     const Vector<const ISeedOccurrence*>& occur2Vector = hit->occur2;
 
     /** Shortcuts. */
-    size_t nbActualHits = hit->indexes.size ();
+    size_t nbActualHits = hit->size ();
     size_t bandLength   = getNeighbourLength ();
 
     /** Statistics. */
@@ -191,9 +191,14 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
     LETTER* right2 = 0;
     LETTER* left2  = 0;
 
+    bool removable = false;
+
     /** We prepare some neighbourhoods data in specific memory chunk. */
-    for (list<IdxCouple>::iterator it = hit->indexes.begin();  it != hit->indexes.end();  it++)
+    for (hit->first(); !hit->isDone(); hit->next (removable))
     {
+        /** Shortcut. */
+        IdxCouple& idx = hit->currentItem();
+
         /** We get references on neighbourhoods buffers to be extended. */
         right1 = cursor1;   cursor1 += bandLength;
         left1  = cursor1;   cursor1 += bandLength;
@@ -202,8 +207,8 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
         left2  = cursor2;   cursor2 += bandLength;
 
         /** We compute right and left neighbourhoods for both sequences. */
-        extendNeighbourhood (occur1Vector.data[it->first],  right1, left1);
-        extendNeighbourhood (occur2Vector.data[it->second], right2, left2);
+        extendNeighbourhood (occur1Vector.data[idx.first],  right1, left1);
+        extendNeighbourhood (occur2Vector.data[idx.second], right2, left2);
     }
 
     /** Now, 'neighbourhoods1' and 'neighbourhoods2' should hold all the wanted neighbourhoods. */
@@ -211,40 +216,32 @@ void SmallGapHitIteratorSSE8::iterateMethod  (Hit* hit)
 
     /** We check the scores versus the threshold. */
     size_t k=0;
-    for (list<IdxCouple>::iterator it = hit->indexes.begin();  it != hit->indexes.end();  k++)
+    for (hit->first(); !hit->isDone(); hit->next (removable), k++)
     {
-        bool removable = true;
-
         int score = computedScores[2*k+0] + computedScores[2*k+1];
 
-        if (score >= getGapThreshold())
+        removable = score < getGapThreshold();
+
+        if (removable == false)
         {
+            /** Shortcut. */
+            IdxCouple& idx = hit->currentItem();
+
             /** We check that the alignment is not already known. */
             removable = _alignmentResult->doesExist (
-                occur1Vector.data[it->first],
-                occur2Vector.data[it->second],
+                occur1Vector.data[idx.first],
+                occur2Vector.data[idx.second],
                 bandLength
             );
-        }
-
-        if (removable)
-        {
-            /** We remove the current index couple. */
-            it = hit->indexes.erase (it);
-        }
-        else
-        {
-            /** We just continue the iteration. */
-            it++;
         }
     }
 
     /** We update the statistics about iterations. */
-    HIT_STATS (_outputHitsNumber += hit->indexes.size();)
+    HIT_STATS (_outputHitsNumber += hit->size();)
 
     /** We are supposed to have computed scores for each hit,
      *  we can forward the information to the client.  */
-    if (hit->indexes.empty() == false)      {  (_client->*_method) (hit);  }
+    if (hit->empty() == false)      {  (_client->*_method) (hit);  }
 }
 
 /*********************************************************************

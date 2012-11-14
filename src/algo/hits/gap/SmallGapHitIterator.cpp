@@ -99,11 +99,12 @@ void SmallGapHitIterator::iterateMethod  (Hit* hit)
 
     std::vector<bool> isExtended1 (nb1);   for (size_t k=0; k<nb1; k++)  { isExtended1[k] = false; }
     std::vector<bool> isExtended2 (nb2);   for (size_t k=0; k<nb2; k++)  { isExtended2[k] = false; }
+    bool removable = false;
 
-    for (list<IdxCouple>::iterator it = hit->indexes.begin();  it != hit->indexes.end();  )
+    for (hit->first(); !hit->isDone(); hit->next (removable))
     {
         /** Shortcut. */
-        IdxCouple& idx = *it;
+        IdxCouple& idx = hit->currentItem();
 
         IWord& neighbour1 = neighbourhood1[idx.first];
         IWord& neighbour2 = neighbourhood2[idx.second];
@@ -130,18 +131,12 @@ void SmallGapHitIterator::iterateMethod  (Hit* hit)
                 neighbour2.letters.data  + _parameters->smallGapBandLength
         );
 
-        if (scoreRight + scoreLeft >= _parameters->smallGapThreshold)
+        removable = (scoreRight + scoreLeft) < _parameters->smallGapThreshold;
+
+        if (removable == false)
         {
             /** We increase the number of iterations. */
             _outputHitsNumber ++;
-
-            /** We just continue the iteration. */
-            it++;
-        }
-        else
-        {
-            /** We remove the current index couple. */
-            it = hit->indexes.erase (it);
         }
     }
 

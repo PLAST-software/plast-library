@@ -118,14 +118,15 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
 
     int scoreLeft=0,  scoreRight=0;
     u_int32_t leftOffsetInQuery=0, leftOffsetInSubject=0, rightOffsetInQuery=0, rightOffsetInSubject=0;
+    bool removable = false;
 
     /** Statistics. */
-    HIT_STATS (_inputHitsNumber += hit->indexes.size();)
+    HIT_STATS (_inputHitsNumber += hit->size();)
 
-    for (list<IdxCouple>::iterator it = hit->indexes.begin();  it != hit->indexes.end();  )
+    for (hit->first(); !hit->isDone(); hit->next (removable))
     {
         /** Shortcut. */
-        IdxCouple& idx = *it;
+        IdxCouple& idx = hit->currentItem();
 
         /** Shortcuts. */
         const ISeedOccurrence* occurSubject = occur1Vector.data [idx.first];
@@ -167,7 +168,9 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
         /** We retrieve statistical information for the current query sequence. */
         IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfo (querySeq);
 
-        if (score >= info.cut_offs)
+        removable = score < info.cut_offs;
+
+        if (removable == false)
         {
             /** We create a new alignment. */
             Alignment align (
@@ -205,9 +208,6 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
                     /** We add the alignment into the global alignment container. */
                     _alignmentResult->insert (align, 0);
                 }
-
-                /** We just go to the next item. */
-                it++;
             }
             else
             {
@@ -215,7 +215,7 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
                 HIT_STATS (_gapKnownNumber++;)
 
                 /** We remove the current index couple. */
-                it = hit->indexes.erase(it);
+				removable = true;
             }
 
         } /* end of if (score >= info.cut_offs) */
@@ -223,14 +223,14 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
         else
         {
             /** We remove the current index couple. */
-            it = hit->indexes.erase(it);
+        	removable = true;
         }
 
     } /* end of for (IdxCouple* it = hit->indexes... */
 
     /** We are supposed to have computed scores for each hit,
      *  we can forward the information to the client.  */
-    if (hit->indexes.empty() == false)      {  (_client->*_method) (hit);  }
+    if (hit->empty() == false)      {  (_client->*_method) (hit);  }
 }
 
 /*********************************************************************

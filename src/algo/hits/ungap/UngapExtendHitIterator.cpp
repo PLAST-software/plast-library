@@ -104,12 +104,14 @@ void UngapExtendHitIterator::iterateMethod (Hit* hit)
     int indexRight = 0;
 
     /** Statistics. */
-    HIT_STATS (_inputHitsNumber += hit->indexes.size(); )
+    HIT_STATS (_inputHitsNumber += hit->size(); )
 
-    for (list<IdxCouple>::iterator it = hit->indexes.begin();  it != hit->indexes.end();  )
+    bool removable = false;
+
+    for (hit->first(); !hit->isDone(); hit->next (removable))
     {
         /** Shortcut. */
-        IdxCouple& idx = *it;
+        IdxCouple& idx = hit->currentItem();
 
         /** Shortcuts. */
         const ISeedOccurrence* occurSbj = occurSbjVector.data [idx.first];
@@ -200,27 +202,24 @@ void UngapExtendHitIterator::iterateMethod (Hit* hit)
 
                 /** We add the alignment into the global alignment container. */
                 _ungapResult->insert (align, 0);
-
-                /** We just continue the iteration. */
-                it++;
             }
             else
             {
-                it = hit->indexes.erase (it);
+                removable = true;
             }
         }
         else
         {
-            it = hit->indexes.erase (it);
+            removable = true;
         }
     }
 
     /** We update the statistics about iterations. */
-    HIT_STATS (_outputHitsNumber += hit->indexes.size();)
+    HIT_STATS (_outputHitsNumber += hit->size();)
 
     /** We are supposed to have computed scores for each hit,
      *  we can forward the information to the client.  */
-    if (hit->indexes.empty() == false)      {  (_client->*_method) (hit);  }
+    if (hit->empty() == false)      {  (_client->*_method) (hit);  }
 }
 
 /********************************************************************************/
