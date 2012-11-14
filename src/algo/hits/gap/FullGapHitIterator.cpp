@@ -39,8 +39,6 @@ using namespace indexation;
 using namespace statistics;
 using namespace algo::core;
 using namespace alignment::core;
-using namespace alignment::tools;
-using namespace alignment::tools::impl;
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -134,15 +132,15 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
 
     int scoreLeft=0,  scoreRight=0;
     u_int32_t leftOffsetInQuery=0, leftOffsetInSubject=0, rightOffsetInQuery=0, rightOffsetInSubject=0;
-    bool shouldKeep = false;
+    bool removable = false;
 
     /** Statistics. */
-    HIT_STATS (_inputHitsNumber += hit->indexes.size();)
+    HIT_STATS (_inputHitsNumber += hit->size();)
 
-    for (list<IdxCouple>::iterator it = hit->indexes.begin();  it != hit->indexes.end();  )
+    for (hit->first(); !hit->isDone(); hit->next (removable))
     {
         /** Shortcut. */
-        IdxCouple& idx = *it;
+        IdxCouple& idx = hit->currentItem();
 
         /** Shortcuts. */
         const ISeedOccurrence* occurSubject = occur1Vector.data [idx.first];
@@ -154,7 +152,7 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
             HIT_STATS (_ungapKnownNumber ++;)
 
             /** We remove the current index couple. */
-            it = hit->indexes.erase(it);
+            removable = true;
 
             continue;
         }
@@ -166,9 +164,6 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
         /** Shortcuts. */
         LETTER* subjectData = subjectSeq.data.letters.data;
         LETTER* queryData   = querySeq.data.letters.data;
-
-        /** By default, we don't want to keep this current hit. */
-        shouldKeep = false;
 
         /** We compute the left part of the score. Note that the left extension includes the starting point,
          * the right extension does not. */
@@ -198,7 +193,9 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
         /** We retrieve statistical information for the current query sequence. */
         IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfo (querySeq);
 
-        if (score >= info.cut_offs)
+        removable = score < info.cut_offs;
+
+        if (removable == false)
         {
             /** We create a new alignment. */
             Alignment align (
@@ -210,31 +207,18 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
 
             /** We add this alignment as ungap alignments (ie the gapped alignment will be split in ungap ones). */
             _ungapResult->insert (align, _splitter);
-            shouldKeep = _alignmentResult->doesExist (align) == false;
+            removable = _alignmentResult->doesExist (align) == true;
         }
 
-        if (shouldKeep == true)
-        {
-            /** We increase the number of found decent hits. */
-            HIT_STATS (_outputHitsNumber ++;)
-
-            /** We just go to the next item. */
-            it++;
-        }
-        else
-        {
-            /** Statistics information. */
-            HIT_STATS (_gapKnownNumber++;)
-
-            /** We remove the current index couple. */
-            it = hit->indexes.erase(it);
-        }
+        /** Statistics information. */
+        if (removable == false)		{	HIT_STATS (_outputHitsNumber ++;)	}
+        else						{	HIT_STATS (_gapKnownNumber++;)		}
 
     } /* end of for (IdxCouple* it = hit->indexes... */
 
     /** We are supposed to have computed scores for each hit,
      *  we can forward the information to the client.  */
-    if (hit->indexes.empty() == false)      {  (_client->*_method) (hit);  }
+    if (hit->empty() == false)      {  (_client->*_method) (hit);  }
 }
 
 /*********************************************************************
