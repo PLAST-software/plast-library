@@ -37,11 +37,13 @@
 #include <algo/hits/ungap/UngapHitIterator.hpp>
 #include <algo/hits/ungap/UngapHitIteratorSSE8.hpp>
 #include <algo/hits/ungap/UngapHitIteratorSSE16.hpp>
+#include <algo/hits/ungap/UngapHitIteratorSIMD.hpp>
 #include <algo/hits/ungap/UngapHitIteratorNull.hpp>
 #include <algo/hits/ungap/UngapExtendHitIterator.hpp>
 
 #include <algo/hits/gap/SmallGapHitIterator.hpp>
 #include <algo/hits/gap/SmallGapHitIteratorSSE8.hpp>
+#include <algo/hits/gap/SmallGapHitIteratorSIMD.hpp>
 #include <algo/hits/gap/SmallGapHitIteratorNull.hpp>
 #include <algo/hits/gap/FullGapHitIterator.hpp>
 #include <algo/hits/gap/CompositionHitIterator.hpp>
@@ -611,9 +613,13 @@ IHitIterator* DefaultConfiguration::createUngapHitIterator (
     {
         result = new UngapHitIteratorSSE16 (source, model, matrix, params, actualUngapResult, maxHitsPerIter, isRunning);
     }
+    else if (prop && prop->value.compare("UngapHitIteratorSIMD")==0)
+    {
+        result = new UngapHitIteratorSIMD (source, model, matrix, params, actualUngapResult, maxHitsPerIter, isRunning);
+    }
     else
     {
-        result = new UngapHitIteratorSSE16 (source, model, matrix, params, actualUngapResult, maxHitsPerIter, isRunning);
+        result = new UngapHitIteratorSIMD (source, model, matrix, params, actualUngapResult, maxHitsPerIter, isRunning);
     }
 
     return result;
@@ -678,9 +684,13 @@ IHitIterator* DefaultConfiguration::createSmallGapHitIterator (
     {
         result = new SmallGapHitIteratorSSE8 (source, model, matrix, params, ungapResult, alignmentResult);
     }
+    else if (prop && prop->value.compare("SmallGapHitIteratorSIMD")==0)
+    {
+        result = new SmallGapHitIteratorSIMD (source, model, matrix, params, ungapResult, alignmentResult);
+    }
     else
     {
-        result = new SmallGapHitIteratorSSE8 (source, model, matrix, params, ungapResult, alignmentResult);
+        result = new SmallGapHitIteratorSIMD (source, model, matrix, params, ungapResult, alignmentResult);
     }
 
     return result;
