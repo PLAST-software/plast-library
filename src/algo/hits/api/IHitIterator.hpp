@@ -102,10 +102,21 @@ typedef std::pair<size_t,size_t> IdxCouple;
 struct Hit
 {
     /** Constructor. */
-    Hit () : _code(0), occur1(1), neighbourhoodsOccur1(0), occur2(1), neighbourhoodsOccur2(0), _size(0)  { }
+    Hit ()  : _code(0), occur1(1), neighbourhoodsOccur1(0), occur2(1), neighbourhoodsOccur2(0),
+		  _table(0), _tableIdx(0), _iterIdx(0), _usedMask(0)
+    {
+        _table    = new IdxCouple[32];
+        _tableIdx = 0;
+        _usedMask = 0;
+    }
 
     /** Destructor. */
-    ~Hit ()  {  resetIndexes();  }
+    ~Hit ()
+    {
+        resetIndexes();
+
+        delete[] _table;
+    }
 
     /** */
     void setSeedHashCode (seed::SeedHashCode code)  { _code = code; }
@@ -159,18 +170,57 @@ struct Hit
     const database::LETTER* neighbourhoodsOccur2;
 
     /** Add a couple of vector indexes in the list of valid matches. */
-    size_t addIndexes   (size_t i, size_t j)  {   indexes.push_back (std::pair<size_t,size_t> (i,j));   return ++_size; }
+    size_t addIndexes   (size_t i, size_t j)
+    {
+        IdxCouple& current = _table[_tableIdx];
+        current.first = i;  current.second = j;
+        _usedMask |= (1 << _tableIdx);
+        return ++_tableIdx;
+    }
 
     /** Clear the list of valid matches. */
-    size_t resetIndexes (void)  {  indexes.clear ();  _size=0;  return _size; }
+    size_t resetIndexes (void)
+    {
+        _tableIdx = 0;
+        _usedMask = 0;
+        return _tableIdx;
+    }
 
     /** Returns the number of indexes. */
-    size_t size (void)  {  return _size;  }
+    u_int32_t size (void)
+    {
+        /** See http://graphics.stanford.edu/~seander/bithacks.html */
+        u_int32_t v = _usedMask;
+        v = v - ((v >> 1) & 0x55555555);
+        v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
+        return  ( ((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
+    }
 
-    /** List of valid matches [index in subject, index in query] for the defining seed. */
-    std::list<IdxCouple> indexes;
+    /** */
+    void first ()  {  _iterIdx = -1;  bool removable=false;  next (removable);  }
 
-    size_t _size;
+    /** */
+    bool isDone ()  { return _iterIdx >= _tableIdx; }
+
+    /** */
+    void next (bool& removeCurrent)
+    {
+        if (removeCurrent)  { _usedMask &= ~(1<<_iterIdx);  removeCurrent=false; }
+
+        do  {  _iterIdx++;  }   while (_iterIdx < _tableIdx &&  ( !(_usedMask & (1<<_iterIdx)) ) );
+    }
+
+    /** */
+    IdxCouple& currentItem() { return _table[_iterIdx]; }
+
+    /** */
+    bool empty()  { return _tableIdx == 0; }
+
+private:
+    IdxCouple*  _table;
+    int16_t     _tableIdx;
+    int16_t     _iterIdx;
+    u_int32_t   _usedMask;
 };
 
 /********************************************************************************/
