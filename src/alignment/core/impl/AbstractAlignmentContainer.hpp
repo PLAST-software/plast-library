@@ -77,6 +77,9 @@ public:
     /** \copydoc IAlignmentContainer::merge */
     void merge (const std::vector<IAlignmentContainer*> containers) {  }
 
+    /** \copydoc IAlignmentResult::shrink */
+    void shrink () {}
+
 protected:
 
     /** Synchronizer for preventing for concurrent accesses. */

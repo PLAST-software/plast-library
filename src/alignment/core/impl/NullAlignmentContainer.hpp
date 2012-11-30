@@ -87,6 +87,9 @@ public:
     /** \copydoc IAlignmentResult::accept */
     void accept (IAlignmentContainerVisitor* visitor) {}
 
+    /** \copydoc IAlignmentResult::shrink */
+    void shrink () {}
+
     /** \copydoc IAlignmentResult::getProperties */
     dp::IProperties* getProperties (const std::string& root) { return 0; }
 };
