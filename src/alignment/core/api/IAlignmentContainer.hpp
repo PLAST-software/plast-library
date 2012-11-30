@@ -126,6 +126,9 @@ public:
      */
     virtual void accept (IAlignmentContainerVisitor* visitor) {}
 
+    /** Shrink by removing unwanted items. */
+    virtual void shrink () = 0;
+
     /** Return properties about the instance.
      * \param[in] root : root string for the properties
      * \return a new IProperties instance
