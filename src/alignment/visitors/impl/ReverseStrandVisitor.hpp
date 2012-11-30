@@ -43,14 +43,18 @@ class ReverseStrandVisitor : public AlignmentsProxyVisitor
 {
 public:
 
+	enum StrandId_e  { PLUS=1, MINUS=-1 };
+
     /** */
-	ReverseStrandVisitor (core::IAlignmentContainerVisitor* ref, core::Alignment::DbKind kind);
+	ReverseStrandVisitor (core::IAlignmentContainerVisitor* ref, core::Alignment::DbKind kind, StrandId_e strand);
 
     /** \copydoc IAlignmentResultVisitor::visitAlignment */
     void visitAlignment (core::Alignment* align, const misc::ProgressInfo& progress);
 
 protected:
     core::Alignment::DbKind _kind;
+
+    StrandId_e _strand;
 };
 
 /********************************************************************************/

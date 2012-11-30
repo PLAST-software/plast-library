@@ -44,8 +44,8 @@ namespace impl      {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-ReverseStrandVisitor::ReverseStrandVisitor (IAlignmentContainerVisitor* ref,Alignment::DbKind kind)
-    :  AlignmentsProxyVisitor(ref), _kind(kind)
+ReverseStrandVisitor::ReverseStrandVisitor (IAlignmentContainerVisitor* ref,Alignment::DbKind kind, StrandId_e strand)
+    :  AlignmentsProxyVisitor(ref), _kind(kind), _strand (strand)
 {
     DEBUG (cout << "ReverseStrandVisitor::ReverseStrandVisitor   ref=" << ref << "  kind=" << kind << endl);
 }
@@ -60,14 +60,21 @@ ReverseStrandVisitor::ReverseStrandVisitor (IAlignmentContainerVisitor* ref,Alig
 *********************************************************************/
 void ReverseStrandVisitor::visitAlignment  (Alignment* align, const misc::ProgressInfo& progress)
 {
-	/** Shortcuts. */
-    const Range32& range  = align->getRange (_kind);
-    u_int32_t 	   seqLen = align->getSequence(_kind)->getLength();
+	if (_strand == MINUS)
+	{
+		/** Shortcuts. */
+	    const Range32& range  = align->getRange (_kind);
+	    u_int32_t 	   seqLen = align->getSequence(_kind)->getLength();
 
-    misc::Range32 newRange (seqLen - range.begin - 1, seqLen - range.end - 1);
+	    misc::Range32 newRange (seqLen - range.begin - 1, seqLen - range.end - 1);
 
-    /** We update some information of the alignment. */
-    align->setRange (_kind, newRange);
+	    /** We update some information of the alignment. */
+	    align->setRange (_kind, newRange);
+	}
+
+    /** NOTE ! We force the query frame to be always 1. */
+    align->setFrame (Alignment::QUERY, 1);
+    align->setFrame (_kind,            _strand==PLUS ? 1 : -1);
 }
 
 /********************************************************************************/
