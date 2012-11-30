@@ -79,8 +79,9 @@ void PlastOptionsParser::build ()
     //this->add (new OptionOneParam ("-C", "Use composition-based score adjustments as in Bioinformatics 21:902-911 for plastp or tplastn [T/F]"));
 
     this->add (new OptionOneParam (STR_OPTION_MAX_DATABASE_SIZE,        STR_HELP_MAX_DATABASE_SIZE));
+    this->add (new OptionOneParam (STR_OPTION_MAX_HIT_PER_QUERY,        STR_HELP_MAX_HIT_PER_QUERY));
     this->add (new OptionOneParam (STR_OPTION_MAX_HSP_PER_HIT,          STR_HELP_MAX_HSP_PER_HIT));
-    this->add (new OptionOneParam (STR_OPTION_MAX_HIT_PER_ITERATION,    STR_HELP_MAX_HIT_PER_ITERATION));
+    //this->add (new OptionOneParam (STR_OPTION_MAX_HIT_PER_ITERATION,    STR_HELP_MAX_HIT_PER_ITERATION));
 
     this->add (new OptionOneParam (STR_OPTION_OUTPUT_FORMAT,            STR_HELP_OUTPUT_FORMAT));
 

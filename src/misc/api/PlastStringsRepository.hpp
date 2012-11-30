@@ -65,6 +65,7 @@ public:
     static const char* m_STR_OPTION_STRAND () { static misc::impl::ObsfucatedString s (1343381595, 28268862477955469, 0)  /* => "-strand" */; return s.toString().c_str(); }
     static const char* m_STR_OPTION_FORCE_QUERY_ORDERING () { static misc::impl::ObsfucatedString s (1343381595, 8155285978029286541, 7237969792237589972, 916171, 0)  /* => "-force-query-order" */; return s.toString().c_str(); }
     static const char* m_STR_OPTION_MAX_DATABASE_SIZE () { static misc::impl::ObsfucatedString s (1343381595, 8386094127592697741, 7598466910053159616, 912852, 0)  /* => "-max-database-size" */; return s.toString().c_str(); }
+    static const char* m_STR_OPTION_MAX_HIT_PER_QUERY () { return "-max-hit-per-query"; }
     static const char* m_STR_OPTION_MAX_HSP_PER_HIT () { static misc::impl::ObsfucatedString s (1343381595, 8102934699068288909, 8388350325354086540, 0)  /* => "-max-hsp-per-hit" */; return s.toString().c_str(); }
     static const char* m_STR_OPTION_MAX_HIT_PER_ITERATION () { static misc::impl::ObsfucatedString s (1343381595, 8388350325452894093, 7310583739040612492, 121424790022620, 0)  /* => "-max-hit-per-iteration" */; return s.toString().c_str(); }
     static const char* m_STR_OPTION_STRANDS_LIST () { static misc::impl::ObsfucatedString s (1343381595, 8314892176839668109, 500150787212, 0)  /* => "-strands-list" */; return s.toString().c_str(); }
@@ -137,7 +138,8 @@ public:
     static const char* m_STR_HELP_PENALTY () { static misc::impl::ObsfucatedString s (1343394373, 2340029490231796338, 8461736351403166845, 7306080444306623491, 7166460029769896513, 8391157649093022470, 2581625, 0)  /* => "penalty for a nucleotide mismatch (plastn)" */; return s.toString().c_str(); }
     static const char* m_STR_HELP_FORCE_QUERY_ORDERING () { static misc::impl::ObsfucatedString s (1343394373, 8462580794633250884, 8245845122734772606, 7575168297147303172, 8391737126164504335, 51013142484302, 0)  /* => "Force queries ordering in output file." */; return s.toString().c_str(); }
     static const char* m_STR_HELP_MAX_DATABASE_SIZE () { static misc::impl::ObsfucatedString s (1343394373, 2336652894450902607, 2334102070530625402, 7955934336330238227, 2317510362840718657, 7017769720873458696, 2318902404369951843, 8386095523169711845, 7022344801645438040, 2338328219398024056, 7310589477034222880, 6456028, 0)  /* => "Maximum allowed size (in bytes) for a database. If greater, database is segmented." */; return s.toString().c_str(); }
-    static const char* m_STR_HELP_MAX_HSP_PER_HIT () { static misc::impl::ObsfucatedString s (1343394373, 2336652894450902607, 8243117977648712307, 2318924390374510912, 2334401090212536145, 7887320412826737177, 7595356421605453159, 7018408550146122712, 691747400, 0)  /* => "Maximum hits per query. 0 value will dump all hits (default)" */; return s.toString().c_str(); }
+    static const char* m_STR_HELP_MAX_HIT_PER_QUERY () { return "Maximum hits per query. 0 value will dump all hits (default)"; }
+    static const char* m_STR_HELP_MAX_HSP_PER_HIT () { return "Maximum alignments per hit. 0 value will dump all hits (default)"; }
     static const char* m_STR_HELP_MAX_HIT_PER_ITERATION () { static misc::impl::ObsfucatedString s (1343394373, 2336652894450902607, 8243117977648712307, 7598805615233861952, 2338053641110376718, 8439879234091521539, 7957688057375763556, 3539880062558479064, 7070704398501897741, 7815259820787427939, 3276839, 0)  /* => "Maximum hits per iteration (for memory usage control). 1000000 by default" */; return s.toString().c_str(); }
     static const char* m_STR_HELP_OUTPUT_FORMAT () { static misc::impl::ObsfucatedString s (1343394373, 7359009838865478221, 3539893578639233396, 7089074971164083776, 2891421347679851284, 2987131704251225610, 2575673, 0)  /* => "Output format: 1 for tabulated (default)." */; return s.toString().c_str(); }
     static const char* m_STR_HELP_STRANDS_LIST () { static misc::impl::ObsfucatedString s (1343394373, 2334675642016689742, 7021802806838446959, 4213228674419590158, 2465206440032214337, 2334379873304433479, 7307221376413351522, 2334956331000361154, 7598545778468469340, 7308325651326348660, 7017769799327118396, 3347130494289497548, 0)  /* => "List of the strands (ex: "1,2,6") to be used when using algo using nucleotids databases." */; return s.toString().c_str(); }
@@ -234,6 +236,7 @@ public:
     static const char* m_STR_OPTION_STRAND () { return "-strand"; }
     static const char* m_STR_OPTION_FORCE_QUERY_ORDERING () { return "-force-query-order"; }
     static const char* m_STR_OPTION_MAX_DATABASE_SIZE () { return "-max-database-size"; }
+    static const char* m_STR_OPTION_MAX_HIT_PER_QUERY () { return "-max-hit-per-query"; }
     static const char* m_STR_OPTION_MAX_HSP_PER_HIT () { return "-max-hsp-per-hit"; }
     static const char* m_STR_OPTION_MAX_HIT_PER_ITERATION () { return "-max-hit-per-iteration"; }
     static const char* m_STR_OPTION_STRANDS_LIST () { return "-strands-list"; }
@@ -306,7 +309,8 @@ public:
     static const char* m_STR_HELP_PENALTY () { return "penalty for a nucleotide mismatch (plastn)"; }
     static const char* m_STR_HELP_FORCE_QUERY_ORDERING () { return "Force queries ordering in output file."; }
     static const char* m_STR_HELP_MAX_DATABASE_SIZE () { return "Maximum allowed size (in bytes) for a database. If greater, database is segmented."; }
-    static const char* m_STR_HELP_MAX_HSP_PER_HIT () { return "Maximum hits per query. 0 value will dump all hits (default)"; }
+    static const char* m_STR_HELP_MAX_HIT_PER_QUERY () { return "Maximum hits per query. 0 value will dump all hits (default)"; }
+    static const char* m_STR_HELP_MAX_HSP_PER_HIT () { return "Maximum alignments per hit. 0 value will dump all hits (default)"; }
     static const char* m_STR_HELP_MAX_HIT_PER_ITERATION () { return "Maximum hits per iteration (for memory usage control). 1000000 by default"; }
     static const char* m_STR_HELP_OUTPUT_FORMAT () { return "Output format: 1 for tabulated (default)."; }
     static const char* m_STR_HELP_STRANDS_LIST () { return "List of the strands (ex: \"1,2,6\") to be used when using algo using nucleotids databases."; }

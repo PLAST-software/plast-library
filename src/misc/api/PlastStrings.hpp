@@ -165,6 +165,13 @@ namespace misc {
  */
 #define STR_OPTION_MAX_DATABASE_SIZE        misc::StringRepository::m_STR_OPTION_MAX_DATABASE_SIZE ()
 
+/** "-max-hit_per-query"  Command Line option giving the maximum number of hits per query we want in the output.
+ *  This may be useful for avoiding to have too many alignments for one query sequence (only the
+ *  "best" ones are kept)
+ *  Integer value
+ */
+#define STR_OPTION_MAX_HIT_PER_QUERY       misc::StringRepository::m_STR_OPTION_MAX_HIT_PER_QUERY ()
+
 /** "-max-hsp-per-hit"  Command Line option giving the maximum number of hits per query we want in the output.
  *  This may be useful for avoiding to have too many alignments for one query sequence (only the
  *  "best" ones are kept)
@@ -370,6 +377,7 @@ namespace misc {
 #define STR_HELP_PENALTY                    misc::StringRepository::m_STR_HELP_PENALTY ()   // penalty for a nucleotide mismatch (plastn)
 #define STR_HELP_FORCE_QUERY_ORDERING       misc::StringRepository::m_STR_HELP_FORCE_QUERY_ORDERING ()   // Force queries ordering in output file.
 #define STR_HELP_MAX_DATABASE_SIZE          misc::StringRepository::m_STR_HELP_MAX_DATABASE_SIZE ()   // Maximum allowed size (in bytes) for a database. If greater, database is segmented.
+#define STR_HELP_MAX_HIT_PER_QUERY			misc::StringRepository::m_STR_HELP_MAX_HIT_PER_QUERY ()
 #define STR_HELP_MAX_HSP_PER_HIT            misc::StringRepository::m_STR_HELP_MAX_HSP_PER_HIT ()   // Maximum hits per query. 0 value will dump all hits (default)
 #define STR_HELP_MAX_HIT_PER_ITERATION      misc::StringRepository::m_STR_HELP_MAX_HIT_PER_ITERATION ()   // Maximum hits per iteration (for memory usage control). 1000000 by default
 #define STR_HELP_OUTPUT_FORMAT              misc::StringRepository::m_STR_HELP_OUTPUT_FORMAT ()   // Output format: 1 for tabulated (default).
