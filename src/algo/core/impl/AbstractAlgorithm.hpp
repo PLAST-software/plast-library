@@ -404,12 +404,14 @@ public:
 protected:
 
     /** \copydoc IAlgorithm::createHitIterator */
+#if 0
     algo::hits::IHitIterator* createHitIterator (
         IConfiguration*                         config,
         algo::hits::IHitIterator*               sourceHits,
         alignment::core::IAlignmentContainer*   ungapAlignResult,
         alignment::core::IAlignmentContainer*   alignResult
     );
+#endif
 };
 
 /********************************************************************************/

@@ -442,6 +442,9 @@ void AbstractAlgorithm::finalizeAlignments (IAlignmentContainer* alignmentResult
     alignmentResult->accept (&shrinker);
     DEBUG (("AbstractAlgorithm::finalizeAlignments : shrink done with nbAlignPerHit=%ld...\n", _params->nbAlignPerHit));
 
+    /** We shrink the container. */
+    alignmentResult->shrink ();
+
     /** We filter the alignments. */
     FilterContainerVisitor filterVisitor (_filter);
     alignmentResult->accept (&filterVisitor);
@@ -559,6 +562,7 @@ void AbstractAlgorithm::update (dp::EventInfo* evt, dp::ISubject* subject)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+#if 0
 IHitIterator* AlgorithmTplastx::createHitIterator (
     IConfiguration*      config,
     IHitIterator*        hitSource,
@@ -577,6 +581,7 @@ IHitIterator* AlgorithmTplastx::createHitIterator (
 
     return ungapExtendHitIterator;
 }
+#endif
 
 /*********************************************************************
 ** METHOD  :
