@@ -55,7 +55,6 @@
 #include <alignment/tools/impl/SemiGappedAlign.hpp>
 #include <alignment/tools/impl/SemiGappedAlignTraceback.hpp>
 
-#include <alignment/visitors/impl/MaxHitsPerQueryVisitor.hpp>
 #include <alignment/visitors/impl/OstreamVisitor.hpp>
 #include <alignment/visitors/impl/TabulatedOutputVisitor.hpp>
 #include <alignment/visitors/impl/RawOutputVisitor.hpp>
@@ -264,10 +263,11 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->outputfile           = "stdout";
     }
 
+    IProperty* prop = 0;
+
     /** We may want to restrict the number of dumped alingments. */
-    IProperty* maxHspPerHitProp = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT);
-    if (maxHspPerHitProp != 0)  { params->nbAlignPerHit = misc::atoi (maxHspPerHitProp->value.c_str());  }
-    else                        { params->nbAlignPerHit = 0; }
+    params->nbAlignPerHit = (prop = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT))   != 0 ?  prop->getInt() : 0;
+    params->nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 0;
 
     return params;
 }
@@ -841,14 +841,16 @@ IAlignmentContainer* DefaultConfiguration::createGapAlignmentResult  ()
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_GAP_RESULT);
 
+    size_t nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 0;
+    size_t nbAlignPerHit = (prop = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT))   != 0 ?  prop->getInt() : 0;
+
     if (prop && prop->value.compare(STR_CONFIG_CLASS_BasicAlignmentResult)==0)
     {
-        result = new BasicAlignmentContainer ();
+        result = new BasicAlignmentContainer (nbHitPerQuery, nbAlignPerHit);
     }
     else
     {
-        //result = new BasicAlignmentResult (subject, query, 0);
-        result = new BasicAlignmentContainer ();
+        result = new BasicAlignmentContainer (nbHitPerQuery, nbAlignPerHit);
     }
 
     return result;
