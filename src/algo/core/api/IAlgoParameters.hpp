@@ -132,6 +132,7 @@ public:
     std::vector<misc::ReadingFrame_e> strands;
 
     /** */
+    size_t nbHitPerQuery;
     size_t nbAlignPerHit;
 
     /** Reward score (used by plastn). */
