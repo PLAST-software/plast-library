@@ -40,7 +40,8 @@ using namespace seed;
 #define LETTER_NUC(l)    ((l) & 3)
 #define LETTER_AA(l)     ((l) & 31)
 #define LETTER_ASCII(l)  ((l) & 127)
-#define LETTER_ISBAD(l)  ((l) & 128)
+//#define LETTER_ISBAD(l)  ((l) & 128)
+#define LETTER_ISBAD(l)  ((l) & 4)
 
 #include <stdio.h>
 #define DEBUG(a)    //printf a
@@ -149,6 +150,7 @@ void DatabaseNucleotidIndex::build ()
 
     /** We need a "get" iterator on the sequence iterator for parallel iteration. */
     IteratorGet<const database::ISequence*>* seqIterGetCount = new IteratorGet<const ISequence*> (seqIter);
+    LOCAL (seqIterGetCount);
 
     /** We build a list of commands that will iterate our list, through the created iterator. */
     list<ICommand*> commands;
@@ -189,6 +191,7 @@ void DatabaseNucleotidIndex::build ()
 
     /** We need a "get" iterator on the sequence iterator for parallel iteration. */
     IteratorGet<const database::ISequence*>* seqIterGetFill = new IteratorGet<const ISequence*> (seqIter);
+    LOCAL (seqIterGetFill);
 
     commands.clear();
     for (size_t i=1; i <= nbcpu; i++)  {  commands.push_back (new FillSeedsCmd (seqIterGetFill, this));  }
