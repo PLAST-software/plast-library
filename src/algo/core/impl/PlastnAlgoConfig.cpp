@@ -113,7 +113,8 @@ PlastnConfiguration::~PlastnConfiguration ()
 *********************************************************************/
 IParameters* PlastnConfiguration::createDefaultParameters (const std::string& algoName)
 {
-    IParameters* params = new IParameters ();
+	/** We call the parent method. */
+    IParameters* params = DefaultConfiguration::createDefaultParameters (algoName);
 
     DEBUG ((cout << "PlastnConfiguration::createDefaultParameters : algoName='" << algoName << "'"  << endl));
 
@@ -148,11 +149,6 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
              if (strandProp->getValue().compare ("plus")  == 0)  {  params->strand =  1;  }
         else if (strandProp->getValue().compare ("minus") == 0)  {  params->strand = -1;  }
     }
-
-    /** We may want to restrict the number of dumped alignments. */
-    IProperty* maxHspPerHitProp = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT);
-    if (maxHspPerHitProp != 0)  { params->nbAlignPerHit = misc::atoi (maxHspPerHitProp->value.c_str());  }
-    else                        { params->nbAlignPerHit = 0; }
 
     return params;
 }
@@ -280,8 +276,12 @@ IAlignmentContainer* PlastnConfiguration::createGapAlignmentResult  ()
 {
     DEBUG ((cout << "PlastnConfiguration::createGapAlignmentResult" <<  endl));
 
-    return new BasicAlignmentContainerBis ();
-    //return new BasicAlignmentContainer ();
+	IProperty* prop = 0;
+
+    size_t nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 0;
+    size_t nbAlignPerHit = (prop = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT))   != 0 ?  prop->getInt() : 0;
+
+    return new BasicAlignmentContainerBis (nbHitPerQuery, nbAlignPerHit);
 }
 
 /********************************************************************************/
