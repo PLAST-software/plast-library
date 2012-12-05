@@ -74,18 +74,13 @@ namespace impl      {
  *  an iterator instead of the list itself, and so we could also use search-optimized structure.
  *  Note however that it would be tricky because of some visitors implementations that are allowed
  *  to modify the alignments list they receive (like shrinker visitors).
- *
- *
- *
- *
- *
  */
 class BasicAlignmentContainer : public AbstractAlignmentContainer
 {
 public:
 
     /** Constructor. */
-    BasicAlignmentContainer ();
+    BasicAlignmentContainer (size_t nbHitPerQuery=0, size_t nbHspPerHit=0);
 
     /** Desctructor. */
     ~BasicAlignmentContainer ();
@@ -115,6 +110,9 @@ public:
     /** \copydoc AbstractAlignmentContainer::accept */
     void accept (IAlignmentContainerVisitor* visitor);
 
+    /** \copydoc AbstractAlignmentContainer::shrink */
+    void shrink ();
+
     /** \copydoc AbstractAlignmentContainer::getContainer */
     std::list<Alignment>* getContainer (
         const database::ISequence* seqLevel1,
@@ -131,8 +129,11 @@ protected:
      *  to distinct databases. */
     typedef std::pair <database::ISequenceDatabase*, u_int32_t> Key;
 
-    typedef std::map <Key, std::pair<database::ISequence*,ContainerLevel3> >  ContainerLevel2;
-    typedef std::map <Key, std::pair<database::ISequence*,ContainerLevel2> >  ContainerLevel1;
+    typedef std::pair<database::ISequence*,ContainerLevel3*> ValueLevel2;
+    typedef std::map <Key, ValueLevel2>  ContainerLevel2;
+
+    typedef std::pair<database::ISequence*,ContainerLevel2*> ValueLevel1;
+    typedef std::map <Key, ValueLevel1>  ContainerLevel1;
 
     ContainerLevel1 _containerLevel1;
 
@@ -159,6 +160,13 @@ protected:
 
     u_int32_t _nbSeqLevel1;
     u_int32_t _nbSeqLevel2;
+
+    /** */
+    size_t _nbHitPerQuery;
+    size_t _nbHspPerHit;
+
+    /** */
+    friend struct SortHitsFunctor;
 };
 
 /********************************************************************************/
@@ -179,7 +187,9 @@ class BasicAlignmentContainerBis : public BasicAlignmentContainer
 public:
 
     /** Constructor. */
-	BasicAlignmentContainerBis ()  {  if (_synchro != 0)  { delete _synchro;  _synchro=0;}  }
+	BasicAlignmentContainerBis (size_t nbHitPerQuery, size_t nbHspPerHit)
+        : BasicAlignmentContainer (nbHitPerQuery, nbHspPerHit)
+            {  if (_synchro != 0)  { delete _synchro;  _synchro=0;}  }
 
 protected:
 

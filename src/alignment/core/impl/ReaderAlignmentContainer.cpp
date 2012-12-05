@@ -78,11 +78,11 @@ void ReaderAlignmentContainer::setComments ()
     {
         /** Shortcuts. */
         ISequence*        seqLevel1        = (*itLevel1).second.first;
-        ContainerLevel2&  containerLevel2  = (*itLevel1).second.second;
+        ContainerLevel2*  containerLevel2  = (*itLevel1).second.second;
 
         seqLevel1->comment = _queryComments[seqLevel1->index].c_str();
 
-        for (ContainerLevel2::iterator itLevel2 = containerLevel2.begin(); itLevel2 != containerLevel2.end(); itLevel2++)
+        for (ContainerLevel2::iterator itLevel2 = containerLevel2->begin(); itLevel2 != containerLevel2->end(); itLevel2++)
         {
             /** Shortcuts. */
             ISequence*  seqLevel2 = (*itLevel2).second.first;
