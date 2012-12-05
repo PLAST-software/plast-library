@@ -211,13 +211,16 @@ void AlgorithmPlastn::finalizeAlignments (alignment::core::IAlignmentContainer* 
     timesVec.push_back (DefaultFactory::time().gettime());
 
     /** Now, our alignment result instance should hold found alignments, we order the alignments. */
-    SortContainerVisitor sortVisitor;
-    alignmentResult->accept (&sortVisitor);
-    DEBUG (("AlgorithmPlastn::finalizeAlignments : sort done... \n"));
+	// SortContainerVisitor sortVisitor;
+	// alignmentResult->accept (&sortVisitor);
+	// DEBUG (("AlgorithmPlastn::finalizeAlignments : sort done... \n"));
 
     /** We filter the alignments. */
     FilterContainerVisitor filterVisitor (_filter);
     alignmentResult->accept (&filterVisitor);
+
+    /** We shrink and sort the alignments and the hits. */
+    alignmentResult->shrink ();
 
     /** We create a visitor for dumping the resulting alignments. The used visitor has been provided from a higher layer
      *  but it is likely a 'file dump' visitor that will dump all the alignments into a file. Note by the way that
