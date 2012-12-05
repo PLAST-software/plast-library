@@ -67,22 +67,30 @@ void NucleotidConversionVisitor::visitAlignment  (Alignment* align, const misc::
 
     /** We convert [start,end] in terms of nucleotide sequence. */
     Range32 newRange (
-        3*oldRange.begin + _frameShift,
-        3*oldRange.begin + _frameShift + 3*oldRange.getLength() - 1
+        3*oldRange.begin - 1,
+        3*oldRange.begin + 3*oldRange.getLength() - 2
     );
 
-    /** We may have to reverse the indexes according to the reading frame. */
-    if (_isTopFrame == false)
+    /** We may have to reverse the indexes according to the strand direction. */
+    if (_isTopFrame == true)
     {
-        newRange.begin = _nucleotidSequence.getLength() - newRange.begin - 1;
-        newRange.end   = _nucleotidSequence.getLength() - newRange.end   - 1;
+        newRange.begin += _frameShift;
+        newRange.end   += _frameShift;
+    }
+    else
+    {
+        newRange.begin = _nucleotidSequence.getLength() - newRange.begin - 1 + _frameShift;
+        newRange.end   = _nucleotidSequence.getLength() - newRange.end   - 1 + _frameShift;
     }
 
     DEBUG (cout << "NucleotidConversionVisitor::visitAlignment FOUND   old=" << oldRange << "  new=" << newRange << endl);
 
     /** We update some information of the alignment. */
-    align->setRange (_kind, newRange);
-    align->setFrame (_kind, _frameShift);
+    align->setRange        (_kind, newRange);
+    align->setFrame        (_kind, _frameShift);
+
+    /** The 'kind' sequence has been translated from nucleotides to amino acids => just remember this at alignment level. */
+    align->setIsTranslated (_kind, true);
 }
 
 /*********************************************************************
