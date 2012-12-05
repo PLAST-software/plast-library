@@ -136,17 +136,21 @@ void TabulatedOutputExtendedVisitor::dumpLine (core::Alignment* align)
     /** We first call the parent method. */
     TabulatedOutputVisitor::dumpLine (align);
 
-    fprintf (_file, "%c%d%c%d%c%d%c%d%c%d%c%d%c%d",
+    fprintf (_file, "%c%d %c%d%c%d%c%d%c%.1f%c%d %c%d%c%d%c%d%c%.1f%c%d",
+
+        _sep,  align->getNbPositives(),
 
         _sep,  align->getSequence (Alignment::QUERY)->getLength(),
-        _sep,  align->getNbGaps   (Alignment::QUERY),
         _sep,  align->getFrame    (Alignment::QUERY),
+        _sep,  align->isTranslated(Alignment::QUERY) ? 1 : 0,
+        _sep,  align->getCoverage (Alignment::QUERY)*100.0,
+        _sep,  align->getNbGaps   (Alignment::QUERY),
 
         _sep,  align->getSequence (Alignment::SUBJECT)->getLength(),
-        _sep,  align->getNbGaps   (Alignment::SUBJECT),
         _sep,  align->getFrame    (Alignment::SUBJECT),
-
-        _sep,  align->getNbPositives()
+        _sep,  align->isTranslated(Alignment::SUBJECT) ? 1 : 0,
+        _sep,  align->getCoverage (Alignment::QUERY)*100.0,
+        _sep,  align->getNbGaps   (Alignment::SUBJECT)
     );
 }
 
