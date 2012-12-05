@@ -348,6 +348,9 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
 {
 	list<IAlgorithm*> result;
 
+    /** WARNING !  By default, we first switch to amino acid alphabet before creating the instance. */
+    EncodingManager::singleton().setKind (EncodingManager::ALPHABET_AMINO_ACID);
+
     switch (params->algoKind)
     {
         case ENUM_PLASTP:
@@ -416,22 +419,11 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
 
             DEBUG (("DefaultEnvironment::createAlgorithm: strand=%d\n", params->strand));
 
-            /** We may create the instance for the "minus" strand. */
-            if (params->strand == 0  ||  params->strand==-1)
-            {
-                result.push_back (new AlgorithmPlastn (
-                    config,
-                    reader,
-                    params,
-                    filter,
-                    new ReverseStrandVisitor (resultVisitor, Alignment::SUBJECT),
-                    new DatabasesProviderProxy (new DatabasesProvider (config), config, new ReverseStrandSequenceIteratorFactory(), 0),
-                    globalStats,
-                    timeInfo,
-                    isRunning,
-                    -1  // actual strand
-                ));
-            }
+            /** Note: in a preliminary version, we used to compute the "minus" strand first. Now, we prefer
+             *  to do the "plus" strand first in order to optimize perfect match for a sequence vs itself.
+             *  For instance, if we compare a database with itself, we expect to get the best hit as an alignment
+             *  on the plus strand with qry and sbj length being equal to the sequence length.
+             */
 
             /** We may create the instance for the "plus" strand. */
             if (params->strand == 0  ||  params->strand==1)
@@ -441,12 +433,29 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
                     reader,
                     params,
                     filter,
-                    resultVisitor,
+                    new ReverseStrandVisitor (resultVisitor, Alignment::SUBJECT, ReverseStrandVisitor::PLUS),
                     dbProvider,
                     globalStats,
                     timeInfo,
                     isRunning,
                     1  // actual strand
+                ));
+            }
+
+            /** We may create the instance for the "minus" strand. */
+            if (params->strand == 0  ||  params->strand==-1)
+            {
+                result.push_back (new AlgorithmPlastn (
+                    config,
+                    reader,
+                    params,
+                    filter,
+                    new ReverseStrandVisitor   (resultVisitor, Alignment::SUBJECT, ReverseStrandVisitor::MINUS),
+                    new DatabasesProviderProxy (new DatabasesProvider (config), config, new ReverseStrandSequenceIteratorFactory(), 0),
+                    globalStats,
+                    timeInfo,
+                    isRunning,
+                    -1  // actual strand
                 ));
             }
 
