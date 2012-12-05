@@ -70,14 +70,15 @@ public:
     /** Structure that links alignment and sequence information.  */
     struct AlignSequenceInfo
     {
-        AlignSequenceInfo () : _sequence(0), _nbGaps(0), _frame(0) {}
+        AlignSequenceInfo () : _sequence(0), _nbGaps(0), _frame(0), _isTranslated(false) {}
 
         AlignSequenceInfo (
             database::ISequence* sequence,
             misc::Range32        range,
             u_int16_t            nbGaps = 0,
-            int8_t               frame  = 0
-        )  : _sequence(sequence), _range(range), _nbGaps(nbGaps), _frame(0)  {}
+            int8_t               frame  = 0,
+            bool                 isTranslated = false
+        )  : _sequence(sequence), _range(range), _nbGaps(nbGaps), _frame(0), _isTranslated(isTranslated)  {}
 
         database::ISequence* _sequence;
         misc::Range32        _range;
@@ -85,6 +86,9 @@ public:
 
         /** Frame for the alignment. +1, +2, +3 ,-1, -2 ,-3 according to the frame. */
         int8_t _frame;
+
+        /** Tells whether the sequence has been translated from nucleotides to amino acids. */
+        bool  _isTranslated;
 
         u_int64_t getOffsetInDb () const { return _range.begin + _sequence->offsetInDb; }
 
@@ -378,6 +382,12 @@ public:
      */
     int8_t                      getFrame      (DbKind kind) const  { return getInfo(kind)._frame; }
 
+    /** Tells whether the sequence has been translated from nucleotides to amino acids
+     * \param[in] kind : QUERY or SUBJECT
+     * \return the translation state
+     */
+    bool                        isTranslated      (DbKind kind) const  { return getInfo(kind)._isTranslated; }
+
     /** Get alignment coverage for query or subject
      * \param[in] kind : QUERY or SUBJECT
      * \return the alignment coverage as a ratio */
@@ -385,9 +395,7 @@ public:
     {
         u_int32_t seqLen = getSequence(kind)->getLength();
 
-        int8_t frame = getFrame(kind);
-
-        if (frame != 0)  { seqLen *= 3; }
+        if (isTranslated(kind) == true)  { seqLen *= 3; }
 
         return  (double)(getRange(kind).getLength()) / (double) seqLen;
     }
@@ -411,6 +419,11 @@ public:
      * \param[in] kind : QUERY or SUBJECT
      * \param frame : the frame number */
     void setFrame     (DbKind kind, int8_t frame)                {  _info[kind]._frame    = frame;  }
+
+    /** Set the translation status for QUERY or SUBJECT
+     * \param[in] kind : QUERY or SUBJECT
+     * \param isTranslated : the translation status */
+    void setIsTranslated (DbKind kind, bool translated)          {  _info[kind]._isTranslated = translated;  }
 
     /** Return a string representing some information of the alignment (for test/debug purpose).
      * \return a string. */
