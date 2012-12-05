@@ -85,9 +85,10 @@ private:
 public:
 
     /** */
-    AlignmentContainerBuilderStream () : _container(0), _nbQrySeq(0), _nbSbjSeq()
+    AlignmentContainerBuilderStream (QueryReorderVisitor* queryVisitor)
+		: _container(0), _nbQrySeq(0), _nbSbjSeq(), _queryVisitor(queryVisitor)
     {
-        setContainer (new BasicAlignmentContainerBis ());
+        setContainer (_queryVisitor->_config->createGapAlignmentResult());
     }
 
     /** */
@@ -148,18 +149,18 @@ public:
             case 'H':
             {
                 misc::Range32 qryRange;
-                u_int16_t     qryNbGaps   = 0;
-                u_int16_t     qryFrame    = 0;
+                u_int32_t     qryNbGaps   = 0;
+                u_int32_t     qryFrame    = 0;
                 double        qryCoverage = 0;
 
                 misc::Range32 sbjRange;
-                u_int16_t     sbjNbGaps   = 0;
-                u_int16_t     sbjFrame    = 0;
+                u_int32_t     sbjNbGaps   = 0;
+                u_int32_t     sbjFrame    = 0;
                 double        sbjCoverage = 0;
 
                 double    evalue   = 0;
                 double    bitscore = 0;
-                u_int16_t score    = 0;
+                u_int32_t score    = 0;
 
                 u_int32_t length = 0;
 
@@ -221,7 +222,7 @@ public:
     /** */
     void clear ()
     {
-        setContainer (new BasicAlignmentContainerBis ());
+        setContainer (_queryVisitor->_config->createGapAlignmentResult());
         _qryIdMap.clear ();
         _sbjIdMap.clear ();
         _qrySeq.index = _sbjSeq.index = 0;
@@ -249,6 +250,9 @@ public:
             if (_container && (_container->getAlignmentsNumber()>0  || _container->getFirstLevelNumber()>0) )
             {
                 VERBOSE (cout << "AlignmentContainerBuilderStream::dump    accept final visitor " << queryVisitor->getFinalVisitor() << endl);
+
+				/** We must first shrink the container since we may have join overlapping alignments. */
+			    _container->shrink ();
 
                 /** We accept the provided visitor. */
                 _container->accept (queryVisitor->getFinalVisitor());
@@ -359,6 +363,8 @@ private:
 
     size_t _nbQrySeq;
     size_t _nbSbjSeq;
+
+    QueryReorderVisitor* _queryVisitor;
 };
 
 /*********************************************************************
@@ -546,7 +552,7 @@ void QueryReorderVisitor::finalize (void)
 
         DEBUG (cout << "QueryReorderVisitor::finalize   " << indexes.size() << " indexes found for the current database" << endl;)
 
-        AlignmentContainerBuilderStream alignStream;
+        AlignmentContainerBuilderStream alignStream (this);
 
         /** We loop over the sequences of the current database. */
         ISequenceIterator* seqIterator = db->createSequenceIterator ();

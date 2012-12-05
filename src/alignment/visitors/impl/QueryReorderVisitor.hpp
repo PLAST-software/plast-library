@@ -110,6 +110,8 @@ private:
 
     /** */
     void dumpIndex (void);
+
+    friend class AlignmentContainerBuilderStream;
 };
 
 /********************************************************************************/
