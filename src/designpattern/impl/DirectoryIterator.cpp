@@ -17,7 +17,14 @@
 #include <designpattern/impl/DirectoryIterator.hpp>
 
 #include <misc/api/macros.hpp>
+
 #include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+
+#include <string>
+#include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -36,9 +43,8 @@ namespace dp { namespace impl {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-DirectoryIterator::DirectoryIterator (const char* dirname, const char* match)
-    : _dirname (dirname ? dirname : "."), _match (match ? match : ""),
-      _dp(0), _dirp(0)
+DirectoryIterator::DirectoryIterator (const char* dirname, const char* match, bool dirOnly, bool recursive)
+    : _dirname (dirname ? dirname : "."), _match (match ? match : ""), _dirOnly(dirOnly), _recursive (recursive)
 {
 }
 
@@ -52,7 +58,6 @@ DirectoryIterator::DirectoryIterator (const char* dirname, const char* match)
 *********************************************************************/
 DirectoryIterator::~DirectoryIterator ()
 {
-    if (_dp)  { closedir(_dp); }
 }
 
 /*********************************************************************
@@ -65,9 +70,11 @@ DirectoryIterator::~DirectoryIterator ()
 *********************************************************************/
 void DirectoryIterator::first ()
 {
-    _dp  = opendir (_dirname.c_str());
+    _entries.clear();
 
-    next ();
+    buildList (_dirname, _match, _recursive, _entries);
+
+    _entriesIterator = _entries.begin();
 }
 
 /*********************************************************************
@@ -78,48 +85,57 @@ void DirectoryIterator::first ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-dp::IteratorStatus DirectoryIterator::next()
+static inline bool isDirectory (const char* name, const char* fullpath, u_int32_t& type)
 {
-    if (_dp)
-    {
-        while ( (_dirp = readdir(_dp)) != 0)
-        {
-            if (_match.empty())  { break; }
+    struct stat statBuf;
 
-            else if (strstr (_dirp->d_name, _match.c_str()) != 0)
+    if (strcmp(name,".")==0 || strcmp(name,"..")==0)  { return false; }
+
+    if( stat(fullpath, &statBuf) < 0 ) { return false; }
+
+    type = statBuf.st_mode;
+
+    return S_ISDIR(statBuf.st_mode);
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void DirectoryIterator::buildList (const string& dirname, const string& match, bool recursive, list<string>& entries)
+{
+    /** We try to open the directory given its name. */
+    DIR* dp  = opendir (dirname.c_str());
+
+    if (dp == 0)  { return; }
+
+    for (struct dirent* dirp = readdir(dp);  dirp != 0; dirp = readdir(dp))
+    {
+        /** We build the full path. */
+        stringstream ss;  ss << dirname << "/" << dirp->d_name;
+
+        u_int32_t type = 0;
+
+        if (recursive  &&  isDirectory(dirp->d_name, ss.str().c_str(), type) )
+        {
+            buildList (ss.str(), match, recursive, entries);
+        }
+
+        if (strstr (dirp->d_name, match.c_str()) != 0)
+        {
+            if (_dirOnly==false  ||  (_dirOnly && S_ISDIR(type) ) )
             {
-                break;
+                entries.push_back (ss.str());
             }
         }
     }
 
-    return ITER_UNKNOWN;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-bool DirectoryIterator::isDone()
-{
-    return (_dp != 0)  &&  (_dirp == 0);
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-const char* DirectoryIterator::currentItem()
-{
-    return (_dirp != 0 ? _dirp->d_name : 0);
+    /** We close the directory. */
+    closedir(dp);
 }
 
 /********************************************************************************/

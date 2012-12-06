@@ -25,7 +25,7 @@
 
 #include <designpattern/api/Iterator.hpp>
 #include <string>
-#include <dirent.h>
+#include <list>
 
 /********************************************************************************/
 namespace dp {
@@ -64,7 +64,7 @@ public:
      * \param[in]  dirname : directory name
      * \param[in]  match   : string to be contained in the filename
      */
-    DirectoryIterator (const char* dirname, const char* match=0);
+    DirectoryIterator (const char* dirname, const char* match=0, bool dirOnly=false, bool recursive=false);
 
     /** Destructor. */
     virtual ~DirectoryIterator ();
@@ -73,21 +73,31 @@ public:
     void first();
 
     /** \copydoc Iterator<const char*>::next */
-    dp::IteratorStatus next();
+    dp::IteratorStatus next()  { _entriesIterator++;  return ITER_UNKNOWN; }
 
     /** \copydoc Iterator<const char*>::isDone */
-    bool isDone();
+    bool isDone()  { return _entriesIterator == _entries.end(); }
 
     /** \copydoc Iterator<const char*>::currentItem */
-    const char* currentItem();
+    const char* currentItem()  { return (*_entriesIterator).c_str(); }
 
 private:
 
     std::string _dirname;
     std::string _match;
+    bool        _dirOnly;
+    bool        _recursive;
 
-    DIR*           _dp;
-    struct dirent* _dirp;
+    std::list<std::string>           _entries;
+    std::list<std::string>::iterator _entriesIterator;
+
+    /** */
+    void buildList (
+        const std::string& dirname,
+        const std::string& match,
+        bool recursive,
+        std::list<std::string>& entries
+    );
 };
 
 /********************************************************************************/
