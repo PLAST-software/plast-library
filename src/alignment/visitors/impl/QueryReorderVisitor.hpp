@@ -52,7 +52,9 @@ public:
         core::IAlignmentContainerVisitor*   realVisitor,
         core::IAlignmentContainerVisitor*   finalVisitor,
         database::IDatabaseQuickReader*     qryReader,
-        u_int32_t                           nbAlignmentsThreshold
+        u_int32_t                           nbAlignmentsThreshold,
+        size_t                              nbHitPerQuery,
+        size_t                              nbAlignPerHit
     );
 
     /** Destructor. */
@@ -107,6 +109,10 @@ private:
 
     /** */
     u_int32_t _nbAlignmentsThreshold;
+
+    /** */
+    size_t _nbHitPerQuery;
+    size_t _nbAlignPerHit;
 
     /** */
     void dumpIndex (void);

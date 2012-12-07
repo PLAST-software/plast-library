@@ -914,13 +914,17 @@ IAlignmentContainerVisitor* DefaultConfiguration::createResultVisitor ()
         u_int32_t nbAlignPerNotif = forceQryOrdering->getInt();
         if (nbAlignPerNotif == 0)  { nbAlignPerNotif = 10*1000; }
 
+        size_t nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 0;
+        size_t nbAlignPerHit = (prop = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT))   != 0 ?  prop->getInt() : 0;
+
         result = new QueryReorderVisitor (
             this,
             uri,
             createAlgorithmResultVisitor (uri + ".tmp", 3),         // visitor wanted by user with a forced outfmt
             createSimpleResultVisitor    (uri,          outfmt),    // visitor for final dump with the user outfmt
             _environment->getQuickQueryDbReader(),
-            nbAlignPerNotif
+            nbAlignPerNotif,
+            nbHitPerQuery, nbAlignPerHit
         );
     }
     else

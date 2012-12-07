@@ -88,7 +88,7 @@ public:
     AlignmentContainerBuilderStream (QueryReorderVisitor* queryVisitor)
 		: _container(0), _nbQrySeq(0), _nbSbjSeq(), _queryVisitor(queryVisitor)
     {
-        setContainer (_queryVisitor->_config->createGapAlignmentResult());
+        setContainer (new BasicAlignmentContainerBis (_queryVisitor->_nbHitPerQuery, _queryVisitor->_nbAlignPerHit));
     }
 
     /** */
@@ -222,7 +222,7 @@ public:
     /** */
     void clear ()
     {
-        setContainer (_queryVisitor->_config->createGapAlignmentResult());
+        setContainer (new BasicAlignmentContainerBis (_queryVisitor->_nbHitPerQuery, _queryVisitor->_nbAlignPerHit));
         _qryIdMap.clear ();
         _sbjIdMap.clear ();
         _qrySeq.index = _sbjSeq.index = 0;
@@ -381,7 +381,9 @@ QueryReorderVisitor::QueryReorderVisitor (
     core::IAlignmentContainerVisitor*   realVisitor,
     core::IAlignmentContainerVisitor*   finalVisitor,
     database::IDatabaseQuickReader*     qryReader,
-    u_int32_t                           nbAlignmentsThreshold
+    u_int32_t                           nbAlignmentsThreshold,
+    size_t                              nbHitPerQuery,
+    size_t                              nbAlignPerHit
 )
     :  AlignmentsProxyVisitor(realVisitor),
        _config (config),
@@ -389,7 +391,9 @@ QueryReorderVisitor::QueryReorderVisitor (
        _finalVisitor(0),
        _qryReader(0),
        _prevPos(0), _newPos(0),
-       _nbAlignmentsThreshold(nbAlignmentsThreshold)
+       _nbAlignmentsThreshold(nbAlignmentsThreshold),
+       _nbHitPerQuery(nbHitPerQuery),
+       _nbAlignPerHit(nbAlignPerHit)
 {
     /** We keep a reference on the provided visitors. */
     setFinalVisitor (finalVisitor);
