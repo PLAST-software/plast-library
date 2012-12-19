@@ -103,7 +103,10 @@ public:
     {
         if (!_eof && _currentFile)
         {
-            if (_currentFile->gets (_line, _lineMaxSize) == NULL)
+            /** We read the current line, up to '_lineMaxSize' characters. */
+            _readCurrentSize = _currentFile->gets (_line, _lineMaxSize);
+
+            if (_readCurrentSize == 0)
             {
                 /** We have to look for possible other files. */
                 if (retrieveNextFile())
@@ -118,9 +121,6 @@ public:
             }
             else
             {
-                /** We get the size of the read line. */
-                _readCurrentSize = strlen (_line);
-
                 _readTotalSize  += _readCurrentSize;
                 _eof = (_readTotalSize > _range);
 
