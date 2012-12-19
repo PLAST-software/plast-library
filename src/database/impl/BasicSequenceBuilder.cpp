@@ -98,19 +98,19 @@ void BasicSequenceBuilder::addData (const LETTER* data, size_t size, Encoding en
 
     if (_currentSize + size >= _data.letters.size)
     {
-        DEBUG (("BasicSequenceBuilder::addData: realloc needed : current=%ld  wanted=%ld  actualSize=%d \n",
+        DEBUG (("BasicSequenceBuilder::addData: realloc needed : current=%d  wanted=%ld  actualSize=%d \n",
             _currentSize, size, _data.letters.size
         ));
 
         /** We resize the buffer. Note that we add an extra size for avoiding too many reallocs. */
-        _data.letters.resize (_data.letters.size + 1024);
+        _data.letters.resize (_currentSize + size + 1024);
 
         /** The data buffer may have a modified address due to the 'resize'
          *  => we have to update the '_sequence' reference to the new data.  */
         _sequence.data.setReference (_currentSize, _data.letters.data);
     }
 
-    DEBUG (("BasicSequenceBuilder::addData: going to fill the table with _currentSize=%ld \n", _currentSize));
+    DEBUG (("BasicSequenceBuilder::addData: going to fill the table with _currentSize=%d \n", _currentSize));
 
     /** We add the letters to the data, with a potential conversion (no conversion if no table). */
     for (size_t i=0; i<size; i++)
