@@ -375,7 +375,7 @@ ISequenceDatabase*  DefaultConfiguration::createDatabase (
     /** We create the sequence iterator. */
     ISequenceIterator* seqIterator =  sequenceIteratorFactory ?
         sequenceIteratorFactory->createSequenceIterator (uri, range) :
-        new FastaSequenceIterator (uri.c_str(), 64*1024, range.begin, range.end);
+        new FastaSequenceIterator (uri.c_str(), 2*1024, range.begin, range.end);
 
     /** We create the database. */
     return new BufferedSequenceDatabase (seqIterator, filtering);
