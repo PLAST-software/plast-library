@@ -65,9 +65,9 @@ public:
     /** Reads a line in the file.
      *  \param[in] s : buffer where to put the read line.
      *  \param[in] size : maximum number of characters to be read
-     *  \return the filled line if ok, NULL otherwise.
+     *  \return the actual size of the read buffer (0 if nothing read)
      */
-    virtual char* gets (char* s, int size) = 0;
+    virtual int gets (char* s, int size) = 0;
 
     /** Writes a buffer (0 terminated) into the file.
      *  \param[in] buffer : buffer to be dumped into the file.

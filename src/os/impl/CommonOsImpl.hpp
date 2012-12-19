@@ -62,7 +62,26 @@ public:
     bool isEOF ()  {  return (_handle ? feof (_handle) : true); }
 
     /** \copydoc IFile::gets */
-    char* gets (char *s, int size)  { return (_handle==0 ? 0 : fgets (s, size, _handle)); }
+    int gets (char *s, int size)
+    {
+        int result = 0;
+
+        /** We read the current line, up to 'size' characters. */
+        char* tmp = (_handle==0 ? 0 : fgets (s, size, _handle));
+
+        /** Note: it may happen that the line is longer than the 'size' parameter.
+         * Since this function is intended to read a line, we have to skip characters until the end of the line. */
+        if (tmp != 0)
+        {
+            result = strlen (tmp);
+
+            /** we skip all characters until we reach the next '\n'. */
+            if (result > 0)  {  for (char c = tmp[result-1];  c !='\n' &&  c!=EOF;  c = fgetc (_handle))  {}  }
+        }
+
+        /** We return the result. */
+        return result;
+    }
 
     /** \copydoc IFile::print */
     void print   (const char* buffer)  { if (_handle)  {  fprintf (_handle, "%s", buffer); } }
