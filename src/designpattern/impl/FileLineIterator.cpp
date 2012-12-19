@@ -117,7 +117,7 @@ void FileLineIterator::first()
             _currentFile->seeko (0, SEEK_END);
             u_int64_t len  = _currentFile->tell();
 
-            DEBUG (cout << "FileLineIterator::first  filelen=" << len << "  offset=" << _offset0 << "  cummulatedFilesLength=" << cummulatedFilesLength << endl);
+            DEBUG (cout << "FileLineIterator::first  filelen=" << len << "  offset=" << _offset0 << "  cummulatedFilesLength=" << _cummulatedFilesLength << endl);
 
             if (_cummulatedFilesLength + len >= _offset0)
             {
@@ -126,7 +126,7 @@ void FileLineIterator::first()
                 /** We can shift to the correct location into the file. */
                 _currentFile->seeko (_offset0 - _cummulatedFilesLength, SEEK_SET);
 
-                DEBUG (cout << "FileLineIterator::first  currentSeek=" << (_offset0 - cummulatedFilesLength) << endl);
+                DEBUG (cout << "FileLineIterator::first  currentSeek=" << (_offset0 - _cummulatedFilesLength) << endl);
 
                 /** We leave the loop over the files. */
                 break;
@@ -140,7 +140,7 @@ void FileLineIterator::first()
         /** We can set the end of file attribute. */
         _eof = (_filesIterator == _files.end());
 
-        DEBUG (cout << "FileLineIterator::first  eof=" << _eof << "  cummulatedFilesLength=" << cummulatedFilesLength << endl);
+        DEBUG (cout << "FileLineIterator::first  eof=" << _eof << "  cummulatedFilesLength=" << _cummulatedFilesLength << endl);
 
 		/** We force retrieval of the first line. */
 		next ();
