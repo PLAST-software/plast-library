@@ -159,8 +159,13 @@ int OptionsParser::parse (int argc, char* argv[])
         }
         else
         {
+#if 0
             /* This is an NOT a recognized option. We try to find an No_Option. */
             giveToNoOption (txt);
+#else
+            /** Unknown option => add it to the error list. */
+            _errors.push_back (txt);
+#endif
         }
     }
 
