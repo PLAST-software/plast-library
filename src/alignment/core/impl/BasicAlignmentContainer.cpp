@@ -472,7 +472,21 @@ void BasicAlignmentContainer::shrink ()
         	ContainerLevel2::iterator it;
         	for (it=containerLevel2->begin(); k<_nbHitPerQuery && it!=containerLevel2->end(); it++, k++)   {}
 
-        	/** We can now delete extra subjects. */
+        	/** Now, we have reach the first unwanted hit => we have to delete it and all the next items holding:
+        	 * 		-> the 'subject ISequence instance
+        	 * 		-> the list of alignments for each [qry,sbj] couple
+        	 */
+            for (ContainerLevel2::iterator itLevel2 = it; itLevel2 != containerLevel2->end(); itLevel2++)
+            {
+                /** Shortcuts. */
+                ISequence*       seqLevel2       = (*itLevel2).second.first;
+                ContainerLevel3* containerLevel3 = (*itLevel2).second.second;
+
+                if (seqLevel2)        { delete seqLevel2;       }
+                if (containerLevel3)  { delete containerLevel3; }
+            }
+
+        	/** We can now delete extra subjects from the container itself. */
         	containerLevel2->erase (it, containerLevel2->end());
     	}
     }
