@@ -207,6 +207,19 @@ JNIEXPORT jlong JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager
     /** We use this command. */
     cmd->use ();
 
+#if 1
+    /** We may want to automatically generate files holding information about the algorithm execution. */
+    IProperty* propOutput = cmd->getProperties()->getProperty (STR_OPTION_OUTPUT_FILE);
+    if (propOutput != 0)
+    {
+    	string statsFile     = propOutput->getValue() + ".stats";
+    	string resourcesFile = propOutput->getValue() + ".resources";
+
+    	cmd->getProperties()->add (0, STR_OPTION_INFO_STATS, 				statsFile);
+    	cmd->getProperties()->add (0, STR_OPTION_INFO_RESOURCES_PROGRESS, 	resourcesFile);
+    }
+#endif
+
     /** We update the java props with the properties of the brand new command. */
     class UpdatePropsVisitor : public IPropertiesVisitor
     {
