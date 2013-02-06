@@ -122,6 +122,9 @@ public:
         fillJavaProperties (props, "time_remaining", _remainingTime);
         fillJavaProperties (props, "nb_hsp_current", _currentNbAlignments);
         fillJavaProperties (props, "nb_hsp_total",   _nbAlignments);
+        fillJavaProperties (props, "memory_used",    _usedMemory/1024);
+        fillJavaProperties (props, "memory_max",     _maxUsedMemory/1024);
+        fillJavaProperties (props, "memory_total",   _totalUsedMemory/1024);
 
         return props;
     }
