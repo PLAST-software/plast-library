@@ -20,6 +20,8 @@
  *  \brief Tree of ranges management.
  */
 
+#if 0
+
 #ifndef _RANGE_TREE_HPP_
 #define _RANGE_TREE_HPP_
 
@@ -382,3 +384,5 @@ Node* _head;
 /********************************************************************************/
 
 #endif /* _RANGE_TREE_HPP_ */
+
+#endif
