@@ -150,12 +150,12 @@ public:
             {
                 misc::Range32 qryRange;
                 u_int32_t     qryNbGaps   = 0;
-                u_int32_t     qryFrame    = 0;
+                  int32_t     qryFrame    = 0;
                 double        qryCoverage = 0;
 
                 misc::Range32 sbjRange;
                 u_int32_t     sbjNbGaps   = 0;
-                u_int32_t     sbjFrame    = 0;
+                  int32_t     sbjFrame    = 0;
                 double        sbjCoverage = 0;
 
                 double    evalue   = 0;
