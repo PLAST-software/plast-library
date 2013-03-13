@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 /********************************************************************************/
 namespace os {
@@ -88,6 +89,18 @@ public:
 
     /** \copydoc IFile::println */
     void println (const char* buffer)  { if (_handle)  {  fprintf (_handle, "%s\n", buffer); } }
+
+    /** \copydoc IFile::print */
+    void print (const char* format, ...)
+    {
+    	if (_handle)
+    	{
+    		  va_list args;
+    		  va_start (args, format);
+    		  vfprintf (_handle, format, args);
+    		  va_end (args);
+    	}
+    }
 
     /** \copydoc IFile::flush */
     void flush ()  { if (_handle)  {  fflush (_handle); } }

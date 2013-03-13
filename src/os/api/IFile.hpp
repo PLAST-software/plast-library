@@ -79,6 +79,12 @@ public:
      */
     virtual void println (const char* buffer) = 0;
 
+    /** Writes a buffer (0 terminated) into the file with a new line.
+     *  \param[in] format : format of the data to be dumped into the file.
+     *  \param[in] ...    : arguments (as an ellipsis) to b dumped
+     */
+    virtual void print (const char* format, ...) = 0;
+
     /** Flush the file.
      */
     virtual void flush () = 0;
