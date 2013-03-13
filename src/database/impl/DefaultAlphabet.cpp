@@ -245,10 +245,10 @@ const LETTER* EncodingManager::getEncodingConversion_nucleotid (Encoding from, E
     bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
 
     bad,   0, bad,   1, bad, bad, bad,   2, bad, bad, bad, bad, bad, bad,   4, bad,
-    bad, bad, bad, bad,   3, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
+    bad, bad, bad, bad,   3,   3, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
 
     bad,   0, bad,   1, bad, bad, bad,   2, bad, bad, bad, bad, bad, bad,   4, bad,
-    bad, bad, bad, bad,   3, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad
+    bad, bad, bad, bad,   3,   3, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad
 };
 
     static const LETTER Encoding_ascii2ncbi [] = {
