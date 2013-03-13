@@ -31,12 +31,14 @@
 #include <misc/api/macros.hpp>
 #include <os/api/IThread.hpp>
 
+#include <misc/api/ObjectPool.hpp>
+
 #include <vector>
 #include <list>
 #include <assert.h>
 
 /********************************************************************************/
-/** \brief Miscellanous definitions */
+/** \brief Miscellaneous definitions */
 namespace misc {
 /********************************************************************************/
 
@@ -44,19 +46,17 @@ class RangeTree
 {
 public:
 
-    /** We define a type for the coordinates. */
-    typedef u_int32_t Coord;
-
     /** We define a type that holds the alpha values. */
     typedef u_int64_t  Value;
 
-    /** We define a Range structure. */
-    class Range
-    {
-    public:
-    	void set (Coord xx, Coord yy, size_t ll)  { x=xx; y=yy; length=ll; }
-    	Coord x; Coord y; size_t length;
-    };
+    /** We define a type for the coordinates. */
+    typedef u_int32_t Coord;
+
+    /** */
+    typedef int8_t BALANCE;
+
+    /** */
+    enum DIRECTION { L=0, R=1, DIRECTION_MAX};
 
     /** Constructor. */
     RangeTree (Coord sizeX, Coord sizeY, size_t nbHeadsLog2=0);
@@ -65,23 +65,27 @@ public:
     ~RangeTree ();
 
     /** Insert a range given an initial [x,y] point and its length. */
-    void insert (Coord x, Coord y, size_t length)
+    bool insert (Coord x, Coord y, size_t length)
     {
-    	/** We check that the point [x,y] lies in the XY space. */
-    	assert (x < _sizeX  &&  y < _sizeY);
+        /** We check that the point [x,y] lies in the XY space. */
+        assert (x < _sizeX  &&  y < _sizeY);
 
-    	/** We insert the point [x,y] in the A space. */
-    	insert (alpha (x,y), length);
+        /** We insert the point [x,y] in the A space. */
+        return insert (alpha (x,y), length);
     }
 
     /** Insert a range given the [alpha,length] couple. */
-    void insert (Value alpha, size_t length);
-
-    /** Insert a range given an initial [x,y] point and its length. */
-    void insert (Range r)  { insert (r.x, r.y, r.length); }
+    bool insert (Value alpha, size_t length);
 
     /** Tells whether a [x,y] point lies into some ranges. */
-    bool exists (Coord x, Coord y)  {  return exists (alpha(x,y));  }
+    bool exists (Coord x, Coord y)
+    {
+        /** We check that the point [x,y] lies in the XY space. */
+        assert (x < _sizeX  &&  y < _sizeY);
+
+        /** We check whether the x,y point belongs to some range. */
+        return exists (alpha(x,y));
+    }
 
     /** Return the number of ranges in the tree. */
     size_t getNbItems () { return _nbItems; }
@@ -94,211 +98,128 @@ public:
     /** Return the depth of the inner tree. */
     size_t getDepth ();
 
-    /** Compute the alpha value from a [x,y] point. */
-    Value alpha (Coord x, Coord y)  { return 0 + (_maxSizeAlpha+1)*x + (_maxSizeAlpha)*(_sizeY-1 - y); }
-    //Value alpha (Coord x, Coord y) { return x + _maxSizeAlpha* (x + _sizeY-1 - y); }
-
     /** */
-    void reorder ();
-
-    /** */
-    void dump () {  getHead()->dump (); }
-
-    /** */
-    bool checkBalance ()  { return Node::checkBalance (getHead()); }
+    bool checkBalance ();
 
 private:
 
-    /** */
-    void clean ();
-
-    /** */
-	struct Entry
-	{
-    	Value alpha;  size_t idx;
-    	static bool compare (const Entry& a, const Entry& b)  { return a.alpha < b.alpha; }
-	};
-
-    /** Tells whether a alpha value is in some range. */
-    bool exists (Value val);
-
     /********************************************************************************/
-    class Data
+    class Node
     {
     public:
-    	Data (Value  a, size_t l) : alpha(a), length(l) {}
-        Value    alpha;
-        size_t   length;
-        static bool compare (const Data& i, const Data& j) { return i.alpha < j.alpha;}
-    };
 
-    /********************************************************************************/
-    struct Node;  typedef Node* NodePtr;
+        /** Constructor. */
+        Node () : alpha(0), length(0), balance(0)   { child[L] = child[R] = 0; }
 
-    /********************************************************************************/
-    typedef int8_t BALANCE;
-    static const BALANCE BALANCED_LEFT  = -1;
-    static const BALANCE BALANCED_RIGHT =  1;
-    static const BALANCE BALANCED       =  0;
+        Value    getAlpha  ()  const  { return alpha;   }
+        size_t   getLength ()  const  { return length;  }
+        BALANCE  getBalance()  const  { return balance; }
 
-    /********************************************************************************/
-    enum DIRECTION { L=0, R=1, DIRECTION_MAX};
-
-    DIRECTION getDirection (Value alpha, NodePtr node)  {  return alpha >= node->alpha ? R : L; }
-
-    /********************************************************************************/
-    struct Node : public Data
-    {
-        Node () : Data(~0,0), parent(0), balance(BALANCED)   { child[L] = child[R] = 0; }
-
-        static BALANCE opposite (BALANCE in)  {  return (BALANCE)  (-(int)in);  }
+    private:
+        /** Constructor. */
+        Node (Value a, size_t l) : alpha(a), length(l), balance(0)   { child[L] = child[R] = 0;  }
 
         /** */
-        Node* set (Node* p, Value a, size_t l)
-        {
-        	parent = p;
-        	alpha  = a;
-        	length = l;
-        	return this;
-        }
+        DIRECTION getDirection (Value alpha)  {  return alpha >= this->alpha ? R : L; }
 
+        /** Tells whether a value belongs to the range defined by the current node. */
         bool include (size_t val)  { return (alpha <= val) &&  (val < (alpha+length));  }
 
-        Node*   parent;
-        Node*   child[DIRECTION_MAX];
-        BALANCE balance;
+        /** */
+        size_t getDepth ()  {  size_t d=0, maxd=0;  return getDepth (d, maxd); }
 
+    private:
+
+        /** Attributes of a node => sizeof(Node)=40 bytes */
+        Node*    child[DIRECTION_MAX];
+        Value    alpha;
+        size_t   length;
+        BALANCE  balance;
+
+        /** */
+        Node& set (Value a, size_t l)
+        {
+            alpha  = a;
+            length = l;
+            return *this;
+        }
 
         /** */
         Value getA ()  { return alpha;              }
         Value getB ()  { return alpha + length - 1; }
 
         /** */
-        template <typename Functor>  void recursePreOrder (Functor& f)
+        size_t getDepth (size_t& depth, size_t& maxd)
         {
-            f (this);
-            if (child[L]) { child[L]->recurse  (f);  }
-            if (child[R]) { child[R]->recurse (f);   }
-        }
+            depth++;
 
-        /** */
-        template <typename Functor>  void recurse (Functor& f)
-        {
-            if (child[L]) { child[L]->recurse  (f);  }
-            if (child[R]) { child[R]->recurse (f);   }
-            f (this);
-        }
+            maxd = MAX (maxd, depth);
 
-        /** */
-        template <typename Functor>  void recurseInOrder (Functor& f)
-        {
-            if (child[L])  { child[L]->recurse  (f);  }
-            f (this);
-            if (child[R])  { child[R]->recurse (f);   }
-        }
+            if (child[L])   { child[L]->getDepth (depth, maxd);  }
+            if (child[R])   { child[R]->getDepth (depth, maxd);  }
 
-		/** */
-        void cleanSubTree ()
-        {
-        	CleanFunctor f;
-        	if (child[L])   {  child[L]->recurse  (f); }
-        	if (child[R])   {  child[R]->recurse (f); }
-        }
+            depth--;
 
-        /** */
-        size_t getDepth ()
-        {
-            size_t currentDepth=0, maxDepth=0;
-
-            getDepth_aux (this, currentDepth, maxDepth);
-
-            return 1 + maxDepth;
-        }
-
-        /** */
-        static void rebalance (Node*& node);
-
-        /** */
-        void dump ()  {  dump_aux (this); printf ("\n"); }
-
-        void dump_aux (NodePtr node)
-        {
-        	if (node)
-        	{
-        		printf ("(%ld,%d)", node->alpha, node->balance);
-        		if (node->child[L])  {  printf ("L["); dump_aux (node->child[L]);  printf ("]");  }
-        		if (node->child[R])  {  printf ("R["); dump_aux (node->child[R]);  printf ("]");  }
-        	}
-        }
-
-
-        void getDepth_aux (Node* node, size_t& currentDepth, size_t& maxDepth)
-        {
-            if (node != 0)
-            {
-                if (node->child[L])   {  currentDepth++;  if (currentDepth>maxDepth) { maxDepth=currentDepth; }  getDepth_aux (node->child[L], currentDepth, maxDepth);  currentDepth--; }
-                if (node->child[R])   {  currentDepth++;  if (currentDepth>maxDepth) { maxDepth=currentDepth; }  getDepth_aux (node->child[R], currentDepth, maxDepth); currentDepth--; }
-            }
+            return maxd;
         }
 
         /** a                    b            - b becomes the new root
          *   \       <--        / \           - a takes ownership of b's left child as right child
-         *    b	       |       a   c          - b takes ownership of a as its left child
+         *    b        |       a   c          - b takes ownership of a as its left child
          *     \
          *      c
          */
-        static NodePtr SingleRotationLeft   (NodePtr a)
+        Node* SingleRotationLeft ()
         {
-        	NodePtr b = a->child[R];
-        	a->child[R] = b->child[L];
-        	b->child[L] = a;
+            Node* a = this;
+            Node* b = a->child[R];
+            a->child[R] = b->child[L];
+            b->child[L] = a;
 
-        	/** We update the balances. */
-        	a->balance = a->balance - 1 - MAX (b->balance,0);
-        	b->balance = b->balance - 1 + MIN (a->balance,0);
+            /** We update the balances. */
+            a->balance = a->balance - 1 - MAX (b->balance,0);
+            b->balance = b->balance - 1 + MIN (a->balance,0);
 
-        	/** We return the new node. */
-        	return b;
+            /** We return the new node. */
+            return b;
         }
 
         /**     a              b            - b becomes the new root
          *     /      -->     / \           - a takes ownership of b's right child as left child
-         *    b	      |      c   a          - b takes ownership of a as its right child
+         *    b       |      c   a          - b takes ownership of a as its right child
          *   /
          *  c
          */
-        static NodePtr SingleRotationRight (NodePtr a)
+        Node* SingleRotationRight ()
         {
-        	NodePtr b = a->child[L];
-			a->child[L] = b->child[R];
-        	b->child[R] = a;
+            Node* a = this;
+            Node* b = a->child[L];
+            a->child[L] = b->child[R];
+            b->child[R] = a;
 
-        	/** We update the balances. */
-        	a->balance = a->balance + 1 - MIN (b->balance,0);
-        	b->balance = b->balance + 1 + MAX (a->balance,0);
+            /** We update the balances. */
+            a->balance = a->balance + 1 - MIN (b->balance,0);
+            b->balance = b->balance + 1 + MAX (a->balance,0);
 
-        	/** We return the new node. */
-        	return b;
+            /** We return the new node. */
+            return b;
         }
 
         /** */
-        static bool checkBalance (Node* node);
+        bool checkBalance ();
 
-    };  /*  struct Node */
+        friend class RangeTree;
 
-    /** */
-    class CleanFunctor  {  public:   void operator () (Node* node)  {  if (node)  { delete node; } }  };
+    };  /*  class Node */
 
-    /** */
-    class GetDataFunctor
-    {
-	public:
-    	GetDataFunctor () {}
-    	void operator () (Node* node)  {  _data.push_back (Data (node->alpha, node->length));  }
-    	std::vector<Data>& getDataVector ()  { return _data; }
-	private:
-    	std::vector<RangeTree::Data> _data;
-    };
+    /** Shortcut */
+    typedef Node* NodePtr;
+
+    /** Compute the alpha value from a [x,y] point. */
+    Value alpha (Coord x, Coord y)  { return 0 + (_maxSizeAlpha+1)*x + (_maxSizeAlpha)*(_sizeY-1 - y); }
+
+    /** Tells whether a alpha value is in some range. */
+    bool exists (Value alpha);
 
     /** */
     Coord _sizeX;
@@ -306,13 +227,11 @@ private:
     Coord _maxSizeAlpha;
 
     size_t _maxSizeAlphaLog2;
+    size_t _nbHeads;
     size_t _nbHeadsLog2;
     size_t _headsMask;
 
-Node* _head;
     NodePtr* _heads;
-    Node  _zeroNode;
-    Node  _inftyNode;
 
     size_t _nbItems;
 
@@ -322,67 +241,45 @@ Node* _head;
     /** */
     void setHead (NodePtr node, Value alpha=0)
     {
-    	_heads [((alpha >> _maxSizeAlphaLog2) & _headsMask)] = node;
-//printf ("setHead(%ld)  idx=%d  => %p \n", alpha, ((alpha >> _maxSizeAlphaLog2) & _headsMask), _heads [((alpha >> _maxSizeAlphaLog2) & _headsMask)] );
+        _heads [((alpha >> _maxSizeAlphaLog2) & _headsMask)] = node;
     }
 
     /** */
     NodePtr& getHead (Value alpha=0)
     {
-    	/** We look for the head node for the underlying diagonal.
-    	 * 		1) we compute the diagonal with alpha >> _maxSizeAlphaLog2
-    	 * 		2) we compute the diagonal index in the heads table
-    	 * 			=> the modulo operation is done with a & operator
-    	 * 			   since the number of heads is a power of 2
-    	 */
-#if 1
-//printf ("getHead(%ld)  idx=%d  => %p \n", alpha, ((alpha >> _maxSizeAlphaLog2) & _headsMask), _heads [((alpha >> _maxSizeAlphaLog2) & _headsMask)] );
-    	return _heads [((alpha >> _maxSizeAlphaLog2) & _headsMask)];
-#else
-    	return _head;
-#endif
+        /** We look for the head node for the underlying diagonal.
+         * 		1) we compute the diagonal with alpha >> _maxSizeAlphaLog2
+         * 		2) we compute the diagonal index in the heads table
+         * 			=> the modulo operation is done with a & operator
+         * 			   since the number of heads is a power of 2
+         */
+        return _heads [((alpha >> _maxSizeAlphaLog2) & _headsMask)];
     }
 
-    /** */
-    void getBounds (Value alpha, NodePtr& left, NodePtr& right, NodePtr& parent, NodePtr*& criticalNodePtr, NodePtr*& parentChildPtr);
 
-    /** */
-    size_t log2 (size_t n)   {   size_t res = 0;   while (n >>= 1)  {  res++;  }  return res;  }
+    /** Retrieve the two nodes that interleaves the provided alpha value. */
+    void getBounds (Value alpha, NodePtr& left, NodePtr& right, NodePtr*& criticalRangeNodePtr, NodePtr*& parentChildPtr);
 
-    /** */
-    class NodePool
-    {
-    public:
+    /** We use an object pool for getting instances of Node class. */
+    misc::ObjectPool<Node> _nodePool;
 
-    	NodePool (size_t arraySize);
-    	~NodePool ();
-
-    	Node* createNode (Node* p, Value a, size_t l);
-
-    	void clean ();
-
-    private:
-    	os::ISynchronizer* _synchro;
-
-    	size_t _arraySize;
-    	size_t _currentIdx;
-    	Node*  _currentArray;
-
-    	Node* getNewArray ();
-    	std::list<Node*> _arrayList;
-    };
-
-    NodePool _nodePool;
-
-    friend class InsertFunctor;
-    friend class NodePool;
+    static Node  _zeroNode;
+    static Node  _inftyNode;
 };
 
+/********************************************************************************/
+
+class RangeTreeTools
+{
+public:
+
+    /** */
+    static RangeTreeTools singleton ()  { static RangeTreeTools instance; return instance; }
+};
 
 /********************************************************************************/
 }  /* end of namespaces. */
 /********************************************************************************/
 
 #endif /* _RANGE_TREE_HPP_ */
-
 #endif
