@@ -119,12 +119,7 @@ public:
     {
         if (!line)  { return; }
 
-        char c;
-
-        stringstream ss (line);
-
-        /** We read the first character which determines which kind of item we are going to deal with. */
-        ss >> c;
+        char c = line[0];
 
         switch (c)
 
@@ -134,15 +129,13 @@ public:
                 /** We have to reset the index of subject sequence. */
                 _sbjSeq.index = 0;
 
-                manageSequence (c, _qryIdMap, _qrySeq, _nbQrySeq, ss);
-
+                manageSequence (c, _qryIdMap, _qrySeq, _nbQrySeq, line);
                 break;
             }
 
             case 'S':
             {
-                manageSequence (c, _sbjIdMap, _sbjSeq, _nbSbjSeq, ss);
-
+                manageSequence (c, _sbjIdMap, _sbjSeq, _nbSbjSeq, line);
                 break;
             }
 
@@ -170,10 +163,14 @@ public:
 
                 core::Alignment a;
 
-                ss  >> qryRange.begin  >> qryRange.end  >> qryNbGaps  >> qryFrame  >> qryCoverage
-                    >> sbjRange.begin  >> sbjRange.end  >> sbjNbGaps  >> sbjFrame  >> sbjCoverage
-                    >> evalue  >> bitscore  >> score  >> length
-                    >> nbIdentities  >> nbPositives  >> nbMismatches;
+                int result = sscanf (line, "%c %d %d %d %d %lf   %d %d %d %d %lf   %lf %lf %d  %d %d %d %d",
+					&c,
+					&(qryRange.begin), &(qryRange.end), &qryNbGaps, &qryFrame, &qryCoverage,
+					&(sbjRange.begin), &(sbjRange.end), &sbjNbGaps, &sbjFrame, &sbjCoverage,
+					&evalue, &bitscore, &score, &length,
+					&nbIdentities,&nbPositives,&nbMismatches
+                );
+				if (result != 18)  { throw "unable to parse the tmp file"; }
 
                 qryRange = qryRange.shift (-1);
                 sbjRange = sbjRange.shift (-1);
@@ -275,15 +272,21 @@ public:
 private:
 
     /** */
-    void manageSequence (char kind, map<string,Entry>& theMap, ISequence& seq, size_t& nbSeq, stringstream& ss)
+    void manageSequence (char kind, map<string,Entry>& theMap, ISequence& seq, size_t& nbSeq, char* line)
     {
-        char  commentBuffer[4*1024];
+        /** We read the first character which determines which kind of item we are going to deal with. */
+        char c;
+        char commentBuffer[4*1024];
 
-        /** We read the sequence length from the stream. */
-        ss >> seq.length;
+#if 0
+        int result = sscanf (line, "%c %d %s", &c, &seq.length, commentBuffer);
+        if (result != 3)  { throw "unable to parse the tmp file"; };
+#else
+        c = *(line);						while (*(++line) == ' ') ;
+        seq.length = misc::atoi (line);		while (*(line++) != ' ') ;
 
-        /** We read the remaining of the comment line from the stream. */
-        ss.getline (commentBuffer, sizeof(commentBuffer)-1);
+        strncpy (commentBuffer, line, sizeof(commentBuffer));
+#endif
 
         VERBOSE (cout << endl);
 
@@ -477,7 +480,7 @@ void QueryReorderVisitor::dumpIndex (void)
     {
         char sep = ' ';
 
-        _indexesFile << _queryId << sep << _prevPos << sep << (_newPos-1) << endl;
+        _indexesFile << _queryId << sep << _prevPos << endl;
     }
 }
 
@@ -545,7 +548,7 @@ void QueryReorderVisitor::finalize (void)
             string    queryId;
             Range64   range;
 
-            _indexesFile >> queryId >> range.begin >> range.end;
+            _indexesFile >> queryId >> range.begin; // >> range.end;
 
             /** We look whether this index belongs to a sequence of the current database. */
             set<string>::iterator lookup = queriesId.find (queryId);
@@ -558,7 +561,7 @@ void QueryReorderVisitor::finalize (void)
 
         AlignmentContainerBuilderStream alignStream (this);
 
-        /** We loop over the sequences of the current database. */
+        /** We loop over the sequences of the current queries database. */
         ISequenceIterator* seqIterator = db->createSequenceIterator ();
         LOCAL (seqIterator);
 

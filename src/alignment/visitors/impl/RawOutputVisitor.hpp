@@ -46,58 +46,53 @@ namespace impl      {
  *          ALIGNMENT [ALIGNMENT Q(0) 27 81   S(982) 2627 2681  len=55 nbgap=0 identity=18 nbMiss=37]
  * \endcode
 */
-class RawOutputVisitor : public OstreamVisitor
+class RawOutputVisitor : public FileVisitor
 {
 public:
 
-    /** \copydoc AbstractAlignmentResultVisitor::AbstractAlignmentResultVisitor */
-    RawOutputVisitor (std::ostream* ostream)  : OstreamVisitor(ostream) {}
-
     /** */
-    RawOutputVisitor (const std::string& uri) : OstreamVisitor(uri) {}
+    RawOutputVisitor (const std::string& uri) : FileVisitor(uri) {}
 
     /** \copydoc AbstractAlignmentResultVisitor::visitQuerySequence */
     void visitQuerySequence   (const database::ISequence* seq, const misc::ProgressInfo& progress)
     {
-        getStream() << "Q " << (*seq) <<  std::endl;
+        getFile()->print ("Q %d %s\n",  seq->getLength(), seq->comment);
     }
 
     /** \copydoc AbstractAlignmentResultVisitor::visitSubjectSequence */
     void visitSubjectSequence (const database::ISequence* seq, const misc::ProgressInfo& progress)
     {
-        getStream() << "S " << (*seq) <<  std::endl;
+    	getFile()->print ("S %d %s\n",  seq->getLength(), seq->comment);
     }
 
     /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */
     void visitAlignment  (core::Alignment* a, const misc::ProgressInfo& progress)
     {
-        char sep = ' ';
+    	getFile()->print (
+			"%c %d %d %d %d %lf %d %d %d %d %lf %lf %lf %d %d %d %d %d\n",
+			'H',
+            (int)a->getRange(alignment::core::Alignment::QUERY).begin + 1,
+            (int)a->getRange(alignment::core::Alignment::QUERY).end   + 1,
+            (int)a->getNbGaps(alignment::core::Alignment::QUERY),
+            (int)a->getFrame(alignment::core::Alignment::QUERY),
+            a->getCoverage(alignment::core::Alignment::QUERY),
 
-        getStream() << "H "
+            (int)a->getRange(alignment::core::Alignment::SUBJECT).begin  + 1,
+            (int)a->getRange(alignment::core::Alignment::SUBJECT).end    + 1,
+            (int)a->getNbGaps(alignment::core::Alignment::SUBJECT),
+            (int)a->getFrame(alignment::core::Alignment::SUBJECT),
+            a->getCoverage(alignment::core::Alignment::SUBJECT),
 
-            << (int)a->getRange(alignment::core::Alignment::QUERY).begin + 1    << sep
-            << (int)a->getRange(alignment::core::Alignment::QUERY).end   + 1    << sep
-            << (int)a->getNbGaps(alignment::core::Alignment::QUERY)          << sep
-            << (int)a->getFrame(alignment::core::Alignment::QUERY)           << sep
-            << a->getCoverage(alignment::core::Alignment::QUERY)        << sep
+            a->getEvalue(),
+            a->getBitScore(),
+            a->getScore(),
 
-            << (int)a->getRange(alignment::core::Alignment::SUBJECT).begin  + 1 << sep
-            << (int)a->getRange(alignment::core::Alignment::SUBJECT).end    + 1 << sep
-            << (int)a->getNbGaps(alignment::core::Alignment::SUBJECT)        << sep
-            << (int)a->getFrame(alignment::core::Alignment::SUBJECT)         << sep
-            << a->getCoverage(alignment::core::Alignment::SUBJECT)      << sep
+            (int)a->getLength(),
 
-            << a->getEvalue()       << sep
-            << a->getBitScore()     << sep
-            << a->getScore()        << sep
-
-            << (int)a->getLength()       << sep
-
-            << (int)a->getNbIdentities() << sep
-            << (int)a->getNbPositives()  << sep
-            << (int)a->getNbMisses()     << sep
-
-            <<  std::endl;
+            (int)a->getNbIdentities(),
+            (int)a->getNbPositives(),
+            (int)a->getNbMisses()
+		);
     }
 };
 

@@ -30,6 +30,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <os/impl/DefaultOsFactory.hpp>
+
 /********************************************************************************/
 namespace alignment {
 namespace visitors  {
@@ -94,6 +96,56 @@ private:
 
     /** */
     std::ofstream* _file;
+};
+
+/********************************************************************************/
+/** \brief Abstract implementation of IAlignmentContainerVisitor with output stream management
+ *
+ * This is a factorization class that knows how to open/close/write a file. Note that we use
+ * the operating system abstraction layer IFile for managing the file.
+ *
+ * It is intended to be subclassed by file dump visitors.
+ */
+class FileVisitor : public HierarchyAlignmentResultVisitor
+{
+public:
+
+    /** Constructor.
+     * \param[in] uri : path of the file to be used.
+     */
+	FileVisitor (const std::string& uri) : _file (0)
+    {
+        _file = os::impl::DefaultFactory::file().newFile (uri.c_str(), "w");
+    }
+
+    /** Destructor. */
+    virtual ~FileVisitor()
+    {
+        if (_file != 0)
+        {
+            delete _file;
+        }
+    }
+
+    /** \copydoc IAlignmentResultVisitor::finish */
+    void postVisit (core::IAlignmentContainer* result)
+    {
+        /** We should flush the stream. */
+        _file->flush();
+    }
+
+    /** \copydoc IAlignmentResultVisitor::getPosition */
+    u_int64_t getPosition ()  { return  _file->tell();  }
+
+protected:
+
+    /** */
+    os::IFile* getFile ()  { return _file; }
+
+private:
+
+    /** */
+    os::IFile* _file;
 };
 
 /********************************************************************************/
