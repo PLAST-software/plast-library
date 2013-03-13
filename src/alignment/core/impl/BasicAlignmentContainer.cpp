@@ -366,13 +366,13 @@ struct SortAlignmentsFunctor  { bool operator() (const Alignment& i, const Align
 
 /** We need a functor for sorting hits. */
 struct SortHitsFunctor  { bool operator() (
-    const BasicAlignmentContainer::ContainerLevel3* i,
-    const BasicAlignmentContainer::ContainerLevel3* j
+    const pair<BasicAlignmentContainer::ValueLevel2, BasicAlignmentContainer::Key>& i,
+    const pair<BasicAlignmentContainer::ValueLevel2, BasicAlignmentContainer::Key>& j
 )
 {
     /** Shortcuts. */
-    const Alignment& a = i->front();
-    const Alignment& b = j->front();
+    const Alignment& a = i.first.second->front();
+    const Alignment& b = j.first.second->front();
 
     return (a.getBitScore() >  b.getBitScore()) ||
            (a.getBitScore() == b.getBitScore()  &&  a.getFrame(Alignment::SUBJECT) > b.getFrame(Alignment::SUBJECT));
@@ -441,27 +441,32 @@ void BasicAlignmentContainer::shrink ()
         /********************************************************************************/
         /** SECOND: we loop each second level and then sort them and cut unwanted ones. */
         /********************************************************************************/
+
+        /** We need a list that reflects the map by inverting key and value. */
+        list < pair<ValueLevel2, Key> > reversedMapList;
+
         for (ContainerLevel2::iterator ita = containerLevel2->begin(); ita != containerLevel2->end(); ita++)
         {
-			ContainerLevel2::iterator itbest = ita;
-        	ContainerLevel2::iterator itb    = ita;
+        	reversedMapList.push_back (pair<ValueLevel2, Key> (ita->second, ita->first) );
+        }
 
-        	/** We have to iterate all the successive subjects after the 'ita' iterator. We have thus a O(n^2)
-        	 * algorithm for sorting our subjects instances; this may be not optimal but should be good enough
-        	 * as a starting point.
-        	 */
-            for (itb++; itb != containerLevel2->end(); itb++)
-            {
-                /** We check if we have not found a better hit than the current best. */
-                if (sortHit (itb->second.second, itbest->second.second) == true)  {  itbest = itb;  }
-            }
+        /** Now we sort the list: hits with smallest evalue first. */
+        reversedMapList.sort (sortHit);
 
-            /** If a best hit has been found, we swap it with the current one.
-             *  At the end of this double loop, our hits should be sorted.
-             *  Note that items swapped are pairs of  two pointers, so it should not take too many time.
-             *  At least, we assure that we have no copy of alignments list.
-             */
-			if (itbest != ita)  {  std::swap ( (*containerLevel2) [itbest->first], (*containerLevel2) [ita->first]);  }
+        /** We clear the map. */
+        (*containerLevel2).clear();
+
+        /** Now, we update the map with the sorted ValueLevel2 objects. */
+		size_t i=0;
+        for (list < pair<ValueLevel2, Key> >::iterator itList = reversedMapList.begin(); itList != reversedMapList.end(); itList++)
+        {
+        	/** Shortcut. */
+        	pair<ValueLevel2, Key>& p = *itList;
+
+        	/** We cheat on the index. */
+			p.second.second = i++;
+
+        	(*containerLevel2) [p.second] = p.first;
         }
 
         /** Once sorted, we can afford to keep a specific number of hits for the current query. */
