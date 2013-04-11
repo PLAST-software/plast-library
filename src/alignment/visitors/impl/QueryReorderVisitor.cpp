@@ -163,7 +163,7 @@ public:
 
                 core::Alignment a;
 
-                int result = sscanf (line, "%c %d %d %d %d %lf   %d %d %d %d %lf   %lf %lf %d  %d %d %d %d",
+                int result = sscanf (line, "%c %d %d %d %d %lg %d %d %d %d %lg %lg %lg %d %d %d %d %d",
 					&c,
 					&(qryRange.begin), &(qryRange.end), &qryNbGaps, &qryFrame, &qryCoverage,
 					&(sbjRange.begin), &(sbjRange.end), &sbjNbGaps, &sbjFrame, &sbjCoverage,

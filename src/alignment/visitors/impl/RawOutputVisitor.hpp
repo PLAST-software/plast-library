@@ -69,7 +69,7 @@ public:
     void visitAlignment  (core::Alignment* a, const misc::ProgressInfo& progress)
     {
     	getFile()->print (
-			"%c %d %d %d %d %lf %d %d %d %d %lf %lf %lf %d %d %d %d %d\n",
+			"%c %d %d %d %d %lg %d %d %d %d %lg %lg %lg %d %d %d %d %d\n",
 			'H',
             (int)a->getRange(alignment::core::Alignment::QUERY).begin + 1,
             (int)a->getRange(alignment::core::Alignment::QUERY).end   + 1,
