@@ -37,7 +37,7 @@ extern "C" Test* TestMisc_suite();
 
 /********************************************************************************/
 
-const char* dbDirectory = "/home/edrezen/databases";
+const char* dbDirectory = "../test/db";
 
 const char* getPath (const char* file)
 {
