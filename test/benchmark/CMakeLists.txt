@@ -1,0 +1,12 @@
+################################################################################
+#  BENCHMARKS 
+################################################################################
+
+set (LIBRARY_OUTPUT_PATH    lib/${CMAKE_BUILD_TYPE})
+
+list (APPEND PROGRAMS bench1)
+
+FOREACH (program ${PROGRAMS})
+  add_executable(${program} ${program}.cpp)
+  target_link_libraries(${program} PlastLibrary-static  dl pthread)
+ENDFOREACH (program)
