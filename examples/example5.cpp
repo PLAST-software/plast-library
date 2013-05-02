@@ -11,44 +11,44 @@ using namespace dp::impl;
 class MyEventInfo : public EventInfo
 {
 public:
-	MyEventInfo (const std::string& message) : EventInfo(0), _message(message) {}
-	const std::string& getMessage () { return _message; }
+    MyEventInfo (const std::string& message) : EventInfo(0), _message(message) {}
+    const std::string& getMessage () { return _message; }
 private:
-	std::string _message;
+    std::string _message;
 };
 
 // We define some Observer class.
 class MyObserver : public IObserver
 {
 public:
-	void update (EventInfo* evt, ISubject* subject)
-	{
-		MyEventInfo* info = dynamic_cast<MyEventInfo*> (evt);
-		if (info != 0) { cout << "Receiving: " << info->getMessage() << endl; }
-	}
+    void update (EventInfo* evt, ISubject* subject)
+    {
+        MyEventInfo* info = dynamic_cast<MyEventInfo*> (evt);
+        if (info != 0) { cout << "Receiving: " << info->getMessage() << endl; }
+    }
 };
 
 
 int main (int argc, char* argv[])
 {
-	// we define a subject instance
-	ISubject* subject = new Subject ();
+    // we define a subject instance
+    ISubject* subject = new Subject ();
 
-	// we create a specific observer
-	IObserver* observer = new MyObserver ();
+    // we create a specific observer
+    IObserver* observer = new MyObserver ();
 
-	// we attach the observer to the subject
-	subject->addObserver (observer);
+    // we attach the observer to the subject
+    subject->addObserver (observer);
 
-	// the subject sends some notification => should be received by our observer
-	subject->notify (new MyEventInfo ("Message that should be received"));
+    // the subject sends some notification => should be received by our observer
+    subject->notify (new MyEventInfo ("Message that should be received"));
 
-	// we detach the observer from the subject
-	subject->removeObserver (observer);
+    // we detach the observer from the subject
+    subject->removeObserver (observer);
 
-	// the subject sends some notification => should not be received by our observer
-	subject->notify (new MyEventInfo ("Message that should NOT be received"));
+    // the subject sends some notification => should not be received by our observer
+    subject->notify (new MyEventInfo ("Message that should NOT be received"));
 
-	return 0;
+    return 0;
 }
 //! [snippet1]

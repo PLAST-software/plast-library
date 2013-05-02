@@ -11,18 +11,18 @@ using namespace launcher::core;
 
 int main (int argc, char* argv[])
 {
-	// we create a IProperties instance holding the subject and query databases URIs
-	IProperties* props = new Properties ();
-	props->add (0, "-d", "/tmp/tursiops.fa");
-	props->add (0, "-i", "/tmp/query.fa");
+    // we create a IProperties instance holding the subject and query databases URIs
+    IProperties* props = new Properties ();
+    props->add (0, "-d", "/tmp/tursiops.fa");
+    props->add (0, "-i", "/tmp/query.fa");
 
-	// We create the PLAST command with the arguments above
-	list<ICommand*> cmds;
-	cmds.push_back (new PlastCmd (props));
+    // We create the PLAST command with the arguments above
+    list<ICommand*> cmds;
+    cmds.push_back (new PlastCmd (props));
 
-	// We launch the request through some dispatcher.
-	SerialCommandDispatcher().dispatchCommands (cmds);
+    // We launch the request through some dispatcher.
+    SerialCommandDispatcher().dispatchCommands (cmds);
 
-	return 0;
+    return 0;
 }
 //! [snippet1]
