@@ -30,12 +30,36 @@ using namespace misc;
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
+extern "C" void DustMasker_filterSequence (char* s, int len)
+{
+	DustMasker dust (64, DustMasker::DEFAULT_WINDOW, DustMasker::DEFAULT_LINKER);
+	std::vector<misc::RangeU32> regions;
+
+    dust.compute (s, len, regions);
+
+    if (regions.empty() == false)
+    {
+    	for (std::vector<misc::RangeU32>::iterator it = regions.begin();  it != regions.end(); it++)
+    	{
+    		for (size_t i=it->begin; i<=it->end; i++)  { s[i] = 'N'; }
+    	}
+    }
+}
+
+/*********************************************************************
+ ** METHOD  :
+ ** PURPOSE :
+ ** INPUT   :
+ ** OUTPUT  :
+ ** RETURN  :
+ ** REMARKS :
+ *********************************************************************/
 DustMasker::DustMasker (
     u_int32_t level,
     size_t window,
     size_t linker
 )
-: level_  ( (level >= 2 && level <= 64)   ? level  : DEFAULT_LEVEL),
+: level_  ( (level  >= 2 && level  <= 64) ? level  : DEFAULT_LEVEL),
   window_ ( (window >= 8 && window <= 64) ? window : DEFAULT_WINDOW),
   linker_ ( (linker >= 1 && linker <= 32) ? linker : DEFAULT_LINKER),
   low_k_  ( level_/5 )
