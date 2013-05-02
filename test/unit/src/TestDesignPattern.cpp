@@ -323,16 +323,16 @@ public:
 
         size_t nb = 0;
 
-        subject.notify (new IterationStatusEvent (ITER_STARTING, nb, l.size(), 0, 0, "starting"));
+        subject.notify (new IterationStatusEvent (ITER_STARTING, nb, l.size(), "starting"));
 
         for (it.first(); ! it.isDone(); it.next(), nb++)
         {
             if (nb%10 == 0)
             {
-                subject.notify (new IterationStatusEvent (ITER_ON_GOING, nb, l.size(), 0, 0, "iterating..."));
+                subject.notify (new IterationStatusEvent (ITER_ON_GOING, nb, l.size(), "iterating..."));
             }
         }
-        subject.notify (new IterationStatusEvent (ITER_DONE, nb, l.size(), 0, 0, "finished"));
+        subject.notify (new IterationStatusEvent (ITER_DONE, nb, l.size(), "finished"));
     }
 
     /** */
