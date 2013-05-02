@@ -763,7 +763,7 @@ public:
     {
     public:
 
-        MyCmd (IteratorGet<string>* it) : IteratorCommand (it)  {}
+        MyCmd (IteratorGet<string>* it) : IteratorCommand<string> (it)  {}
 
         void execute (string& current, size_t& nbGot)
         {

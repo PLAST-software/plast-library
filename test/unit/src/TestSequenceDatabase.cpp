@@ -614,7 +614,7 @@ public:
         {
         public:
 
-            MyCmd (IteratorGet<const ISequence*>* it) : IteratorCommand (it)  { }
+            MyCmd (IteratorGet<const ISequence*>* it) : IteratorCommand<const ISequence*> (it)  { }
 
             void execute (const ISequence*& current, size_t& nbGot)
             {
