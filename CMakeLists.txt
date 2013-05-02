@@ -42,10 +42,10 @@ file (GLOB_RECURSE  LibraryFiles  src/*)
 include_directories (src  ${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
 
 add_library    (PlastLibrary-static  STATIC  ${LibraryFiles} )
-#add_library    (PlastLibrary-dynamic SHARED  ${LibraryFiles} )
+add_library    (PlastLibrary-dynamic SHARED  ${LibraryFiles} )
 
 set_target_properties (PlastLibrary-static   PROPERTIES OUTPUT_NAME  PlastLibrary  clean_direct_output 1)
-#set_target_properties (PlastLibrary-dynamic  PROPERTIES OUTPUT_NAME  PlastLibrary  clean_direct_output 1)
+set_target_properties (PlastLibrary-dynamic  PROPERTIES OUTPUT_NAME  PlastLibrary  clean_direct_output 1)
 
 ################################################################################
 #  UNIT TESTS GENERATION 
