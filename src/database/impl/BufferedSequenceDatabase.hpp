@@ -308,10 +308,25 @@ public:
             _cache->database.resize (_currentDataCapacity);
         }
 
-        /** We memorize the character and increase the data size of the current sequence. */
-        for (size_t i=0; i<size; i++)
+        if (encoding != ASCII)
         {
-            _cache->database.data [_cache->dataSize ++] = (_convertTable ? _convertTable[(int)data[i]] : data[i]);
+            /** We memorize the character and increase the data size of the current sequence. */
+            for (size_t i=0; i<size; i++)
+            {
+                _cache->database.data [_cache->dataSize ++] = (_convertTable ? _convertTable[(int)data[i]] : data[i]);
+            }
+        }
+        else
+        {
+			/** We memorize the character and increase the data size of the current sequence. */
+			for (size_t i=0; i<size; i++)
+			{
+				char c = data[i];
+
+				if ((c<'A' || c>'Z') &&  (c<'a' || c>'z') )  { continue; };
+
+				_cache->database.data [_cache->dataSize ++] = (_convertTable ? _convertTable[(int)c] : c);
+			}
         }
     }
 

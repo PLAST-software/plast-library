@@ -113,11 +113,25 @@ void BasicSequenceBuilder::addData (const LETTER* data, size_t size, Encoding en
     DEBUG (("BasicSequenceBuilder::addData: going to fill the table with _currentSize=%d \n", _currentSize));
 
     /** We add the letters to the data, with a potential conversion (no conversion if no table). */
-    for (size_t i=0; i<size; i++)
+    if (encoding != ASCII)
     {
-        LETTER l = (_convertTable ? _convertTable [(int)data[i]] : data[i]);
+        for (size_t i=0; i<size; i++)
+        {
+            LETTER l = (_convertTable ? _convertTable [(int)data[i]] : data[i]);
 
-        if (l != CODE_BAD)  {  _data.letters.data [_currentSize++] = l; }
+            if (l != CODE_BAD)  {  _data.letters.data [_currentSize++] = l; }
+        }
+    }
+    else
+    {
+        for (size_t i=0; i<size; i++)
+    	{
+    		char c = data[i];
+    		if ((c<'A' || c>'Z') &&  (c<'a' || c>'z') )  { continue; };
+
+    		LETTER l = (_convertTable ? _convertTable [(int)c] : c);
+    		if (l != CODE_BAD)  {  _data.letters.data [_currentSize++] = l; }
+    	}
     }
 
     DEBUG (("BasicSequenceBuilder::addData: table filled, now _currentSize=%d \n", _currentSize));
