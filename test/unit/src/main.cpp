@@ -34,6 +34,7 @@ extern "C" Test* TestFilter_suite();
 extern "C" Test* TestPlastStrings_suite();
 extern "C" Test* TestSequenceMask_suite();
 extern "C" Test* TestMisc_suite();
+extern "C" Test* TestBugs_suite();
 
 /********************************************************************************/
 
@@ -82,6 +83,8 @@ int main (int argc, char **argv)
     runner.addTest (TestPlastStrings_suite());
 
     runner.addTest (TestSequenceMask_suite());
+
+    runner.addTest (TestBugs_suite());
 
     runner.run ();
 
