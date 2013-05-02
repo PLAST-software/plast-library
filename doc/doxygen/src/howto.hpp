@@ -212,3 +212,4 @@
  * and the query databases to be compared.
  *
  *\snippet example11.cpp  snippet1
+ */
