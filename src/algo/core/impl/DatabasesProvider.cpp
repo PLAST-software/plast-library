@@ -51,7 +51,7 @@ namespace impl {
 ** REMARKS :
 *********************************************************************/
 DatabasesProvider::DatabasesProvider (algo::core::IConfiguration* config)
-    : _config (0), _currentParams(0)
+    : _config (0), _currentParams(0), _sbjFactory(0), _qryFactory(0)
 {
     setConfig (config);
 }
@@ -68,6 +68,9 @@ DatabasesProvider::~DatabasesProvider ()
 {
     setConfig        (0);
     setCurrentParams (0);
+
+    setSbjFactory (0);
+    setQryFactory (0);
 
     clearDatabaseList (_sbjDbList);
     clearDatabaseList (_qryDbList);
@@ -91,7 +94,8 @@ void DatabasesProvider::createDatabases (
 {
     /** We may create the subject database (more than one for tplastn) in case parameters
      * have change from previous call.  */
-    if (areNewSubjectParameters (params) == true)
+	bool newSubject = areNewSubjectParameters (params, sbjFactory);
+    if (newSubject == true)
     {
         /** We first release potential resources. */
         clearDatabaseList (_sbjDbList);
@@ -108,7 +112,8 @@ void DatabasesProvider::createDatabases (
 
     /** We may create the query database (more than one for plastx) in case parameters
      * have change from previous call.  */
-    if (areNewQueryParameters (params) == true)
+	bool newQuery = areNewQueryParameters (params, qryFactory);
+    if (newQuery == true)
     {
         /** We first release potential resources. */
         clearDatabaseList (_qryDbList);
@@ -123,6 +128,12 @@ void DatabasesProvider::createDatabases (
             qryFactory
         );
     }
+
+    DEBUG (cout << "DatabasesProvider::createDatabases  "
+		<< "subject " <<  (newSubject ? "NEW" : "OLD") << "   "
+		<< "query "   <<  (newQuery   ? "NEW" : "OLD") << "   "
+		<< endl
+	);
 
     /** We keep the provided params. */
     setCurrentParams (params);
@@ -264,15 +275,16 @@ void DatabasesProvider::readReadingFrameDatabases (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-bool DatabasesProvider::areNewSubjectParameters (algo::core::IParameters* params)
+bool DatabasesProvider::areNewSubjectParameters (algo::core::IParameters* params, database::ISequenceIteratorFactory* factory)
 {
     bool result = true;
 
     if (_currentParams && params)
     {
         result =
-            (params->subjectUri   != _currentParams->subjectUri)  ||
-            (params->subjectRange != _currentParams->subjectRange);
+            (params->subjectUri   != _currentParams->subjectUri)   ||
+            (params->subjectRange != _currentParams->subjectRange) ||
+            _sbjFactory != factory;
     }
 
     DEBUG (cout << "DatabasesProvider::areNewSubjectParameters: result=" << result << endl);
@@ -287,7 +299,7 @@ bool DatabasesProvider::areNewSubjectParameters (algo::core::IParameters* params
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-bool DatabasesProvider::areNewQueryParameters (algo::core::IParameters* params)
+bool DatabasesProvider::areNewQueryParameters (algo::core::IParameters* params, database::ISequenceIteratorFactory* factory)
 {
     bool result = true;
 
@@ -296,6 +308,7 @@ bool DatabasesProvider::areNewQueryParameters (algo::core::IParameters* params)
         result =
             (params->queryUri    != _currentParams->queryUri)    ||
             (params->queryRange  != _currentParams->queryRange)  ||
+            _qryFactory != factory                               ||
             (params->filterQuery != _currentParams->filterQuery);
     }
 
