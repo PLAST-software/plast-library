@@ -90,7 +90,7 @@ AlgorithmPlastn::AlgorithmPlastn (
     /** We may have to consider twice the number of passes in case we work on both strands. */
     if (params->strand == 0)
     {
-        if (actualStrand==1)  { _currentPass += _nbPasses; }
+        if (actualStrand==-1)  { _currentPass += _nbPasses; }
 
         _nbPasses *= 2;
     }
