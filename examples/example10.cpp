@@ -54,7 +54,7 @@ int main (int argc, char* argv[])
 			const ISeedOccurrence* occur = itOccur->currentItem();
 
 			// we display information about this occurrence
-			printf (" sequenceIndex=%d offsetInSequence=%d offsetInDatabase=%d \n",
+			printf (" sequenceIndex=%d offsetInSequence=%d offsetInDatabase=%lld \n",
 					occur->sequence.index, occur->offsetInSequence, occur->offsetInDatabase
 			);
 		}

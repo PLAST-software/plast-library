@@ -406,7 +406,7 @@ public:
         CPPUNIT_ASSERT (info1.dataSize    == info2.dataSize);
         CPPUNIT_ASSERT (info1.checksum    == info2.checksum);
 
-        printf ("file '%s'  maxsize=%ld => nbSequences=%ld  dataSize=%ld  checksum=%ld\n",
+        printf ("file '%s'  maxsize=%ld => nbSequences=%ld  dataSize=%lld  checksum=%lld\n",
             filename, databaseMaxSize,
             info1.nbSequences, info1.dataSize, info1.checksum
         );

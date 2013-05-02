@@ -1156,7 +1156,7 @@ public:
         DefaultFactory::memory().free (matrix2);
 #endif
 
-        printf ("TIME: %ld msec\n", t1-t0);
+        printf ("TIME: %d msec\n", t1-t0);
     }
 };
 

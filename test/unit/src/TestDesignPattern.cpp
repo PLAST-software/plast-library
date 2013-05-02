@@ -37,6 +37,7 @@
 #include <string>
 #include <sstream>
 #include <unistd.h>
+#include <iostream>
 
 using namespace std;
 using namespace dp;
@@ -733,14 +734,9 @@ public:
 
         /** Note we add totalSize+nbLines because the FileLineIterator::getLineSize doesn't count the ending \n character. */
 
-        printf ("File '%s' iterated in %ld msec => found %ld lines,  data size %ld,  total size %ld => rate %.1f MBytes/sec \n",
-            getPath (filename),
-            execTime,
-            nbLines,
-            dataSize,
-            nbLines + dataSize,
-            (float) (125  * (dataSize+nbLines)) / (float) (execTime*128*1024)   //  125/128 = 1000/1024
-        );
+        cout << "File '" << getPath (filename) << "' iterated in " << execTime << " msec => found "
+        	 << nbLines << " lines,  data size " << dataSize << " ,  total size " << (nbLines + dataSize)
+        	 <<  "=> rate " << (float) (125  * (dataSize+nbLines)) / (float) (execTime*128*1024)  << " MBytes/sec" << endl;
     }
 
     /** */

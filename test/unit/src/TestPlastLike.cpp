@@ -130,7 +130,7 @@ public:
 
                 if (percent >= threshold)
                 {
-                    printf ("update  %d percent  (%ld on %ld)\n",
+                    printf ("update  %d percent  (%lld on %lld)\n",
                         percent,
                         e1->getCurrentIndex(),
                         e1->getTotalNumber()

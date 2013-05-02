@@ -215,7 +215,7 @@ public:
         CPPUNIT_ASSERT (nbSequences > 0);
         CPPUNIT_ASSERT (totalSize   > 0);
 
-        printf ("File '%s' iterated in %d msec => found %d sequences for a total size of %ld\n",
+        printf ("File '%s' iterated in %d msec => found %d sequences for a total size of %lld\n",
             getPath (filename),
             info.getEntryByKey(tag),
             nbSequences,

@@ -14,8 +14,8 @@ int main (int argc, char* argv[])
 	);
 
 	// we display information about the database
-	printf ("sequences number is %d\n", db->getSequencesNumber());
-	printf ("database size (excluding comments) is %d\n", db->getSize());
+	printf ("sequences number is %ld\n",                    db->getSequencesNumber());
+	printf ("database size (excluding comments) is %lld\n", db->getSize());
 
 	// we retrieve a sequence given its index in the database;
 	ISequence seq;
