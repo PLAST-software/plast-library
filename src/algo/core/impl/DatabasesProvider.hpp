@@ -67,7 +67,7 @@ public:
         return dp::impl::ListIterator<database::ISequenceDatabase*> (_qryDbList);
     }
 
-private:
+protected:
 
     algo::core::IConfiguration* _config;
     void setConfig (algo::core::IConfiguration* config) { SP_SETATTR(config); }
@@ -111,8 +111,14 @@ private:
     );
 
     /** */
-    bool areNewSubjectParameters (algo::core::IParameters* params);
-    bool areNewQueryParameters   (algo::core::IParameters* params);
+    bool areNewSubjectParameters (algo::core::IParameters* params, database::ISequenceIteratorFactory* factory);
+    bool areNewQueryParameters   (algo::core::IParameters* params, database::ISequenceIteratorFactory* factory);
+
+    database::ISequenceIteratorFactory* _sbjFactory;
+    void setSbjFactory (database::ISequenceIteratorFactory* sbjFactory)  { SP_SETATTR(sbjFactory); }
+
+    database::ISequenceIteratorFactory* _qryFactory;
+    void setQryFactory (database::ISequenceIteratorFactory* qryFactory)  { SP_SETATTR(qryFactory); }
 };
 
 /********************************************************************************/
@@ -130,7 +136,7 @@ public:
         database::ISequenceIteratorFactory* sbjFactory,
         database::ISequenceIteratorFactory* qryFactory
     )
-        : DatabasesProvider(config), _ref(0), _sbjFactory(0), _qryFactory(0)
+        : DatabasesProvider(config), _ref(0)
     {
         setRef        (ref);
         setSbjFactory (sbjFactory);
@@ -141,8 +147,6 @@ public:
     virtual ~DatabasesProviderProxy ()
     {
         setRef (0);
-        setSbjFactory (0);
-        setQryFactory (0);
     }
 
     /** */
@@ -173,11 +177,6 @@ private:
     IDatabasesProvider* _ref;
     void setRef (IDatabasesProvider* ref)  { SP_SETATTR(ref); }
 
-    database::ISequenceIteratorFactory* _sbjFactory;
-    void setSbjFactory (database::ISequenceIteratorFactory* sbjFactory)  { SP_SETATTR(sbjFactory); }
-
-    database::ISequenceIteratorFactory* _qryFactory;
-    void setQryFactory (database::ISequenceIteratorFactory* qryFactory)  { SP_SETATTR(qryFactory); }
 };
 
 /********************************************************************************/
