@@ -451,7 +451,7 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
                     params,
                     filter,
                     new ReverseStrandVisitor   (resultVisitor, Alignment::SUBJECT, ReverseStrandVisitor::MINUS),
-                    new DatabasesProviderProxy (new DatabasesProvider (config), config, new ReverseStrandSequenceIteratorFactory(), 0),
+                    new DatabasesProviderProxy (dbProvider, config, new ReverseStrandSequenceIteratorFactory(), 0),
                     globalStats,
                     timeInfo,
                     isRunning,
