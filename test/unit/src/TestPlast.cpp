@@ -35,7 +35,6 @@
 
 #include <launcher/core/PlastCmd.hpp>
 
-#include <malloc.h>
 #include <unistd.h>
 
 using namespace std;
