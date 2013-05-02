@@ -32,6 +32,7 @@ using namespace os::impl;
 
 extern "C" void seg_filterSequence  (char* sequence, int length);
 extern "C" void dust_filterSequence (char* sequence, int length);
+extern "C" void DustMasker_filterSequence (char* s, int len);
 
 /********************************************************************************/
 namespace database { namespace impl {
@@ -642,7 +643,7 @@ BufferedSegmentSequenceBuilder::BufferedSegmentSequenceBuilder (ISequenceCache* 
      */
     if (EncodingManager::singleton().getKind () == EncodingManager::ALPHABET_NUCLEOTID)
     {
-        _filterSequenceCallback = dust_filterSequence;
+        _filterSequenceCallback = DustMasker_filterSequence;
     }
 
     _destEncoding = ASCII;
