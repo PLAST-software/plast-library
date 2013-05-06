@@ -18,6 +18,7 @@
 
 #include <database/impl/FastaSequenceIterator.hpp>
 #include <database/impl/StringSequenceIterator.hpp>
+#include <database/impl/ReverseStrandSequenceIterator.hpp>
 
 #include <iostream>
 
@@ -48,6 +49,7 @@ public:
          result->addTest (new TestCaller<TestBugs> ("testCheckComments", &TestBugs::testCheckComments) );
          result->addTest (new TestCaller<TestBugs> ("testCheckComments", &TestBugs::testCheckSpaces) );
          result->addTest (new TestCaller<TestBugs> ("testCheckTforU",    &TestBugs::testCheckTforU) );
+         result->addTest (new TestCaller<TestBugs> ("testCheckEmptySeq", &TestBugs::testCheckEmptySeq) );
 
     	 return result;
     }
@@ -70,7 +72,7 @@ public:
 			"AAAB01001758.22.1307 Eukaryota;Opisthokonta;Metazoa;Arthropoda;Hexapoda;Insecta;Anopheles gambiae str. PEST"
     	};
 
-        ISequenceIterator* itSeq = new FastaSequenceIterator (getPath("bugs1.fa"), 1024);
+        ISequenceIterator* itSeq = new FastaSequenceIterator (getPath("bug15696.fa"), 1024);
         LOCAL (itSeq);
 
         size_t nbSeq = 0;
@@ -90,7 +92,7 @@ public:
     {
     	size_t lengthTable[] =  {  1301, 1790, 1716, 1474, 1515, 1511, 1472, 1802, 1462, 1286 };
 
-        ISequenceIterator* itSeq = new FastaSequenceIterator (getPath("bugs1.fa"), 1024);
+        ISequenceIterator* itSeq = new FastaSequenceIterator (getPath("bug15696.fa"), 1024);
         LOCAL (itSeq);
 
         size_t nbSeq = 0;
@@ -113,7 +115,7 @@ public:
         /** WARNING !  We first switch to nucleotide alphabet. */
         EncodingManager::singleton().setKind (EncodingManager::ALPHABET_NUCLEOTID);
 
-        ISequenceIterator* itSeq = new FastaSequenceIterator (getPath("bugs1.fa"), 1024);
+        ISequenceIterator* itSeq = new FastaSequenceIterator (getPath("bug15696.fa"), 1024);
         LOCAL (itSeq);
 
         size_t nbSeq = 0;
@@ -152,6 +154,53 @@ public:
 
         /** WARNING !  We switch back to amino acid alphabet. */
         EncodingManager::singleton().setKind (EncodingManager::ALPHABET_AMINO_ACID);
+    }
+
+    /********************************************************************************/
+    /********************************************************************************/
+    void testCheckEmptySeq_aux (ISequenceIterator* itSeq)
+    {
+        CPPUNIT_ASSERT (itSeq);
+
+        u_int32_t nbSeq      = 0;
+        u_int64_t dataLength = 0;
+
+        LOCAL (itSeq);
+
+        for (itSeq->first(); ! itSeq->isDone(); itSeq->next (), nbSeq++)
+        {
+            const ISequence* seq = itSeq->currentItem();
+
+            if (nbSeq==0)
+            {
+                CPPUNIT_ASSERT (seq->getLength() == 60);
+                CPPUNIT_ASSERT (strcmp(seq->comment, "seq1")==0);
+            }
+
+            if (nbSeq==1)
+            {
+                CPPUNIT_ASSERT (seq->getLength() == 0);
+                CPPUNIT_ASSERT (strcmp(seq->comment, "seq2")==0);
+            }
+
+            if (nbSeq==2)
+            {
+                CPPUNIT_ASSERT (seq->getLength() == 60);
+                CPPUNIT_ASSERT (strcmp(seq->comment, "seq3")==0);
+            }
+
+            dataLength += seq->getLength();
+        }
+
+        CPPUNIT_ASSERT (nbSeq      == 3);
+        CPPUNIT_ASSERT (dataLength == 120);
+    }
+
+    /** */
+    void testCheckEmptySeq ()
+    {
+        testCheckEmptySeq_aux (new FastaSequenceIterator (getPath("bug15696b.fa"), 1024));
+        testCheckEmptySeq_aux (new ReverseStrandSequenceIterator (new FastaSequenceIterator (getPath("bug15696b.fa"), 1024)));
     }
 };
 
