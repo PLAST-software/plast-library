@@ -127,6 +127,13 @@ void ReverseStrandSequenceIterator::udpateItem ()
     /** We set the comment. */
     _sequence.comment = refSeq->comment;
 
+    /** We have to check that the referred sequence has data. */
+    if (nbResidues == 0)
+    {
+        _sequence.data.letters.reset ();
+        return;
+    }
+
     /** We resize the data. */
     _sequence.data.letters.resize (nbResidues);
 
