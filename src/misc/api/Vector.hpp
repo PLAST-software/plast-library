@@ -104,6 +104,9 @@ public:
         }
     }
 
+    /** Reset the vector (ie set size to 0)  */
+    void reset ()  {  size = 0;  }
+
     /** Affectation operator.
      * \param v : the source vector
      * \return the affected vector.
