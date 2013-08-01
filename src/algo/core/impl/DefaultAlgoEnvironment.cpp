@@ -152,11 +152,8 @@ void DefaultEnvironment::configure ()
      *  This information will be used for computing cutoffs for the query sequences. */
     IProperty* subjectProp = _properties->getProperty (STR_OPTION_SUBJECT_URI);
     if (subjectProp == 0)  {  subjectProp = _properties->add (0, STR_OPTION_SUBJECT_URI, "foo"); }
-    if (subjectProp != 0)
-    {
-        setQuickSubjectDbReader (new FastaDatabaseQuickReader (subjectProp->value, inferType));
-        _quickSubjectDbReader->read (maxblocksize);
-    }
+
+    setSubjectBank (_properties, maxblocksize);
 
     /** We need to read the subject database to get its data size and the number of sequences. */
     IProperty* queryProp = _properties->getProperty (STR_OPTION_QUERY_URI);
@@ -591,6 +588,49 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
     }
 
     return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void DefaultEnvironment::setSubjectBank (dp::IProperties* properties, u_int64_t  maxblocksize)
+{
+    /** We get the subject URI. */
+    IProperty* subjectUriProp = properties->getProperty (STR_OPTION_SUBJECT_URI);
+
+    /** We create the quick reader instance for the subject bank. */
+    setQuickSubjectDbReader (new FastaDatabaseQuickReader (subjectUriProp->value, true));
+
+    /** We check whether it is an 'info' file or a fasta file. */
+    bool isInfoFile = FastaDatabaseQuickReader::isQuickReaderFile (subjectUriProp->value);
+
+    DEBUG (("DefaultEnvironment::setSubjectBank  subjectUriProp=%s  maxblocksize=%d  isInfoFile=%d \n", subjectUriProp->getString(), maxblocksize, isInfoFile));
+
+    if (isInfoFile)
+    {
+        /** We load the info file. */
+        _quickSubjectDbReader->load (subjectUriProp->getValue());
+
+        /** We check that its maxblocksize is coherent to the provided one. */
+        if (_quickSubjectDbReader->getMaxBlockSize() != maxblocksize)
+        {
+            /** We have to read the subject database to extract some information. */
+            _quickSubjectDbReader->read (maxblocksize);
+        }
+
+        /** We set the actual bank URI. */
+        subjectUriProp->value = _quickSubjectDbReader->getUri();
+    }
+    else
+    {
+        /** We have to read the subject database to extract some information. */
+        _quickSubjectDbReader->read (maxblocksize);
+    }
 }
 
 /********************************************************************************/

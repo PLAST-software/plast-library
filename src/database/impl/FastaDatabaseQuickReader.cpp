@@ -16,13 +16,18 @@
 
 #include <database/impl/FastaDatabaseQuickReader.hpp>
 #include <misc/api/macros.hpp>
+#include <designpattern/impl/Property.hpp>
 
 #define DEBUG(a)  //printf a
-#define INFO(a)   printf a
+
+using namespace dp;
+using namespace dp::impl;
 
 /********************************************************************************/
 namespace database { namespace impl {
 /********************************************************************************/
+
+static const u_int64_t MAGIC_NUMBER = 0x12345678;
 
 /*********************************************************************
 ** METHOD  :
@@ -38,7 +43,8 @@ FastaDatabaseQuickReader::FastaDatabaseQuickReader (const std::string& uri, bool
       _totalSize(0), _dataSize(0), _nbSequences(0),
       _readThreshold (shouldInferType ? 100 : 0),
       _nbNucleotids(0), _nbAminoAcids(0),
-      _dbKind (ENUM_UNKNOWN),
+      _dbKind (ENUM_UNKNOWN), 
+      _maxblocksize(0),
       _getOnlyType (getOnlyType)
 {
 }
@@ -73,9 +79,10 @@ void FastaDatabaseQuickReader::read (u_int64_t  maxblocksize)
     ));
 
     /** We clear the provided arguments. */
-    _totalSize   = 0;
-    _dataSize    = 0;
-    _nbSequences = 0;
+    _totalSize    = 0;
+    _dataSize     = 0;
+    _nbSequences  = 0;
+    _maxblocksize = maxblocksize;
     _offsets.clear ();
 
     for (_iterator.first(); !_iterator.isDone(); _iterator.next())
@@ -137,6 +144,22 @@ void FastaDatabaseQuickReader::read (u_int64_t  maxblocksize)
     ));
 
     _offsets.push_back (_totalSize);
+
+    /** We set the kind of bank. */
+    if (_nbAminoAcids>0 || _nbNucleotids>0)
+    {
+        float ratio = (float) _nbNucleotids / (float) (_nbAminoAcids + _nbNucleotids);
+
+        DEBUG (("FastaDatabaseQuickReader::getKind : _nbAminoAcids=%d  _nbNucleotids=%d => ratio=%.1f\n",
+            _nbAminoAcids, _nbNucleotids, ratio
+        ));
+
+        _dbKind = ratio > 0.8 ? ENUM_NUCLOTID : ENUM_AMINO_ACID;
+    }
+
+    DEBUG (("FastaDatabaseQuickReader::read : _nbAminoAcids=%d  _nbNucleotids=%d => result=%d\n",
+        _nbAminoAcids, _nbNucleotids, _dbKind
+    ));
 }
 
 /*********************************************************************
@@ -147,24 +170,179 @@ void FastaDatabaseQuickReader::read (u_int64_t  maxblocksize)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IDatabaseQuickReader::DatabaseKind_e FastaDatabaseQuickReader::getKind ()
+int FastaDatabaseQuickReader::load (const std::string& uri)
 {
-    IDatabaseQuickReader::DatabaseKind_e result = ENUM_UNKNOWN;
+    int res = -1;
 
-    if (_nbAminoAcids>0 || _nbNucleotids>0)
+    FILE* file = fopen (uri.c_str(), "rb");
+    if (file != 0)
     {
-        float ratio = (float) _nbNucleotids / (float) (_nbAminoAcids + _nbNucleotids);
+        /** Magic number. */
+        u_int64_t magic = 0;
+        fread (&magic, sizeof(u_int64_t), 1, file);
+        if (magic != MAGIC_NUMBER)  { return -1; }
 
-        DEBUG (("FastaDatabaseQuickReader::getKind : _nbAminoAcids=%d  _nbNucleotids=%d => ratio=%.1f\n",
-            _nbAminoAcids, _nbNucleotids, ratio
-        ));
+        /** length of uri name. */
+        size_t len = 0;
+        fread (&len, sizeof(size_t), 1, file);
 
-        result = ratio > 0.8 ? ENUM_NUCLOTID : ENUM_AMINO_ACID;
+        /** Uri of the bank */
+        char* buffer = new char [len];
+        fread (buffer, sizeof(char), len, file);
+
+        /** We set the uri. */
+        _uri.assign (buffer,len);
+
+        /** u_int64_t   _totalSize;  */
+        fread (&_totalSize, sizeof(u_int64_t), 1, file);
+
+        /** u_int64_t   _dataSize; */
+        fread (&_dataSize, sizeof(u_int64_t), 1, file);
+
+        /** u_int32_t   _nbSequences; */
+        fread (&_nbSequences, sizeof(u_int32_t), 1, file);
+
+        /** DatabaseKind_e _dbKind; */
+        fread (&_dbKind, sizeof(DatabaseKind_e), 1, file);
+
+        /** u_int64_t  _maxblocksize; */
+        fread (&_maxblocksize, sizeof(u_int64_t), 1, file);
+
+        /** std::vector<u_int64_t> _offsets */
+        size_t nbOffsets = 0;
+        fread (&nbOffsets, sizeof(size_t), 1, file);
+
+        _offsets.clear();
+        for (size_t i=0; i<nbOffsets; i++)
+        {
+            u_int64_t offset = 0;
+            fread (&offset, sizeof(u_int64_t), 1, file);
+            _offsets.push_back (offset);
+        }
+
+        /** We close the file. */
+        fclose (file);
+
+        /** We set the result status. */
+        res = 0;
     }
 
-    DEBUG (("FastaDatabaseQuickReader::getKind : _nbAminoAcids=%d  _nbNucleotids=%d => result=%d\n",
-        _nbAminoAcids, _nbNucleotids, result
-    ));
+    /** We return the status. */
+    return res;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+int FastaDatabaseQuickReader::save (const std::string& uri)
+{
+    int res = -1;
+
+    FILE* file = fopen (uri.c_str(), "wb");
+    if (file != 0)
+    {
+        /** Magic number. */
+        fwrite (&MAGIC_NUMBER, sizeof(u_int64_t), 1, file);
+
+        /** length of uri name. */
+        size_t len = _uri.size();
+        fwrite (&len, sizeof(size_t), 1, file);
+
+        /** Uri of the bank */
+        fwrite (_uri.c_str(), sizeof(char), len, file);
+
+        /** u_int64_t   _totalSize;  */
+        fwrite (&_totalSize, sizeof(u_int64_t), 1, file);
+
+        /** u_int64_t   _dataSize; */
+        fwrite (&_dataSize, sizeof(u_int64_t), 1, file);
+
+        /** u_int32_t   _nbSequences; */
+        fwrite (&_nbSequences, sizeof(u_int32_t), 1, file);
+
+        /** DatabaseKind_e _dbKind; */
+        fwrite (&_dbKind, sizeof(DatabaseKind_e), 1, file);
+
+        /** u_int64_t  _maxblocksize; */
+        fwrite (&_maxblocksize, sizeof(u_int64_t), 1, file);
+
+        /** std::vector<u_int64_t> _offsets */
+        size_t nbOffsets = _offsets.size();
+        fwrite (&nbOffsets, sizeof(size_t), 1, file);
+        for (size_t i=0; i<nbOffsets; i++)
+        {
+            u_int64_t offset = _offsets[i];
+            fwrite (&offset, sizeof(u_int64_t), 1, file);
+        }
+
+        /** We close the file. */
+        fclose (file);
+
+        /** We set the result status. */
+        res = 0;
+    }
+
+    DEBUG (("FastaDatabaseQuickReader::save: uri='%s'  res=%d\n", uri.c_str(), res));
+
+    /** We return the status. */
+    return res;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+bool FastaDatabaseQuickReader::isQuickReaderFile (const std::string& filename)
+{
+    bool result = false;
+
+    FILE* file = fopen (filename.c_str(), "rb");
+    if (file != 0)
+    {
+        u_int64_t magic = 0;  fread (&magic, sizeof(u_int64_t), 1, file);
+
+        if (magic == MAGIC_NUMBER)  { result = true; }
+
+        fclose (file);
+    }
+
+    return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+dp::IProperties* FastaDatabaseQuickReader::getProperties ()
+{
+    IProperties* result = new Properties ();
+
+    result->add (0, "reader");
+
+    result->add (1, "uri",          "%s",       _uri.c_str());
+    result->add (1, "totalSize",    "%lld",     _totalSize);
+    result->add (1, "dataSize",     "%lld",     _dataSize);
+    result->add (1, "nbSequences",  "%ld",      _nbSequences);
+    result->add (1, "dbKind",       "%ld",      _dbKind);
+    result->add (1, "maxblocksize", "%ld",      _maxblocksize);
+    result->add (1, "offsets",      "%ld",      _offsets.size());
+    for (size_t i=0; i<_offsets.size(); i++)
+    {
+        result->add (2, "offset",  "%ld", _offsets[i]);
+    }
 
     return result;
 }

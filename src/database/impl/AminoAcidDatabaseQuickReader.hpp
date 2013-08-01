@@ -81,6 +81,18 @@ public:
      */
     DatabaseKind_e getKind ()  { return ENUM_AMINO_ACID; }
 
+    /** Max block size of a bank. */
+    u_int64_t  getMaxBlockSize() { return _ref->getMaxBlockSize(); }
+
+    /** */
+    dp::IProperties* getProperties ()  { return _ref->getProperties(); }
+
+    /** \copydoc IDatabaseQuickReader::load */
+    int load (const std::string& uri)  { return _ref->load (uri); }
+
+    /** \copydoc IDatabaseQuickReader::save */
+    int save (const std::string& uri)  { return _ref->save (uri); }
+
 private:
 
     /** Referenced nucleotide instance. */

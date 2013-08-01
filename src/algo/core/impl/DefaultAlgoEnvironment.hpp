@@ -144,6 +144,9 @@ protected:
         dp::IProperties* properties,
         std::vector <std::pair <misc::Range64,misc::Range64> >& uri
     );
+
+    /** */
+    void setSubjectBank (dp::IProperties* properties, u_int64_t  maxblocksize);
 };
 
 /********************************************************************************/

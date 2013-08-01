@@ -32,6 +32,7 @@
 /********************************************************************************/
 
 #include <designpattern/api/SmartPointer.hpp>
+#include <designpattern/api/IProperty.hpp>
 #include <misc/api/types.hpp>
 #include <vector>
 #include <string>
@@ -105,6 +106,18 @@ public:
      * \return the database kind.
      */
     virtual DatabaseKind_e getKind () = 0;
+
+    /** Max block size of a bank. */
+    virtual u_int64_t  getMaxBlockSize() = 0;
+
+    /** */
+    virtual dp::IProperties* getProperties () = 0;
+
+    /** */
+    virtual int load (const std::string& uri) = 0;
+
+    /** */
+    virtual int save (const std::string& uri) = 0;
 };
 
 /********************************************************************************/

@@ -89,6 +89,9 @@ public:
     /** Destructor. */
     virtual ~FastaDatabaseQuickReader  ();
 
+    /** */
+    static bool isQuickReaderFile (const std::string& filename);
+
     /** \copydoc IDatabaseQuickReader::read
      * Must be called before using getters.
      */
@@ -110,7 +113,19 @@ public:
     std::vector<u_int64_t>& getOffsets ()  { return _offsets; }
 
     /** \copydoc IDatabaseQuickReader::getKind */
-    DatabaseKind_e getKind ();
+    DatabaseKind_e getKind ()  { return _dbKind; }
+
+    /** Max block size of a bank. */
+    u_int64_t  getMaxBlockSize()  { return _maxblocksize; }
+
+    /** */
+    dp::IProperties* getProperties ();
+
+    /** \copydoc IDatabaseQuickReader::load */
+    int load (const std::string& uri);
+
+    /** \copydoc IDatabaseQuickReader::save */
+    int save (const std::string& uri);
 
 private:
 
@@ -143,6 +158,9 @@ private:
 
     /** Kind of the database. */
     DatabaseKind_e _dbKind;
+
+    /** Max block size of a bank. */
+    u_int64_t  _maxblocksize;
 
     /** */
     bool _getOnlyType;
