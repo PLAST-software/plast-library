@@ -1,4 +1,4 @@
-
+#if 0
 #include <launcher/core/PlastCmd.hpp>
 #include <launcher/core/PlastOptionsParser.hpp>
 #include <misc/api/version.hpp>
@@ -552,3 +552,10 @@ int main (int argc, char **argv)
 
     return EXIT_SUCCESS;
 }
+#else
+
+int main (int argc, char **argv)
+{
+}
+
+#endif
