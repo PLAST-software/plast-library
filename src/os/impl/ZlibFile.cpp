@@ -14,6 +14,8 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+#if 0
+
 #ifdef __LINUX__
 
 #include <os/impl/ZlibFile.hpp>
@@ -129,3 +131,5 @@ IFile* ZlibFileFactory::newFile (const char *path, const char *mode, bool tempor
 /********************************************************************************/
 
 #endif /*  __LINUX__  */
+
+#endif

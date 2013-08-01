@@ -20,6 +20,7 @@
  *  \brief Zlib abstraction of file management.
  */
 
+#if 0
 #ifndef _ZLIB_FILE_HPP_
 #define _ZLIB_FILE_HPP_
 
@@ -56,3 +57,5 @@ public:
 /********************************************************************************/
 
 #endif /* _ZLIB_FILE_HPP_ */
+
+#endif
