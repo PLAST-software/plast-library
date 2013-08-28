@@ -159,6 +159,9 @@ public:
      */
     virtual u_int64_t getTotalOccurrenceNumber () = 0;
 
+    /** */
+    virtual u_int8_t* getMask () =  0;
+
     /** Add a child index (Design Pattern Composite).
      * \param[in] child : the child to be added to the current index
      */
@@ -191,7 +194,8 @@ public:
      */
     virtual IDatabaseIndex* newDatabaseIndex (
         database::ISequenceDatabase* database,
-        seed::ISeedModel*            model
+        seed::ISeedModel*            model,
+        IDatabaseIndex*              otherIndex
     ) = 0;
 };
 

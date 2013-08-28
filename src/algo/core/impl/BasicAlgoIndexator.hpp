@@ -141,7 +141,8 @@ protected:
     indexation::IDatabaseIndex* buildIndex (
         database::ISequenceDatabase* database,
         seed::ISeedModel*            model,
-        dp::ICommandDispatcher*      dispatcher
+        dp::ICommandDispatcher*      dispatcher,
+        indexation::IDatabaseIndex*  otherIndex
     );
 };
 

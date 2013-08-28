@@ -180,8 +180,8 @@ void BasicIndexator::setQueryDatabase (ISequenceDatabase* db)
 *********************************************************************/
 void BasicIndexator::build (dp::ICommandDispatcher* dispatcher)
 {
-    if (_subjectIndex == 0)  { _subjectIndex = buildIndex (_subjectDatabase, _model, dispatcher); }
-    if (_queryIndex == 0)    {  _queryIndex  = buildIndex (_queryDatabase,   _model, dispatcher); }
+    if (_queryIndex == 0)    {  _queryIndex  = buildIndex (_queryDatabase,   _model, dispatcher, 0); }
+    if (_subjectIndex == 0)  { _subjectIndex = buildIndex (_subjectDatabase, _model, dispatcher, _queryIndex); }
 }
 
 /*********************************************************************
@@ -192,10 +192,10 @@ void BasicIndexator::build (dp::ICommandDispatcher* dispatcher)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IDatabaseIndex* BasicIndexator::buildIndex (ISequenceDatabase* database, ISeedModel* model, ICommandDispatcher* dispatcher)
+IDatabaseIndex* BasicIndexator::buildIndex (ISequenceDatabase* database, ISeedModel* model, ICommandDispatcher* dispatcher, IDatabaseIndex* otherIndex)
 {
     /** We create the index and use it. */
-    IDatabaseIndex* index = _factory->newDatabaseIndex (database, model);
+    IDatabaseIndex* index = _factory->newDatabaseIndex (database, model, otherIndex);
     index->use ();
 
     /** We get the number of possible execution units from the command dispatcher. */
@@ -213,7 +213,7 @@ IDatabaseIndex* BasicIndexator::buildIndex (ISequenceDatabase* database, ISeedMo
         for (size_t i=0; i<splits.size(); i++)
         {
             /** We create an index for the current frame. */
-            IDatabaseIndex* chidlIndex = _factory->newDatabaseIndex (splits[i], model);
+            IDatabaseIndex* chidlIndex = _factory->newDatabaseIndex (splits[i], model, otherIndex);
 
             /** We add the index to the global index. */
             index->addChildIndex (chidlIndex);

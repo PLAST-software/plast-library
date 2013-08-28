@@ -274,7 +274,8 @@ public:
     /** \copydoc IDatabaseIndexFactory::newDatabaseIndex */
     IDatabaseIndex* newDatabaseIndex (
         database::ISequenceDatabase* database,
-        seed::ISeedModel*            model
+        seed::ISeedModel*            model,
+        IDatabaseIndex*              otherIndex
     )
     {
         return new DatabaseIndex (database, model);
@@ -295,7 +296,8 @@ public:
     /** \copydoc IDatabaseIndexFactory::newDatabaseIndex */
     IDatabaseIndex* newDatabaseIndex (
         database::ISequenceDatabase* database,
-        seed::ISeedModel*            model
+        seed::ISeedModel*            model,
+        IDatabaseIndex*              otherIndex
     )
     {
         return new DatabaseIndexCodonStopOptim (database, model, _range);

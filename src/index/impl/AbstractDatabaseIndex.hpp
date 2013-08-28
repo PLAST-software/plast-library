@@ -61,6 +61,8 @@ public:
     /** \copydoc IDatabaseIndex::getModel */
     seed::ISeedModel* getModel () { return _model; }
 
+    u_int8_t* getMask () { return 0; }
+
     /** \copydoc IDatabaseIndex::addChildIndex */
     void addChildIndex    (IDatabaseIndex* child);
 

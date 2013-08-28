@@ -72,7 +72,7 @@ public:
      * \param[in] database : the database to be indexed.
      * \param[in] model : the seed model to be used for indexation.
      */
-	DatabaseNucleotidIndex (database::ISequenceDatabase* database, seed::ISeedModel* model);
+	DatabaseNucleotidIndex (database::ISequenceDatabase* database, seed::ISeedModel* model, IDatabaseIndex*  otherIndex);
     virtual ~DatabaseNucleotidIndex ();
 
     /** \copydoc AbstractDatabaseIndex::build */
@@ -100,6 +100,8 @@ public:
     /** \copydoc AbstractDatabaseIndex::merge */
     void merge (void) {}
 
+    u_int8_t* getMask ()  { return (u_int8_t*) _maskOut; }
+
 protected:
 
     /** The index itself. Defined as a vector of vectors. */
@@ -110,6 +112,11 @@ protected:
     /* Shortcut & optimization. */
     size_t  _span;
     int32_t _bitshift;
+
+    typedef u_int64_t word_t;
+
+    word_t* _maskIn;
+    word_t* _maskOut;
 
     /*********************************************************************************/
     /** We create a command that will count the number of occurrences for each seed. */
@@ -172,10 +179,11 @@ public:
     /** \copydoc IDatabaseIndexFactory::newDatabaseIndex */
     IDatabaseIndex* newDatabaseIndex (
         database::ISequenceDatabase* database,
-        seed::ISeedModel*            model
+        seed::ISeedModel*            model,
+        IDatabaseIndex*              otherIndex
     )
     {
-        return new DatabaseNucleotidIndex (database, model);
+        return new DatabaseNucleotidIndex (database, model, otherIndex);
     }
 };
 

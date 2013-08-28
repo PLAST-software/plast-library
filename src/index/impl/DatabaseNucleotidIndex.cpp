@@ -51,6 +51,15 @@ using namespace seed;
 namespace indexation { namespace impl {
 /********************************************************************************/
 
+typedef u_int64_t word_t;
+enum { WORD_SIZE = sizeof(word_t) * 8 };
+
+inline int bindex(int b)  { return b / WORD_SIZE; }
+inline int boffset(int b) { return b % WORD_SIZE; }
+
+#define GETMASK(data,b)  (data[bindex(b)] & (1 << (boffset(b))))
+#define SETMASK(data,b)  data[bindex(b)] |= 1 << (boffset(b))
+
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
@@ -59,8 +68,8 @@ namespace indexation { namespace impl {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-DatabaseNucleotidIndex::DatabaseNucleotidIndex (ISequenceDatabase* database, ISeedModel* model)
-    : AbstractDatabaseIndex (database, model), _counter(0), _span(0), _bitshift(0)
+DatabaseNucleotidIndex::DatabaseNucleotidIndex (ISequenceDatabase* database, ISeedModel* model, IDatabaseIndex* otherIndex)
+    : AbstractDatabaseIndex (database, model), _counter(0), _span(0), _bitshift(0), _maskIn(0), _maskOut(0)
 {
     /** Shortcuts. */
     _span     = getModel()->getSpan();
@@ -85,6 +94,20 @@ DatabaseNucleotidIndex::DatabaseNucleotidIndex (ISequenceDatabase* database, ISe
      * for tagging (with 'N') low informative regions in the database. */
     _index.resize (_maxSeedsNumber);
 
+    size_t maskSize = _maxSeedsNumber / WORD_SIZE;
+
+    _maskOut = new word_t [maskSize];  memset (_maskOut, 0, sizeof(word_t)*maskSize);
+    _maskIn  = new word_t [maskSize];
+
+    if (otherIndex != 0 && otherIndex->getMask())
+    {
+        memcpy (_maskIn, otherIndex->getMask(),  sizeof(word_t)*maskSize);
+    }
+    else
+    {
+        memset (_maskIn,  ~0, sizeof(word_t)*maskSize);
+    }
+
     DEBUG (("DatabaseNucleotidIndex::DatabaseNucleotidIndex: _maxSeedsNumber=%ld  _alphabetSize=%ld\n",
 		_maxSeedsNumber, alphabetSize
 	));
@@ -102,6 +125,9 @@ DatabaseNucleotidIndex::~DatabaseNucleotidIndex ()
 {
     /** We release resources. */
     DefaultFactory::memory().free (_counter);
+
+    delete[] _maskIn;
+    delete[] _maskOut;
 }
 
 /*********************************************************************
@@ -173,11 +199,15 @@ void DatabaseNucleotidIndex::build ()
     for (size_t currentCode=0; currentCode<_maxSeedsNumber; currentCode++)
     {
     	size_t len = _counter[currentCode];
+
     	nbOccurrences += len;
-    	if (len > 0)
+    	if (len > 0 && GETMASK (_maskIn, currentCode))
     	{
     		_index[currentCode].resize (len);
     		_counter[currentCode] = 0;
+
+    		/** We setup the mask */
+    		SETMASK (_maskOut, currentCode);
     	}
     }
 
@@ -315,7 +345,7 @@ void DatabaseNucleotidIndex::countSeedsOccurrences (const ISequence*& sequence)
          *  of occurrences for 'hashCode') and increment it in a single protected
          *  instruction.
          */
-        if (nbMatch >= _span)  { __sync_fetch_and_add (_counter + hashCode,1 );  }
+        if (nbMatch >= _span  && GETMASK(_maskIn,hashCode))  { __sync_fetch_and_add (_counter + hashCode,1 );  }
 
         /** We have computed the hash code for the first '_span' letters of the sequence.
          * Now, we will need only one letter for computing the next hash code, which explains
@@ -346,7 +376,7 @@ void DatabaseNucleotidIndex::countSeedsOccurrences (const ISequence*& sequence)
                 nbMatch++;
 
                 /** We increment the counter for the current seed if that seed is valid. */
-                if (nbMatch >= _span)  {  __sync_fetch_and_add (_counter+hashCode, 1);  }
+                if (nbMatch >= _span && GETMASK(_maskIn,hashCode))  {  __sync_fetch_and_add (_counter+hashCode, 1);  }
             }
         }
     }
@@ -379,7 +409,7 @@ void DatabaseNucleotidIndex::fillSeedsOccurrences  (const ISequence*& sequence)
             nbMatch  += LETTER_ISBAD(l) ? 0 : 1;
         }
 
-        if (nbMatch >= _span)
+        if (nbMatch >= _span  && GETMASK(_maskIn,hashCode))
         {
             /** We add the offset in the database for the current seed. */
             SeedOccurrence& occur = _index[hashCode] [ __sync_fetch_and_add (_counter+hashCode, 1)];
@@ -403,7 +433,7 @@ void DatabaseNucleotidIndex::fillSeedsOccurrences  (const ISequence*& sequence)
             {
                 nbMatch++;
 
-                if (nbMatch >= _span)
+                if (nbMatch >= _span && GETMASK(_maskIn,hashCode))
                 {
                     /** We add the offset in the database for the current seed. */
                     SeedOccurrence& occur = _index[hashCode] [ __sync_fetch_and_add (_counter+hashCode, 1)];
