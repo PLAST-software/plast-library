@@ -199,7 +199,7 @@ struct ProgressInfo
 
 /********************************************************************************/
 
-extern "C" int printf (const char* fmt, ...);
+//extern "C" int printf (const char* fmt, ...);
 
 /** We provide some string conversions functions. */
 
