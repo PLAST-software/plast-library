@@ -61,10 +61,10 @@ public:
     ) = 0;
 
     /** */
-    virtual dp::impl::ListIterator<database::ISequenceDatabase*> getSubjectDbIterator () = 0;
+    virtual dp::Iterator<database::ISequenceDatabase*>* getSubjectDbIterator () = 0;
 
     /** */
-    virtual dp::impl::ListIterator<database::ISequenceDatabase*> getQueryDbIterator () = 0;
+    virtual dp::Iterator<database::ISequenceDatabase*>* getQueryDbIterator () = 0;
 };
 
 /********************************************************************************/
