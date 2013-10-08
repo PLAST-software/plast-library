@@ -148,6 +148,8 @@ void HSPGenerator::execute ()
     size_t nbRetrieved = 0;
     size_t nbTotal     = _rangeIterator.getNbItems();
 
+    ISequenceDatabase::StrandId_e direction = idx1->getDatabase()->getDirection();
+
     DEBUG (("HSPGenerator::execute: LOOP BEGIN (this=%p) \n", this));
 
     while (_rangeIterator.retrieve (s, nbRetrieved) == true)
@@ -165,34 +167,57 @@ void HSPGenerator::execute ()
         {
             seed.code = g;
 
-            /** We retrieve all occurrences of the current seed for the subject database. */
-            IDatabaseIndex::IndexEntry&  entries1 = idx1->getEntry (&seed);
-
             /** We retrieve all occurrences of the current seed for the query database. */
             IDatabaseIndex::IndexEntry&  entries2 = idx2->getEntry (&seed);
+            if (entries2.empty())  { continue; }
 
-            /** We can skip seeds having no common occurrence in both databases. */
-            if (entries1.empty() || entries2.empty())  { continue; }
+            /** We retrieve all occurrences of the current seed for the subject database. */
+            IDatabaseIndex::IndexEntry&  entries1 = idx1->getEntry (&seed);
+            if (entries1.empty())  { continue; }
 
             VERBOSE (("CURRENT CODE %d \n", seed.code));
 
             nb1 = entries1.size();
             if (maxNb1 < nb1)   {  maxNb1 = nb1;  seqs1 = (Entry*) allocator.realloc (seqs1, maxNb1*sizeof(Entry));  }
 
-            for (size_t i=0; i<nb1; i++)
+            /** IMPORTANT: the subject database has to be analyzed according to the strand direction; offsets have to
+             * be modified if we are in the minus strand.  */
+            if (direction == ISequenceDatabase::PLUS)
             {
-                IDatabaseIndex::SeedOccurrence& occur = entries1[i];
+                for (size_t i=0; i<nb1; i++)
+                {
+                    IDatabaseIndex::SeedOccurrence& occur = entries1[i];
 
-                const ISequence* seq1 = dbi1->getSequenceRefByIndex (occur.sequenceIdx);
-                u_int32_t        off1 = (occur.offsetInDatabase - seq1->offsetInDb);
+                    const ISequence* seq1 = dbi1->getSequenceRefByIndex (occur.sequenceIdx);
+                    u_int32_t        off1 = (occur.offsetInDatabase - seq1->offsetInDb);
 
-                seqs1[i].set (
-                    seq1->getData() + off1,
-                    occur.offsetInDatabase,
-                    seq1->getLength() - off1,
-                    off1,
-                    seq1->index
-                );
+                    seqs1[i].set (
+                            seq1->getData() + off1,
+                            occur.offsetInDatabase,
+                            seq1->getLength() - off1,
+                            off1,
+                            seq1->index
+                    );
+                }
+            }
+            else
+            {
+                for (size_t i=0; i<nb1; i++)
+                {
+                    IDatabaseIndex::SeedOccurrence& occur = entries1[i];
+
+                    const ISequence* seq1 = dbi1->getSequenceRefByIndex (occur.sequenceIdx);
+                    u_int32_t        off1 = (occur.offsetInDatabase - seq1->offsetInDb);
+                    off1 = seq1->getLength() - (off1 + _span);
+
+                    seqs1[i].set (
+                            seq1->getData()   + off1,
+                            seq1->offsetInDb  + off1,
+                            seq1->getLength() - off1,
+                            off1,
+                            seq1->index
+                    );
+                }
             }
 
             nb2 = entries2.size();
