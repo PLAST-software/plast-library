@@ -199,6 +199,18 @@ protected:
 
     /** \copydoc getSubjectFrames */
     virtual const std::vector<misc::ReadingFrame_e>&  getQueryFrames   () = 0;
+
+    /** */
+    virtual void preTreatment (
+        dp::Iterator<database::ISequenceDatabase*>* qryDatabases,
+        dp::Iterator<database::ISequenceDatabase*>* sbjDatabases
+    )  = 0;
+
+    /** */
+    virtual void postTreatment (
+        dp::Iterator<database::ISequenceDatabase*>* qryDatabases,
+        dp::Iterator<database::ISequenceDatabase*>* sbjDatabases
+    ) = 0;
 };
 
 /********************************************************************************/
