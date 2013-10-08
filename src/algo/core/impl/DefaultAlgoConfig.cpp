@@ -31,6 +31,7 @@
 #include <algo/core/impl/DefaultAlgoConfig.hpp>
 #include <algo/core/impl/ScoreMatrix.hpp>
 #include <algo/core/impl/BasicAlgoIndexator.hpp>
+#include <algo/core/impl/DatabasesProvider.hpp>
 
 #include <algo/stats/impl/Statistics.hpp>
 
@@ -379,6 +380,19 @@ ISequenceDatabase*  DefaultConfiguration::createDatabase (
 
     /** We create the database. */
     return new BufferedSequenceDatabase (seqIterator, filtering);
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+algo::core::IDatabasesProvider* DefaultConfiguration::createDatabaseProvider ()
+{
+    return new DatabasesProvider (this);
 }
 
 /*********************************************************************

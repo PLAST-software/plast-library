@@ -82,6 +82,9 @@ public:
         database::ISequenceIteratorFactory* sequenceIteratorFactory
     );
 
+    /** \copydoc IConfiguration::createDatabaseProvider */
+    algo::core::IDatabasesProvider* createDatabaseProvider ();
+
     /** \copydoc IConfiguration::createQueryInformation */
     statistics::IQueryInformation* createQueryInformation (
         statistics::IGlobalParameters*  globalStats,
