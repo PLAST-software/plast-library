@@ -95,6 +95,43 @@ public:
 
     /** Vector that stores the comments. */
     std::vector<std::string> comments;
+
+    /** We reverse the data to the other strand (only for nucl. requests). */
+    void reverse ()
+    {
+        /** 1) We reorder the residues for each sequence. */
+        for (size_t i=0; i<nbSequences; i++)
+        {
+            Offset a = offsets.data[i+0];
+            Offset b = offsets.data[i+1];
+
+            size_t nbResidues = b - a;
+            LETTER* data = database.data + a;
+
+            /** We mirror (from the middle) the residues of the sequence. */
+            for (size_t i=0; i<nbResidues/2; i++)  {  std::swap (data[i], data [nbResidues - 1 - i]);  }
+        }
+
+        /** 2) We get the complement of each nucleotide. Note that we can do it for the whole buffer
+         * sequentially => could use SSE here (x16). */
+        size_t nbTotalResidues = offsets.data[nbSequences];
+        LETTER* data = database.data;
+        for (size_t i=0; i<nbTotalResidues; i++)
+        {
+            /** Residues above value 4 (like N) are not reversed. */
+            if (data[i]<4)
+            {
+                /** Note here the way we get the complement of a nucleotide: comp(c) -> (c+2)%4
+                 * It is possible since we have A=0, C=1, G=3, T=2. You can check:
+                 *      comp(A) = (0+2)%4 = 2 = T
+                 *      comp(C) = (1+2)%4 = 3 = G
+                 *      comp(G) = (3+2)%4 = 1 = C
+                 *      comp(T) = (2+2)%4 = 0 = A
+                 */
+                data[i] = (data[i] + 2) & 3 ;
+            }
+        }
+    }
 };
 
 /********************************************************************************/

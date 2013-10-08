@@ -135,6 +135,15 @@ public:
      *  \param[out] ids : the set to be filled by the sequences identifiers.
      */
     virtual void retrieveSequencesIdentifiers (std::set<std::string>& ids) = 0;
+
+    /** */
+    enum StrandId_e  { PLUS=1, MINUS=-1 };
+
+    /** Return the direction (PLUS or MINUS) of the strand for the sequences (meaningful only for nucleotides databases). */
+    virtual StrandId_e getDirection () = 0;
+
+    /** Change the strand of the sequences (meaningful only for nucleotides databases). */
+    virtual void reverse () = 0;
 };
 
 /********************************************************************************/
