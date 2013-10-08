@@ -316,6 +316,41 @@ bool DatabasesProvider::areNewQueryParameters (algo::core::IParameters* params, 
     return result;
 }
 
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void DatabasesProviderReverse::createDatabaseList (
+    const std::string&   uri,
+    const misc::Range64& range,
+    bool                 filtering,
+    const std::vector<misc::ReadingFrame_e>& frames,
+    std::list<database::ISequenceDatabase*>& dbList,
+    database::ISequenceIteratorFactory* seqIterFactory
+)
+{
+    bool shouldFilter = !frames.empty() ? false : filtering;
+
+    dbList.clear ();
+
+    /** We create the source database. */
+    ISequenceDatabase* db = _config->createDatabase (uri, range, shouldFilter, seqIterFactory);
+
+    /** We set at least one strand. */
+    dbList.push_back (db);
+
+    /** We may add a second strand. Note that the db is the same, but it will be interpreted in a different way
+     * by clients according to the frame content (PLUS or MINUS). */
+    if (frames.size() >= 2)  {  dbList.push_back (db); }
+
+    /** We loop each entry in the list and use it. */
+    for (list<ISequenceDatabase*>::iterator it = dbList.begin();  it != dbList.end(); it++)  {  (*it)->use();  }
+}
+
 /********************************************************************************/
 }}} /* end of namespaces. */
 /********************************************************************************/

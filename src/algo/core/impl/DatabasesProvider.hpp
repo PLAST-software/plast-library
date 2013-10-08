@@ -27,6 +27,7 @@
 
 #include <designpattern/impl/ListIterator.hpp>
 #include <algo/core/api/IDatabasesProvider.hpp>
+#include <database/impl/ReverseStrandSequenceIterator.hpp>
 
 /********************************************************************************/
 namespace algo {
@@ -57,14 +58,14 @@ public:
     );
 
     /** */
-    dp::impl::ListIterator<database::ISequenceDatabase*> getSubjectDbIterator ()
+    dp::Iterator<database::ISequenceDatabase*>* getSubjectDbIterator ()
     {
-        return dp::impl::ListIterator<database::ISequenceDatabase*> (_sbjDbList);
+        return new dp::impl::ListIterator<database::ISequenceDatabase*> (_sbjDbList);
     }
 
-    dp::impl::ListIterator<database::ISequenceDatabase*> getQueryDbIterator ()
+    dp::Iterator<database::ISequenceDatabase*>* getQueryDbIterator ()
     {
-        return dp::impl::ListIterator<database::ISequenceDatabase*> (_qryDbList);
+        return new dp::impl::ListIterator<database::ISequenceDatabase*> (_qryDbList);
     }
 
 protected:
@@ -90,7 +91,7 @@ protected:
      *  of the frames attribute; in such a case, the resulting list will have more than one
      *  item.
      */
-    void createDatabaseList (
+    virtual void createDatabaseList (
         const std::string&   uri,
         const misc::Range64& range,
         bool                 filtering,
@@ -162,12 +163,12 @@ public:
     }
 
     /** */
-    dp::impl::ListIterator<database::ISequenceDatabase*> getSubjectDbIterator ()
+    dp::Iterator<database::ISequenceDatabase*>* getSubjectDbIterator ()
     {
         return _ref->getSubjectDbIterator();
     }
 
-    dp::impl::ListIterator<database::ISequenceDatabase*> getQueryDbIterator ()
+    dp::Iterator<database::ISequenceDatabase*>* getQueryDbIterator ()
     {
         return _ref->getQueryDbIterator();
     }
@@ -177,6 +178,37 @@ private:
     IDatabasesProvider* _ref;
     void setRef (IDatabasesProvider* ref)  { SP_SETATTR(ref); }
 
+};
+
+/********************************************************************************/
+
+/**
+ */
+class DatabasesProviderReverse : public DatabasesProvider
+{
+public:
+
+    /** Constructor. */
+    DatabasesProviderReverse (algo::core::IConfiguration* config)
+        : DatabasesProvider(config)
+    {
+        setSbjFactory (new database::impl::ReverseStrandSequenceIteratorFactory());
+        setQryFactory (0);
+    }
+
+    /** Destructor. */
+    virtual ~DatabasesProviderReverse ()  { }
+
+private:
+
+    virtual void createDatabaseList (
+        const std::string&   uri,
+        const misc::Range64& range,
+        bool                 filtering,
+        const std::vector<misc::ReadingFrame_e>& frames,
+        std::list<database::ISequenceDatabase*>& dbList,
+        database::ISequenceIteratorFactory* seqIterFactory
+    );
 };
 
 /********************************************************************************/
