@@ -193,6 +193,7 @@ public:
         result->add (1, STR_PARAM_evalue,               "%g", evalue);
         result->add (1, STR_PARAM_XdroppofGap,          "%d", XdroppofGap);
         result->add (1, STR_PARAM_finalXdroppofGap,     "%d", finalXdroppofGap);
+        result->add (1, STR_PARAM_strands, "%d", strands.size());
 
         result->add (1, STR_PARAM_outputfile, outputfile);
 
