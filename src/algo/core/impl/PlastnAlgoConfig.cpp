@@ -28,9 +28,12 @@
 
 #include <index/impl/DatabaseIndex.hpp>
 #include <index/impl/DatabaseNucleotidIndex.hpp>
+#include <index/impl/DatabaseNucleotidIndexOptim.hpp>
 
 #include <algo/core/impl/BasicAlgoIndexator.hpp>
+#include <algo/core/impl/AlgoIndexatorNucleotide.hpp>
 #include <algo/core/impl/ScoreMatrix.hpp>
+#include <algo/core/impl/DatabasesProvider.hpp>
 
 #include <algo/stats/impl/StatisticsPlastn.hpp>
 
@@ -207,6 +210,19 @@ ISequenceDatabase*  PlastnConfiguration::createDatabase (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+algo::core::IDatabasesProvider* PlastnConfiguration::createDatabaseProvider ()
+{
+    return new DatabasesProviderReverse (this);
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 statistics::IGlobalParameters*  PlastnConfiguration::createGlobalParameters (algo::core::IParameters* params)
 {
     DEBUG ((cout << "PlastnConfiguration::createGlobalParameters" << endl));
@@ -260,8 +276,11 @@ IIndexator*  PlastnConfiguration::createIndexator (
 {
     DEBUG ((cout << "PlastnConfiguration::createIndexator" <<  endl));
 
-    return new BasicIndexator (seedsModel, params, new DatabaseNucleotidIndexFactory (), 1.0, isRunning);
-    //return new BasicIndexator (seedsModel, params, new DatabaseIndexFactory (), 1.0, isRunning);
+#if 0
+    return new BasicIndexator (seedsModel, params, new DatabaseNucleotidIndexOptimFactory (), 1.0, isRunning);
+#else
+    return new IndexatorNucleotide (seedsModel, params, new DatabaseNucleotidIndexOptimFactory (), 1.0, isRunning);
+#endif
 }
 
 /*********************************************************************
