@@ -62,7 +62,7 @@ static IAlphabet alphabetsTable_aminoacid[] =
 
 /********************************************************************************/
 
-static LETTER subseedLetters_nucleotid[]  = { 0,   1,   2,   3,   4,   5 };
+static LETTER subseedLetters_nucleotid[]  = { 0,   1,   3,   2,   4,   5 };
 static LETTER ascciiLetters_nucleotid[]   = {'A', 'C', 'G', 'T', 'N', '-'};
 static LETTER ncbiLetters_nucleotid[]     = { 0,   1,   2,   3,   4,   5 };
 
@@ -244,11 +244,11 @@ const LETTER* EncodingManager::getEncodingConversion_nucleotid (Encoding from, E
     bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
     bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
 
-    bad,   0, bad,   1, bad, bad, bad,   2, bad, bad, bad, bad, bad, bad,   4, bad,
-    bad, bad, bad, bad,   3,   3, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
+    bad,   0, bad,   1, bad, bad, bad,   3, bad, bad, bad, bad, bad, bad,   4, bad,
+    bad, bad, bad, bad,   2,   2, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad,
 
-    bad,   0, bad,   1, bad, bad, bad,   2, bad, bad, bad, bad, bad, bad,   4, bad,
-    bad, bad, bad, bad,   3,   3, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad
+    bad,   0, bad,   1, bad, bad, bad,   3, bad, bad, bad, bad, bad, bad,   4, bad,
+    bad, bad, bad, bad,   2,   2, bad, bad, bad, bad, bad, bad, bad, bad, bad, bad
 };
 
     static const LETTER Encoding_ascii2ncbi [] = {
@@ -258,11 +258,11 @@ const LETTER* EncodingManager::getEncodingConversion_nucleotid (Encoding from, E
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
-        0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 4, 0, 0,
-        0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 4, 0, 0,
+        0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
-        0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 4, 0, 0,
-        0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 4, 0, 0,
+        0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
 
     static const LETTER Encoding_subseed2ascii [] = {'A','C','G','T','N','-'};
