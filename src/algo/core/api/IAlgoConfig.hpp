@@ -39,6 +39,7 @@
 #include <algo/core/api/IScoreMatrix.hpp>
 #include <algo/core/api/IAlgoParameters.hpp>
 #include <algo/core/api/IAlgoIndexator.hpp>
+#include <algo/core/api/IDatabasesProvider.hpp>
 
 #include <algo/stats/api/IStatistics.hpp>
 
@@ -122,6 +123,9 @@ public:
         bool filtering,
         database::ISequenceIteratorFactory* sequenceIteratorFactory
     ) = 0;
+
+    /** */
+    virtual algo::core::IDatabasesProvider* createDatabaseProvider () = 0;
 
     /** Create statistical information for the query database that will be used by the algorithm for getting cutoffs.
      * \param[in] globalStats : global statistics for the algorithm
