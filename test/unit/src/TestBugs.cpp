@@ -110,7 +110,7 @@ public:
     /********************************************************************************/
     void testCheckTforU ()
     {
-    	int A=0, C=1, G=2, T=3;
+    	int A=0, C=1, G=3, T=2;
 
         /** WARNING !  We first switch to nucleotide alphabet. */
         EncodingManager::singleton().setKind (EncodingManager::ALPHABET_NUCLEOTID);
