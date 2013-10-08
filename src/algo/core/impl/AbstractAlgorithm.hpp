@@ -101,7 +101,9 @@ public:
         IParameters*                                  params,
         alignment::filter::IAlignmentFilter*          filter,
         alignment::core::IAlignmentContainerVisitor*  resultVisitor,
+        seed::ISeedModel*                             seedModel,
         algo::core::IDatabasesProvider*               dbProvider,
+        algo::core::IIndexator*                       indexator,
         statistics::IGlobalParameters*                globalStats,
         os::impl::TimeInfo*                           timeStats,
         bool&                                         isRunning
@@ -225,6 +227,18 @@ protected:
     /** \copydoc IAlgorithm::getQueryFrames */
     const std::vector<misc::ReadingFrame_e>&  getQueryFrames   ()  { return _queryFrames;   }
 
+    /** */
+    void preTreatment (
+        dp::Iterator<database::ISequenceDatabase*>* qryDatabases,
+        dp::Iterator<database::ISequenceDatabase*>* sbjDatabases
+    )  {  /** Default implementation does nothing. */  }
+
+    /** */
+    void postTreatment (
+        dp::Iterator<database::ISequenceDatabase*>* qryDatabases,
+        dp::Iterator<database::ISequenceDatabase*>* sbjDatabases
+    )  {  /** Default implementation does nothing. */  }
+
     static misc::ReadingFrame_e allframes[];
     static misc::ReadingFrame_e topframes[];
     static misc::ReadingFrame_e bottomframes[];
@@ -293,12 +307,14 @@ public:
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        seed::ISeedModel*                               seedModel,
         algo::core::IDatabasesProvider*                 dbProvider,
+        algo::core::IIndexator*                         indexator,
         statistics::IGlobalParameters*                  globalStats,
         os::impl::TimeInfo*                             timeStats,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, timeStats, isRunning) {}
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, seedModel, dbProvider, indexator, globalStats, timeStats, isRunning) {}
 };
 
 /********************************************************************************/
@@ -319,12 +335,14 @@ public:
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        seed::ISeedModel*                               seedModel,
         algo::core::IDatabasesProvider*                 dbProvider,
+        algo::core::IIndexator*                         indexator,
         statistics::IGlobalParameters*                  globalStats,
         os::impl::TimeInfo*                             timeStats,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, timeStats, isRunning)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, seedModel, dbProvider, indexator, globalStats, timeStats, isRunning)
     {
         if (params->strands.empty() )   { _queryFrames.assign (allframes, allframes + 6);                       }
         else                            { _queryFrames.assign (params->strands.begin(), params->strands.end()); }
@@ -349,12 +367,14 @@ public:
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        seed::ISeedModel*                               seedModel,
         algo::core::IDatabasesProvider*                 dbProvider,
+        algo::core::IIndexator*                         indexator,
         statistics::IGlobalParameters*                  globalStats,
         os::impl::TimeInfo*                             timeStats,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, timeStats, isRunning)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, seedModel, dbProvider, indexator, globalStats, timeStats, isRunning)
     {
         if (params->strands.empty() )   { _subjectFrames.assign (allframes, allframes + 6);                         }
         else                            { _subjectFrames.assign (params->strands.begin(), params->strands.end());   }
@@ -379,12 +399,14 @@ public:
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        seed::ISeedModel*                               seedModel,
         algo::core::IDatabasesProvider*                 dbProvider,
+        algo::core::IIndexator*                         indexator,
         statistics::IGlobalParameters*                  globalStats,
         os::impl::TimeInfo*                             timeStats,
         bool&                                           isRunning
     )
-    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, globalStats, timeStats, isRunning)
+    : AbstractAlgorithm (config, reader, params, filter, resultVisitor, seedModel, dbProvider, indexator, globalStats, timeStats, isRunning)
     {
     	_queryFrames.push_back (misc::FRAME_1);
     	_queryFrames.push_back (misc::FRAME_2);

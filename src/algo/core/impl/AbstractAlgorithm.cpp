@@ -99,7 +99,9 @@ AbstractAlgorithm::AbstractAlgorithm (
     IParameters*                params,
     IAlignmentFilter*           filter,
     IAlignmentContainerVisitor* resultVisitor,
+    seed::ISeedModel*           seedModel,
     IDatabasesProvider*         dbProvider,
+    IIndexator*                 indexator,
     IGlobalParameters*          globalStats,
     os::impl::TimeInfo*         timeStats,
     bool&                       isRunning
@@ -116,15 +118,19 @@ AbstractAlgorithm::AbstractAlgorithm (
     setParams            (params);
     setFilter            (filter);
     setResultVisitor     (resultVisitor);
+    setSeedsModel        (seedModel);
     setDatabasesProvider (dbProvider);
+    setIndexator         (indexator);
     setTimeStats         (timeStats);
 
+#if 0
     /** We create the seeds model. */
     setSeedsModel (getConfig()->createSeedModel (
         getParams()->seedModelKind,
         getParams()->seedSpan,
         getParams()->subseedStrings
     ));
+#endif
 
     /** We set the score matrix. */
     setScoreMatrix (getConfig()->createScoreMatrix (
@@ -220,8 +226,8 @@ void AbstractAlgorithm::execute (void)
     getDatabasesProvider()->createDatabases (getParams(), getSubjectFrames(), getQueryFrames(), 0, 0);
 
     /** We retrieve two iterators for the subject and query databases. */
-    ListIterator<ISequenceDatabase*> subjectDbIt = getDatabasesProvider()->getSubjectDbIterator();
-    ListIterator<ISequenceDatabase*> queryDbIt   = getDatabasesProvider()->getQueryDbIterator();
+    Iterator<ISequenceDatabase*>* subjectDbIt = getDatabasesProvider()->getSubjectDbIterator();     LOCAL (subjectDbIt);
+    Iterator<ISequenceDatabase*>* queryDbIt   = getDatabasesProvider()->getQueryDbIterator();       LOCAL (queryDbIt);
 
     _timeStats->stopEntry (keyRead);
 
@@ -234,9 +240,11 @@ void AbstractAlgorithm::execute (void)
      * charge to feed the algorithm with the source Hit Iterator, ie the one that provides for
      * a given seed all the occurrences in subject and query databases.
      */
+#if 0
     setIndexator (getConfig()->createIndexator (getSeedsModel(), getParams(), _isRunning) );
 
     DEBUG (("AbstractAlgorithm::execute : indexator created...\n"));
+#endif
 
     /** Now, we have two loops that loop on 1) query databases and 2) subject databases.
      *  The reason why we can have more than query database for instance is that the algorithm works
@@ -250,12 +258,12 @@ void AbstractAlgorithm::execute (void)
     /********************************************************************************/
     /**********                     FIRST LOOP ON QUERY PARTS              **********/
     /********************************************************************************/
-    for (queryDbIt.first(); !queryDbIt.isDone(); queryDbIt.next())
+    for (queryDbIt->first(); !queryDbIt->isDone(); queryDbIt->next())
     {
         DEBUG (("AbstractAlgorithm::execute : QUERY LOOP...\n"));
 
         /** Shortcuts. */
-        ISequenceDatabase* queryDb = queryDbIt.currentItem();
+        ISequenceDatabase* queryDb = queryDbIt->currentItem();
 
         /** We update the subject/query databases for the indexation. Note that one or two of the databases
          *  may be the same as the previous iteration.
@@ -277,14 +285,14 @@ void AbstractAlgorithm::execute (void)
         /********************************************************************************/
         /**********                  SECOND LOOP ON SUBJECT PARTS              **********/
         /********************************************************************************/
-        for (subjectDbIt.first(); !subjectDbIt.isDone(); subjectDbIt.next())
+        for (subjectDbIt->first(); !subjectDbIt->isDone(); subjectDbIt->next(), postTreatment (queryDbIt, subjectDbIt))
         {
             DEBUG (("AbstractAlgorithm::execute : SUBJECT LOOP...\n"));
 
             _timeStats->addEntry (keyAlgorithm);
 
             /** Shortcuts. */
-            ISequenceDatabase* subjectDb = subjectDbIt.currentItem();
+            ISequenceDatabase* subjectDb = subjectDbIt->currentItem();
 
             DEBUG (("AbstractAlgorithm::execute : subjectSeqNb=%ld  querySeqNb=%ld\n",
                 subjectDb->getSequencesNumber(),
@@ -303,6 +311,9 @@ void AbstractAlgorithm::execute (void)
 
             /** We build the indexes (if needed). */
             getIndexator()->build (indexationDispatcher);
+
+            /** We may have to do some pre-treatment before launching the alignments search. */
+            preTreatment (queryDbIt, subjectDbIt);
 
             _timeStats->stopEntry (keyIndex);
 
