@@ -30,6 +30,7 @@
 
 #include <alignment/visitors/impl/FilterContainerVisitor.hpp>
 #include <alignment/visitors/impl/SortContainerVisitor.hpp>
+#include <alignment/visitors/impl/ReverseStrandVisitor.hpp>
 
 #include <stdio.h>
 #define DEBUG(a)  //printf a
@@ -76,17 +77,23 @@ AlgorithmPlastn::AlgorithmPlastn (
     IParameters*                                    params,
     alignment::filter::IAlignmentFilter*            filter,
     alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+    seed::ISeedModel*                               seedModel,
     algo::core::IDatabasesProvider*                 dbProvider,
+    algo::core::IIndexator*                         indexator,
     statistics::IGlobalParameters*                  statistics,
     os::impl::TimeInfo*                             timeStats,
     bool&                                           isRunning,
-    int                                             actualStrand
+    std::vector<misc::ReadingFrame_e>&              subjectFrames
 )
-	: AbstractAlgorithm (config, reader, params, filter, resultVisitor, dbProvider, statistics, timeStats, isRunning),
+	: AbstractAlgorithm (config, reader, params, filter, resultVisitor, seedModel, dbProvider, indexator, statistics, timeStats, isRunning),
   	  _hspContainer(0), _nbPasses(4), _currentPass(0)
 {
     DEBUG (("AlgorithmPlastn::AlgorithmPlastn\n"));
 
+    /** We memorize which frames we want to use. */
+    _subjectFrames = subjectFrames;
+
+#if 0
     /** We may have to consider twice the number of passes in case we work on both strands. */
     if (params->strand == 0)
     {
@@ -94,6 +101,10 @@ AlgorithmPlastn::AlgorithmPlastn (
 
         _nbPasses *= 2;
     }
+#else
+    _nbPasses = 4*subjectFrames.size ();
+#endif
+
 
     /** We may change the ungap score threshold according to the reward value. */
     if (_params->ungapScoreThreshold == 0)
@@ -379,6 +390,60 @@ void AlgorithmPlastn::pass2 (
 
     /** We release the children containers. */
     for (size_t i=0; i<nbcpu; i++)  {  delete containers[i];  }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AlgorithmPlastn::preTreatment (
+    dp::Iterator<database::ISequenceDatabase*>* qryDatabases,
+    dp::Iterator<database::ISequenceDatabase*>* sbjDatabases
+)
+{
+    if (_subjectFrames[0] == FRAME_2)
+    {
+        reverse (sbjDatabases->currentItem());
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AlgorithmPlastn::postTreatment (
+    dp::Iterator<database::ISequenceDatabase*>* qryDatabases,
+    dp::Iterator<database::ISequenceDatabase*>* sbjDatabases
+)
+{
+    if (sbjDatabases->isDone() == false)
+    {
+        reverse (sbjDatabases->currentItem());
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void AlgorithmPlastn::reverse (database::ISequenceDatabase* database)
+{
+    database->reverse ();
+
+    ReverseStrandVisitor* v = dynamic_cast<ReverseStrandVisitor*> (getResultVisitor());
+    if (v)   { v->reverse (); }
 }
 
 /*********************************************************************

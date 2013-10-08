@@ -52,11 +52,13 @@ public:
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        seed::ISeedModel*                               seedModel,
         algo::core::IDatabasesProvider*                 dbProvider,
+        algo::core::IIndexator*                         indexator,
         statistics::IGlobalParameters*                  statistics,
         os::impl::TimeInfo*                             timeStats,
         bool&                                           isRunning,
-        int                                             actualStrand
+        std::vector<misc::ReadingFrame_e>&              subjectFrames
     );
 
     /** */
@@ -105,6 +107,21 @@ protected:
 		alignment::core::IHspContainer*			sourceHsp,
 		alignment::core::IAlignmentContainer*   alignContainer
     );
+
+    /** */
+    void preTreatment (
+        dp::Iterator<database::ISequenceDatabase*>* qryDatabases,
+        dp::Iterator<database::ISequenceDatabase*>* sbjDatabases
+    );
+
+    /** */
+    void postTreatment (
+        dp::Iterator<database::ISequenceDatabase*>* qryDatabases,
+        dp::Iterator<database::ISequenceDatabase*>* sbjDatabases
+    );
+
+    /** */
+    void reverse (database::ISequenceDatabase* database);
 
     alignment::core::IHspContainer* _hspContainer;
     void setHspContainer (alignment::core::IHspContainer* hspContainer)  { SP_SETATTR (hspContainer); }
