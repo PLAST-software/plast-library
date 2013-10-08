@@ -121,7 +121,9 @@ protected:
         IParameters*                                    params,
         alignment::filter::IAlignmentFilter*            filter,
         alignment::core::IAlignmentContainerVisitor*    resultVisitor,
+        seed::ISeedModel*                               seedModel,
         algo::core::IDatabasesProvider*                 dbProvider,
+        algo::core::IIndexator*                         indexator,
         statistics::IGlobalParameters*                  globalStats,
         os::impl::TimeInfo*                             timeInfo,
         bool&                                           isRunning
