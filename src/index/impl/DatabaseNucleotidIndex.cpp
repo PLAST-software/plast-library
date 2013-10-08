@@ -258,7 +258,7 @@ IDatabaseIndex::IndexEntry& DatabaseNucleotidIndex::getEntry (const seed::ISeed*
 {
     if (seed->code >= _index.size())   {  throw MSG_INDEXATION_MSG1; }
 
-    return _index[seed->code];
+    return (IDatabaseIndex::IndexEntry&) _index[seed->code];
 }
 
 /*********************************************************************

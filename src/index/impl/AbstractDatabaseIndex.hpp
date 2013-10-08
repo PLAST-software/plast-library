@@ -58,6 +58,9 @@ public:
     /** \copydoc IDatabaseIndex::getDatabase */
     database::ISequenceDatabase* getDatabase () { return _database; }
 
+    /** \copydoc IDatabaseIndex::setDatabase */
+    void setDatabase (database::ISequenceDatabase* database)  { SP_SETATTR(database); }
+
     /** \copydoc IDatabaseIndex::getModel */
     seed::ISeedModel* getModel () { return _model; }
 
@@ -76,7 +79,6 @@ protected:
 
     /** Database to be indexed. */
     database::ISequenceDatabase* _database;
-    void setDatabase (database::ISequenceDatabase* database)  { SP_SETATTR(database); }
 
     /** Seed model to be used for the indexation. */
     seed::ISeedModel* _model;

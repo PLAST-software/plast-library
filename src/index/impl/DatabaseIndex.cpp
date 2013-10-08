@@ -287,7 +287,7 @@ IDatabaseIndex::IndexEntry& DatabaseIndex::getEntry (const seed::ISeed* seed)
     if (code >= _index.size())  {  throw MSG_INDEXATION_MSG1;  }
     else
     {
-        return _index[code];
+        return (IDatabaseIndex::IndexEntry&)_index[code];
     }
 }
 
@@ -364,7 +364,7 @@ void DatabaseIndex::merge (void)
         if (code >= _index.size())  {  throw MSG_INDEXATION_MSG1;  }
 
         /** A little shortcut. */
-        vector<SeedOccurrence>& globalOccur = _index[code];
+        IndexEntry& globalOccur = _index[code];
 
         /** We clear the occurrences vector of the 'this' instance for the current seed. */
         globalOccur.clear();

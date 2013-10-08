@@ -106,13 +106,26 @@ public:
         u_int32_t  sequenceIdx;
     };
 
+    /********************************************************************************/
+
     /** Data type for storing a list of offsets. */
-    typedef std::vector<SeedOccurrence> IndexEntry;
+    class IndexEntry
+    {
+    public:
+        virtual ~IndexEntry() {}
+        virtual bool empty() = 0;
+        virtual size_t size() const = 0;
+        virtual SeedOccurrence& operator[] (size_t idx) = 0;
+    };
+
 
     /** Returns the sequences database.
      * \return the database.
      */
     virtual database::ISequenceDatabase* getDatabase () = 0;
+
+ 	/** Set the database for the current index. */
+    virtual void setDatabase (database::ISequenceDatabase* database) = 0;
 
     /** Returns the seed model used for the indexation.
      * \return the seed model.
