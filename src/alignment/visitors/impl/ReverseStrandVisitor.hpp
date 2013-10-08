@@ -51,6 +51,9 @@ public:
     /** \copydoc IAlignmentResultVisitor::visitAlignment */
     void visitAlignment (core::Alignment* align, const misc::ProgressInfo& progress);
 
+    /** */
+    void reverse ()  {  _strand = _strand == PLUS ? MINUS : PLUS;  }
+
 protected:
     core::Alignment::DbKind _kind;
 
