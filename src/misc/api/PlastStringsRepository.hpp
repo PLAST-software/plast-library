@@ -94,6 +94,7 @@ public:
     static const char* m_STR_OPTION_XML_FILTER_FILE () { static misc::impl::ObsfucatedString s (1343381595, 8389196094506728077, 2507460, 0)  /* => "-xmlfilter" */; return s.toString().c_str(); }
     static const char* m_STR_OPTION_SEEDS_USE_RATIO () { static misc::impl::ObsfucatedString s (1343381595, 8443531751420260749, 8028075772638614994, 0)  /* => "-seeds-use-ratio" */; return s.toString().c_str(); }
     static const char* m_STR_OPTION_HELP () { static misc::impl::ObsfucatedString s (1343381595, 4713101, 0)  /* => "-h" */; return s.toString().c_str(); }
+    static const char* m_STR_OPTION_WORD_SIZE () { return "-W"; }
     static const char* m_MSG_MAIN_RC_FILE () { static misc::impl::ObsfucatedString s (1343381595, 8247343679886830735, 2502850, 0)  /* => "/.plastrc" */; return s.toString().c_str(); }
     static const char* m_MSG_MAIN_HOME () { static misc::impl::ObsfucatedString s (1343381595, 1158335976, 0)  /* => "HOME" */; return s.toString().c_str(); }
     static const char* m_MSG_MAIN_MSG1 () { static misc::impl::ObsfucatedString s (1343381595, 8297073435042303728, 8026294576585316481, 7593480606252461532, 2860265347866683, 0)  /* => "PLAST %s (%ld cores available)" */; return s.toString().c_str(); }
@@ -168,6 +169,7 @@ public:
     static const char* m_STR_HELP_INFO_ALIGNMENT_PROGRESS () { static misc::impl::ObsfucatedString s (1343395004, 2336920844705693513, 8367799623961776203, 7599665433358333515, 7305521896680189734, 7453023215358578139, 8097867329101844599, 7308619160716100927, 7598264594228681722, 8245923157923053163, 199413002667, 0)  /* => "Dump in a file the growing number of ungap/ungap alignments during algorithm." */; return s.toString().c_str(); }
     static const char* m_STR_HELP_INFO_RESOURCES_PROGRESS () { static misc::impl::ObsfucatedString s (1343395004, 2336920844705693513, 7575166089544568907, 7598805593979909453, 8391735949007382055, 7165919078634905481, 7956016065246679923, 7598258011313112184, 779323360, 0)  /* => "Dump in a file information about resources during algorithm." */; return s.toString().c_str(); }
     static const char* m_STR_HELP_INFO_CONFIG_FILE () { static misc::impl::ObsfucatedString s (1343395004, 7308604897127721821, 2334386829838769930, 8026294645428485971, 7811887318007868966, 6226892, 0)  /* => "Pathname of the plast config file." */; return s.toString().c_str(); }
+    static const char* m_STR_HELP_WORD_SIZE  () { return "size of the seeds"; }
     static const char* m_STR_CONFIG_CLASS_SerialCommandDispatcher () { static misc::impl::ObsfucatedString s (1343396678, 8017370927284409692, 8316253385052224169, 32199646361063685, 0)  /* => "SerialCommandDispatcher" */; return s.toString().c_str(); }
     static const char* m_STR_CONFIG_CLASS_ParallelCommandDispatcher () { static misc::impl::ObsfucatedString s (1343396678, 7810768341489209695, 4928185256971958407, 7307199746907210524, 5036928, 0)  /* => "ParallelCommandDispatcher" */; return s.toString().c_str(); }
     static const char* m_STR_CONFIG_CLASS_BasicIndexator () { static misc::impl::ObsfucatedString s (1343396678, 7236802342548787533, 125823016071073, 0)  /* => "BasicIndexator" */; return s.toString().c_str(); }
@@ -207,6 +209,7 @@ public:
     static const char* m_STR_PARAM_finalXdroppofGap () { static misc::impl::ObsfucatedString s (1343397334, 8242810440504477497, 8097832110268824251, 0)  /* => "finalXdroppofGap" */; return s.toString().c_str(); }
     static const char* m_STR_PARAM_outputfile () { static misc::impl::ObsfucatedString s (1343397334, 7594885869349935920, 2305976, 0)  /* => "outputfile" */; return s.toString().c_str(); }
     static const char* m_STR_PARAM_strands () { static misc::impl::ObsfucatedString s (1343397751, 32480047562085503, 0)  /* => "strands" */; return s.toString().c_str(); }
+    static const char* m_STR_PARAM_wordSize () { return "wordSize"; }
 };
 
 #else
@@ -265,6 +268,7 @@ public:
     static const char* m_STR_OPTION_XML_FILTER_FILE () { return "-xmlfilter"; }
     static const char* m_STR_OPTION_SEEDS_USE_RATIO () { return "-seeds-use-ratio"; }
     static const char* m_STR_OPTION_HELP () { return "-h"; }
+    static const char* m_STR_OPTION_WORD_SIZE () { return "-W"; }
     static const char* m_MSG_MAIN_RC_FILE () { return "/.plastrc"; }
     static const char* m_MSG_MAIN_HOME () { return "HOME"; }
     static const char* m_MSG_MAIN_MSG1 () { return "PLAST %s (%ld cores available)\n"; }
@@ -339,6 +343,7 @@ public:
     static const char* m_STR_HELP_INFO_ALIGNMENT_PROGRESS () { return "Dump in a file the growing number of ungap/ungap alignments during algorithm."; }
     static const char* m_STR_HELP_INFO_RESOURCES_PROGRESS () { return "Dump in a file information about resources during algorithm."; }
     static const char* m_STR_HELP_INFO_CONFIG_FILE () { return "Pathname of the plast config file."; }
+    static const char* m_STR_HELP_WORD_SIZE  () { return "size of the seeds"; }
     static const char* m_STR_CONFIG_CLASS_SerialCommandDispatcher () { return "SerialCommandDispatcher"; }
     static const char* m_STR_CONFIG_CLASS_ParallelCommandDispatcher () { return "ParallelCommandDispatcher"; }
     static const char* m_STR_CONFIG_CLASS_BasicIndexator () { return "BasicIndexator"; }
@@ -378,6 +383,7 @@ public:
     static const char* m_STR_PARAM_finalXdroppofGap () { return "finalXdroppofGap"; }
     static const char* m_STR_PARAM_outputfile () { return "outputfile"; }
     static const char* m_STR_PARAM_strands () { return "strands"; }
+    static const char* m_STR_PARAM_wordSize () { return "wordSize"; }
 };
 
 #endif

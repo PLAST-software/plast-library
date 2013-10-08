@@ -322,6 +322,10 @@ namespace misc {
  */
 #define STR_OPTION_HELP                     misc::StringRepository::m_STR_OPTION_HELP ()
 
+/** Word size
+ */
+#define STR_OPTION_WORD_SIZE   				misc::StringRepository::m_STR_OPTION_WORD_SIZE ()
+
 
 /********************************************************************************/
 
@@ -407,6 +411,7 @@ namespace misc {
 #define STR_HELP_INFO_ALIGNMENT_PROGRESS    misc::StringRepository::m_STR_HELP_INFO_ALIGNMENT_PROGRESS ()   // Dump in a file the growing number of ungap/ungap alignments during algorithm.
 #define STR_HELP_INFO_RESOURCES_PROGRESS    misc::StringRepository::m_STR_HELP_INFO_RESOURCES_PROGRESS ()   // Dump in a file information about resources during algorithm.
 #define STR_HELP_INFO_CONFIG_FILE           misc::StringRepository::m_STR_HELP_INFO_CONFIG_FILE ()   // Pathname of the plast config file.
+#define STR_HELP_WORD_SIZE                  misc::StringRepository::m_STR_HELP_WORD_SIZE ()   // Pathname of the plast config file.
 
 #define STR_CONFIG_CLASS_SerialCommandDispatcher        misc::StringRepository::m_STR_CONFIG_CLASS_SerialCommandDispatcher ()   // SerialCommandDispatcher
 #define STR_CONFIG_CLASS_ParallelCommandDispatcher      misc::StringRepository::m_STR_CONFIG_CLASS_ParallelCommandDispatcher ()   // ParallelCommandDispatcher
@@ -448,6 +453,7 @@ namespace misc {
 #define STR_PARAM_finalXdroppofGap      misc::StringRepository::m_STR_PARAM_finalXdroppofGap ()   // finalXdroppofGap
 #define STR_PARAM_outputfile            misc::StringRepository::m_STR_PARAM_outputfile ()   // outputfile
 #define STR_PARAM_strands               misc::StringRepository::m_STR_PARAM_strands ()   // strands
+#define STR_PARAM_wordSize              misc::StringRepository::m_STR_PARAM_strands ()   // strands
 
 /********************************************************************************/
 } /* end of namespaces. */
