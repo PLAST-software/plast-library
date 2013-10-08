@@ -66,12 +66,19 @@ public:
     /** \copydoc BufferedSequenceDatabase::getSequenceRefByIndex */
     ISequence* getSequenceRefByIndex (size_t index)
     {
-        return (index < _sequences.size() ? _sequences[index] : NULL);
+        return (index < _sequences.size() ? & _sequences[index] : NULL);
     }
 
     /** \copydoc ISequenceDatabase::createSequenceIterator
      * The cache is supposed to be already built. */
     ISequenceIterator* createSequenceIterator () { return new BufferedCachedSequenceIterator (this, _firstIdx, _lastIdx); }
+
+    void reverse ()
+    {
+        BufferedSequenceDatabase::reverse();
+        _isBuilt = false;
+        buildSequencesCache();
+    }
 
 private:
 
@@ -82,7 +89,7 @@ private:
     void buildSequencesCache (void);
 
     /** Vector holding all ISequence instances of the database. */
-    std::vector<ISequence*> _sequences;
+    std::vector<ISequence> _sequences;
 
     /********************************************************************************/
 
@@ -122,7 +129,7 @@ private:
         bool isDone()  { return _currentIdx > _lastIdx;                           }
 
         /** \copydoc AbstractSequenceIterator::currentItem */
-        const ISequence* currentItem ()  { return _db->_sequences[_currentIdx];   }
+        const ISequence* currentItem ()  { return &_db->_sequences[_currentIdx];   }
 
         /** \copydoc AbstractSequenceIterator::clone */
         ISequenceIterator* clone ()  {  return new BufferedCachedSequenceIterator (_db, _firstIdx, _lastIdx);  }

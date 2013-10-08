@@ -117,6 +117,12 @@ public:
     /** \copydoc ISequenceDatabase::retrieveSequencesIdentifiers */
     void retrieveSequencesIdentifiers (std::set<std::string>& ids);
 
+    /** Return the direction (PLUS or MINUS) of the strand for the sequences (meaningful only for nucleotides databases). */
+    StrandId_e getDirection ()   {  return !_children.empty() ? _children[0]->getDirection() :  ISequenceDatabase::PLUS; }
+
+    /** Change the strand of the sequences (meaningful only for nucleotides databases). */
+    void reverse ();
+
 private:
 
     /** Vector of children ISequenceDatabase instances. */

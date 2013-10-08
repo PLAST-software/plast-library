@@ -51,9 +51,10 @@ BufferedSequenceDatabase::BufferedSequenceDatabase (ISequenceIterator* refIterat
       _refIterator(0),
       _cache(0),
       _firstIdx(0), _lastIdx(0),
-      _filterLowComplexity (filterLowComplexity)
+      _filterLowComplexity (filterLowComplexity),
+      _direction(ISequenceDatabase::PLUS)
 {
-    DEBUG (("BufferedSequenceDatabase::BufferedSequenceDatabase  this=%p  iter=%p\n", this, refIterator));
+    DEBUG (("BufferedSequenceDatabase::BufferedSequenceDatabase   this=%p  '%s'\n", this, refIterator->getId().c_str()));
 
     /** We just keep a reference on the provided sequence iterator. The cache should be built on the first call
      * to some public API method. */
@@ -77,7 +78,7 @@ BufferedSequenceDatabase::BufferedSequenceDatabase (
     size_t firstIdx,
     size_t lastIdx
 )
-    : _id(id), _nbSequences(0), _refIterator(0), _cache(0), _firstIdx(firstIdx), _lastIdx(lastIdx)
+    : _id(id), _nbSequences(0), _refIterator(0), _cache(0), _firstIdx(firstIdx), _lastIdx(lastIdx),  _direction(ISequenceDatabase::PLUS)
 {
     DEBUG (("BufferedSequenceDatabase::BufferedSequenceDatabase  this=%p  [%ld,%ld] \n", this, _firstIdx, _lastIdx));
 
@@ -98,7 +99,7 @@ BufferedSequenceDatabase::BufferedSequenceDatabase (
 *********************************************************************/
 BufferedSequenceDatabase::~BufferedSequenceDatabase ()
 {
-    DEBUG (("BufferedSequenceDatabase::~BufferedSequenceDatabase  this=%p\n", this));
+    DEBUG (("BufferedSequenceDatabase::~BufferedSequenceDatabase  this=%p  '%s' \n", this, this->getId().c_str()));
 
     /** We release instances. */
     setCache (0);
@@ -453,6 +454,20 @@ void BufferedSequenceDatabase::retrieveSequencesIdentifiers (std::set<std::strin
             ids.insert (comment);
         }
     }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void BufferedSequenceDatabase::reverse ()
+{
+    getCache()->reverse();
+    _direction = (_direction == ISequenceDatabase::PLUS ?  ISequenceDatabase::MINUS : ISequenceDatabase::PLUS);
 }
 
 /*********************************************************************

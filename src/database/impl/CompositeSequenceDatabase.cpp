@@ -217,6 +217,22 @@ bool CompositeSequenceDatabase::getSequenceByOffset (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+void CompositeSequenceDatabase::reverse ()
+{
+    for (size_t i=0; i<_children.size(); i++)
+    {
+        _children[i]->reverse();
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 ISequenceIterator* CompositeSequenceDatabase::createSequenceIterator ()
 {
     ISequenceIterator* result = 0;

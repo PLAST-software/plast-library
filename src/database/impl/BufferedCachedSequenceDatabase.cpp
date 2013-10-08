@@ -44,7 +44,7 @@ namespace database { namespace impl {
 BufferedCachedSequenceDatabase::BufferedCachedSequenceDatabase (ISequenceIterator* refIterator, bool filterLowComplexity)
     : BufferedSequenceDatabase (refIterator, filterLowComplexity), _isBuilt(false)
 {
-    DEBUG (("BufferedSequenceDatabase::BufferedSequenceDatabase  this=%p  iter=%p\n", this, refIterator));
+    DEBUG (("BufferedCachedSequenceDatabase::BufferedCachedSequenceDatabase  this=%p  iter=%p\n", this, refIterator));
 
     /** We force the building of the sequences cache. */
     buildSequencesCache ();
@@ -65,11 +65,6 @@ BufferedCachedSequenceDatabase::~BufferedCachedSequenceDatabase ()
         _sequences.size()
     ));
 
-    /** We delete the sequences instances. */
-    for (vector<ISequence*>::iterator it = _sequences.begin(); it != _sequences.end(); it++)
-    {
-        delete *it;
-    }
     _sequences.clear ();
 }
 
@@ -83,22 +78,16 @@ BufferedCachedSequenceDatabase::~BufferedCachedSequenceDatabase ()
 *********************************************************************/
 void BufferedCachedSequenceDatabase::buildSequencesCache ()
 {
-    DEBUG (("BufferedCachedSequenceDatabase::buildSequencesCache  this=%p  _isBuilt=%d\n", this, _isBuilt));
+    DEBUG (("BufferedCachedSequenceDatabase::BufferedCachedSequenceDatabase  this=%p  _isBuilt=%d\n", this, _isBuilt));
 
     if (_isBuilt == false)
     {
         /** Shortcut. */
         size_t nbSeq = getSequencesNumber();
 
-        for (size_t i=0; i<nbSeq; i++)
-        {
-            ISequence* newSeq = new ISequence ();
+        _sequences.resize (nbSeq);
 
-            if (this->getSequenceByIndex (i, *newSeq) == true)
-            {
-                _sequences.push_back (newSeq);
-            }
-        }
+        for (size_t i=0; i<nbSeq; i++)  {  this->getSequenceByIndex (i, _sequences[i]);  }
 
         /** Note that we should have  _sequences.size() == getSequencesNumber() */
 

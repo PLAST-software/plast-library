@@ -149,6 +149,12 @@ public:
     /** \copydoc ISequenceDatabase::retrieveSequencesIdentifiers */
     void retrieveSequencesIdentifiers (std::set<std::string>& ids);
 
+    /** Return the direction (PLUS or MINUS) of the strand for the sequences (meaningful only for nucleotides databases). */
+    StrandId_e getDirection () { return _direction; }
+
+    /** Change the strand of the sequences (meaningful only for nucleotides databases). */
+    void reverse ();
+
 protected:
 
     /** Identifier */
@@ -205,6 +211,9 @@ protected:
 
     /** Tells whether the sequence have to be filtered out (ie. removing low informative regions). */
     bool _filterLowComplexity;
+
+    /** */
+    StrandId_e _direction;
 
     /********************************************************************************/
 
