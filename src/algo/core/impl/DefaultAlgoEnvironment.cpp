@@ -130,7 +130,7 @@ void DefaultEnvironment::configure ()
     _timeInfo->addEntry (keyConfig);
 
     /** We create a subject/query databases provider. */
-    setDatabasesProvider (new DatabasesProvider (_config));
+    setDatabasesProvider (_config->createDatabaseProvider());
 
     /** We retrieve the type of algorithm (may be not set). */
     IProperty* algoProp = _properties->getProperty (STR_OPTION_ALGO_TYPE);
@@ -254,13 +254,35 @@ void DefaultEnvironment::run ()
     const char* keyTotal  = "total";
     const char* keyFinal  = "finalization";
 
+    /** We check that we got at least one paramter. */
+    if (_parametersList.empty())  { return; }
+
     _timeInfo->addEntry (keyTotal);
+
+    EncodingManager::singleton().setKind (_parametersList[0]->algoKind == ENUM_PLASTN ?
+        EncodingManager::ALPHABET_NUCLEOTID : EncodingManager::ALPHABET_AMINO_ACID
+    );
 
     /** We may launch an event with information about the two databases. */
     if (_quickSubjectDbReader != 0  &&  _quickQueryDbReader != 0)
     {
         this->notify (new DatabasesInformationEvent (_quickSubjectDbReader, _quickQueryDbReader) );
     }
+
+    /** We create the seeds model. */
+    seed::ISeedModel* seedsModel = _config->createSeedModel (
+        _parametersList[0]->seedModelKind,
+        _parametersList[0]->seedSpan,
+        _parametersList[0]->subseedStrings
+    );
+    LOCAL (seedsModel);
+
+    /** We create an object for indexing subject and query databases. This object will be in
+     * charge to feed the algorithm with the source Hit Iterator, ie the one that provides for
+     * a given seed all the occurrences in subject and query databases.
+     */
+    IIndexator* indexator = _config->createIndexator (seedsModel, _parametersList[0], _isRunning);
+    LOCAL (indexator);
 
     /** We iterate each parameters. */
     for (size_t i=0; _isRunning && i<_parametersList.size(); i++)
@@ -277,7 +299,9 @@ void DefaultEnvironment::run ()
             _parametersList[i],
             _filter,
             _resultVisitor,
+            seedsModel,
             _dbProvider,
+            indexator,
             _config->createGlobalParameters (_parametersList[i]),
             _timeInfoAlgo,
             _isRunning
@@ -337,16 +361,15 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
     IParameters*                params,
     IAlignmentFilter*           filter,
     IAlignmentContainerVisitor* resultVisitor,
+    seed::ISeedModel*           seedModel,
     IDatabasesProvider*         dbProvider,
+    algo::core::IIndexator*     indexator,
     IGlobalParameters*          globalStats,
     TimeInfo*                   timeInfo,
     bool&                       isRunning
 )
 {
 	list<IAlgorithm*> result;
-
-    /** WARNING !  By default, we first switch to amino acid alphabet before creating the instance. */
-    EncodingManager::singleton().setKind (EncodingManager::ALPHABET_AMINO_ACID);
 
     switch (params->algoKind)
     {
@@ -357,7 +380,9 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
                 params,
                 filter,
                 resultVisitor,
+                seedModel,
                 dbProvider,
+                indexator,
                 globalStats,
                 timeInfo,
                 isRunning
@@ -371,7 +396,9 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
                 params,
                 filter,
                 resultVisitor, //new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT),
+                seedModel,
                 dbProvider,
+                indexator,
                 globalStats,
                 timeInfo,
                 isRunning
@@ -385,7 +412,9 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
                 params,
                 filter,
                 resultVisitor, //new NucleotidConversionVisitor (resultVisitor, Alignment::QUERY),
+                seedModel,
                 dbProvider,
+                indexator,
                 globalStats,
                 timeInfo,
                 isRunning
@@ -402,7 +431,9 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
                 //new NucleotidConversionVisitor (new NucleotidConversionVisitor (resultVisitor, Alignment::SUBJECT),
                 //    Alignment::QUERY
                 //),
+                seedModel,
                 dbProvider,
+                indexator,
                 globalStats,
                 timeInfo,
                 isRunning
@@ -411,9 +442,6 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
 
         case ENUM_PLASTN:
         {
-            /** WARNING !  We first switch to nucleotide alphabet before creating the instance. */
-            EncodingManager::singleton().setKind (EncodingManager::ALPHABET_NUCLEOTID);
-
             DEBUG (("DefaultEnvironment::createAlgorithm: strand=%d\n", params->strand));
 
             /** Note: in a preliminary version, we used to compute the "minus" strand first. Now, we prefer
@@ -422,39 +450,24 @@ list<IAlgorithm*> DefaultEnvironment::createAlgorithm (
              *  on the plus strand with qry and sbj length being equal to the sequence length.
              */
 
-            /** We may create the instance for the "plus" strand. */
-            if (params->strand == 0  ||  params->strand==1)
-            {
-                result.push_back (new AlgorithmPlastn (
-                    config,
-                    reader,
-                    params,
-                    filter,
-                    new ReverseStrandVisitor (resultVisitor, Alignment::SUBJECT, ReverseStrandVisitor::PLUS),
-                    dbProvider,
-                    globalStats,
-                    timeInfo,
-                    isRunning,
-                    1  // actual strand
-                ));
-            }
+            std::vector<misc::ReadingFrame_e>  subjectFrames;
+            if (params->strand == 0  ||  params->strand== 1)  {  subjectFrames.push_back (FRAME_1);  }
+            if (params->strand == 0  ||  params->strand==-1)  {  subjectFrames.push_back (FRAME_2);  }
 
-            /** We may create the instance for the "minus" strand. */
-            if (params->strand == 0  ||  params->strand==-1)
-            {
-                result.push_back (new AlgorithmPlastn (
-                    config,
-                    reader,
-                    params,
-                    filter,
-                    new ReverseStrandVisitor   (resultVisitor, Alignment::SUBJECT, ReverseStrandVisitor::MINUS),
-                    new DatabasesProviderProxy (dbProvider, config, new ReverseStrandSequenceIteratorFactory(), 0),
-                    globalStats,
-                    timeInfo,
-                    isRunning,
-                    -1  // actual strand
-                ));
-            }
+            result.push_back (new AlgorithmPlastn (
+                config,
+                reader,
+                params,
+                filter,
+                new ReverseStrandVisitor (resultVisitor, Alignment::SUBJECT, ReverseStrandVisitor::PLUS),
+                seedModel,
+                dbProvider,
+                indexator,
+                globalStats,
+                timeInfo,
+                isRunning,
+                subjectFrames
+            ));
 
             break;
         }
@@ -561,6 +574,8 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
 
             if ( (prop = properties->getProperty (STR_OPTION_REWARD))  != 0)                {  params->reward  = misc::atoi (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_PENALTY)) != 0)                {  params->penalty = misc::atoi (prop->value.c_str()); }
+
+            if ( (prop = properties->getProperty (STR_OPTION_WORD_SIZE)) != 0)              {  params->seedSpan = misc::atoi (prop->value.c_str()); }
 
             if ( (prop = properties->getProperty (STR_OPTION_SCORE_MATRIX)) != 0)
             {
