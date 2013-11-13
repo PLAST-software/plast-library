@@ -252,7 +252,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->queryRange           = Range64(0,0);
         params->filterQuery          = true;
         params->ungapNeighbourLength = 22;
-        params->ungapScoreThreshold  = 16;
+        params->ungapScoreThreshold  = 38;
         params->smallGapBandLength   = 64;
         params->smallGapBandWidth    = 16;
         params->smallGapThreshold    = 54;
