@@ -93,7 +93,10 @@ public:
     misc::Range64 queryRange;
 
     /** Tells whether low information regions have to be filtered out from the query database. */
-    bool    filterQuery;
+    int  filterQuery;
+
+    /** Value for the threshold size of a sequence for launching the filtering algorithm. */
+    int  filterQueryThreshold;
 
     /** Size of the neighbourhoods during ungap part of the algorithm. */
     int     ungapNeighbourLength;

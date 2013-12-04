@@ -17,6 +17,8 @@
 #include <database/impl/FastaDatabaseQuickReader.hpp>
 #include <misc/api/macros.hpp>
 #include <designpattern/impl/Property.hpp>
+#include <designpattern/impl/TokenizerIterator.hpp>
+#include <libgen.h>
 
 #define DEBUG(a)  //printf a
 
@@ -28,6 +30,22 @@ namespace database { namespace impl {
 /********************************************************************************/
 
 static const u_int64_t MAGIC_NUMBER = 0x12345678;
+
+/********************************************************************************/
+
+static int getDirBaseNames (const std::string& uri, std::string& dname, std::string& bname)
+{
+    char* dirc  = strdup (uri.c_str());      if (!dirc)   { return -1; }
+    char* basec = strdup (uri.c_str());      if (!basec)  { return -1; }
+
+    dname = std::string (dirname(dirc));
+    bname = std::string (basename(basec));
+
+    /** Some cleanup. */
+    free (dirc);  free (basec);
+
+    return 0;
+}
 
 /*********************************************************************
 ** METHOD  :
@@ -182,16 +200,32 @@ int FastaDatabaseQuickReader::load (const std::string& uri)
         fread (&magic, sizeof(u_int64_t), 1, file);
         if (magic != MAGIC_NUMBER)  { return -1; }
 
+        /** WARNING !!! See 'save' method comments. */
+
+        /** We need the directory name of the 'info' file. */
+        std::string dname, bname;
+        if (getDirBaseNames (uri, dname, bname) != 0)  { return -1; }
+
         /** length of uri name. */
         size_t len = 0;
         fread (&len, sizeof(size_t), 1, file);
 
-        /** Uri of the bank */
+        /** Uri of the bank(s) */
         char* buffer = new char [len];
         fread (buffer, sizeof(char), len, file);
+        std::string readBuffer (buffer, len);
 
-        /** We set the uri. */
-        _uri.assign (buffer,len);
+        /** We reset the bank(s) uri. */
+        _uri.clear();
+
+        const char* sep = ",";
+        bool first = true;
+        TokenizerIterator it (readBuffer.c_str(), sep);
+        for (it.first(); !it.isDone(); it.next(), first=false)
+        {
+            if (!first)  { _uri += sep; }
+            _uri +=  dname + std::string("/") + it.currentItem();
+        }
 
         /** u_int64_t   _totalSize;  */
         fread (&_totalSize, sizeof(u_int64_t), 1, file);
@@ -246,15 +280,43 @@ int FastaDatabaseQuickReader::save (const std::string& uri)
     FILE* file = fopen (uri.c_str(), "wb");
     if (file != 0)
     {
+        /** First, we set which uri we save into the file => only the file name, not the full path.
+         *  During the load operation, this filename will be prefixed by the basename of the 'info' file.
+         *  (which implies that the 'info' file should be located at the same place than the referred bank).
+         *
+         *  For instance:
+         *      - the info file (ie 'uri' provided argument) is "/somedir/bank.info'
+         *      - the bank file (ie '_uri' attribute) is "/somedir/bank.fa"
+         *
+         *  So, the saved uri bank will be 'bank.fa'
+         *
+         *  Now, say that we rename "/somedir" into "/mydir". During the 'load' operation, we will have as argument
+         *  the 'info' uri as "/mydir/bank.info". So the load bank uri will be "/mydir" + "bank.fa" => "/mydir/bank.fa"
+         *
+         *  Moreover, we have to check that the bank is not a compound bank, ie list of fasta banks (comma separated).
+         */
+        _actualUri.clear();
+        const char* sep = ",";
+        bool first = true;
+        TokenizerIterator it (_uri.c_str(), sep);
+        for (it.first(); !it.isDone(); it.next(), first=false)
+        {
+            std::string dname, bname;
+            if (getDirBaseNames (it.currentItem(), dname, bname) != 0)  { return -1; }
+
+            if (!first)  { _actualUri += sep; }
+            _actualUri += bname;
+        }
+
         /** Magic number. */
         fwrite (&MAGIC_NUMBER, sizeof(u_int64_t), 1, file);
 
         /** length of uri name. */
-        size_t len = _uri.size();
+        size_t len = _actualUri.size();
         fwrite (&len, sizeof(size_t), 1, file);
 
         /** Uri of the bank */
-        fwrite (_uri.c_str(), sizeof(char), len, file);
+        fwrite (_actualUri.c_str(), sizeof(char), len, file);
 
         /** u_int64_t   _totalSize;  */
         fwrite (&_totalSize, sizeof(u_int64_t), 1, file);
@@ -332,7 +394,7 @@ dp::IProperties* FastaDatabaseQuickReader::getProperties ()
 
     result->add (0, "reader");
 
-    result->add (1, "uri",          "%s",       _uri.c_str());
+    result->add (1, "uri",          "%s",       _actualUri.c_str());
     result->add (1, "totalSize",    "%lld",     _totalSize);
     result->add (1, "dataSize",     "%lld",     _dataSize);
     result->add (1, "nbSequences",  "%ld",      _nbSequences);

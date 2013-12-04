@@ -135,6 +135,8 @@ private:
     /** Uri of the file to be read. */
     std::string _uri;
 
+    std::string _actualUri;
+
     /** Total size of the data (comments + sequences data). */
     u_int64_t   _totalSize;
 

@@ -164,6 +164,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->queryUri             = string ("bar");
         params->queryRange           = Range64(0,0);
         params->filterQuery          = true;
+        params->filterQueryThreshold = 50;
         params->ungapNeighbourLength = 22;
         params->ungapScoreThreshold  = 38;
         params->smallGapBandLength   = 64;
@@ -193,6 +194,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->queryUri             = string ("bar");
         params->queryRange           = Range64(0,0);
         params->filterQuery          = true;
+        params->filterQueryThreshold = 50;
         params->ungapNeighbourLength = 22;
         params->ungapScoreThreshold  = 38;
         params->smallGapBandLength   = 64;
@@ -222,6 +224,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->queryUri             = string ("bar");
         params->queryRange           = Range64(0,0);
         params->filterQuery          = true;
+        params->filterQueryThreshold = 20;
         params->ungapNeighbourLength = 22;
         params->ungapScoreThreshold  = 38;
         params->smallGapBandLength   = 64;
@@ -251,6 +254,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->queryUri             = string ("bar");
         params->queryRange           = Range64(0,0);
         params->filterQuery          = true;
+        params->filterQueryThreshold = 20;
         params->ungapNeighbourLength = 22;
         params->ungapScoreThreshold  = 38;
         params->smallGapBandLength   = 64;
@@ -367,7 +371,7 @@ database::ISequenceIteratorFactory* DefaultConfiguration::createSequenceIterator
 ISequenceDatabase*  DefaultConfiguration::createDatabase (
     const string& uri,
     const Range64& range,
-    bool filtering,
+    int filtering,
     ISequenceIteratorFactory* sequenceIteratorFactory
 )
 {

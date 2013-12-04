@@ -37,7 +37,7 @@ namespace database { namespace impl  {
 ReadingFrameSequenceDatabase::ReadingFrameSequenceDatabase (
     ReadingFrame_e      frame,
     ISequenceDatabase*  nucleotidDatabase,
-    bool                filterLowComplexity
+    int                 filterLowComplexity
 )
     : BufferedSequenceDatabase (
             new ReadingFrameSequenceIterator (frame, nucleotidDatabase->createSequenceIterator()),

@@ -78,7 +78,7 @@ public:
     database::ISequenceDatabase*  createDatabase (
         const std::string& uri,
         const misc::Range64& range,
-        bool filtering,
+        int filtering,
         database::ISequenceIteratorFactory* sequenceIteratorFactory
     );
 

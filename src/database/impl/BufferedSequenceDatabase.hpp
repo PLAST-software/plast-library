@@ -80,9 +80,9 @@ public:
 
     /** Constructor that builds the cache from a sequence iterator.
      * \param[in] refIterator : iterator from which the memory cache is built
-     * \param[in] filterLowComplexity : tells whether one should filter out low informative regions from sequences.
+     * \param[in] filterLowComplexity : tells whether one should filter out low informative regions from sequences. (0 means no filtering)
      */
-    BufferedSequenceDatabase (ISequenceIterator* refIterator, bool filterLowComplexity);
+    BufferedSequenceDatabase (ISequenceIterator* refIterator, int filterLowComplexity);
 
     /** Constructor that uses a provided cache and an index range for iterating the cache.
      * \param[in] id : identifier of the database
@@ -209,8 +209,9 @@ protected:
      */
     void updateSequence (size_t idx, ISequence& sequence);
 
-    /** Tells whether the sequence have to be filtered out (ie. removing low informative regions). */
-    bool _filterLowComplexity;
+    /** Tells whether the sequence have to be filtered out (ie. removing low informative regions).
+     *  O means no filtering.*/
+    int _filterLowComplexity;
 
     /** */
     StrandId_e _direction;
@@ -376,7 +377,7 @@ public:
     /** Constructor.
      * \param cache : the cache to be built.
      */
-    BufferedSegmentSequenceBuilder (ISequenceCache* cache);
+    BufferedSegmentSequenceBuilder (ISequenceCache* cache, int segMinSize);
 
     /** Post treatment; it consists here to convert from ASCII to SUBSEED encoding schemes. */
     void postTreamtment ();
@@ -387,7 +388,7 @@ private:
     void (*_filterSequenceCallback) (char* seq, int len);
 
     /** Theshold size of a sequence for launching the 'seg' algorithm. */
-    size_t _segMinSize;
+    int _segMinSize;
 };
 
 /********************************************************************************/

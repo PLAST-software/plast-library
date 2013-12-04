@@ -46,7 +46,7 @@ namespace database { namespace impl {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-BufferedSequenceDatabase::BufferedSequenceDatabase (ISequenceIterator* refIterator, bool filterLowComplexity)
+BufferedSequenceDatabase::BufferedSequenceDatabase (ISequenceIterator* refIterator, int filterLowComplexity)
     : _nbSequences(0),
       _refIterator(0),
       _cache(0),
@@ -147,8 +147,8 @@ ISequenceCache* BufferedSequenceDatabase::buildCache (ISequenceIterator* refIter
 
     /** We change the sequence builder. We initialize it with the vectors of the cache to be filled during iteration. */
     ISequenceBuilder* builder = 0;
-    if (_filterLowComplexity == false)   { builder = new BufferedSequenceBuilder        (result);  }
-    else                                 { builder = new BufferedSegmentSequenceBuilder (result);  }
+    if (_filterLowComplexity == 0)   { builder = new BufferedSequenceBuilder        (result);                        }
+    else                             { builder = new BufferedSegmentSequenceBuilder (result, _filterLowComplexity);  }
     refIterator->setBuilder (builder);
 
     /** We just loop through the ref iterator => the builder will fill the cache vectors. */
@@ -647,10 +647,10 @@ void BufferedSequenceBuilder::resetData (void)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-BufferedSegmentSequenceBuilder::BufferedSegmentSequenceBuilder (ISequenceCache* cache)
+BufferedSegmentSequenceBuilder::BufferedSegmentSequenceBuilder (ISequenceCache* cache, int segMinSize)
     : BufferedSequenceBuilder (cache),
       _filterSequenceCallback (seg_filterSequence),
-      _segMinSize(50)
+      _segMinSize(segMinSize)
 {
 
     /** We have a specific sequence filter algorithm (dust) for nucleotide database.
@@ -688,7 +688,7 @@ void BufferedSegmentSequenceBuilder::postTreamtment (void)
         size_t len = _cache->offsets.data[i+1] - _cache->offsets.data[i];
 
         /** We launch the algorithm only for big enough sequences. */
-        if (len >= _segMinSize &&  _filterSequenceCallback != 0)  {  _filterSequenceCallback (data + _cache->offsets.data[i], len);  }
+        if (len >= _segMinSize &&  _filterSequenceCallback != 0)  {  _filterSequenceCallback (data + _cache->offsets.data[i], len);   }
     }
 
     //printf ("BufferedSegmentSequenceBuilder::postTreamtment 2. : size=%ld\n", _cache->dataSize);

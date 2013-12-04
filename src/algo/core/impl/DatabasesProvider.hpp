@@ -94,7 +94,7 @@ protected:
     virtual void createDatabaseList (
         const std::string&   uri,
         const misc::Range64& range,
-        bool                 filtering,
+        int                 filtering,
         const std::vector<misc::ReadingFrame_e>& frames,
         std::list<database::ISequenceDatabase*>& dbList,
         database::ISequenceIteratorFactory* seqIterFactory
@@ -107,7 +107,7 @@ protected:
     void readReadingFrameDatabases (
         const std::vector<misc::ReadingFrame_e>& frames,
         database::ISequenceDatabase* db,
-        bool filtering,
+        int filtering,
         std::list<database::ISequenceDatabase*>& framedList
     );
 
@@ -204,7 +204,7 @@ private:
     virtual void createDatabaseList (
         const std::string&   uri,
         const misc::Range64& range,
-        bool                 filtering,
+        int                 filtering,
         const std::vector<misc::ReadingFrame_e>& frames,
         std::list<database::ISequenceDatabase*>& dbList,
         database::ISequenceIteratorFactory* seqIterFactory

@@ -41,7 +41,7 @@ namespace database { namespace impl {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-BufferedCachedSequenceDatabase::BufferedCachedSequenceDatabase (ISequenceIterator* refIterator, bool filterLowComplexity)
+BufferedCachedSequenceDatabase::BufferedCachedSequenceDatabase (ISequenceIterator* refIterator, int filterLowComplexity)
     : BufferedSequenceDatabase (refIterator, filterLowComplexity), _isBuilt(false)
 {
     DEBUG (("BufferedCachedSequenceDatabase::BufferedCachedSequenceDatabase  this=%p  iter=%p\n", this, refIterator));

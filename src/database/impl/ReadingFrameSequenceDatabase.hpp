@@ -88,7 +88,7 @@ public:
      * \param[in] nucleotidDatabase : nucleotide database to be translated
      * \param[in] filterLowComplexity : tells whether one should filter out regions of low complexity
      */
-    ReadingFrameSequenceDatabase (misc::ReadingFrame_e frame, ISequenceDatabase* nucleotidDatabase, bool filterLowComplexity);
+    ReadingFrameSequenceDatabase (misc::ReadingFrame_e frame, ISequenceDatabase* nucleotidDatabase, int filterLowComplexity);
 
     /** Destructor. */
     virtual ~ReadingFrameSequenceDatabase ();
@@ -189,7 +189,7 @@ public:
     ReadingFrameSequenceCommand (
         database::ISequenceDatabase*  nucleotidDatabase,
         misc::ReadingFrame_e          frame,
-        bool                          filtering
+        int                           filtering
     ) : _nucleotidDatabase(nucleotidDatabase), _frame(frame), _filtering(filtering), _resultDatabase(0) {}
 
     /** \copydoc dp::ICommand::execute */
@@ -208,7 +208,7 @@ private:
 
     database::ISequenceDatabase*  _nucleotidDatabase;
     misc::ReadingFrame_e          _frame;
-    bool                          _filtering;
+    int                           _filtering;
     database::ISequenceDatabase*  _resultDatabase;
 };
 

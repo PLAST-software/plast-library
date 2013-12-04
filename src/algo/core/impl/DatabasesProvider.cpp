@@ -150,13 +150,13 @@ void DatabasesProvider::createDatabases (
 void DatabasesProvider::createDatabaseList (
     const std::string&   uri,
     const misc::Range64& range,
-    bool                 filtering,
+    int                 filtering,
     const std::vector<ReadingFrame_e>& frames,
     std::list<database::ISequenceDatabase*>& dbList,
     database::ISequenceIteratorFactory* seqIterFactory
 )
 {
-    bool shouldFilter = !frames.empty() ? false : filtering;
+    int shouldFilter = !frames.empty() ? 0 : filtering;
 
     /** We create the source database. */
     ISequenceDatabase* db = _config->createDatabase (uri, range, shouldFilter, seqIterFactory);
@@ -186,7 +186,9 @@ void DatabasesProvider::createDatabaseList (
     DEBUG (cout << "DatabasesProvider::createDatabaseList: "
         << " uri="       << uri
         << " range="     << range
+        << " framesNb="    << frames.size()
         << " filter="    << filtering
+        << " shouldFilter=" << shouldFilter
         << " nbSeq="     << db->getSequencesNumber()
         << " list.size=" << dbList.size()
         << endl
@@ -223,7 +225,7 @@ void DatabasesProvider::clearDatabaseList (list<ISequenceDatabase*>& dbList)
 void DatabasesProvider::readReadingFrameDatabases (
     const vector<ReadingFrame_e>& frames,
     ISequenceDatabase* db,
-    bool filtering,
+    int filtering,
     list<ISequenceDatabase*>& framedList
 )
 {
@@ -327,13 +329,13 @@ bool DatabasesProvider::areNewQueryParameters (algo::core::IParameters* params, 
 void DatabasesProviderReverse::createDatabaseList (
     const std::string&   uri,
     const misc::Range64& range,
-    bool                 filtering,
+    int                 filtering,
     const std::vector<misc::ReadingFrame_e>& frames,
     std::list<database::ISequenceDatabase*>& dbList,
     database::ISequenceIteratorFactory* seqIterFactory
 )
 {
-    bool shouldFilter = !frames.empty() ? false : filtering;
+    int shouldFilter = !frames.empty() ? 0 : filtering;
 
     dbList.clear ();
 
@@ -349,6 +351,17 @@ void DatabasesProviderReverse::createDatabaseList (
 
     /** We loop each entry in the list and use it. */
     for (list<ISequenceDatabase*>::iterator it = dbList.begin();  it != dbList.end(); it++)  {  (*it)->use();  }
+
+    DEBUG (cout << "DatabasesProviderReverse::createDatabaseList: "
+        << " uri="       << uri
+        << " range="     << range
+        << " framesNb="    << frames.size()
+        << " filter="    << filtering
+        << " shouldFilter=" << shouldFilter
+        << " nbSeq="     << db->getSequencesNumber()
+        << " list.size=" << dbList.size()
+        << endl
+    );
 }
 
 /********************************************************************************/

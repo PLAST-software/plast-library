@@ -254,8 +254,8 @@ void ReadingFrameSequenceIterator::getCodes (int direction, LETTER l1, LETTER l2
 {
     /** We duplicate code for optimization => less calls to the method (we get the 3 codes in a single call). */
 
-//#define DEFAULT_CODE  BAD_CODE
-#define DEFAULT_CODE  ((rand() & 3))
+#define DEFAULT_CODE  0
+//#define DEFAULT_CODE  ((rand() & 3))
 
     if (direction > 0)
     {

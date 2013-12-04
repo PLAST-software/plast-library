@@ -560,7 +560,13 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
             if ( (prop = properties->getProperty (STR_OPTION_QUERY_URI)) != 0)              {  params->queryUri             = prop->value; }
 
             if ( (prop = properties->getProperty (STR_OPTION_OUTPUT_FILE)) != 0)            {  params->outputfile           = prop->value; }
-            if ( (prop = properties->getProperty (STR_OPTION_FILTER_QUERY)) != 0)           {  params->filterQuery          = prop->value.compare ("T") == 0;  }
+
+            if ( (prop = properties->getProperty (STR_OPTION_FILTER_QUERY)) != 0)
+            {
+                     if (prop->value == "T")   {  params->filterQuery = params->filterQueryThreshold;   }
+                else if (prop->value == "F")   {  params->filterQuery = 0;  }
+                else                           {  params->filterQuery = misc::atoi(prop->value.c_str()); }
+            }
 
             if ( (prop = properties->getProperty (STR_OPTION_UNGAP_NEIGHBOUR_LENGTH)) != 0) {  params->ungapNeighbourLength = misc::atoi (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_UNGAP_SCORE_THRESHOLD)) != 0)  {  params->ungapScoreThreshold  = misc::atoi (prop->value.c_str()); }

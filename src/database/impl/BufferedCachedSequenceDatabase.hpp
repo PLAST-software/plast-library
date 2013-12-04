@@ -58,7 +58,7 @@ public:
      * \param[in] refIterator : sequence iterator used for building the database.
      * \param[in] filterLowComplexity : true means that we want to remove regions with low complexity.
      */
-    BufferedCachedSequenceDatabase (ISequenceIterator* refIterator, bool filterLowComplexity);
+    BufferedCachedSequenceDatabase (ISequenceIterator* refIterator, int filterLowComplexity);
 
     /** Destructor. */
     virtual ~BufferedCachedSequenceDatabase ();

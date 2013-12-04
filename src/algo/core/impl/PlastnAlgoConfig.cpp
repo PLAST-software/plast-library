@@ -131,6 +131,7 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
     params->queryUri             = string ("bar");
     params->queryRange           = Range64(0,0);
     params->filterQuery          = false;  // Don't do that for nucleotid/nucleotid comparisons
+    params->filterQueryThreshold = 1;      // not used for dust
     params->ungapNeighbourLength = 0;
     params->ungapScoreThreshold  = 0;
     params->smallGapBandLength   = 0;
@@ -183,7 +184,7 @@ dp::ICommandDispatcher* PlastnConfiguration::createIndexationDispatcher ()
 ISequenceDatabase*  PlastnConfiguration::createDatabase (
     const string& uri,
     const Range64& range,
-    bool filtering,
+    int filtering,
     database::ISequenceIteratorFactory* sequenceIteratorFactory
 )
 {
