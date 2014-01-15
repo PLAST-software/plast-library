@@ -292,7 +292,7 @@ public:
     static const char* m_MSG_OPTIONS_MSG5 () { return "Warning : %s\n"; }
     static const char* m_MSG_OPTIONS_MSG6 () { return "Option %s must be used with one of the following options : %s"; }
     static const char* m_MSG_OPTIONS_MSG7 () { return "Option %s is mandatory"; }
-    static const char* m_STR_HELP_ALGO_TYPE () { return "Program Name [plastp, tplastn, plastx or tplastx]"; }
+    static const char* m_STR_HELP_ALGO_TYPE () { return "Program Name [plastp, tplastn, plastx, tplastx or plastn]"; }
     static const char* m_STR_HELP_SUBJECT_URI () { return "Subject database file"; }
     static const char* m_STR_HELP_QUERY_URI () { return "Query database file"; }
     static const char* m_STR_HELP_OUTPUT_FILE () { return "PLAST report Output File"; }
