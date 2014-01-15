@@ -117,8 +117,11 @@ int main (int argc, char* argv[])
         /** We may want to display some help. */
         if (parser.saw(STR_OPTION_HELP))
         {
-        	fprintf (stdout, MSG_MAIN_MSG1,
+        	fprintf (stdout, "PLAST %s, build at %s on %s with %s, %ld cores available\n",
 				PLAST_VERSION,
+                PLAST_BUILD_DATE,
+                PLAST_BUILD_OS,
+                PLAST_COMPILER,
 				os::impl::DefaultFactory::thread().getNbCores()
 			);
         	parser.displayHelp   (stdout);
