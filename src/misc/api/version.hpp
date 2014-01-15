@@ -33,6 +33,15 @@ namespace misc {
 /** Version of the library. */
 #define PLAST_VERSION   "V2.2.0b"
 
+/** Date of the library. */
+#define PLAST_BUILD_DATE   "xxxx-xx-xx"
+
+/** Os the library. */
+#define PLAST_BUILD_OS   "xxx"
+
+/** Compiler used for library build. */
+#define PLAST_COMPILER   "xxx"
+
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
