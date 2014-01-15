@@ -21,12 +21,15 @@ ENDIF (CPPUNIT_INCLUDE_DIR)
 #  COMPONENT 
 ################################################################################
 
-set (LIBRARY_OUTPUT_PATH    lib/${CMAKE_BUILD_TYPE})
-
 file (GLOB_RECURSE  PlastLibraryTestFiles  src/*)
 
-include_directories (${PlastLibrary_SOURCE_DIR}/src  ${PlastLibrary_SOURCE_DIR}/test/unit/src  ${CPPUNIT_INCLUDE_DIR})
+add_definitions     (${plast-flags})
+include_directories (${plast-includes} ${PlastLibrary_SOURCE_DIR}/test/unit/src  ${CPPUNIT_INCLUDE_DIR})
 
 add_executable        (PlastLibraryTest    ${PlastLibraryTestFiles})
-target_link_libraries (PlastLibraryTest     PlastLibrary-static  ${CPPUNIT_LIBRARY}  dl pthread)
+target_link_libraries (PlastLibraryTest    ${plast-libraries} ${CPPUNIT_LIBRARY})
 
+################################################################################
+#  INSTALLATION 
+################################################################################
+install (TARGETS PlastLibraryTest  DESTINATION bin)
