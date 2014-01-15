@@ -2,11 +2,12 @@
 #  BENCHMARKS 
 ################################################################################
 
-set (LIBRARY_OUTPUT_PATH    lib/${CMAKE_BUILD_TYPE})
+add_definitions     (${plast-flags})
+include_directories (${plast-includes})
 
 list (APPEND PROGRAMS bench1 AlgoAnalysis1)
 
 FOREACH (program ${PROGRAMS})
   add_executable(${program} ${program}.cpp)
-  target_link_libraries(${program} PlastLibrary-static  dl pthread)
+  target_link_libraries(${program} ${plast-libraries})
 ENDFOREACH (program)

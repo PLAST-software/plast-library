@@ -2,13 +2,26 @@
 #  EXAMPLES 
 ################################################################################
 
-set (LIBRARY_OUTPUT_PATH    lib/${CMAKE_BUILD_TYPE})
+add_definitions     (${plast-flags})
+include_directories (${plast-includes})
 
-list (APPEND PROGRAMS example1 example2 example3 example4 example5)
-list (APPEND PROGRAMS example6 example7 example8 example9 example10)
-list (APPEND PROGRAMS example11)
+file (GLOB_RECURSE  PROGRAMS_FILES  *.cpp)
 
-FOREACH (program ${PROGRAMS})
-  add_executable(${program} ${program}.cpp)
-  target_link_libraries(${program} PlastLibrary-static  dl pthread)
+FOREACH (program ${PROGRAMS_FILES})
+
+	# we get the base name of the current example
+    get_filename_component(basename ${program} NAME_WE)
+
+    # we add an executable for this example
+  	add_executable (${basename} ${program})
+  
+    # we use the plast library for the link
+  	target_link_libraries (${basename} ${plast-libraries})
+  
+    list (APPEND PROGRAMS_NAMES ${basename})
+      
 ENDFOREACH (program)
+
+# We add a custom target for making all examples
+add_custom_target (examples ALL DEPENDS ${PROGRAMS_NAMES})
+

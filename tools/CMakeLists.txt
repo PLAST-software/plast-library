@@ -11,3 +11,8 @@ FOREACH (program ${PROGRAMS})
   add_executable(${program} ${program}.cpp)
   target_link_libraries(${program} ${plast-libraries})
 ENDFOREACH (program)
+
+################################################################################
+#  INSTALLATION 
+################################################################################
+install (TARGETS PlastCmd makeplastdb DESTINATION bin)
