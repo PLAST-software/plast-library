@@ -32,4 +32,5 @@ target_link_libraries (PlastLibraryTest    ${plast-libraries} ${CPPUNIT_LIBRARY}
 ################################################################################
 #  INSTALLATION 
 ################################################################################
-install (TARGETS PlastLibraryTest  DESTINATION bin)
+install (TARGETS PlastLibraryTest  DESTINATION test)
+install (DIRECTORY ${PlastLibrary_SOURCE_DIR}/test/db DESTINATION test/)
