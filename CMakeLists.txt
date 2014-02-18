@@ -114,11 +114,10 @@ ADD_SUBDIRECTORY(tools)
 ################################################################################
 #  INSTALLER 
 ################################################################################
-SET (CPACK_PACKAGE_DESCRIPTION_SUMMARY  "plast project")
-SET (CPACK_PACKAGE_VENDOR               "INRIA/Korilog")
-SET (CPACK_PACKAGE_VERSION_MAJOR        "${plast_VERSION_MAJOR}")
-SET (CPACK_PACKAGE_VERSION_MINOR        "${plast_VERSION_MINOR}")
-SET (CPACK_PACKAGE_VERSION_PATCH        "${plast_VERSION_PATCH}")
-SET (CPACK_PACKAGE_VERSION              "${plast-version}")  
-
-include (CPack)
+#SET (CPACK_PACKAGE_DESCRIPTION_SUMMARY  "plast project")
+#SET (CPACK_PACKAGE_VENDOR               "INRIA/Korilog")
+#SET (CPACK_PACKAGE_VERSION_MAJOR        "${plast_VERSION_MAJOR}")
+#SET (CPACK_PACKAGE_VERSION_MINOR        "${plast_VERSION_MINOR}")
+#SET (CPACK_PACKAGE_VERSION_PATCH        "${plast_VERSION_PATCH}")
+#SET (CPACK_PACKAGE_VERSION              "${plast-version}")  
+#include (CPack)
