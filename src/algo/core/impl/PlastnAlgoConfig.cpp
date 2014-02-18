@@ -130,7 +130,7 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
     params->subjectRange         = Range64(0,0);
     params->queryUri             = string ("bar");
     params->queryRange           = Range64(0,0);
-    params->filterQuery          = false;  // Don't do that for nucleotid/nucleotid comparisons
+    params->filterQuery          = true;
     params->filterQueryThreshold = 1;      // not used for dust
     params->ungapNeighbourLength = 0;
     params->ungapScoreThreshold  = 0;
