@@ -36,7 +36,7 @@ public:
     static const u_int32_t DEFAULT_WINDOW = 64;
 
     /**< Default value of the longest distance between consecutive masked intervals at which they should be merged. */
-    static const u_int32_t DEFAULT_LINKER = 80;
+    static const u_int32_t DEFAULT_LINKER = 1;
 
     /** */
     DustMasker (
@@ -96,7 +96,7 @@ private:
         size_t size()  const { return triplet_list_.size(); }
 
         /** */
-        void find_perfect ();
+        void find_perfect (std::vector<u_int8_t>& counts);
 
         /** */
         bool shift_window (u_int8_t t);

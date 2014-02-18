@@ -32,7 +32,7 @@ using namespace misc;
  *********************************************************************/
 extern "C" void DustMasker_filterSequence (char* s, int len)
 {
-	DustMasker dust (64, DustMasker::DEFAULT_WINDOW, DustMasker::DEFAULT_LINKER);
+	DustMasker dust (DustMasker::DEFAULT_LEVEL, DustMasker::DEFAULT_WINDOW, DustMasker::DEFAULT_LINKER);
 	std::vector<misc::RangeU32> regions;
 
     dust.compute (s, len, regions);
@@ -120,6 +120,8 @@ void  DustMasker::compute (const char* seq, size_t len, vector<RangeU32>& res)
     size_t start = 0;
     size_t stop  = len - 1;
 
+    vector<u_int8_t> counts (64);
+
     while (stop > 2 + start)    // there must be at least one triplet
     {
         // initializations
@@ -146,7 +148,7 @@ void  DustMasker::compute (const char* seq, size_t len, vector<RangeU32>& res)
 
             if (w.shift_window (t))
             {
-                if (w.needs_processing())   {  w.find_perfect ();  }
+                if (w.needs_processing())   {  w.find_perfect (counts);  }
             }
             else
             {
@@ -299,10 +301,8 @@ bool DustMasker::triplets::shift_window (u_int8_t t)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void DustMasker::triplets::find_perfect()
+void DustMasker::triplets::find_perfect (vector<u_int8_t>& counts)
 {
-    static vector<u_int8_t> counts (64);
-
     u_int32_t count = stop_ - L; // count is the suffix length
 
     // we need a local copy of triplet counts
