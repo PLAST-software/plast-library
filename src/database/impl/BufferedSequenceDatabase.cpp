@@ -18,6 +18,8 @@
 #include <designpattern/impl/Property.hpp>
 #include <misc/api/macros.hpp>
 #include <misc/api/PlastStrings.hpp>
+#include <designpattern/api/ICommand.hpp>
+#include <designpattern/impl/CommandDispatcher.hpp>
 
 #include <stdlib.h>
 
@@ -672,6 +674,28 @@ BufferedSegmentSequenceBuilder::BufferedSegmentSequenceBuilder (ISequenceCache* 
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+struct FilterParams
+{
+    FilterParams (char* seq, int len) : seq(seq), len(len) {}
+    char* seq; int len;
+};
+
+class FilterSequenceCmd : public dp::ICommand
+{
+public:
+    FilterSequenceCmd (void (*cbk) (char* seq, int len), list<FilterParams>& params) : cbk(cbk), params(params) {}
+
+    void execute ()
+    {
+        for (list<FilterParams>::iterator it = params.begin(); it != params.end(); ++it)  {  cbk (it->seq, it->len);  }
+    }
+
+private:
+    void (*cbk) (char* seq, int len);
+    list<FilterParams>& params;
+};
+
+/**********************************************************************/
 void BufferedSegmentSequenceBuilder::postTreamtment (void)
 {
     /** Shortcut. */
@@ -680,6 +704,31 @@ void BufferedSegmentSequenceBuilder::postTreamtment (void)
     //printf ("BufferedSegmentSequenceBuilder::postTreamtment 1. : size=%ld\n", _cache->dataSize);
     //for (size_t i=0; i<_cache->dataSize; i++)  {  printf ("%c", data[i]); }  printf("\n");
 
+#if 1
+    size_t nbCores = 1;
+
+    /** Right now, 'seg' is not parallelizable, so do it just for 'dust'. */
+    if (_filterSequenceCallback == DustMasker_filterSequence)  { nbCores = DefaultFactory::thread().getNbCores(); }
+
+    vector<list<FilterParams> > paramsVector (nbCores);
+
+    /** We launch low complexity removal for each sequence.
+     *  Note that this post treatment could be parallelized in several threads. */
+    for (size_t i=0; i<_cache->nbSequences; i++)
+    {
+        /** We get the size of the sequence. */
+        size_t len = _cache->offsets.data[i+1] - _cache->offsets.data[i];
+
+        /** We memorize the parameters for the filter algorithm. */
+        if (len >= _segMinSize &&  _filterSequenceCallback != 0)  {  paramsVector[i%nbCores].push_back (FilterParams(data + _cache->offsets.data[i], len));  }
+    }
+
+    /** We build as many commands as wanted and execute them through a dispatcher. */
+    list<ICommand*> commands;
+    for (size_t i=0; i<nbCores; i++)  {  commands.push_back (new FilterSequenceCmd (_filterSequenceCallback, paramsVector[i]));  }
+    ParallelCommandDispatcher(nbCores).dispatchCommands (commands);
+
+#else
     /** We launch low complexity removal for each sequence.
      *  Note that this post treatment could be parallelized in several threads. */
     for (size_t i=0; i<_cache->nbSequences; i++)
@@ -690,9 +739,7 @@ void BufferedSegmentSequenceBuilder::postTreamtment (void)
         /** We launch the algorithm only for big enough sequences. */
         if (len >= _segMinSize &&  _filterSequenceCallback != 0)  {  _filterSequenceCallback (data + _cache->offsets.data[i], len);   }
     }
-
-    //printf ("BufferedSegmentSequenceBuilder::postTreamtment 2. : size=%ld\n", _cache->dataSize);
-    //for (size_t i=0; i<_cache->dataSize; i++)  {  printf ("%c", data[i]); }  printf("\n");
+#endif
 
     const LETTER* convert = EncodingManager::singleton().getEncodingConversion (ASCII, SUBSEED);
 
