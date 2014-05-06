@@ -190,6 +190,49 @@ bool BasicAlignmentContainer::insertFirstLevel (const database::ISequence* first
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+bool BasicAlignmentContainer::doesFirstLevelExists (const database::ISequence* firstLevelSeq)
+{
+    /** We look for the first level entry. */
+    Key firstKey (firstLevelSeq->database,firstLevelSeq->index);
+    ContainerLevel1::iterator lookFirstLevel = _containerLevel1.find (firstKey);
+
+    return (lookFirstLevel != _containerLevel1.end());
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+u_int32_t BasicAlignmentContainer::getSecondLevelNumber ()
+{
+	u_int32_t result = 0;
+
+    for (ContainerLevel1::iterator itLevel1 = _containerLevel1.begin(); itLevel1 != _containerLevel1.end();  itLevel1++)
+    {
+        /** Shortcuts. */
+        ContainerLevel2*  containerLevel2  = (*itLevel1).second.second;
+
+        for (ContainerLevel2::iterator itLevel2 = containerLevel2->begin(); itLevel2 != containerLevel2->end(); itLevel2++)
+        {
+        	result ++;
+        }
+    }
+
+	return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 bool BasicAlignmentContainer::insert (Alignment& align, void* context)
 {
     /** We need to be protected against concurrent accesses. */

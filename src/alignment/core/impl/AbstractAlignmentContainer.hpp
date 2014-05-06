@@ -68,8 +68,14 @@ public:
     /** \copydoc IAlignmentContainer::insertFirstLevel */
     bool insertFirstLevel (const database::ISequence* sequence)  { return false; }
 
+    /** \copydoc IAlignmentResult::doesFirstLevelExists */
+    bool doesFirstLevelExists (const database::ISequence* sequence)  { return false; }
+
     /** \copydoc IAlignmentContainer::getFirstLevelNumber */
     u_int32_t getFirstLevelNumber () { return 0; }
+
+    /** \copydoc IAlignmentContainer::getSecondLevelNumber */
+    u_int32_t getSecondLevelNumber () { return 0; }
 
     /** \copydoc IAlignmentContainer::insert(const misc::Range64&,const misc::Range64&,u_int32_t) */
     bool insert (const misc::Range64& qry, const misc::Range64& sbj, u_int32_t qryIndex)  { return false; }

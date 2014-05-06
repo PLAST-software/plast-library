@@ -83,10 +83,20 @@ public:
      * \return true if insertion ok, false otherwise. */
     virtual bool insertFirstLevel (const database::ISequence* sequence) = 0;
 
+    /** Tells whether a given qry sequence owns at least one hit.
+     * \param[in] sequence : sequence to be checked
+     * \return true if sequence exists, false otherwise */
+    virtual bool doesFirstLevelExists (const database::ISequence* sequence) = 0;
+
     /** Give the number of item at first level.
      * \return the number of items
      */
     virtual u_int32_t getFirstLevelNumber () = 0;
+
+    /** Give the number of item at second level.
+     * \return the number of items
+     */
+    virtual u_int32_t getSecondLevelNumber () = 0;
 
     /** Insert an alignment.
      * \param[in] align   : alignment to be inserted

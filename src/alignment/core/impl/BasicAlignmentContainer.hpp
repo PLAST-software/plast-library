@@ -98,8 +98,14 @@ public:
     /** \copydoc AbstractAlignmentContainer::insertFirstLevel */
     bool insertFirstLevel (const database::ISequence* sequence);
 
+    /** \copydoc IAlignmentResult::doesFirstLevelExists */
+    bool doesFirstLevelExists (const database::ISequence* sequence);
+
     /** \copydoc AbstractAlignmentContainer::getFirstLevelNumber */
     u_int32_t getFirstLevelNumber ()  { return _containerLevel1.size(); }
+
+    /** \copydoc IAlignmentContainer::getSecondLevelNumber */
+    u_int32_t getSecondLevelNumber ();
 
     /** \copydoc AbstractAlignmentContainer::insert(Alignment&,void*) */
     bool insert (Alignment& align, void* context);

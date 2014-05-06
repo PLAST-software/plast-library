@@ -81,16 +81,21 @@ IAlignmentContainer* AlignmentContainerFactory::createContainerFromUri (dp::impl
     /** We may recover some extra information (not very pretty...) */
     ReaderAlignmentContainer* ref = (ReaderAlignmentContainer*) context;
 
-    /** Shorcuts. */
-    std::vector<std::string>&  subjectComments = result->_subjectComments;
-    std::vector<std::string>&  queryComments   = result->_queryComments;
+    /** We need some maps. */
+    std::map<std::string,int>& subjectMapComments = (ref ? ref->_subjectMapComments : result->_subjectMapComments);
+    std::map<std::string,int>& queryMapComments   = (ref ? ref->_queryMapComments   : result->_queryMapComments);
 
     int queryIdx   = 0;
     int subjectIdx = 0;
 
-    /** We need some maps. */
-    std::map<std::string,int>& subjectMapComments = (ref ? ref->_subjectMapComments : result->_subjectMapComments);
-    std::map<std::string,int>& queryMapComments   = (ref ? ref->_queryMapComments   : result->_queryMapComments);
+    if (ref != 0)
+    {
+    	/** In case we parse the comp db, we must not override previous idx of the ref db.
+    	 *  So, we ensure that new found sequences in comp (and not present in ref) will have
+    	 *  indexes that can't overlap ref indexes. */
+    	queryIdx   = queryMapComments.size  ();
+    	subjectIdx = subjectMapComments.size ();
+    }
 
     ISequence sbjSequence;
     ISequence qrySequence;
@@ -186,6 +191,10 @@ IAlignmentContainer* AlignmentContainerFactory::createContainerFromUri (dp::impl
         result->insert (align, NULL);
     }
 
+    /** Shorcuts. */
+    std::vector<std::string>&  subjectComments = result->_subjectComments;
+    std::vector<std::string>&  queryComments   = result->_queryComments;
+
     subjectComments.resize (subjectMapComments.size());
     for (map<string,int>::iterator it = subjectMapComments.begin(); it != subjectMapComments.end(); it++)
     {
@@ -201,7 +210,12 @@ IAlignmentContainer* AlignmentContainerFactory::createContainerFromUri (dp::impl
     /** We have now to associate a comment on each ISequence. */
     result->setComments ();
 
-    DEBUG (cout <<  "AlignmentContainerFactory::createContainerFromUri:  " << "nbLines=" << nbLines << "  " << endl );
+    DEBUG (cout <<  "AlignmentContainerFactory::createContainerFromUri:  "
+    		<< "    nbQry="   << queryComments.size()
+    		<< "    nbSbj="   << subjectComments.size()
+    		<< "    nbAlign=" << nbLines
+    		<< endl
+	);
 
     /** We return the result. */
     return result;

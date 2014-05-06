@@ -63,11 +63,17 @@ public:
     /** \copydoc IAlignmentResult::insertFirstLevel */
     bool insertFirstLevel (const database::ISequence* sequence)  { return false; }
 
+    /** \copydoc IAlignmentResult::doesFirstLevelExists */
+    bool doesFirstLevelExists (const database::ISequence* sequence)  { return false; }
+
     /** \copydoc IAlignmentResult::insert */
     bool insert (const misc::Range64& qry, const misc::Range64& sbj, u_int32_t qryIndex)  { return false; }
 
     /** \copydoc IAlignmentResult::getFirstLevelNumber */
     u_int32_t getFirstLevelNumber () { return 0; }
+
+    /** \copydoc IAlignmentContainer::getSecondLevelNumber */
+    u_int32_t getSecondLevelNumber () { return 0; }
 
     /** \copydoc IAlignmentResult::insert */
     bool insert (Alignment& align, void* context) { return false; }
