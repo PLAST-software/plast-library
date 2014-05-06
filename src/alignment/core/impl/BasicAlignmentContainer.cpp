@@ -418,6 +418,12 @@ struct SortHitsFunctor  { bool operator() (
     const Alignment& b = j.first.second->front();
 
     return (a.getBitScore() >  b.getBitScore()) ||
+#if 1
+       /** Due to BLAST strange ordering, we have to sort the subjects by decreasing indexes... */
+           (a.getBitScore()                          == b.getBitScore()  &&
+            a.getFrame(Alignment::SUBJECT)           == b.getFrame(Alignment::SUBJECT) &&
+            a.getSequence(Alignment::SUBJECT)->index >  b.getSequence(Alignment::SUBJECT)->index) ||
+#endif
            (a.getBitScore() == b.getBitScore()  &&  a.getFrame(Alignment::SUBJECT) > b.getFrame(Alignment::SUBJECT));
 }};
 
