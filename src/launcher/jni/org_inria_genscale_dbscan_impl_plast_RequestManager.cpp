@@ -43,6 +43,7 @@ extern "C" void iLE (char* isAllowed);
 #define CONTROL_CHECKS 1
 
 static bool isVersionNumberValid = false;
+static bool isVersionAcademic    = false;
 
 /*********************************************************************
 ** METHOD  :
@@ -59,12 +60,13 @@ static bool CheckCode (const char* code)
     char* dup = strdup (code);
     if (!dup)   { return false; }
 
-    size_t len = strlen (dup);
+    size_t len        = strlen (dup);
+    size_t lenVersion = strlen (PLAST_VERSION);
 
     /** Here, the idea is to parse the provided code and for each found digit,
      *  change the character by decrementing the value.
      *  For instance, "V3.2.1b" should become "V2.1.0b"  */
-    for (size_t i=0; i<len; i++)
+    for (size_t i=0; i<min(len,lenVersion); i++)
     {
         char c = dup[i];
 
@@ -72,7 +74,38 @@ static bool CheckCode (const char* code)
     }
 
     /** We compute the result. */
-    bool result = strcmp (dup, PLAST_VERSION) == 0;
+    bool result = strncmp (dup, PLAST_VERSION, lenVersion) == 0;
+
+    /** We release resources. */
+    free (dup);
+
+    return result;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+static bool CheckAcademic (const char* code)
+{
+    if (!code)  { return false; }
+
+    char* dup = strdup (code);
+    if (!dup)   { return false; }
+
+    bool result = false;
+
+    size_t len = strlen (dup);
+
+    if (len >= 4)
+    {
+        code += len - 4;
+        result = (code[0]==':') && (code[1]=='C') && (code[2]=='M') && (code[3]=='D');
+    }
 
     /** We release resources. */
     free (dup);
@@ -136,6 +169,9 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager_
         /** We see whether the version number is good or not. */
         isVersionNumberValid = CheckCode (codeBuffer) == true;
 
+        /** We see whether the version is academic. */
+        isVersionAcademic = CheckAcademic (codeBuffer) == true;
+
         /** We release resources. */
         env->ReleaseStringUTFChars (code, codeBuffer);
     }
@@ -192,6 +228,21 @@ JNIEXPORT jlong JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager
 
     /** We convert the JAVA properties as C++ properties. */
     IProperties* props = Wrapper(env).convertProperties (javaProps);
+
+#ifdef CONTROL_CHECKS
+    /** We have extra check in case of academic usage. */
+    if (isVersionAcademic==true)
+    {
+        if (props==0 || (props && props->getProperty("CMD")==0))
+        {
+            /** ACADEMIC USAGE BAD CONFIG !!! We launch an exception. */
+            env->ThrowNew (CLASS(DisabledLibraryException), "Academic usage failure...");
+
+            /** We return a null object as a result. */
+            return 0;
+        }
+    }
+#endif
 
 #ifdef WITH_PLASTRC
     /** We try to see if we have a provided rc file. */
