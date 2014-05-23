@@ -33,6 +33,8 @@
 
 #include <designpattern/api/SmartPointer.hpp>
 #include <designpattern/api/IProperty.hpp>
+#include <designpattern/impl/TokenizerIterator.hpp>
+#include <os/impl/CommonOsImpl.hpp>
 #include <misc/api/types.hpp>
 #include <vector>
 #include <string>
@@ -68,7 +70,7 @@ public:
         ENUM_UNKNOWN
     };
 
-    /** Read the database. Must be called before using getters.
+     /** Read the database. Must be called before using getters.
      *  A 'maxblocksize' parameter can be provided; if not null, it is used for splitting the database
      *  into small sequences sets of maximum size; as a result, one can retrieve a vector of offsets,
      *  each offset pointing to a set of sequences.
@@ -118,6 +120,7 @@ public:
 
     /** */
     virtual int save (const std::string& uri) = 0;
+
 };
 
 /********************************************************************************/

@@ -61,6 +61,10 @@ public:
     /** \copydoc ISequenceBuilder::setComment  */
     void setComment (const char* buffer, size_t length);
 
+    /** \copydoc ISequenceBuilder::setCommentUri  */
+    void setCommentUri (const char* filename, u_int32_t offsetHeader,size_t commentMaxSize);
+
+
     /** \copydoc ISequenceBuilder::resetData  */
     void resetData  ()  { _currentSize = 0; }
 

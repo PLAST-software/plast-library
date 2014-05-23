@@ -194,11 +194,13 @@ ISequenceDatabase*  PlastnConfiguration::createDatabase (
     ));
 
     LOCAL (sequenceIteratorFactory);
+    ISequenceIteratorFactory* tempFactory = createSequenceIteratorFactory(uri);
+    LOCAL (tempFactory);
 
     /** We create the sequence iterator. */
     ISequenceIterator* seqIterator =  sequenceIteratorFactory ?
         sequenceIteratorFactory->createSequenceIterator (uri, range) :
-        new FastaSequenceIterator (uri.c_str(), 2*1024, range.begin, range.end);
+        tempFactory->createSequenceIterator (uri, range);
 
     return new BufferedCachedSequenceDatabase (seqIterator, filtering);
 }

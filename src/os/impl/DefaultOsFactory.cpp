@@ -20,16 +20,19 @@
 #include <os/impl/LinuxTime.hpp>
 #include <os/impl/LinuxFile.hpp>
 #include <os/impl/LinuxMemory.hpp>
+#include <os/impl/LinuxMemoryFile.hpp>
 
 #include <os/impl/WindowsThread.hpp>
 #include <os/impl/WindowsTime.hpp>
 #include <os/impl/WindowsFile.hpp>
 #include <os/impl/WindowsMemory.hpp>
+#include <os/impl/WindowsMemoryFile.hpp>
 
 #include <os/impl/MacOsThread.hpp>
 #include <os/impl/MacOsTime.hpp>
 #include <os/impl/MacOsFile.hpp>
 #include <os/impl/MacOsMemory.hpp>
+#include <os/impl/MacOsMemoryFile.hpp>
 
 /********************************************************************************/
 namespace os { namespace impl {
@@ -50,6 +53,7 @@ DefaultFactory::DefaultFactory ()
     _time   = new LinuxTime ();
     _file   = new LinuxFileFactory ();
     _memory = new LinuxMemoryAllocator ();
+    _fileMem = new LinuxMemoryFileFactory();
 #endif
 
 #ifdef __WINDOWS__
@@ -57,6 +61,7 @@ DefaultFactory::DefaultFactory ()
     _time   = new WindowsTime ();
     _file   = new WindowsFileFactory ();
     _memory = new WindowsMemoryFactory ();
+    _fileMem = new WindowsMemoryFileFactory ();
 #endif
 
 #ifdef __DARWIN__
@@ -64,6 +69,7 @@ DefaultFactory::DefaultFactory ()
     _time   = new MacOsTime ();
     _file   = new MacOsFileFactory ();
     _memory = new MacOsMemoryFactory ();
+    _fileMem = new MacOsMemoryFileFactory ();
 #endif
 }
 
@@ -81,6 +87,7 @@ DefaultFactory::~DefaultFactory ()
     if (_time)      { delete _time;   }
     if (_file)      { delete _file;   }
     if (_memory)    { delete _memory; }
+    if (_fileMem)    { delete _fileMem; }
 }
 
 /********************************************************************************/

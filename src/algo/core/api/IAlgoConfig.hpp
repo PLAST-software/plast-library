@@ -86,6 +86,16 @@ public:
      */
     virtual IParameters* createDefaultParameters (const std::string& algoName) = 0;
 
+    /** Create quick reader which permits to parse quickly the different file type
+     *  It permits to open the fasta format (.fa), the blast format (.pin for protein or .nin for nucleotid).
+     *  It permits also to open the alias file (.pal for protein and .nal for nucleotid).
+     *  This quick reader open the file and extract some information which is used to split the database reading
+     *  \param[in] uri : uri path
+     *  \param[in] shouldInferType : tells whether we should try to find the kind of genomic database we read( used only for fasta format)
+     *  \return a new IDatabaseQuickReader instance
+     */
+    virtual database::IDatabaseQuickReader* createDefaultQuickReader (const std::string& uri, bool shouldInferType) = 0;
+
     /** Create a command dispatcher instance. Such an instance can be used for parallelization (hits
      * iteration for instance, see IAlgorithm class).
      *  \return a new ICommandDispatcher instance
@@ -104,9 +114,10 @@ public:
     virtual os::impl::TimeInfo* createTimeInfo () = 0;
 
     /** Create a factory that builds ISequenceIterator objects.
+     * \param[in] uri : uri path to select the sequence iterator factory depending of the file type
      * \return the factory instance.
      */
-    virtual database::ISequenceIteratorFactory* createSequenceIteratorFactory () = 0;
+    virtual database::ISequenceIteratorFactory* createSequenceIteratorFactory (const std::string& uri) = 0;
 
     /** Create a database object (with means for retrieving sequence within the database) from an uri (likely
      *  a local file, but it should be a location on a remote computer). A Range can be provided for using only

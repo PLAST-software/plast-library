@@ -52,6 +52,15 @@ namespace misc {
 /** Size of an array (computed through sizeof). */
 #define ARRAYSIZE(t)  (sizeof(t) / sizeof(t[0]))
 
+#define CHAR_TO_INT32(x1,x2,x3,x4)	  ((((u_int32_t)x1<<24)&0xFF000000) | (((u_int32_t)x2<<16)&0x00FF0000) | \
+									   (((u_int32_t)x3<<8)&0x0000FF00) | (((u_int32_t)x4)&0x000000FF))
+
+#define CHAR_TO_INT64(x1,x2,x3,x4,x5,x6,x7,x8) \
+									((((u_int64_t)x1<<56)&0xFF00000000000000) | (((u_int64_t)x2<<48)&0x00FF000000000000) | \
+									 (((u_int64_t)x3<<40)&0x0000FF0000000000) | (((u_int64_t)x4<<32)&0x000000FF00000000) | \
+									 (((u_int64_t)x5<<24)&0x00000000FF000000) | (((u_int64_t)x6<<16)&0x0000000000FF0000) | \
+									 (((u_int64_t)x7<<8)&0x000000000000FF00)  |       (((u_int64_t)x8)&0x00000000000000FF))
+
 /** Some macros for add checks in the code. When this flag is activated, the flags
  *  CHECK_BLOCK_BEGIN and CHECK_BLOCK_END are then used to include some code intended
  *  to control internals of the execution, and eventually launch an exception if something

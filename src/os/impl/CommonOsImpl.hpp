@@ -105,6 +105,28 @@ public:
     /** \copydoc IFile::flush */
     void flush ()  { if (_handle)  {  fflush (_handle); } }
 
+    /** \copydoc IFile::read */
+    size_t read (void * buffer, size_t size, size_t count)
+    {
+    	size_t readsize=0;
+    	if (_handle)
+    	{
+    		readsize = fread (buffer,size,count,_handle);
+    	}
+    	return readsize;
+    }
+
+    /** \copydoc IFile::write */
+    size_t write (void * buffer, size_t size, size_t count)
+    {
+    	size_t writesize=0;
+    	if (_handle)
+    	{
+    		writesize = fwrite (buffer,size,count,_handle);
+    	}
+    	return writesize;
+    }
+
     /** \copydoc IFile::getSize */
     u_int64_t getSize ()
     {
@@ -113,6 +135,22 @@ public:
         {
             seeko (0L, SEEK_END);
             return tell ();
+        }
+        return result;
+    }
+
+    /** \copydoc IFile::getPath */
+    std::string getPath ()   { return _path; }
+
+    static bool isFileExist (const std::string& filename)
+    {
+        bool result = false;
+
+        FILE* file = fopen (filename.c_str(), "rb");
+        if (file != 0)
+        {
+            fclose (file);
+        	result=true;
         }
         return result;
     }

@@ -82,6 +82,9 @@ public:
     /** \copydoc IFactory::getMemoryFactory */
     IMemoryAllocator&  getMemoryFactory ()  { return *_memory; }
 
+    /** \copydoc IFactory::getFileMemFactory */
+    IMemoryFileFactory&      getFileMemFactory   ()  { return *_fileMem; }
+
     /** Shorcut for thread methods. */
     static IThreadFactory&    thread ()  { return singleton().getThreadFactory();   }
 
@@ -93,6 +96,9 @@ public:
 
     /** Shorcut for memory methods. */
     static IMemoryAllocator&  memory ()  { return singleton().getMemoryFactory();   }
+
+    /** Shorcut for file methods. */
+    static IMemoryFileFactory&  fileMem   ()  { return singleton().getFileMemFactory();     }
 
 private:
 
@@ -113,6 +119,10 @@ private:
 
     /** */
     IMemoryAllocator* _memory;
+
+    /**  */
+    IMemoryFileFactory* _fileMem;
+
 };
 
 /********************************************************************************/

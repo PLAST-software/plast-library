@@ -28,6 +28,8 @@
 #include <string.h>
 #include <list>
 
+#define	SEQUENCE_MAX_COMMENT_SIZE	2*1024
+
 /********************************************************************************/
 namespace dp {
 /** \brief Implementation of Design Pattern tools (Observer, SmartPointer, Command...) */
@@ -90,7 +92,7 @@ public:
      * \param[in]  offset0      : if not 0, provides the first character offset to be read in the file
      * \param[in]  offset1      : if not 0, provides the last character offset to be read in the file
      */
-    FileLineIterator (const char* filename, size_t lineMaxSize=64*1024, u_int64_t offset0=0, u_int64_t offset1=0);
+    FileLineIterator (const char* filename, size_t lineMaxSize=SEQUENCE_MAX_COMMENT_SIZE, u_int64_t offset0=0, u_int64_t offset1=0);
 
     /** Destructor. */
     virtual ~FileLineIterator ();
@@ -121,8 +123,8 @@ public:
             }
             else
             {
-                _readTotalSize  += _readCurrentSize;
-                _eof = (_readTotalSize > _range);
+                _readTotalSize  = _currentFile->tell();
+                _eof = ((_offset0 < _offset1)&&(_readTotalSize > (_offset1+1)));
 
                 /** We remove the unwanted ending characters. */
                 while (_readCurrentSize > 0)

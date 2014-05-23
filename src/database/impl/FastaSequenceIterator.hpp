@@ -119,7 +119,7 @@ public:
     /** \copydoc ISequenceIteratorFactory::createSequenceIterator */
     virtual ISequenceIterator* createSequenceIterator (const std::string& uri, const misc::Range64& range)
     {
-        return new FastaSequenceIterator (uri.c_str(), 128*1024, range.begin, range.end);
+        return new FastaSequenceIterator (uri.c_str(), SEQUENCE_MAX_COMMENT_SIZE, range.begin, range.end);
     }
 };
 

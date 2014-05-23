@@ -101,6 +101,8 @@ enum Encoding
     SUBSEED,
     ASCII,
     NCBI,
+    NCBI_DNA_NO_AMB,
+    NCBI_DNA_WITH_AMB,
     UNKNOWN
 };
 

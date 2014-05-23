@@ -32,6 +32,9 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <stdio.h>
+
+#define SEQUENCE_COMMENT_DETECTION 	"#&COMMENT;!"
 
 /********************************************************************************/
 /** \brief Definition of concepts related to genomic databases. */
@@ -239,6 +242,87 @@ struct ISequence
     		if (c <= ' ')  {  return (char*)loop; }
     	}
     	return 0;
+    }
+
+    std::string getComment(const char* commentSrc) const
+    {
+    	std::string commentDest;
+    	u_int32_t startOffset = 0;
+    	u_int32_t maxCommentSize = 0;
+    	unsigned char byteLengthDef = 0;
+    	unsigned char byteLengthDefIfupper128 = 0;
+    	u_int32_t size = 0;
+    	u_int32_t indexRead = 0;
+    	os::IMemoryFile* currentHeaderFile;
+    	std::list<os::IMemoryFile*>::iterator fileIt;
+
+        char fileNamePath[2048] = "";
+        char offset[50]= "";;
+        char maxOffset[50]= "";;
+        char *maskDetection;
+        char *filename;
+        char *startOff;
+
+        /*** read the filename ***/
+        maskDetection=strchr((char*)commentSrc,',');
+    	if (strncmp(commentSrc,SEQUENCE_COMMENT_DETECTION,(maskDetection-commentSrc))==0)
+    	{
+    		filename=strchr((maskDetection+1),',');
+    		strncpy(fileNamePath,maskDetection+1,(filename - maskDetection-1));
+    		//fileNamePath[(filename - maskDetection-1)]="\0";
+			currentHeaderFile = os::impl::DefaultFactory::fileMem().newFile (fileNamePath);
+
+    		/*** startOffset ***/
+    		startOff=strchr((filename+1),',');
+    		strncpy(offset,filename+1,(startOff - filename-1));
+    		startOffset = misc::atoi(offset);
+    		/*** Max comment size ***/
+    		strcpy(maxOffset,startOff+1);
+    		maxCommentSize = misc::atoi(maxOffset);
+
+    		/** set the pointer at the begin of the header + 7 in order to remove
+    		 * - 2 bytes for the beginning of the sequenceOf which starts with a 0x3080
+    		 * - 2 bytes for the beginning of the sequence which starts with a 0x3080
+    		 * - 2 bytes for the beginning of the item which starts with a 0xA080 (next item A1, ....)
+    		 * - 1 Byte  which is 0x1A for the beginning of the title
+    		 */
+    		indexRead = startOffset+7;
+
+    		/** read the first byte to know the string length
+    		 * if the first bit is on, then the next seven bits will encode the string length on 128 bytes
+    		 * if the first bit is off, then the next seven bits will encode the interger which indicate the string length
+    		 */
+    		byteLengthDef = (unsigned char)currentHeaderFile->getData()[indexRead];
+    		indexRead++;
+    		if (byteLengthDef&0x80)
+    		{
+    			byteLengthDefIfupper128=byteLengthDef&0x7F;
+    			/** Read the header length*/
+    			//sequenceHdr->read(&byteLengthDefUpper128[0], sizeof(unsigned char), byteLengthDefIfupper128);
+    			for (int32_t i = 0; i < (int32_t)byteLengthDefIfupper128; i++)
+    			{
+    				u_int32_t value= (unsigned char)currentHeaderFile->getData()[indexRead]&0x000000FF;
+    				size = (size << 8) + value;
+    				indexRead++;
+    			}
+    		}
+    		else
+    		{
+    			size=byteLengthDef&0x7F;
+    		}
+
+    		if (size>maxCommentSize)
+    			size=maxCommentSize;
+    		//commentDest = (char*)&currentHeaderFile->getData()[indexRead];
+    		commentDest.append(&currentHeaderFile->getData()[indexRead], size);
+    		commentDest[size]='\0';
+    		delete currentHeaderFile;
+    	}
+    	else
+    	{
+    		commentDest = commentSrc;
+    	}
+    	return commentDest;
     }
 };
 

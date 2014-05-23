@@ -29,6 +29,9 @@
 
 #include <database/impl/AbstractSequenceIterator.hpp>
 #include <database/impl/FastaSequenceIterator.hpp>
+#include <database/impl/BlastdbSequenceIterator.hpp>
+#include <database/impl/DatabaseUtility.hpp>
+
 
 #include <misc/api/types.hpp>
 
@@ -124,7 +127,14 @@ public:
     /** \copydoc ISequenceIteratorFactory::createSequenceIterator  */
     virtual ISequenceIterator* createSequenceIterator (const std::string& uri, const misc::Range64& range)
     {
-        return new ReverseStrandSequenceIterator (new FastaSequenceIterator (uri.c_str(), 64*1024, range.begin, range.end));
+    	DatabaseLookupType::QuickReaderType_e databaseType = DatabaseLookupType::ENUM_TYPE_UNKNOWN;
+
+    	databaseType = DatabaseLookupType::quickReaderType(uri);
+    	if ((databaseType==DatabaseLookupType::ENUM_BLAST_PIN)||(databaseType==DatabaseLookupType::ENUM_BLAST_NIN)
+    		||(databaseType==DatabaseLookupType::ENUM_BLAST_PAL)||(databaseType==DatabaseLookupType::ENUM_BLAST_NAL))
+    		return (new ReverseStrandSequenceIterator (new BlastdbSequenceIterator (uri.c_str(), SEQUENCE_MAX_COMMENT_SIZE, range.begin, range.end)));
+    	else
+    		return (new ReverseStrandSequenceIterator (new FastaSequenceIterator (uri.c_str(), SEQUENCE_MAX_COMMENT_SIZE, range.begin, range.end)));
     }
 };
 

@@ -89,10 +89,30 @@ public:
      */
     virtual void flush () = 0;
 
+    /** Reads a binary buffer into the file.
+     *  \param[in] buffer : Pointer to a block of memory with a size of at least (size*count) bytes, converted to a void*.
+     *  \param[in] size   : Size, in bytes, of each element to be read.
+     *  \param[in] count  : Number of elements, each one with a size of size bytes.
+     */
+    virtual size_t read (void* buffer, size_t size, size_t count) = 0;
+
+    /** Writess a binary buffer into the file.
+     *  \param[in] buffer : Pointer to a block of memory with a size of at least (size*count) bytes, converted to a void*.
+     *  \param[in] size   : Size, in bytes, of each element to be written.
+     *  \param[in] count  : Number of elements, each one with a size of size bytes.
+     */
+    virtual size_t write (void* buffer, size_t size, size_t count) = 0;
+
     /** Get the size of a file.
      * \return the size of the file.
      */
     virtual u_int64_t getSize () = 0;
+
+    /** Get the file path.
+     * \return file path
+     */
+    virtual std::string getPath () = 0;
+
 };
 
 /********************************************************************************/

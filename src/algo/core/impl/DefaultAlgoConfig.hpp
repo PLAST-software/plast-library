@@ -59,6 +59,9 @@ public:
     /** Destructor. */
     virtual ~DefaultConfiguration ();
 
+    /** \copydoc IConfiguration::createDefaultQuickReader */
+    database::IDatabaseQuickReader* createDefaultQuickReader (const std::string& uri, bool shouldInferType);
+
     /** \copydoc IConfiguration::createDefaultParameters */
     IParameters* createDefaultParameters (const std::string& algoName);
 
@@ -72,7 +75,7 @@ public:
     os::impl::TimeInfo* createTimeInfo ();
 
     /** \copydoc IConfiguration::createSequenceIteratorFactory */
-    database::ISequenceIteratorFactory* createSequenceIteratorFactory ();
+    database::ISequenceIteratorFactory* createSequenceIteratorFactory (const std::string& uri);
 
     /** \copydoc IConfiguration::createDatabase */
     database::ISequenceDatabase*  createDatabase (

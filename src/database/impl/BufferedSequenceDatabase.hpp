@@ -29,6 +29,7 @@
 #include <database/api/ISequenceCache.hpp>
 #include <database/api/ISequenceBuilder.hpp>
 #include <database/impl/AbstractSequenceIterator.hpp>
+#include <misc/api/macros.hpp>
 
 #include <vector>
 #include <string>
@@ -298,37 +299,32 @@ public:
     /** \copydoc ISequenceBuilder::setComment */
     void setComment (const char* buffer, size_t length);
 
+    /** \copydoc ISequenceBuilder::setCommentUri  */
+    void setCommentUri (const char* filename, u_int32_t offsetHeader,size_t commentMaxSize);
+
     /** \copydoc ISequenceBuilder::resetData */
     void resetData  ();
 
     /** \copydoc ISequenceBuilder::addData */
     void addData (const LETTER* data, size_t size, Encoding encoding)
     {
-        /** We configure (if needed) the conversion table. */
+    	/** We configure (if needed) the conversion table. */
         if (encoding != _sourceEncoding)
         {
             _sourceEncoding = encoding;
             _convertTable = EncodingManager::singleton().getEncodingConversion (_sourceEncoding, getEncoding());
         }
 
-        /** We may have to resize the vector. */
-        if (_currentDataCapacity <= _cache->dataSize + size)
+        if (encoding == ASCII)
         {
-            _currentDataCapacity += size + _currentDataCapacity/2;
-            _cache->database.resize (_currentDataCapacity);
-        }
-
-        if (encoding != ASCII)
-        {
-            /** We memorize the character and increase the data size of the current sequence. */
-            for (size_t i=0; i<size; i++)
+            /** We may have to resize the vector. */
+            if (_currentDataCapacity <= _cache->dataSize + size)
             {
-                _cache->database.data [_cache->dataSize ++] = (_convertTable ? _convertTable[(int)data[i]] : data[i]);
+                _currentDataCapacity += size + _currentDataCapacity/2;
+                _cache->database.resize (_currentDataCapacity);
             }
-        }
-        else
-        {
-			/** We memorize the character and increase the data size of the current sequence. */
+
+            /** We memorize the character and increase the data size of the current sequence. */
 			for (size_t i=0; i<size; i++)
 			{
 				char c = data[i];
@@ -337,6 +333,187 @@ public:
 
 				_cache->database.data [_cache->dataSize ++] = (_convertTable ? _convertTable[(int)c] : c);
 			}
+        }
+        else if (encoding == NCBI_DNA_NO_AMB)
+        {
+        	int32_t 	s;
+        	u_int32_t 	remainder;
+        	u_int32_t 	byteCount = 0;
+        	size_t 	  	res_cnt = 0;
+
+     		res_cnt = (size+1)* 4;
+
+            /** We may have to resize the vector. */
+            if (_currentDataCapacity <= _cache->dataSize + res_cnt)
+            {
+                _currentDataCapacity += res_cnt + _currentDataCapacity/2;
+                _cache->database.resize (_currentDataCapacity);
+            }
+
+    		/* loop on the number of data */
+    		for (byteCount = 0; byteCount < size; ++byteCount)
+    		{
+    			s = (data[byteCount] >> 6) & 0x03;
+    			_cache->database.data [_cache->dataSize ++] = (_convertTable ? _convertTable [(int)s] : s);
+    			s = (data[byteCount] >> 4) & 0x03;
+    			_cache->database.data [_cache->dataSize ++] = (_convertTable ? _convertTable [(int)s] : s);
+    			s = (data[byteCount] >> 2) & 0x03;
+    			_cache->database.data [_cache->dataSize ++] = (_convertTable ? _convertTable [(int)s] : s);
+    			s = (data[byteCount]) & 0x03;
+    			_cache->database.data [_cache->dataSize ++] = (_convertTable ? _convertTable [(int)s] : s);
+    		}
+
+    	   	/* the least two significant bits indicate how many residues
+    			* are encoded in the last byte.
+    			*/
+    		remainder = data[byteCount] & 0x03;
+    		for (u_int32_t y=0;y<remainder;y++)
+    		{
+    			s = (3 - (y % 4)) * 2;
+    			s = (data[byteCount] >> s) & 0x03;
+    			_cache->database.data [_cache->dataSize ++] = (_convertTable ? _convertTable [(int)s] : s);
+    		}
+        }
+        else if (encoding == NCBI_DNA_WITH_AMB)
+        {
+        	int32_t s;
+        	int32_t remainder;
+        	int32_t amb_res = 0;
+        	int32_t byteCount = -1;
+
+        	u_int64_t x;
+        	u_int64_t soff = 0, eoff = 0;
+
+        	u_int32_t res_cnt = 0;
+        	u_int32_t amb_cnt = 0;
+        	u_int32_t large_amb = 0;
+        	u_int32_t amb_index = 0;
+
+        	unsigned char *amb_ptr = NULL;
+
+        	unsigned char lastByte;
+        	const LETTER* noAmbConvertTable;
+        	const LETTER* ambConvertTable;
+        	noAmbConvertTable = EncodingManager::singleton().getEncodingConversion(NCBI_DNA_NO_AMB,SUBSEED);
+        	ambConvertTable = EncodingManager::singleton().getEncodingConversion(NCBI_DNA_WITH_AMB,SUBSEED);
+
+        	/* find the size of the ambiguity table */
+        	amb_cnt = CHAR_TO_INT32(data[size],data[size+1],data[size+2],data[size+3]);
+
+        	/* if the most significant bit is set on the count, then each correction
+        	 * will take two entries in the table.  the layout is described below. */
+        	large_amb = amb_cnt >> 31;
+        	amb_cnt = amb_cnt & 0x7fffffff;
+
+        	amb_index = size+4;
+        	amb_ptr = (unsigned char*)&data[amb_index];
+
+        	/* read the last byte of the sequence, so we can calculate the
+        	* number of residues in the last byte of the sequence (0-3).
+        	*/
+        	lastByte = data[(size - 1)];
+
+        	/* the least two significant bits indicate how many residues
+        	* are encoded in the last byte.
+        	*/
+        	remainder = lastByte & 0x03;
+        	res_cnt = (size - 1) * 4 + remainder;
+
+            /** We may have to resize the vector. */
+            if (_currentDataCapacity <= _cache->dataSize + res_cnt)
+            {
+                _currentDataCapacity += res_cnt + _currentDataCapacity/2;
+                _cache->database.resize (_currentDataCapacity);
+            }
+
+        	byteCount = -1;
+
+        	/* loop on the number of data */
+        	for (x = 0; x < res_cnt; ++x)
+        	{
+        		/* decode the ambiguity table */
+        		if (x == 0 || x > eoff)
+        		{
+					/* get the residue symbol */
+					amb_res = (int32_t) (*amb_ptr >> 4);
+
+					/* the layout of the ambiguity table differs if it is using
+					 * large offsets, i.e. offsets > 16 million.
+					 *
+					 * for small offsets the layout is:
+					 *    4 bits - nucleotide
+					 *    4 bits - repeat count
+					 *   24 bits - offset
+					 *
+					 * for large offsets the layout is:
+					 *    4 bits - nucleotide
+					 *   12 bits - repeat count
+					 *   48 bits - offset
+					 */
+					if (large_amb)
+					{
+						/* get the repeat count */
+						eoff  = (((u_int64_t) (*amb_ptr & 0x0f)) << 8) + (((u_int64_t) *(amb_ptr+1)) << 0);
+
+						/* get the offset */
+						soff  = (((u_int64_t) *(amb_ptr+2)) << 40);
+						soff += (((u_int64_t) *(amb_ptr+3)) << 32);
+						soff += (((u_int64_t) *(amb_ptr+4)) << 24);
+						soff += (((u_int64_t) *(amb_ptr+5)) << 16);
+						soff += (((u_int64_t) *(amb_ptr+6)) << 8);
+						soff += (((u_int64_t) *(amb_ptr+7)) << 0);
+
+						amb_ptr += 8;
+						amb_cnt -= 2;
+					}
+					else
+					{
+						/* get the repeat count */
+						eoff  = (u_int64_t) (*amb_ptr & 0x0f);
+
+						/* get the offset */
+						soff  = (((u_int64_t) *(amb_ptr+1)) << 16);
+						soff += (((u_int64_t) *(amb_ptr+2)) << 8);
+						soff += (((u_int64_t) *(amb_ptr+3)) << 0);
+
+						amb_ptr += 4;
+						amb_cnt -= 1;
+					}
+					eoff += soff;
+        		}
+
+        		/* read the next byte if necessary */
+        		if ((x % 4) == 0)
+        		{
+        			byteCount ++;
+        		}
+
+        		if (x >= soff && x <= eoff)
+        		{
+        			_cache->database.data [_cache->dataSize ++] = ambConvertTable[(u_int32_t)amb_res];
+        		}
+        		else
+        		{
+        			s = (3 - (x % 4)) * 2;
+        			s = (data[byteCount] >> s) & 0x03;
+        			_cache->database.data [_cache->dataSize ++] = noAmbConvertTable[s];
+        		}
+        	}
+        }
+        else
+        {
+            /** We may have to resize the vector. */
+            if (_currentDataCapacity <= _cache->dataSize + size)
+            {
+                _currentDataCapacity += size + _currentDataCapacity/2;
+                _cache->database.resize (_currentDataCapacity);
+            }
+
+            /** We memorize the character and increase the data size of the current sequence. */
+            for (size_t i=0; i<size; i++)
+            {
+                _cache->database.data [_cache->dataSize ++] = (_convertTable ? _convertTable[(int)data[i]] : data[i]);
+            }
         }
     }
 

@@ -614,6 +614,35 @@ BufferedSequenceBuilder::BufferedSequenceBuilder (ISequenceCache* cache)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+void BufferedSequenceBuilder::setCommentUri (const char* filename, u_int32_t offsetHeader,size_t commentMaxSize)
+{
+	char bufferNumber[50];
+
+    if (_currentSequencesCapacity <= _cache->nbSequences)
+    {
+        _currentSequencesCapacity += _currentSequencesCapacity/2;
+        _cache->offsets.resize  (_currentSequencesCapacity);
+        _cache->comments.resize (_currentSequencesCapacity);
+    }
+
+    //DEBUG (("BufferedSequenceDatabase::BufferedSequenceBuilder::setComment:  len=%ld\n", length));
+
+    _cache->comments [_cache->nbSequences].assign (SEQUENCE_COMMENT_DETECTION, strlen(SEQUENCE_COMMENT_DETECTION));
+    _cache->comments [_cache->nbSequences].append (",", 1);
+    _cache->comments [_cache->nbSequences].append (filename, strlen(filename));
+    sprintf(bufferNumber,",%d,%ld",offsetHeader,commentMaxSize);
+    _cache->comments [_cache->nbSequences].append (bufferNumber, strlen(bufferNumber));
+
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 void BufferedSequenceBuilder::setComment (const char* buffer, size_t length)
 {
     if (_currentSequencesCapacity <= _cache->nbSequences)

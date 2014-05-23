@@ -41,6 +41,7 @@
 #include <os/api/ITime.hpp>
 #include <os/api/IFile.hpp>
 #include <os/api/IMemory.hpp>
+#include <os/api/IMemoryFile.hpp>
 
 /********************************************************************************/
 /** \brief Operating System abstraction layer */
@@ -83,6 +84,11 @@ public:
      * \return the factory.
      */
     virtual IMemoryAllocator&  getMemoryFactory () = 0;
+
+    /** Provide a instance of a factory for dealing with file memory.
+     * \return the factory.
+     */
+    virtual IMemoryFileFactory&  getFileMemFactory () = 0;
 };
 
 /********************************************************************************/

@@ -68,6 +68,9 @@ static const char* keyIter      = "iteration";
 static const char* keyOutput    = "output";
 static const char* keyAlgorithm = "algorithm";
 
+/*static u_int64_t checksum = 0;
+static u_int64_t nbDataSeq = 0;*/
+
 /********************************************************************************/
 
 /** Command that launch 'iterate' method on a IHitIterator instance. Using a Command allows to
@@ -294,6 +297,17 @@ void AbstractAlgorithm::execute (void)
             /** Shortcuts. */
             ISequenceDatabase* subjectDb = subjectDbIt->currentItem();
 
+            /*ISequence seq;
+            for (u_int64_t nbSeq=0;nbSeq<subjectDb->getSequencesNumber();nbSeq++)
+            {
+            	subjectDb->getSequenceByIndex(nbSeq,seq);
+            	for (u_int64_t nData=0;nData<seq.data.letters.size;nData++)
+            	{
+            		checksum = (checksum + seq.data.letters.data[nData]) % (1<<16);
+            		nbDataSeq++;
+            	}
+            }*/
+
             DEBUG (("AbstractAlgorithm::execute : subjectSeqNb=%ld  querySeqNb=%ld\n",
                 subjectDb->getSequencesNumber(),
                 queryDb->getSequencesNumber()
@@ -363,6 +377,7 @@ void AbstractAlgorithm::execute (void)
         }  /* end of for (subjectDbIt.first(); ... */
 
     }  /* end of for (queryDbIt.first(); ... */
+    //printf ("checksum=%ld nbData=%ld\n", checksum,	nbDataSeq);
 }
 
 /*********************************************************************

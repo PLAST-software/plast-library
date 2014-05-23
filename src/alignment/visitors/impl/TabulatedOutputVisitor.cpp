@@ -93,8 +93,11 @@ void TabulatedOutputVisitor::dumpLine (core::Alignment* align)
     snprintf (queryName,   sizeof(queryName),   "%s", _currentQuery->comment);
     if ( (locate = database::ISequence::searchIdSeparator (queryName)) != 0)  { *locate = 0; }
 
-    char subjectName[128];
-    snprintf (subjectName, sizeof(subjectName), "%s", _currentSubject->comment);
+    char subjectName[128] = "";
+    //snprintf (subjectName, sizeof(subjectName), "%s", _currentSubject->comment);
+    //snprintf (subjectName, sizeof(subjectName), "TEST");
+    snprintf (subjectName, sizeof(subjectName), "%s", _currentSubject->getComment(_currentSubject->comment).c_str());
+
     if ( (locate = database::ISequence::searchIdSeparator (subjectName)) != 0)  { *locate = 0; }
 
     char evalueStr[32];

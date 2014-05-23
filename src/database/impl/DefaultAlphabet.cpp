@@ -93,6 +93,24 @@ static IAlphabet alphabetsTable_nucleotid[] =
        4,
 
        4, 4, 5
+    },
+
+    {
+       "ncbi",
+
+       ncbiLetters_nucleotid,
+       4,
+
+       4, 4, 5
+    },
+
+    {
+       "ncbi",
+
+       ncbiLetters_nucleotid,
+       4,
+
+       4, 4, 5
     }
 };
 
@@ -265,20 +283,23 @@ const LETTER* EncodingManager::getEncodingConversion_nucleotid (Encoding from, E
         0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
 
-    static const LETTER Encoding_subseed2ascii [] = {'A','C','G','T','N','-'};
+    static const LETTER Encoding_subseed2ascii [] = {'A','C','T','G','N','-'};
 
-    static const LETTER Encoding_subseed2ncbi [] = { 0, 1, 2, 3, 4, 5 };
-    static const LETTER Encoding_ncbi2subseed [] = { 0, 1, 2, 3, 4, 5 };
+    static const LETTER Encoding_subseed2ncbi [] = { 0, 1, 3, 2, 4, 5 };
+    static const LETTER Encoding_ncbi2subseed [] = { 0, 1, 3, 2, 4, 5 };
+    static const LETTER Encoding_ncbiAmb2subseed [] = { 5, 0, 1, 4, 3, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4 };
 
     /** We define the result object. */
     const LETTER* result = 0;
 
-         if (from==SUBSEED && to==ASCII)    { result = Encoding_subseed2ascii;  }
-    else if (from==SUBSEED && to==NCBI)     { result = Encoding_subseed2ncbi;   }
-    else if (from==ASCII   && to==SUBSEED)  { result = Encoding_ascii2subseed;  }
-    else if (from==ASCII   && to==NCBI)     { result = Encoding_ascii2ncbi;     }
-    else if (from==NCBI    && to==SUBSEED)  { result = Encoding_ncbi2subseed;   }
-    else                                    { result = 0;                       }
+         if (from==SUBSEED 			&& to==ASCII)    			{ result = Encoding_subseed2ascii;  }
+    else if (from==SUBSEED 			&& to==NCBI)     			{ result = Encoding_subseed2ncbi;   }
+    else if (from==ASCII   			&& to==SUBSEED)  			{ result = Encoding_ascii2subseed;  }
+    else if (from==ASCII   			&& to==NCBI)     			{ result = Encoding_ascii2ncbi;     }
+    else if (from==NCBI    			&& to==SUBSEED)  			{ result = Encoding_ncbi2subseed;   }
+    else if (from==NCBI_DNA_NO_AMB 	&& to==SUBSEED)  			{ result = Encoding_ncbi2subseed;   }
+    else if (from==NCBI_DNA_WITH_AMB&& to==SUBSEED)  			{ result = Encoding_ncbiAmb2subseed;}
+    else                                    					{ result = 0;                       }
 
     return result;
 }

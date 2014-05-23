@@ -625,7 +625,8 @@ void DefaultEnvironment::setSubjectBank (dp::IProperties* properties, u_int64_t 
     IProperty* subjectUriProp = properties->getProperty (STR_OPTION_SUBJECT_URI);
 
     /** We create the quick reader instance for the subject bank. */
-    setQuickSubjectDbReader (new FastaDatabaseQuickReader (subjectUriProp->value, true));
+    setQuickSubjectDbReader (_config->createDefaultQuickReader(subjectUriProp->value, true));
+    subjectUriProp->value = _quickSubjectDbReader->getUri();
 
     /** We check whether it is an 'info' file or a fasta file. */
     bool isInfoFile = FastaDatabaseQuickReader::isQuickReaderFile (subjectUriProp->value);

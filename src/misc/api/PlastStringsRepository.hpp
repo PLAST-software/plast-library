@@ -276,6 +276,8 @@ public:
     static const char* m_MSG_MAIN_MSG3 () { return "ERROR: %s\n"; }
     static const char* m_MSG_MAIN_MSG4 () { return "GENERIC ERROR...\n"; }
     static const char* m_MSG_INDEXATION_MSG1 () { return "ERROR!!! : BAD HASH CODE\n"; }
+    static const char* m_MSG_FILE_BLAST_MSG1 () { return "ERROR DURING BLAST FORMAT READING...\n"; }
+    static const char* m_MSG_FILE_BLAST_MSG2 () { return "ERROR DURING BLAST FORMAT PARSING...\n"; }
     static const char* m_MSG_DATABASE_MSG1 () { return "ERROR IN SEQUENCE SEARCH...\n"; }
     static const char* m_MSG_HITS_MSG1 () { return "SEQUENCE NOT FOUND IN DATABASE...\n"; }
     static const char* m_MSG_HITS_MSG2 () { return "iterating HSP"; }

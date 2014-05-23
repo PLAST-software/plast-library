@@ -76,6 +76,13 @@ public:
      */
     virtual void setComment (const char* buffer, size_t length) = 0;
 
+    /** Set the comment for the current sequence being built.
+     * \param[in] buffer : buffer holding the textual commentary.
+     * \param[in] length : size of the buffer
+     * \param[in] addNullChar : add the null character at the end of the buffer
+     */
+    virtual void setCommentUri (const char* filename, u_int32_t offsetHeader,size_t commentMaxSize) = 0;
+
     /** Reset the data for the current sequence being built. */
     virtual void resetData  () = 0;
 

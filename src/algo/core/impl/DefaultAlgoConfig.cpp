@@ -22,6 +22,10 @@
 
 #include <database/impl/BufferedSequenceDatabase.hpp>
 #include <database/impl/FastaSequenceIterator.hpp>
+#include <database/impl/FastaDatabaseQuickReader.hpp>
+#include <database/impl/BlastdbSequenceIterator.hpp>
+#include <database/impl/BlastdbDatabaseQuickReader.hpp>
+#include <database/impl/DatabaseUtility.hpp>
 
 #include <seed/impl/BasicSeedModel.hpp>
 #include <seed/impl/SubSeedModel.hpp>
@@ -134,6 +138,31 @@ DefaultConfiguration::DefaultConfiguration (IEnvironment* environment, IProperti
 DefaultConfiguration::~DefaultConfiguration ()
 {
     setProperties (0);
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+database::IDatabaseQuickReader* DefaultConfiguration::createDefaultQuickReader (const std::string& uri, bool shouldInferType)
+{
+	DatabaseLookupType::QuickReaderType_e databaseType = DatabaseLookupType::ENUM_TYPE_UNKNOWN;
+
+	if (uri!="foo")
+	{
+		databaseType = DatabaseLookupType::quickReaderType(uri);
+		if ((databaseType==DatabaseLookupType::ENUM_BLAST_PIN)||(databaseType==DatabaseLookupType::ENUM_BLAST_NIN)
+				||(databaseType==DatabaseLookupType::ENUM_BLAST_PAL)||(databaseType==DatabaseLookupType::ENUM_BLAST_NAL))
+			return new BlastdbDatabaseQuickReader (uri, shouldInferType);
+		else
+			return new FastaDatabaseQuickReader (uri, shouldInferType);
+	}
+	else
+		return new FastaDatabaseQuickReader (uri, shouldInferType);
 }
 
 /*********************************************************************
@@ -355,9 +384,18 @@ os::impl::TimeInfo* DefaultConfiguration::createTimeInfo ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-database::ISequenceIteratorFactory* DefaultConfiguration::createSequenceIteratorFactory ()
+database::ISequenceIteratorFactory* DefaultConfiguration::createSequenceIteratorFactory (const string& uri)
 {
-    return new FastaSequenceIteratorFactory ();
+	DatabaseLookupType::QuickReaderType_e databaseType = DatabaseLookupType::ENUM_TYPE_UNKNOWN;
+
+	databaseType = DatabaseLookupType::quickReaderType(uri);
+	if ((databaseType==DatabaseLookupType::ENUM_BLAST_PIN)||(databaseType==DatabaseLookupType::ENUM_BLAST_NIN)
+		||(databaseType==DatabaseLookupType::ENUM_BLAST_PAL)||(databaseType==DatabaseLookupType::ENUM_BLAST_NAL))
+	{
+		return new BlastdbSequenceIteratorFactory ();
+	}
+	else
+		return new FastaSequenceIteratorFactory();
 }
 
 /*********************************************************************
@@ -376,11 +414,13 @@ ISequenceDatabase*  DefaultConfiguration::createDatabase (
 )
 {
     LOCAL (sequenceIteratorFactory);
+    ISequenceIteratorFactory* tempFactory = createSequenceIteratorFactory(uri);
+    LOCAL (tempFactory);
 
     /** We create the sequence iterator. */
     ISequenceIterator* seqIterator =  sequenceIteratorFactory ?
         sequenceIteratorFactory->createSequenceIterator (uri, range) :
-        new FastaSequenceIterator (uri.c_str(), 2*1024, range.begin, range.end);
+        tempFactory->createSequenceIterator (uri, range);
 
     /** We create the database. */
     return new BufferedSequenceDatabase (seqIterator, filtering);
