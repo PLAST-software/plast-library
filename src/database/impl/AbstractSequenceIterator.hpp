@@ -73,6 +73,9 @@ public:
     /** \copydoc ISequenceIterator::getId */
     std::string getId () { return _id; }
 
+    /** \copydoc ISequenceIterator::transformComment */
+    std::string transformComment (const char* comment) {return comment; };
+
 protected:
 
     /** \copydoc ISequenceIterator::getBuilder */

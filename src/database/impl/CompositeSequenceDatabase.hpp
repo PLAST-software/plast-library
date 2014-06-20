@@ -123,6 +123,12 @@ public:
     /** Change the strand of the sequences (meaningful only for nucleotides databases). */
     void reverse ();
 
+    /** \copydoc ISequenceDatabase::accept */
+    void accept (DatabaseVisitor& v)
+    {
+    	v.visitCompositeSequenceDatabase(*this);
+    }
+
 private:
 
     /** Vector of children ISequenceDatabase instances. */

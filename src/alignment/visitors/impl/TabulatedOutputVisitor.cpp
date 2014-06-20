@@ -96,7 +96,7 @@ void TabulatedOutputVisitor::dumpLine (core::Alignment* align)
     char subjectName[128] = "";
     //snprintf (subjectName, sizeof(subjectName), "%s", _currentSubject->comment);
     //snprintf (subjectName, sizeof(subjectName), "TEST");
-    snprintf (subjectName, sizeof(subjectName), "%s", _currentSubject->getComment(_currentSubject->comment).c_str());
+    snprintf (subjectName, sizeof(subjectName), "%s", _currentSubject->getComment().c_str());
 
     if ( (locate = database::ISequence::searchIdSeparator (subjectName)) != 0)  { *locate = 0; }
 

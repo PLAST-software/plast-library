@@ -17,6 +17,7 @@
 
 #include <database/api/ISequence.hpp>
 #include <database/impl/BlastdbSequenceIterator.hpp>
+#include <database/impl/BlastdbAsn1HeaderDecoder.hpp>
 #include <misc/api/PlastStrings.hpp>
 #include <database/impl/BasicSequenceBuilder.hpp>
 #include <designpattern/impl/TokenizerIterator.hpp>
@@ -32,7 +33,7 @@
 #include <stdlib.h>
 
 #define DEBUG(a)  //printf a
-#define INFO(a)   printf a
+#define INFO(a)   //printf a
 
 using namespace std;
 using namespace dp;
@@ -60,7 +61,8 @@ BlastdbSequenceIterator::BlastdbSequenceIterator (
 )
 : _offset0(offset0), _offset1(offset1), _commentMaxSize(commentMaxSize),
   _readTotalSize(0), _readCurrentSize(0),_fileCurrentSize(0), _cummulatedFilesLength(0), _currentIndexFile(NULL),
-  _currentSequenceFile(NULL),_offsetReadIndex(0), _data(NULL),_isDone(false),_eof(false),_firstOffset(0)
+  _currentSequenceFile(NULL),_offsetReadIndex(0), _data(NULL),_isDone(false),_eof(false),_firstOffset(0),
+  _currentHeaderFileName("")
 
 {
     DEBUG (("BlastdbSequenceIterator::BlastdbSequenceIterator:  filename='%s'  range=[%ld,%ld] \n", filename, offset0, offset1));
@@ -79,6 +81,7 @@ BlastdbSequenceIterator::BlastdbSequenceIterator (
 	stringstream ss;
 	ss << filename << ":" << offset0 << ":" << offset1;
 	setId (ss.str());
+	_filesHeaderIndex.clear();
 }
 
 /*********************************************************************
@@ -104,6 +107,12 @@ BlastdbSequenceIterator::~BlastdbSequenceIterator ()
 		_currentSequenceFile->unmapFile();
 		delete _currentSequenceFile;
 	}
+
+	for (std::map<std::string,os::IMemoryFile*>::iterator it= _filesHeaderIndex.begin(); it != _filesHeaderIndex.end(); it++)
+	{
+		delete (it->second);
+	}
+	_filesHeaderIndex.clear();
 }
 
 /*********************************************************************
@@ -139,9 +148,6 @@ void BlastdbSequenceIterator::first()
         	if(_currentSequenceFile) { delete _currentSequenceFile; }
         	_currentSequenceFile = DefaultFactory::fileMem().newFile (_currentIndexFile->getSequenceFilename().c_str(), false);
         	_fileCurrentSize = _currentSequenceFile->getSize();
-
-        	/*_currentIndexFile->read();
-        	_fileCurrentSize = _currentIndexFile->getSeqFileSize();*/
 
             /** find if the _offset0 is in the _currentIndexFile */
             if ((_cummulatedFilesLength + _fileCurrentSize) >= _offset0)
@@ -209,7 +215,6 @@ bool BlastdbSequenceIterator::retrieveNextFile ()
     return !_eof;
 }
 
-
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
@@ -221,9 +226,11 @@ bool BlastdbSequenceIterator::retrieveNextFile ()
 dp::IteratorStatus BlastdbSequenceIterator::next()
 {
 	 u_int32_t seqLength 	= 0;
+	 u_int32_t hdrLength 	= 0;
 	 u_int32_t offsetSeqBegin = 0;
 	 u_int32_t offsetHdrBegin = 0;
 	 u_int32_t offsetAmbBegin = 0;
+	 u_int32_t offsetHdrEnd = 0;
 	 u_int32_t offsetSeqEnd = 0;
 
  	 if (!_eof && _currentIndexFile)
@@ -261,9 +268,12 @@ dp::IteratorStatus BlastdbSequenceIterator::next()
 					/** Read the first offset in the sequence and header table
 					 *  */
 					offsetHdrBegin = _currentIndexFile->getOffsetsHeader(_offsetReadIndex);
+					offsetHdrEnd   = _currentIndexFile->getOffsetsHeader((_offsetReadIndex+1));
 					offsetSeqBegin = _currentIndexFile->getOffsetsSequence(_offsetReadIndex);
+					if (offsetHdrEnd>offsetHdrBegin){	hdrLength = offsetHdrEnd - offsetHdrBegin; }
+					else {throw MSG_FILE_BLAST_MSG2; }
 
-					builder->setCommentUri(_currentIndexFile->getHeaderFilename().c_str(),offsetHdrBegin,_commentMaxSize);
+					builder->setCommentUri(_currentHeaderFileName.c_str(),offsetHdrBegin,hdrLength);
 
 					/** We reset the data size. */
 					builder->resetData ();
@@ -323,6 +333,7 @@ dp::IteratorStatus BlastdbSequenceIterator::next()
 
     return dp::ITER_UNKNOWN;
 }
+
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
@@ -343,7 +354,113 @@ void BlastdbSequenceIterator::readIndexFileAndCreateHeaderFile (u_int64_t firstO
 
 	_currentIndexFile->read();
 	_currentIndexFile->setOffsetsStart(firstOffset);
+
+	_currentHeaderFileName = _currentIndexFile->getHeaderFilename();
 	_offsetReadIndex = 0;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+std::string BlastdbSequenceIterator::transformComment (const char* comment)
+{
+	u_int32_t startOffset = 0;
+	char fileNamePath[2048] = "";
+	char *filename;
+    char *startOff;
+
+    /** List of index files to be read. */
+    std::map<std::string,os::IMemoryFile*>::iterator filesHeaderIterator;
+    os::IMemoryFile *currentHeaderFile;
+
+    std::string commentDest;
+    size_t size=0;
+	u_int32_t indexTitle= 0;
+	u_int32_t indexSeqid = 0;
+	unsigned char byteLengthDef = 0;
+	unsigned char byteLengthDefIfupper128 = 0;
+
+	BlastdbAsn1HeaderDecoder asn1Decoder(_commentMaxSize);
+	u_int32_t sizeComment = 0;
+
+	/*** read the filename ***/
+	filename=strchr((char*)comment,',');
+	strncpy(fileNamePath,comment,(filename-comment));
+	filesHeaderIterator = _filesHeaderIndex.find(fileNamePath);
+	if (filesHeaderIterator==_filesHeaderIndex.end())
+	{
+		_filesHeaderIndex.insert(std::pair<std::string,os::IMemoryFile *>(fileNamePath,os::impl::DefaultFactory::fileMem().newFile (fileNamePath)));
+		currentHeaderFile = _filesHeaderIndex[fileNamePath];
+	}
+	else
+		currentHeaderFile = filesHeaderIterator->second;
+
+	/*** startOffset ***/
+	startOffset = misc::atoi(filename+1);
+	startOff=strchr((filename+1),',');
+	sizeComment = misc::atoi(startOff+1);
+
+	/** set the pointer at the begin of the header + 7 in order to remove
+	 * - 2 bytes for the beginning of the sequenceOf which starts with a 0x3080
+	 * - 2 bytes for the beginning of the sequence which starts with a 0x3080
+	 * - 2 bytes for the beginning of the item which starts with a 0xA080 (next item A1, ....)
+	 * - 1 Byte  which is 0x1A for the beginning of the title
+	 */
+	indexTitle = startOffset+7;
+
+	/** read the first byte to know the string length
+	 * if the first bit is on, then the next seven bits will encode the string length on 128 bytes
+	 * if the first bit is off, then the next seven bits will encode the integer which indicate the string length
+	 */
+	byteLengthDef = (unsigned char)currentHeaderFile->getData()[indexTitle];
+	indexTitle++;
+	if (byteLengthDef&0x80)
+	{
+		byteLengthDefIfupper128=byteLengthDef&0x7F;
+		/** Read the header length*/
+		for (int32_t i = 0; i < (int32_t)byteLengthDefIfupper128; i++)
+		{
+			u_int32_t value= (unsigned char)currentHeaderFile->getData()[indexTitle]&0x000000FF;
+			size = (size << 8) + value;
+			indexTitle++;
+		}
+	}
+	else
+	{
+		size=byteLengthDef&0x7F;
+	}
+	/** Read the type of the seq-id, this type permits to know if the database was generated
+	 * with the formatdb -o T option or not (if the id is general id = 0xAA)
+	 * Start at the beginning of the sequenceof id, so after the :
+	 * - 2 bytes for the NULL string termination
+	 * - 2 bytes for the second description of the first sequenceof
+	 */
+
+	indexSeqid = size + indexTitle + 4;
+	if ((unsigned char)currentHeaderFile->getData()[(indexSeqid+2)] == BLAST_ASN1_SEQ_ID_GENERAL)
+	{
+		commentDest.assign(&currentHeaderFile->getData()[indexTitle], MIN(size,(_commentMaxSize-2)));
+	}
+	else
+	{
+		// construct the seq-id string
+		commentDest.assign(asn1Decoder.getDecodeSeqid(&currentHeaderFile->getData()[indexSeqid],sizeComment));
+		if (commentDest.size()<(_commentMaxSize-2))
+		{
+			u_int32_t maxSize = MIN(size,(_commentMaxSize-2)-commentDest.size());
+			commentDest.append(&currentHeaderFile->getData()[indexTitle],  maxSize);
+		}
+		else
+		{
+			commentDest = commentDest.substr(0,(_commentMaxSize-2));
+		}
+	}
+	return commentDest;
 }
 
 /********************************************************************************/

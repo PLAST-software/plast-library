@@ -35,11 +35,32 @@
 #include <designpattern/api/IProperty.hpp>
 #include <database/api/ISequenceIterator.hpp>
 
+
 /********************************************************************************/
 /** \brief Definition of concepts related to genomic databases. */
 namespace database {
-/********************************************************************************/
 
+namespace impl {
+class CompositeSequenceDatabase;
+class BufferedSequenceDatabase;
+}
+
+/********************************************************************************/
+/** \brief Define a database visitor instance.
+ *
+ *  A sequence database can be visited by this class
+ */
+class DatabaseVisitor
+{
+public:
+	virtual ~DatabaseVisitor(){}
+	virtual void visitBufferedSequenceDatabase  (impl::BufferedSequenceDatabase& db) {}
+	virtual void visitCompositeSequenceDatabase (impl::CompositeSequenceDatabase& db) {}
+protected:
+
+};
+
+/********************************************************************************/
 /** \brief Define a database as a container of ISequence instances.
  *
  *  A sequence can be retrieved directly from this container (i.e. like a vector).
@@ -144,6 +165,11 @@ public:
 
     /** Change the strand of the sequences (meaningful only for nucleotides databases). */
     virtual void reverse () = 0;
+
+    /** Accept method of the Visitor Design Pattern.
+     * \param[in] v : the visitor to be accepted
+     */
+    virtual void accept (DatabaseVisitor& v) = 0;
 };
 
 /********************************************************************************/

@@ -124,7 +124,7 @@ ISequenceCache* BufferedSequenceDatabase::getCache()
         setCache (buildCache(_refIterator));
 
         /** We can now release the referenced iterator. */
-        setRefSequenceIterator (0);
+        //setRefSequenceIterator (0);
     }
 
     return _cache;
@@ -614,9 +614,9 @@ BufferedSequenceBuilder::BufferedSequenceBuilder (ISequenceCache* cache)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void BufferedSequenceBuilder::setCommentUri (const char* filename, u_int32_t offsetHeader,size_t commentMaxSize)
+void BufferedSequenceBuilder::setCommentUri (const char* filename, u_int32_t offsetHeader, u_int32_t size)
 {
-	char bufferNumber[50];
+	char bufferNumber[30];
 
     if (_currentSequencesCapacity <= _cache->nbSequences)
     {
@@ -627,10 +627,8 @@ void BufferedSequenceBuilder::setCommentUri (const char* filename, u_int32_t off
 
     //DEBUG (("BufferedSequenceDatabase::BufferedSequenceBuilder::setComment:  len=%ld\n", length));
 
-    _cache->comments [_cache->nbSequences].assign (SEQUENCE_COMMENT_DETECTION, strlen(SEQUENCE_COMMENT_DETECTION));
-    _cache->comments [_cache->nbSequences].append (",", 1);
-    _cache->comments [_cache->nbSequences].append (filename, strlen(filename));
-    sprintf(bufferNumber,",%d,%ld",offsetHeader,commentMaxSize);
+    _cache->comments [_cache->nbSequences].assign (filename, strlen(filename));
+    sprintf(bufferNumber,",%d,%d",offsetHeader,size);
     _cache->comments [_cache->nbSequences].append (bufferNumber, strlen(bufferNumber));
 
 }

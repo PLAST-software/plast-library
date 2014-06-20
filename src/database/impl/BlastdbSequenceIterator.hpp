@@ -31,12 +31,14 @@
 #include <database/impl/DatabaseUtility.hpp>
 #include <designpattern/impl/FileLineIterator.hpp>
 #include <misc/api/types.hpp>
+#include <map>
 
 /********************************************************************************/
 namespace database {
 /** \brief Implementation of concepts related to genomic databases. */
 namespace impl {
 /********************************************************************************/
+#define BLAST_ASN1_SEQ_ID_GENERAL		0xAA
 
 /** \brief Sequence iterator that parses BLAST Database files
  *
@@ -98,6 +100,9 @@ public:
     /** \copydoc AbstractSequenceIterator::clone */
     ISequenceIterator* clone () { return 0; }
 
+    /** \copydoc ISequenceIterator::transformComment */
+    std::string transformComment (const char* comment);
+
 private:
     /** List of index files to be read. */
     std::list<BlastdbFileIndexReader*> _filesIndex;
@@ -144,30 +149,24 @@ private:
     /** Tells if the iteration is finished or not. */
     bool _eof;
 
+    /** Quick reader Type **/
     DatabaseLookupType::QuickReaderType_e _dbType;
 
+    /** FirstOfsset in the data file. it is used for the map file */
     u_int64_t _firstOffset;
+
+    /** Name of the header file. */
+    std::string _currentHeaderFileName;
+
+    /** List of index files to be read. */
+    std::map<std::string,os::IMemoryFile*> _filesHeaderIndex;
 
     /** Returns false if eof. */
     bool retrieveNextFile ();
 
-    /** Decode the DNA sequence.
-     *  \param[in] start : Start index in the sequence file to read the DNA data
-     *  \param[in] stop :  End index in the sequence file to read the DNA data
-     *  \param[in] amb_start :  Start index in the ambiguity table
-     *  \return the size of the ASCII buffer
-     *  */
-    //u_int32_t decodeDnaSequence (u_int32_t start, u_int32_t end, u_int32_t amb_start);
-
-    //u_int32_t decodeDnaSequenceNoAmb (u_int32_t start, u_int32_t end);
-
-    /** Decode the blast header comment.
-     *  \param[in] sequenceHdr : Pointer on the sequence header
-     *  \param[in] start : Start index in the sequence header to read the comment
-     *  \param[out] indexReadHdr : Index in the header data
-     *  \return commentSize : Size of the comment ASCII allocated in the commentBuffer
-     *  */
-    //u_int32_t parseBlastHeader(u_int32_t start, u_int32_t *indexReadHdr);
+    /** Read the index file and header file name to construct the comment string
+     *  \param[in] firstOffset : offset in the data file
+     */
 
     void readIndexFileAndCreateHeaderFile (u_int64_t firstOffset);
 

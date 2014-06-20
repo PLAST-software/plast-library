@@ -77,11 +77,11 @@ public:
     virtual void setComment (const char* buffer, size_t length) = 0;
 
     /** Set the comment for the current sequence being built.
-     * \param[in] buffer : buffer holding the textual commentary.
-     * \param[in] length : size of the buffer
-     * \param[in] addNullChar : add the null character at the end of the buffer
+     * \param[in] filename : file name of the header file for blast format
+     * \param[in] offsetHeader : offset in the header file
+     * \param[in] size : comment size
      */
-    virtual void setCommentUri (const char* filename, u_int32_t offsetHeader,size_t commentMaxSize) = 0;
+    virtual void setCommentUri (const char* filename, u_int32_t offsetHeader, u_int32_t size) = 0;
 
     /** Reset the data for the current sequence being built. */
     virtual void resetData  () = 0;

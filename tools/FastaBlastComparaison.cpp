@@ -50,116 +50,7 @@ using namespace os::impl;
 
 #define STR_OPTION_CACHE_REMOVE             "-c"
 #define STR_OPTION_FILE_PERFORMANCE_TEST    "-test"
-
-#define BLASTDB_COMMENT_DETECTION "#&COMMENT;!"
-
-list<os::IMemoryFile*> headerFileList;
-
-/*********************************************************************
- ** METHOD  :
- ** PURPOSE :
- ** INPUT   :
- ** OUTPUT  :
- ** RETURN  :
- ** REMARKS :
- *********************************************************************/
-char *getComment(const char* commentSrc, u_int64_t *sizeDest)
-{
-	char *commentDest;
-	u_int32_t startOffset = 0;
-	u_int32_t maxCommentSize = 0;
-	unsigned char byteLengthDef = 0;
-	unsigned char byteLengthDefIfupper128 = 0;
-	u_int32_t size = 0;
-	u_int32_t indexRead = 0;
-	os::IMemoryFile* currentHeaderFile;
-	list<os::IMemoryFile*>::iterator fileIt;
-    TimeInfo t;
-
-    char fileNamePath[1024] = "";
-    char offset[20]= "";;
-    char maxOffset[20]= "";;
-    char *maskDetection;
-    char *filename;
-    char *startOff;
-
-	/*** read the filename ***/
-    maskDetection=strchr((char*)commentSrc,',');
-	if (strncmp(commentSrc,BLASTDB_COMMENT_DETECTION,(maskDetection-commentSrc))==0)
-	{
-		filename=strchr((maskDetection+1),',');
-		strncpy(fileNamePath,maskDetection+1,(filename - maskDetection-1));
-		//fileNamePath[(filename - maskDetection-1)]="\0";
-		/*** read the filename ***/
-		for (fileIt= headerFileList.begin(); fileIt != headerFileList.end(); fileIt++)
-		{
-			if (strcmp(fileNamePath,(*fileIt)->getPath().c_str()) == 0)
-			{
-				currentHeaderFile = *fileIt;
-				break;
-			}
-		}
-		if (fileIt==headerFileList.end())
-		{
-			currentHeaderFile = DefaultFactory::fileMem().newFile (fileNamePath);
-			headerFileList.push_back(currentHeaderFile);
-		}
-
-		//currentHeaderFile = DefaultFactory::fileMem().newFile (comment[1].c_str());
-		/*** startOffset ***/
-		startOff=strchr((filename+1),',');
-		strncpy(offset,filename+1,(startOff - filename-1));
-		startOffset = misc::atoi(offset);
-		/*** Max comment size ***/
-		strcpy(maxOffset,startOff+1);
-		maxCommentSize = misc::atoi(maxOffset);
-
-		/** set the pointer at the begin of the header + 7 in order to remove
-		 * - 2 bytes for the beginning of the sequenceOf which starts with a 0x3080
-		 * - 2 bytes for the beginning of the sequence which starts with a 0x3080
-		 * - 2 bytes for the beginning of the item which starts with a 0xA080 (next item A1, ....)
-		 * - 1 Byte  which is 0x1A for the beginning of the title
-		 */
-		indexRead = startOffset+7;
-
-		/** read the first byte to know the string length
-		 * if the first bit is on, then the next seven bits will encode the string length on 128 bytes
-		 * if the first bit is off, then the next seven bits will encode the interger which indicate the string length
-		 */
-		byteLengthDef = (unsigned char)currentHeaderFile->getData()[indexRead];
-		indexRead++;
-		if (byteLengthDef&0x80)
-		{
-			byteLengthDefIfupper128=byteLengthDef&0x7F;
-			/** Read the header length*/
-			//sequenceHdr->read(&byteLengthDefUpper128[0], sizeof(unsigned char), byteLengthDefIfupper128);
-			for (int32_t i = 0; i < (int32_t)byteLengthDefIfupper128; i++)
-			{
-				u_int32_t value= (unsigned char)currentHeaderFile->getData()[indexRead]&0x000000FF;
-				size = (size << 8) + value;
-				indexRead++;
-			}
-		}
-		else
-		{
-			size=byteLengthDef&0x7F;
-		}
-
-		if (size>maxCommentSize)
-			size=maxCommentSize;
-		commentDest = (char*)&currentHeaderFile->getData()[indexRead];
-		*sizeDest = size;
-		/*commentDest.append(&currentHeaderFile->getData()[indexRead], size);
-		commentDest[size]='\0';*/
-		//delete currentHeaderFile;
-	}
-	else
-	{
-		commentDest = (char*)commentSrc;
-		*sizeDest = strlen(commentSrc);
-	}
-	return commentDest;
-}
+#define STR_OPTION_FILE_WRITE_COMMENT    	"-write-comment"
 
 /*********************************************************************
  ** METHOD  :
@@ -183,6 +74,10 @@ int main (int argc, char* argv[])
 	size_t checksumFasta = 0;
 	size_t checksumComFasta = 0;
 
+    /** List of index files to be read. */
+    std::list<string> blastCommentList;
+    std::list<string> fastaCommentList;
+
     /** We need a command line options parser. */
     OptionsParser parser;
     parser.add (new OptionOneParam (STR_OPTION_SUBJECT_URI,         	"name of the fasta bank (.fa)", false));
@@ -191,6 +86,7 @@ int main (int argc, char* argv[])
     parser.add (new OptionOneParam (STR_OPTION_MAX_DATABASE_SIZE,   	"block size (default 0)", false));
     parser.add (new OptionNoParam  (STR_OPTION_INFO_VERBOSE,        	"verbose",  false));
     parser.add (new OptionNoParam  (STR_OPTION_CACHE_REMOVE,        	"Remove the cache",  false));
+    parser.add (new OptionOneParam (STR_OPTION_FILE_WRITE_COMMENT,     	"write comment in a file",  false));
 
     try {
         /** We parse the provided options. */
@@ -331,7 +227,7 @@ int main (int argc, char* argv[])
 			if(uriFasta!="")
 			{
 				printf("--- FASTA file '%s' ---\n", uriFasta.c_str());
-
+				fastaCommentList.clear();
 				/** Read the Fasta File
 				 * */
 				if (maxdatabasesize!=0)
@@ -343,7 +239,7 @@ int main (int argc, char* argv[])
 		        	foundPoint = std::string(uriFasta).find_last_of(".");
 		        	filenameExt = std::string(uriFasta).substr(foundPoint,uriFasta.size());
 
-					FastaDatabaseQuickReader readerFasta (uriFasta, false);
+					FastaDatabaseQuickReader readerFasta (uriFasta, true, false);
 					if (filenameExt==".info")
 						readerFasta.load(uriFasta);
 					else
@@ -370,7 +266,6 @@ int main (int argc, char* argv[])
 
 						tInter.addEntry ("FastaCreate");
 						ISequenceIterator* it = new FastaSequenceIterator (readerFasta.getUri().c_str(), 2*1024, a, b);
-						//ISequenceIterator* it = new FastaSequenceIterator (uriFasta.c_str(), 1024, a, b);
 						tInter.stopEntry("FastaCreate");
 						LOCAL (it);
 						tInter.addEntry ("FastaIter");
@@ -385,11 +280,12 @@ int main (int argc, char* argv[])
 							size_t n = seq->data.letters.size;
 							for (size_t i=0; i<n; i++)   {  checksumFasta = (checksumFasta + seq->data.letters.data[i]) % (1<<16);  }
 							for (size_t i=0; i<strlen(seq->comment); i++)   {  checksumComFasta = (checksumComFasta + seq->comment[i]) % (1<<16); }
+							fastaCommentList.push_back(seq->comment);
 						}
 						tInter.stopEntry("FastaIter");
-						/*printf("   FASTA inter time *** nbSeq=%d DataSize=%ld TotalSize=%ld Read%ld=%d Create=%d\n",
+						printf("   FASTA inter time *** nbSeq=%d DataSize=%ld TotalSize=%ld Read%ld=%d Create=%d\n",
 								nbsequenceFasta,datasizeFasta, totalFastaSize, i,
-								tInter.getEntryByKey("FastaIter"),tInter.getEntryByKey("FastaCreate"));*/
+								tInter.getEntryByKey("FastaIter"),tInter.getEntryByKey("FastaCreate"));
 
 					}
 		        }
@@ -408,6 +304,7 @@ int main (int argc, char* argv[])
 						size_t n = seq->data.letters.size;
 						for (size_t i=0; i<n; i++)   {  checksumFasta = (checksumFasta + seq->data.letters.data[i]) % (1<<16);  }
 						for (size_t i=0; i<strlen(seq->comment); i++)   {  checksumComFasta = (checksumComFasta + seq->comment[i]) % (1<<16); }
+						fastaCommentList.push_back(seq->comment);
 					}
 		        }
 				t.stopEntry("Fasta");
@@ -420,42 +317,31 @@ int main (int argc, char* argv[])
 
 			if(uriBlastdb!="")
 			{
-			    /** List of index files to be read. */
-			    std::list<string> commentList;
 				printf("--- BLAST file '%s' ---\n", uriBlastdb.c_str());
-				/** Read the Blast File
-				 * */
-	/*	        AliasDatabaseQuickReader<BlastdbDatabaseQuickReader> readerTemp(uriBlastdb);
-				readerTemp.read(0);*/
-				//uriBlastdb = uriBlastFile;
+				t.addEntry ("BlastQuick");
+				BlastdbDatabaseQuickReader readerBlast (uriBlastdb, false);
+				readerBlast.read (maxdatabasesize);
+				t.stopEntry("BlastQuick");
+				if (readerBlast.getKind()==IDatabaseQuickReader::ENUM_AMINO_ACID)
+					EncodingManager::singleton().setKind (EncodingManager::ALPHABET_AMINO_ACID);
+				else
+					EncodingManager::singleton().setKind (EncodingManager::ALPHABET_NUCLEOTID);
+				t.addEntry ("Blast");
 
 				if (maxdatabasesize!=0)
 		        {
-					t.addEntry ("BlastQuick");
-					BlastdbDatabaseQuickReader readerBlast (uriBlastdb, false);
-					readerBlast.read (maxdatabasesize);
-					t.stopEntry("BlastQuick");
-
-					if (readerBlast.getKind()==IDatabaseQuickReader::ENUM_AMINO_ACID)
-						EncodingManager::singleton().setKind (EncodingManager::ALPHABET_AMINO_ACID);
-					else
-						EncodingManager::singleton().setKind (EncodingManager::ALPHABET_NUCLEOTID);
-
 					printf("   BLAST QuickReader data *** MaxSize=%ld nbOffset=%ld dataSize=%ld nbSequences=%d time=%d\n",
 							readerBlast.getMaxBlockSize(),readerBlast.getOffsets().size(),readerBlast.getDataSize(),
 							readerBlast.getNbSequences(), t.getEntryByKey("BlastQuick"));
 
 					std::vector<u_int64_t>& offsetsBlast  = readerBlast.getOffsets ();
 
-					headerFileList.clear();
-					commentList.clear();
-					t.addEntry ("Blast");
+					blastCommentList.clear();
 					for (size_t i=0; i<offsetsBlast.size()-1; i++)
 					{
 						u_int64_t a = offsetsBlast[i];
 						u_int64_t b = offsetsBlast[i+1] - 1;
 					    TimeInfo tInter;
-
 
 					    tInter.addEntry ("BlastCreate");
 					    BlastdbSequenceIterator* it = new BlastdbSequenceIterator (readerBlast.getUri().c_str(), 2*1024, a, b);
@@ -471,37 +357,15 @@ int main (int argc, char* argv[])
 
 							size_t n = seq->data.letters.size;
 							for (size_t i=0; i<n; i++)   {  checksumBlast = (checksumBlast + seq->data.letters.data[i]) % (1<<16);  }
-							commentList.push_back(seq->comment);
+							blastCommentList.push_back(seq->comment);
 							//for (size_t i=0; i<strlen(seq->comment); i++)   {  checksumComBlast = (checksumComBlast + seq->comment[i]) % (1<<16); }
 						}
 						tInter.stopEntry("BlastIter");
-
 						printf("   BLAST inter time *** nbSeq=%d DataSize=%ld Read%ld=%d Create=%d\n",nbsequenceBlast,datasizeBlast,i,tInter.getEntryByKey("BlastIter"),tInter.getEntryByKey("BlastCreate"));
-					}
-					t.stopEntry("Blast");
-					/** We delete each IFile instance of the list of files. */
-					t.addEntry ("BlastComment");
-					char *comment;
-					u_int64_t size;
-					u_int32_t nbComment=0;
-					for (list<string>::iterator com= commentList.begin(); com != commentList.end(); com++)
-					{
-						comment = getComment((*com).c_str(),&size);
-						for (size_t i=0; i<size; i++)   {  checksumComBlast = (checksumComBlast + comment[i]) % (1<<16); }
-						nbComment++;
-					}
-					t.stopEntry("BlastComment");
-					for (list<os::IMemoryFile*>::iterator file= headerFileList.begin(); file != headerFileList.end(); file++)
-					{
-						delete (*file);
 					}
 				}
 				else
 				{
-					t.addEntry ("Blast");
-					BlastdbDatabaseQuickReader readerBlast (uriBlastdb, false);
-					readerBlast.read (maxdatabasesize);
-
 					BlastdbSequenceIterator* it = new BlastdbSequenceIterator (readerBlast.getUri().c_str());
 					LOCAL (it);
 					for (it->first(); ! it->isDone(); it->next())
@@ -513,25 +377,26 @@ int main (int argc, char* argv[])
 
 						size_t n = seq->data.letters.size;
 						for (size_t i=0; i<n; i++)   {  checksumBlast = (checksumBlast + seq->data.letters.data[i]) % (1<<16);  }
-						commentList.push_back(seq->comment);
+						blastCommentList.push_back(seq->comment);
 						//for (size_t i=0; i<strlen(seq->comment); i++)   {  checksumComBlast = (checksumComBlast + seq->comment[i]) % (1<<16); }
-					}
-					t.stopEntry("Blast");
-					t.addEntry ("BlastComment");
-					char *comment;
-					u_int64_t size;
-					for (list<string>::iterator com= commentList.begin(); com != commentList.end(); com++)
-					{
-						comment = getComment((*com).c_str(),&size);
-						for (size_t i=0; i<size; i++)   {  checksumComBlast = (checksumComBlast + comment[i]) % (1<<16); }
-					}
-					t.stopEntry("BlastComment");
-					for (list<os::IMemoryFile*>::iterator file= headerFileList.begin(); file != headerFileList.end(); file++)
-					{
-						delete (*file);
 					}
 				}
 
+				t.stopEntry("Blast");
+
+				t.addEntry ("BlastComment");
+				BlastdbSequenceIterator* it = new BlastdbSequenceIterator (readerBlast.getUri().c_str());
+				LOCAL (it);
+				std::string comment;
+				u_int32_t nbComment=0;
+				for (list<string>::iterator com= blastCommentList.begin(); com != blastCommentList.end(); com++)
+				{
+					comment = it->transformComment((*com).c_str());
+					(*com) = comment;
+					for (size_t i=0; i<comment.size(); i++)   {  checksumComBlast = (checksumComBlast + comment.c_str()[i]) % (1<<16); }
+					nbComment++;
+				}
+				t.stopEntry("BlastComment");
 
 
 				printf("   BLAST data *** dataSize=%ld nbSequences=%d checksum=%ld checksumComment=%ld\n",
@@ -554,10 +419,31 @@ int main (int argc, char* argv[])
         info.add (0, "input");
         info.add (1, "filename FastA",  uriFasta);
         info.add (1, "filename Blast",  uriBlastdb);
-//        info.add (1, "output",     output);
         info.add (1, "maxdbsize",  "%ld", maxdatabasesize);
 
-        //info.add (0, reader.getProperties());
+        if (props.getProperty (STR_OPTION_FILE_WRITE_COMMENT))
+        {
+            FILE *commentFile=NULL;
+            FILE *commentFileFa=NULL;
+        	/** We retrieve the URI of the bank. */
+            string strCommentFile = props.getProperty (STR_OPTION_FILE_WRITE_COMMENT) ? props.getProperty (STR_OPTION_FILE_WRITE_COMMENT)->getValue() : "comment.txt";
+
+            commentFile = fopen (strCommentFile.c_str(),"wt");
+            commentFileFa = fopen ((strCommentFile+"_FA").c_str(),"wt");
+            list<string>::iterator comBlast, comFa;
+			for (comBlast=blastCommentList.begin(), comFa=fastaCommentList.begin(); comBlast != blastCommentList.end() && comFa != fastaCommentList.end(); comBlast++,comFa++)
+            /*u_int32_t loopcount=0;
+            for (comBlast=blastCommentList.begin(), comFa=fastaCommentList.begin(); loopcount < 10; comBlast++,comFa++)*/
+			{
+	            //fprintf (commentFile,"BLAST : %s\n",(*comBlast).c_str());
+				fprintf (commentFile,"%s\n",(*comBlast).c_str());
+	            fprintf (commentFileFa,"%s\n",(*comFa).c_str());
+	            //fprintf (commentFile,"-------------------\n");
+	            //loopcount++;
+			}
+            fclose(commentFile);
+            fclose(commentFileFa);
+        }
 
         if (props.getProperty (STR_OPTION_INFO_VERBOSE))
         {

@@ -156,6 +156,12 @@ public:
     /** Change the strand of the sequences (meaningful only for nucleotides databases). */
     void reverse ();
 
+    /** \copydoc ISequenceDatabase::accept */
+    void accept (DatabaseVisitor& v)
+    {
+    	v.visitBufferedSequenceDatabase(*this);
+    }
+
 protected:
 
     /** Identifier */
@@ -217,6 +223,7 @@ protected:
     /** */
     StrandId_e _direction;
 
+    friend class DatabaseVisitorComment;
     /********************************************************************************/
 
     /** \brief Sequence iterator that uses information of cache.
@@ -300,7 +307,7 @@ public:
     void setComment (const char* buffer, size_t length);
 
     /** \copydoc ISequenceBuilder::setCommentUri  */
-    void setCommentUri (const char* filename, u_int32_t offsetHeader,size_t commentMaxSize);
+    void setCommentUri (const char* filename, u_int32_t offsetHeader, u_int32_t size);
 
     /** \copydoc ISequenceBuilder::resetData */
     void resetData  ();

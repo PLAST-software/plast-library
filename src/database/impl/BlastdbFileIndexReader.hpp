@@ -60,7 +60,7 @@ public:
     void read ();
 
     /** Returns the filename of the sequence file.
-     * \return the data size.
+     * \return string name with the path and extension.
      */
     std::string    getSequenceFilename    ()
     {
@@ -70,8 +70,8 @@ public:
     		return (_filenameWithoutExt + ".nsq");
     };
 
-    /** Returns the filename of the sequence file.
-     * \return the data size.
+    /** Returns the filename of the header file.
+     * \return string name with the path and extension.
      */
     std::string    getHeaderFilename    ()
     {

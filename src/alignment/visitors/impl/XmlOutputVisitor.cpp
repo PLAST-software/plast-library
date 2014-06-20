@@ -150,7 +150,7 @@ void XmlOutputVisitor::visitSubjectSequence (
 
     printline (4, "<Hit>");
     printline (5, "<Hit_num>%d</Hit_num>", _nbSubject);
-    printline (5, "<Hit_def>%s</Hit_def>", _currentSubject->getComment(_currentSubject->comment).c_str());
+    printline (5, "<Hit_def>%s</Hit_def>", _currentSubject->getComment().c_str());
     printline (5, "<Hit_len>%d</Hit_len>", _currentSubject->data.letters.size);
     printline (5, "<Hit_hsps>");
 }

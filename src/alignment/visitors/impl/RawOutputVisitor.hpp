@@ -63,7 +63,7 @@ public:
     void visitSubjectSequence (const database::ISequence* seq, const misc::ProgressInfo& progress)
     {
     	//getFile()->print ("S %d %s\n",  seq->getLength(), seq->comment);
-    	getFile()->print ("S %d %s\n",  seq->getLength(), seq->getComment(seq->comment).c_str());
+    	getFile()->print ("S %d %s\n",  seq->getLength(), seq->getComment().c_str());
     }
 
     /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */

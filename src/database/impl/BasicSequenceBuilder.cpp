@@ -86,14 +86,12 @@ void BasicSequenceBuilder::setComment (const char* buffer, size_t length)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void BasicSequenceBuilder::setCommentUri (const char* filename, u_int32_t offsetHeader,size_t commentMaxSize)
+void BasicSequenceBuilder::setCommentUri (const char* filename, u_int32_t offsetHeader, u_int32_t size)
 {
 	char bufferNumber[50];
 
-	_comment.assign (SEQUENCE_COMMENT_DETECTION, strlen(SEQUENCE_COMMENT_DETECTION));
-	_comment.append (",", 1);
-	_comment.append (filename, strlen(filename));
-    sprintf(bufferNumber,",%d,%ld",offsetHeader,commentMaxSize);
+	_comment.assign (filename, strlen(filename));
+    sprintf(bufferNumber,",%d,%d",offsetHeader,size);
     _comment.append (bufferNumber, strlen(bufferNumber));
     _sequence.comment = _comment.c_str();
 

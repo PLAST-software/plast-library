@@ -77,6 +77,14 @@ public:
      */
     virtual std::string getId () = 0;
 
+    /** Transform the comment from the cache in a good comment by reading
+     *  the comment file for BLAST format, for the FASTA format, we return
+     *  the input comment
+     *  \param comment : input comment
+     *  \return comment string
+     */
+    virtual std::string transformComment (const char* comment) = 0;
+
 protected:
 
     /** Get the builder used for creating ISequence instances during iteration.
