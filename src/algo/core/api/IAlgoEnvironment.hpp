@@ -87,6 +87,9 @@ class IEnvironment : public dp::SmartPointer, public dp::impl::Subject, public d
 {
 public:
 
+	/** */
+	virtual void configure () = 0;
+
     /** Entry point method for plasting (given some properties).
      */
     virtual void run () = 0;
@@ -185,6 +188,15 @@ public:
 
     /** Query database */
     database::IDatabaseQuickReader* _queryDb;
+};
+
+/********************************************************************************/
+
+class EnvironmentParameterEvent : public dp::EventInfo
+{
+public:
+	EnvironmentParameterEvent (IParameters* params) : dp::EventInfo(0),_params(params)  {}
+	IParameters* _params;
 };
 
 /********************************************************************************/

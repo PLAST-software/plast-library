@@ -80,9 +80,6 @@ DefaultEnvironment::DefaultEnvironment (IProperties* properties, bool& isRunning
       _resultVisitor(0), _dbProvider(0), _timeInfo(0), _timeInfoAlgo(0)
 {
     setProperties (properties);
-
-    /** We may have to configure default parameters. */
-    configure ();
 }
 
 /*********************************************************************
@@ -605,6 +602,9 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
             params->queryRange   = uri[i].second;
 
             result.push_back (params);
+
+			if (i==0) { this->notify (new EnvironmentParameterEvent (params)); }
+
         }
     }
 

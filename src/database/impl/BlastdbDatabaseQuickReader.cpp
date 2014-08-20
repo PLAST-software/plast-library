@@ -203,7 +203,11 @@ std::string BlastdbDatabaseQuickReader::transformUriForAlias (const std::string&
 	    		TokenizerIterator tokenizerSpace (&fileAl.currentItem()[6], " ");
 				for (tokenizerSpace.first (); !tokenizerSpace.isDone(); tokenizerSpace.next())
 				{
-					buffer += path + string(tokenizerSpace.currentItem())+ Extension +",";
+					string tempFilename = string(tokenizerSpace.currentItem());
+					if (tempFilename.find("\"")!=std::string::npos)
+						buffer += path + tempFilename.substr(1,(tempFilename.size()-2))+ Extension +",";
+					else
+						buffer += path + tempFilename+ Extension +",";
 				}
 			}
 	    }

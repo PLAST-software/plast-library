@@ -61,6 +61,9 @@ public:
     /** \copydoc IEnvironment::createConfiguration */
     IConfiguration* createConfiguration (dp::IProperties* properties);
 
+    /** \copydoc IEnvironment::configure */
+    void configure ();
+
     /** \copydoc IEnvironment::run */
     void run ();
 
@@ -76,9 +79,6 @@ protected:
 
     /** */
     bool& _isRunning;
-
-    /** */
-    void configure ();
 
     /** */
     std::vector<IParameters*> _parametersList;

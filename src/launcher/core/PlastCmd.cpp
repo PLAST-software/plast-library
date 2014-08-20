@@ -55,8 +55,13 @@ namespace core     {
 PlastCmd::PlastCmd (IProperties* properties)
     : _env(0), _properties(0), _isRunning(false), _isFinished(false)
 {
-    setEnv        (new DefaultEnvironment (properties, _isRunning));
     setProperties (properties);
+    setEnv        (new DefaultEnvironment (properties, _isRunning));
+
+    /** We subscribe ourself as listener. */
+    _env->addObserver (this);
+
+    _env->configure ();
 }
 
 /*********************************************************************
@@ -85,9 +90,6 @@ void PlastCmd::execute ()
 {
     _isRunning  = true;
     _isFinished = false;
-
-    /** We subscribe ourself as listener. */
-    _env->addObserver (this);
 
     /** We may have to configure some observers according to the options provided by the user. */
     list<AbstractObserver*> observers;
@@ -249,6 +251,95 @@ void PlastCmd::update (dp::EventInfo* evt, dp::ISubject* subject)
     {
         AlgorithmConfigurationEvent* e2 = dynamic_cast<AlgorithmConfigurationEvent*> (evt);
         if (e2 != 0  &&  e2->_current == e2->_total)  {   _isFinished = true;  }
+
+        EnvironmentParameterEvent* e3 = dynamic_cast<EnvironmentParameterEvent*> (evt);
+        if (e3 != 0)
+        {
+        	IParameters* params = e3->_params;
+        	if (_properties != 0)
+        	{
+        		IProperties* paramsProps = params->getProperties();  LOCAL(paramsProps);
+        		if (_properties->getProperty(STR_OPTION_NB_PROCESSORS)==0)
+        		{
+        		    size_t nbProc = os::impl::DefaultFactory::thread().getNbCores();
+        			_properties->add(0,STR_OPTION_NB_PROCESSORS,"%d",nbProc);
+        		}
+
+        		if (_properties->getProperty(STR_OPTION_OUTPUT_FILE)==0)
+        			_properties->add(0,STR_OPTION_OUTPUT_FILE,paramsProps->getProperty(STR_PARAM_outputfile)->getValue());
+
+        		if (_properties->getProperty(STR_OPTION_EVALUE)==0)
+        			_properties->add(0,STR_OPTION_EVALUE,paramsProps->getProperty(STR_PARAM_evalue)->getValue());
+
+        		if (_properties->getProperty(STR_OPTION_UNGAP_NEIGHBOUR_LENGTH)==0)
+        			_properties->add(0,STR_OPTION_UNGAP_NEIGHBOUR_LENGTH,paramsProps->getProperty(STR_PARAM_ungapNeighbourLength)->getValue());
+
+        		if (_properties->getProperty(STR_OPTION_UNGAP_SCORE_THRESHOLD)==0)
+        			_properties->add(0,STR_OPTION_UNGAP_SCORE_THRESHOLD,paramsProps->getProperty(STR_PARAM_ungapScoreThreshold)->getValue());
+
+        		if (_properties->getProperty(STR_OPTION_SMALLGAP_THRESHOLD)==0)
+        			_properties->add(0,STR_OPTION_SMALLGAP_THRESHOLD,paramsProps->getProperty(STR_PARAM_smallGapThreshold)->getValue());
+
+        		if (_properties->getProperty(STR_OPTION_SMALLGAP_BAND_WITH)==0)
+        			_properties->add(0,STR_OPTION_SMALLGAP_BAND_WITH,paramsProps->getProperty(STR_PARAM_smallGapBandWidth)->getValue());
+
+        		if (_properties->getProperty(STR_OPTION_OPEN_GAP_COST)==0)
+        			_properties->add(0,STR_OPTION_OPEN_GAP_COST,paramsProps->getProperty(STR_PARAM_openGapCost)->getValue());
+
+        		if (_properties->getProperty(STR_OPTION_EXTEND_GAP_COST)==0)
+        			_properties->add(0,STR_OPTION_EXTEND_GAP_COST,paramsProps->getProperty(STR_PARAM_extendGapCost)->getValue());
+
+        		if (_properties->getProperty(STR_OPTION_X_DROPOFF_GAPPED)==0)
+        			_properties->add(0,STR_OPTION_X_DROPOFF_GAPPED,paramsProps->getProperty(STR_PARAM_XdroppofGap)->getValue());
+
+        		if (_properties->getProperty(STR_OPTION_X_DROPOFF_FINAL)==0)
+        			_properties->add(0,STR_OPTION_X_DROPOFF_FINAL,paramsProps->getProperty(STR_PARAM_finalXdroppofGap)->getValue());
+
+        		if (_properties->getProperty(STR_OPTION_FILTER_QUERY)==0)
+        			_properties->add(0,STR_OPTION_FILTER_QUERY,paramsProps->getProperty(STR_PARAM_filterQuery)->getValue());
+
+        		if (_properties->getProperty(STR_OPTION_SCORE_MATRIX)==0)
+        			_properties->add(0,STR_OPTION_SCORE_MATRIX,paramsProps->getProperty(STR_PARAM_matrixKind)->getValue());
+
+        		if (_properties->getProperty(STR_OPTION_STRAND)==0)
+        			_properties->add(0,STR_OPTION_STRAND,"%d",params->strand);
+
+        		if (_properties->getProperty(STR_OPTION_REWARD)==0)
+        			_properties->add(0,STR_OPTION_REWARD,"%d",params->reward);
+
+        		if (_properties->getProperty(STR_OPTION_PENALTY)==0)
+        			_properties->add(0,STR_OPTION_PENALTY,"%d",params->penalty);
+
+        		if (_properties->getProperty(STR_OPTION_FORCE_QUERY_ORDERING)==0)
+        			_properties->add(0,STR_OPTION_FORCE_QUERY_ORDERING,"%d",0);
+
+        		if (_properties->getProperty(STR_OPTION_MAX_HIT_PER_QUERY)==0)
+        			_properties->add(0,STR_OPTION_MAX_HIT_PER_QUERY,"%d",0);
+
+        		if (_properties->getProperty(STR_OPTION_MAX_HSP_PER_HIT)==0)
+        			_properties->add(0,STR_OPTION_MAX_HSP_PER_HIT,"%d",0);
+
+        		if (_properties->getProperty(STR_OPTION_OUTPUT_FORMAT)==0)
+        			_properties->add(0,STR_OPTION_OUTPUT_FORMAT,"%d",1);
+
+/*        		if (_properties->getProperty(STR_OPTION_OPTIM_FILTER_UNGAP)==0)
+        			_properties->add(0,STR_OPTION_OPTIM_FILTER_UNGAP,"F");
+
+        	    if (   _properties->getProperty (STR_OPTION_INFO_STATS)== 0
+        	       &&  _properties->getProperty (STR_OPTION_INFO_STATS_AUTO) == 0 )
+        	    {
+       	    		_properties->add(0,STR_OPTION_INFO_STATS,"");
+        	    }
+        		if (_properties->getProperty(STR_OPTION_XML_FILTER_FILE)==0)
+        			_properties->add(0,STR_OPTION_XML_FILTER_FILE,"%d",1);*/
+
+        		if (_properties->getProperty(STR_OPTION_SEEDS_USE_RATIO)==0)
+        			_properties->add(0,STR_OPTION_SEEDS_USE_RATIO,"%g",1.0);
+
+        		if (_properties->getProperty(STR_OPTION_WORD_SIZE)==0)
+        			_properties->add(0,STR_OPTION_WORD_SIZE,"%d",params->seedSpan);
+        	}
+        }
 
         this->notify (evt);
     }
