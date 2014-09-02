@@ -196,7 +196,8 @@ public:
     void execute ()
     {
         _resultDatabase = new ReadingFrameSequenceDatabase (_frame, _nucleotidDatabase, _filtering);
-        _resultDatabase->getSize();
+        /* remove the getSize because of multi thread concurrence access */
+        //_resultDatabase->getSize();
     }
 
     /** Return the (amino acid) resulting database.

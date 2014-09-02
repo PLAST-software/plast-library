@@ -228,6 +228,9 @@ QueryInformation::QueryInformation (
 
     /** We create a synchronizer for the building process. */
     _synchro = os::impl::DefaultFactory::singleton().getThreadFactory().newSynchronizer();
+
+    /** We may have to build the information if not already done. */
+    build ();
 }
 
 /*********************************************************************
@@ -256,9 +259,6 @@ QueryInformation::~QueryInformation ()
 *********************************************************************/
 IQueryInformation::SequenceInfo& QueryInformation::getSeqInfo (const database::ISequence& seq)
 {
-    /** We may have to build the information if not already done. */
-    build ();
-
     map <ISequenceDatabase*, Container>::iterator lookup = _seqInfoMap.find (seq.database);
     if (lookup != _seqInfoMap.end())
     {

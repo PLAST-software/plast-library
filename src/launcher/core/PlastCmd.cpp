@@ -17,6 +17,10 @@
 #include <launcher/core/PlastCmd.hpp>
 #include <misc/api/PlastStrings.hpp>
 #include <designpattern/impl/Property.hpp>
+#include <misc/api/types.hpp>
+#include <algo/stats/api/IStatistics.hpp>
+#include <algo/stats/impl/Statistics.hpp>
+#include <algo/stats/impl/StatisticsPlastn.hpp>
 
 #include <launcher/observers/BargraphObserver.hpp>
 #include <launcher/observers/FileProgressionObserver.hpp>
@@ -35,9 +39,13 @@ using namespace dp::impl;
 using namespace algo::core;
 using namespace algo::core::impl;
 
+using namespace statistics;
+using namespace statistics::impl;
+
 using namespace alignment::core;
 
 using namespace launcher::observers;
+using namespace misc;
 
 /********************************************************************************/
 namespace launcher {
@@ -258,57 +266,101 @@ void PlastCmd::update (dp::EventInfo* evt, dp::ISubject* subject)
         	IParameters* params = e3->_params;
         	if (_properties != 0)
         	{
+        		IGlobalParameters* result = 0;
+        	    IProperty* algoProp = _properties->getProperty (STR_OPTION_ALGO_TYPE);
+        	    IParameters* params2 = params->clone();LOCAL(params2);
+        		if (algoProp == 0 ||  algoProp->getValue().compare ("plastn")!=0)
+        			result = new GlobalParameters (params2);
+        		else
+            	    result = new GlobalParametersPlastn (params2);
+
+        		LOCAL(result);
+        		/** We retrieve the type of algorithm (may be not set). */
         		IProperties* paramsProps = params->getProperties();  LOCAL(paramsProps);
-        		if (_properties->getProperty(STR_OPTION_NB_PROCESSORS)==0)
+
+        	    if (_properties->getProperty(STR_OPTION_NB_PROCESSORS)==0)
         		{
         		    size_t nbProc = os::impl::DefaultFactory::thread().getNbCores();
         			_properties->add(0,STR_OPTION_NB_PROCESSORS,"%d",nbProc);
         		}
 
         		if (_properties->getProperty(STR_OPTION_OUTPUT_FILE)==0)
-        			_properties->add(0,STR_OPTION_OUTPUT_FILE,paramsProps->getProperty(STR_PARAM_outputfile)->getValue());
+        			_properties->add(0,STR_OPTION_OUTPUT_FILE,params2->outputfile);
 
         		if (_properties->getProperty(STR_OPTION_EVALUE)==0)
         			_properties->add(0,STR_OPTION_EVALUE,paramsProps->getProperty(STR_PARAM_evalue)->getValue());
 
-        		if (_properties->getProperty(STR_OPTION_UNGAP_NEIGHBOUR_LENGTH)==0)
-        			_properties->add(0,STR_OPTION_UNGAP_NEIGHBOUR_LENGTH,paramsProps->getProperty(STR_PARAM_ungapNeighbourLength)->getValue());
-
-        		if (_properties->getProperty(STR_OPTION_UNGAP_SCORE_THRESHOLD)==0)
-        			_properties->add(0,STR_OPTION_UNGAP_SCORE_THRESHOLD,paramsProps->getProperty(STR_PARAM_ungapScoreThreshold)->getValue());
-
-        		if (_properties->getProperty(STR_OPTION_SMALLGAP_THRESHOLD)==0)
-        			_properties->add(0,STR_OPTION_SMALLGAP_THRESHOLD,paramsProps->getProperty(STR_PARAM_smallGapThreshold)->getValue());
-
-        		if (_properties->getProperty(STR_OPTION_SMALLGAP_BAND_WITH)==0)
-        			_properties->add(0,STR_OPTION_SMALLGAP_BAND_WITH,paramsProps->getProperty(STR_PARAM_smallGapBandWidth)->getValue());
+        		if (_properties->getProperty(STR_OPTION_FILTER_QUERY)==0)
+        			_properties->add(0,STR_OPTION_FILTER_QUERY,"%s",params2->filterQuery?"T":"F");
 
         		if (_properties->getProperty(STR_OPTION_OPEN_GAP_COST)==0)
-        			_properties->add(0,STR_OPTION_OPEN_GAP_COST,paramsProps->getProperty(STR_PARAM_openGapCost)->getValue());
+       				_properties->add(0,STR_OPTION_OPEN_GAP_COST,"%d",params2->openGapCost);
 
         		if (_properties->getProperty(STR_OPTION_EXTEND_GAP_COST)==0)
-        			_properties->add(0,STR_OPTION_EXTEND_GAP_COST,paramsProps->getProperty(STR_PARAM_extendGapCost)->getValue());
+        			_properties->add(0,STR_OPTION_EXTEND_GAP_COST,"%d",params2->extendGapCost);
 
-        		if (_properties->getProperty(STR_OPTION_X_DROPOFF_GAPPED)==0)
-        			_properties->add(0,STR_OPTION_X_DROPOFF_GAPPED,paramsProps->getProperty(STR_PARAM_XdroppofGap)->getValue());
+        		if (algoProp != 0  &&  algoProp->getValue().compare ("plastn")==0)
+        		{
+            		if (_properties->getProperty(STR_OPTION_X_DROPOFF_GAPPED)==0)
+            			_properties->add(0,STR_OPTION_X_DROPOFF_GAPPED,paramsProps->getProperty(STR_PARAM_XdroppofGap)->getValue());
 
-        		if (_properties->getProperty(STR_OPTION_X_DROPOFF_FINAL)==0)
-        			_properties->add(0,STR_OPTION_X_DROPOFF_FINAL,paramsProps->getProperty(STR_PARAM_finalXdroppofGap)->getValue());
+            		if (_properties->getProperty(STR_OPTION_X_DROPOFF_FINAL)==0)
+            			_properties->add(0,STR_OPTION_X_DROPOFF_FINAL,paramsProps->getProperty(STR_PARAM_finalXdroppofGap)->getValue());
 
-        		if (_properties->getProperty(STR_OPTION_FILTER_QUERY)==0)
-        			_properties->add(0,STR_OPTION_FILTER_QUERY,paramsProps->getProperty(STR_PARAM_filterQuery)->getValue());
+        			if (_properties->getProperty(STR_OPTION_STRAND)==0)
+					{
+						if (params->strand==1)
+							_properties->add(0,STR_OPTION_STRAND,"plus");
+						else if (params->strand==-1)
+							_properties->add(0,STR_OPTION_STRAND,"minus");
+						else
+							_properties->add(0,STR_OPTION_STRAND,"both");
+					}
 
-        		if (_properties->getProperty(STR_OPTION_SCORE_MATRIX)==0)
-        			_properties->add(0,STR_OPTION_SCORE_MATRIX,paramsProps->getProperty(STR_PARAM_matrixKind)->getValue());
+					if (_properties->getProperty(STR_OPTION_REWARD)==0)
+						_properties->add(0,STR_OPTION_REWARD,"%d",params2->reward);
 
-        		if (_properties->getProperty(STR_OPTION_STRAND)==0)
-        			_properties->add(0,STR_OPTION_STRAND,"%d",params->strand);
+					if (_properties->getProperty(STR_OPTION_PENALTY)==0)
+						_properties->add(0,STR_OPTION_PENALTY,"%d",params2->penalty);
+        		}
+        		else
+        		{
+            		if (_properties->getProperty(STR_OPTION_X_DROPOFF_GAPPED)==0)
+            			_properties->add(0,STR_OPTION_X_DROPOFF_GAPPED,"%d",15);
 
-        		if (_properties->getProperty(STR_OPTION_REWARD)==0)
-        			_properties->add(0,STR_OPTION_REWARD,"%d",params->reward);
+            		if (_properties->getProperty(STR_OPTION_X_DROPOFF_FINAL)==0)
+            			_properties->add(0,STR_OPTION_X_DROPOFF_FINAL,"%d",25);
 
-        		if (_properties->getProperty(STR_OPTION_PENALTY)==0)
-        			_properties->add(0,STR_OPTION_PENALTY,"%d",params->penalty);
+            		if (_properties->getProperty(STR_OPTION_SCORE_MATRIX)==0)
+            		{
+            			switch (paramsProps->getProperty(STR_PARAM_matrixKind)->getInt())
+            			{
+            			case ENUM_BLOSUM62:
+            				_properties->add(0,STR_OPTION_SCORE_MATRIX,"BLOSUM62");
+            				break;
+            			case ENUM_BLOSUM50:
+            				_properties->add(0,STR_OPTION_SCORE_MATRIX,"BLOSUM50");
+            				break;
+            			case ENUM_NUCLEOTIDE_IDENTITY:
+            				_properties->add(0,STR_OPTION_SCORE_MATRIX,"IDENTITY");
+            				break;
+            			}
+            		}
+            		if (_properties->getProperty(STR_OPTION_UNGAP_NEIGHBOUR_LENGTH)==0)
+						_properties->add(0,STR_OPTION_UNGAP_NEIGHBOUR_LENGTH,"%d",params2->ungapNeighbourLength);
+
+					if (_properties->getProperty(STR_OPTION_UNGAP_SCORE_THRESHOLD)==0)
+						_properties->add(0,STR_OPTION_UNGAP_SCORE_THRESHOLD,"%d",params2->ungapScoreThreshold);
+
+					if (_properties->getProperty(STR_OPTION_SMALLGAP_THRESHOLD)==0)
+						_properties->add(0,STR_OPTION_SMALLGAP_THRESHOLD,"%d",params2->smallGapThreshold);
+
+					if (_properties->getProperty(STR_OPTION_SMALLGAP_BAND_WITH)==0)
+						_properties->add(0,STR_OPTION_SMALLGAP_BAND_WITH,"%d",params2->smallGapBandWidth);
+
+					if (_properties->getProperty(STR_OPTION_SEEDS_USE_RATIO)==0)
+	        			_properties->add(0,STR_OPTION_SEEDS_USE_RATIO,"%g",1.0);
+        		}
 
         		if (_properties->getProperty(STR_OPTION_FORCE_QUERY_ORDERING)==0)
         			_properties->add(0,STR_OPTION_FORCE_QUERY_ORDERING,"%d",0);
@@ -322,22 +374,8 @@ void PlastCmd::update (dp::EventInfo* evt, dp::ISubject* subject)
         		if (_properties->getProperty(STR_OPTION_OUTPUT_FORMAT)==0)
         			_properties->add(0,STR_OPTION_OUTPUT_FORMAT,"%d",1);
 
-/*        		if (_properties->getProperty(STR_OPTION_OPTIM_FILTER_UNGAP)==0)
-        			_properties->add(0,STR_OPTION_OPTIM_FILTER_UNGAP,"F");
-
-        	    if (   _properties->getProperty (STR_OPTION_INFO_STATS)== 0
-        	       &&  _properties->getProperty (STR_OPTION_INFO_STATS_AUTO) == 0 )
-        	    {
-       	    		_properties->add(0,STR_OPTION_INFO_STATS,"");
-        	    }
-        		if (_properties->getProperty(STR_OPTION_XML_FILTER_FILE)==0)
-        			_properties->add(0,STR_OPTION_XML_FILTER_FILE,"%d",1);*/
-
-        		if (_properties->getProperty(STR_OPTION_SEEDS_USE_RATIO)==0)
-        			_properties->add(0,STR_OPTION_SEEDS_USE_RATIO,"%g",1.0);
-
         		if (_properties->getProperty(STR_OPTION_WORD_SIZE)==0)
-        			_properties->add(0,STR_OPTION_WORD_SIZE,"%d",params->seedSpan);
+        			_properties->add(0,STR_OPTION_WORD_SIZE,"%d",params2->seedSpan);
         	}
         }
 
