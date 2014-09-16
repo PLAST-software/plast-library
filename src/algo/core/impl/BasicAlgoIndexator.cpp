@@ -195,7 +195,7 @@ void BasicIndexator::build (dp::ICommandDispatcher* dispatcher)
 IDatabaseIndex* BasicIndexator::buildIndex (ISequenceDatabase* database, ISeedModel* model, ICommandDispatcher* dispatcher, IDatabaseIndex* otherIndex)
 {
     /** We create the index and use it. */
-    IDatabaseIndex* index = _factory->newDatabaseIndex (database, model, otherIndex);
+    IDatabaseIndex* index = _factory->newDatabaseIndex (database, model, otherIndex, dispatcher);
     index->use ();
 
     /** We get the number of possible execution units from the command dispatcher. */
@@ -213,7 +213,7 @@ IDatabaseIndex* BasicIndexator::buildIndex (ISequenceDatabase* database, ISeedMo
         for (size_t i=0; i<splits.size(); i++)
         {
             /** We create an index for the current frame. */
-            IDatabaseIndex* chidlIndex = _factory->newDatabaseIndex (splits[i], model, otherIndex);
+            IDatabaseIndex* chidlIndex = _factory->newDatabaseIndex (splits[i], model, otherIndex, dispatcher);
 
             /** We add the index to the global index. */
             index->addChildIndex (chidlIndex);

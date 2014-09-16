@@ -183,7 +183,8 @@ public:
     IDatabaseIndex* newDatabaseIndex (
         database::ISequenceDatabase* database,
         seed::ISeedModel*            model,
-        IDatabaseIndex*              otherIndex
+        IDatabaseIndex*              otherIndex,
+        dp::ICommandDispatcher* 	 dispatcher
     )
     {
         return new DatabaseNucleotidIndex (database, model, otherIndex);

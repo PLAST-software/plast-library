@@ -86,6 +86,7 @@ HSPGenerator::HSPGenerator (
 
     /** Shortcut. */
     _span = _indexator->getQueryIndex()->getModel()->getSpan();
+    _extraSpan = _indexator->getQueryIndex()->getModel()->getExtraSpan();
 
     _badLetter = EncodingManager::singleton().getAlphabet(SUBSEED)->any;
 
@@ -356,7 +357,7 @@ int HSPGenerator::computeExtensionRight (int code, const LETTER* s1, const LETTE
                 kmaxi = k;
             }
 
-            if (nbMatch >= span)
+            if ((_extraSpan==0)&&(nbMatch >= span))
             {
                 if (code_ss1 < code)
                 {
@@ -432,7 +433,7 @@ int HSPGenerator::computeExtensionLeft (int code, const LETTER* s1, const LETTER
                 kmaxi = k;
             }
 
-            if (nbMatch >= span)
+            if ((_extraSpan==0)&&(nbMatch >= span))
             {
                 if (code_ss1 < code)
                 {

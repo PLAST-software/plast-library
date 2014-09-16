@@ -75,6 +75,12 @@ public:
      */
     virtual size_t getSpan () = 0;
 
+    /** Get the extra span (ie. the number of letters of a seed which we will start again the reading).
+     * the difference between _span and _extrapsan will give the number of letter which are skipped
+     * \return the extra span
+     */
+    virtual size_t getExtraSpan () = 0;
+
     /** Returns the cardinal of the seeds set for the seed model.
      * \return seeds number.
      */

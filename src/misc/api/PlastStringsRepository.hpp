@@ -267,6 +267,7 @@ public:
     static const char* m_STR_OPTION_INFO_CONFIG_FILE () { return "-plastrc"; }
     static const char* m_STR_OPTION_XML_FILTER_FILE () { return "-xmlfilter"; }
     static const char* m_STR_OPTION_SEEDS_USE_RATIO () { return "-seeds-use-ratio"; }
+    static const char* m_STR_OPTION_INDEX_FILTER_SEED () { return "-seeds-index-filter"; }
     static const char* m_STR_OPTION_HELP () { return "-h"; }
     static const char* m_STR_OPTION_WORD_SIZE () { return "-W"; }
     static const char* m_MSG_MAIN_RC_FILE () { return "/.plastrc"; }
@@ -334,6 +335,7 @@ public:
     static const char* m_STR_HELP_OPTIM_FILTER_UNGAP () { return "Optimization that filters out through ungap alignments."; }
     static const char* m_STR_HELP_XML_FILTER_FILE () { return "Uri of a XML filter file."; }
     static const char* m_STR_HELP_SEEDS_USE_RATIO () { return "Ratio of seeds to be used."; }
+    static const char* m_STR_HELP_INDEX_FILTER_SEED () { return "seeds length to be used for the indexation filter."; }
     static const char* m_STR_HELP_HELP () { return "help"; }
     static const char* m_STR_HELP_INFO_BARGRAPH () { return "Display a progress bar during execution."; }
     static const char* m_STR_HELP_INFO_BARGRAPH_SIZE () { return "Nb of characters of the bargraph."; }
@@ -351,6 +353,7 @@ public:
     static const char* m_STR_CONFIG_CLASS_ParallelCommandDispatcher () { return "ParallelCommandDispatcher"; }
     static const char* m_STR_CONFIG_CLASS_BasicIndexator () { return "BasicIndexator"; }
     static const char* m_STR_CONFIG_CLASS_BasicSortedIndexator () { return "BasicSortedIndexator"; }
+    static const char* m_STR_CONFIG_CLASS_BasicIndexatorOptim () { return "BasicIndexatorOptim"; }
     static const char* m_STR_CONFIG_CLASS_UngapHitIteratorNull () { return "UngapHitIteratorNull"; }
     static const char* m_STR_CONFIG_CLASS_UngapHitIterator () { return "UngapHitIterator"; }
     static const char* m_STR_CONFIG_CLASS_UngapHitIteratorSSE16 () { return "UngapHitIteratorSSE16"; }

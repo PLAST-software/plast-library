@@ -169,8 +169,9 @@ dp::ICommandDispatcher* PlastnConfiguration::createIndexationDispatcher ()
 {
     DEBUG ((cout << "PlastnConfiguration::createIndexationDispatcher" << endl));
 
+    return createDispatcher();
     /** We use a serial dispatcher. */
-    return new SerialCommandDispatcher ();
+    //return new SerialCommandDispatcher ();
 }
 
 /*********************************************************************
@@ -243,9 +244,13 @@ statistics::IGlobalParameters*  PlastnConfiguration::createGlobalParameters (alg
 *********************************************************************/
 ISeedModel* PlastnConfiguration::createSeedModel (SeedModelKind_e modelKind, size_t span, const vector<string>& subseedStrings)
 {
+    IProperty* prop = 0;
     DEBUG ((cout << "PlastnConfiguration::createSeedModel : span=" << span << endl));
 
-    return new BasicSeedModel (SUBSEED, span);
+    if ( (prop = _properties->getProperty (STR_OPTION_INDEX_FILTER_SEED)) != 0)
+        return new BasicSeedModel (SUBSEED, span, prop->getInt());
+    else
+        return new BasicSeedModel (SUBSEED, span);
 }
 
 /*********************************************************************

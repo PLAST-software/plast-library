@@ -96,6 +96,7 @@ public:
             LETTER       l;
             size_t       nbMatch  = 0;
             SeedHashCode hashCode = 0;
+            size_t       moduloSpan = 0;
             size_t       span     = _ref->_span;
             int32_t      bitshift = _ref->_bitshift;
             const LETTER* data    = sequence->getData();
@@ -103,6 +104,7 @@ public:
 
             /** We compute the beginning hash code. */
             int  imax = sequence->getLength() - span;
+            moduloSpan = ((_ref->_extraSpan>_ref->_span)&&(_ref->_otherIndex!=0))?(_ref->_extraSpan - _ref->_span)+1:1;
             for (int i=span-1; i>=0; i--)
             {
                 l = data[i];
@@ -127,7 +129,7 @@ public:
                 nbMatch   = LETTER_ISBAD(l) ? 0 : nbMatch + 1;
 
                 /** We may to do some action if the current match is ok. */
-                if (nbMatch >= span && GETMASK(maskIn,hashCode))  {  _action (sequence, hashCode, i);  }
+                if (nbMatch >= span && GETMASK(maskIn,hashCode) && ((i%moduloSpan)==0))  {  _action (sequence, hashCode, i);  }
             }
         }
     }
@@ -178,13 +180,14 @@ struct FillFunctor : public SeedsFunctor
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-DatabaseNucleotidIndexOptim::DatabaseNucleotidIndexOptim (ISequenceDatabase* database, ISeedModel* model, IDatabaseIndex* otherIndex)
-    : AbstractDatabaseIndex (database, model), _counter(0), _span(0), _bitshift(0), _maskIn(0),  _maskOut(0),
-      _dispatcher(0), _occurrences(0), _index(0), _occurrencesSize(0), _isBuilt(false)
+DatabaseNucleotidIndexOptim::DatabaseNucleotidIndexOptim (ISequenceDatabase* database, ISeedModel* model, IDatabaseIndex* otherIndex, dp::ICommandDispatcher* dispatcher)
+    : AbstractDatabaseIndex (database, model), _counter(0), _span(0), _extraSpan(0), _bitshift(0), _maskIn(0),  _maskOut(0),
+      _dispatcher(0), _occurrences(0),  _occurrencesSize(0), _index(0), _otherIndex(otherIndex), _isBuilt(false)
 {
-    /** Shortcuts. */
+	/** Shortcuts. */
     _span     = getModel()->getSpan();
     _bitshift = 2*(_span-1);
+    _extraSpan     = getModel()->getExtraSpan();
 
     size_t alphabetSize = 4; //getModel()->getAlphabet()->size;
 
@@ -217,7 +220,8 @@ DatabaseNucleotidIndexOptim::DatabaseNucleotidIndexOptim (ISequenceDatabase* dat
     setDatabase (database);
 
     /** */
-    setDispatcher (new ParallelCommandDispatcher());
+    //setDispatcher (new ParallelCommandDispatcher(dispatcher->getExecutionUnitsNumber()));
+    setDispatcher (dispatcher);
 
     DEBUG (("DatabaseNucleotidIndexOptim::DatabaseNucleotidIndexOptim: _span=%d  _maxSeedsNumber=%ld  _alphabetSize=%ld\n",
         _span, _maxSeedsNumber, alphabetSize

@@ -491,6 +491,9 @@ void BufferedSequenceDatabase::BufferedSequenceIterator::updateItem()
     /** We get a pointer to the comment of the current sequence. */
     _item.comment  = _cache->comments[_currentIdx].c_str();
 
+    /** We set the offset in database attribute. */
+    _item.offsetInDb = currentOffset - _cache->shift;
+
     /** We set the index. */
     _item.index = _currentIdx;
 

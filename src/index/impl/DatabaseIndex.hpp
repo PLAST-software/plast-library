@@ -278,7 +278,8 @@ public:
     IDatabaseIndex* newDatabaseIndex (
         database::ISequenceDatabase* database,
         seed::ISeedModel*            model,
-        IDatabaseIndex*              otherIndex
+        IDatabaseIndex*              otherIndex,
+        dp::ICommandDispatcher* 	 dispatcher
     )
     {
         return new DatabaseIndex (database, model);
@@ -300,7 +301,8 @@ public:
     IDatabaseIndex* newDatabaseIndex (
         database::ISequenceDatabase* database,
         seed::ISeedModel*            model,
-        IDatabaseIndex*              otherIndex
+        IDatabaseIndex*              otherIndex,
+        dp::ICommandDispatcher* 	 dispatcher
     )
     {
         return new DatabaseIndexCodonStopOptim (database, model, _range);

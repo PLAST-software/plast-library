@@ -71,8 +71,10 @@ public:
     /** Constructor.
      * \param[in] database : the database to be indexed.
      * \param[in] model : the seed model to be used for indexation.
+     * \param[in] otherIndex : the index which is used to filtered the current database (query index for example)
+     * \param[in] dispatcher : the dispatcher to be used for multi threading.
      */
-	DatabaseNucleotidIndexOptim (database::ISequenceDatabase* database, seed::ISeedModel* model, IDatabaseIndex*  otherIndex);
+	DatabaseNucleotidIndexOptim (database::ISequenceDatabase* database, seed::ISeedModel* model, IDatabaseIndex*  otherIndex, dp::ICommandDispatcher* dispatcher);
     virtual ~DatabaseNucleotidIndexOptim ();
 
     /** \copydoc AbstractDatabaseIndex::build */
@@ -126,16 +128,12 @@ protected:
         void clear () {}
     };
 
-    /** The index itself. Defined as a vector of vectors. */
-    IndexEntry*     _index;
-
-    SeedOccurrence* _occurrences;
-    u_int64_t       _occurrencesSize;
 
     u_int32_t* _counter;
 
     /* Shortcut & optimization. */
     size_t  _span;
+    size_t  _extraSpan;
     int32_t _bitshift;
 
     word_t* _maskIn;
@@ -143,6 +141,14 @@ protected:
 
     dp::ICommandDispatcher* _dispatcher;
     void setDispatcher (dp::ICommandDispatcher* dispatcher)  { SP_SETATTR(dispatcher); }
+
+    SeedOccurrence* _occurrences;
+    u_int64_t       _occurrencesSize;
+
+    /** The index itself. Defined as a vector of vectors. */
+    IndexEntry*     _index;
+
+    IDatabaseIndex* _otherIndex;
 
     bool _isBuilt;
 
@@ -163,10 +169,11 @@ public:
     IDatabaseIndex* newDatabaseIndex (
         database::ISequenceDatabase* database,
         seed::ISeedModel*            model,
-        IDatabaseIndex*              otherIndex
+        IDatabaseIndex*              otherIndex,
+        dp::ICommandDispatcher* 	 dispatcher
     )
     {
-        return new DatabaseNucleotidIndexOptim (database, model, otherIndex);
+        return new DatabaseNucleotidIndexOptim (database, model, otherIndex, dispatcher);
     }
 };
 

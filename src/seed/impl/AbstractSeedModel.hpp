@@ -56,7 +56,7 @@ public:
     /** Constructor.
      * \param[in] span : span of the seeds.
      */
-    AbstractSeedModel (size_t span);
+    AbstractSeedModel (size_t span, size_t extraspan = 0);
 
     /** Destructor. */
     virtual ~AbstractSeedModel ();
@@ -66,6 +66,9 @@ public:
 
     /** \copydoc ISeedModel::getSpan */
     size_t getSpan ()  { return _span; }
+
+    /** \copydoc ISeedModel::getExtraSpan */
+    size_t getExtraSpan () { return _extraSpan; }
 
     /** \copydoc ISeedModel::compare */
     bool compare (const ISeed& s1, const ISeed& s2);

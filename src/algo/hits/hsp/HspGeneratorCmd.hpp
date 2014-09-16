@@ -80,6 +80,7 @@ private:
     int32_t _xdrop;
 
     size_t _span;
+    size_t _extraSpan;
 
     database::LETTER _badLetter;
 

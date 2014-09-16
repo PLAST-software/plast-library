@@ -158,7 +158,7 @@ void IndexatorNucleotide::buildIndex (IDatabaseIndex*& index, ISequenceDatabase*
     DEBUG (("IndexatorNucleotide::buildIndex:  index=%p  database=%p  model=%p  \n", index, database, model));
 
     /** We create the index and use it. */
-    if (index == 0)  { index = _factory->newDatabaseIndex (0, model, otherIndex);  index->use ();  }
+    if (index == 0)  { index = _factory->newDatabaseIndex (0, model, otherIndex, dispatcher);  index->use ();  }
 
     /** We build the index. */
     if (index != 0)

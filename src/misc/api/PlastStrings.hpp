@@ -310,6 +310,11 @@ namespace misc {
  */
 #define STR_OPTION_XML_FILTER_FILE         misc::StringRepository::m_STR_OPTION_XML_FILTER_FILE ()
 
+/** "-seeds-index-filter" command line option giving the length of the seed (X) that we want to simulate
+ * We will only read in the subject database the seed with the size W each X size
+ */
+#define STR_OPTION_INDEX_FILTER_SEED         misc::StringRepository::m_STR_OPTION_INDEX_FILTER_SEED ()
+
 /** "-seeds-use-ratio"  Command Line option giving the ratio of seeds to be used. Setting a value less than 1.0 will speed up
  * the algorithm with the drawback to get fewer alignments. In some cases, setting the value to 0.05 with a evalue to 1e-30 will
  * lead to x2 speed up with a loss of about 1% of alignements.
@@ -403,6 +408,7 @@ namespace misc {
 #define STR_HELP_OPTIM_FILTER_UNGAP         misc::StringRepository::m_STR_HELP_OPTIM_FILTER_UNGAP ()   // Optimization that filters out through ungap alignments.
 #define STR_HELP_XML_FILTER_FILE            misc::StringRepository::m_STR_HELP_XML_FILTER_FILE ()   // Uri of a XML filter file.
 #define STR_HELP_SEEDS_USE_RATIO            misc::StringRepository::m_STR_HELP_SEEDS_USE_RATIO ()   // Ratio of seeds to be used.
+#define STR_HELP_INDEX_FILTER_SEED          misc::StringRepository::m_STR_HELP_INDEX_FILTER_SEED ()   // size of the seeds index filter.
 #define STR_HELP_HELP                       misc::StringRepository::m_STR_HELP_HELP ()   // help
 #define STR_HELP_INFO_BARGRAPH              misc::StringRepository::m_STR_HELP_INFO_BARGRAPH ()   // Display a progress bar during execution.
 #define STR_HELP_INFO_BARGRAPH_SIZE         misc::StringRepository::m_STR_HELP_INFO_BARGRAPH_SIZE ()   // Nb of characters of the bargraph.
@@ -421,6 +427,7 @@ namespace misc {
 #define STR_CONFIG_CLASS_ParallelCommandDispatcher      misc::StringRepository::m_STR_CONFIG_CLASS_ParallelCommandDispatcher ()   // ParallelCommandDispatcher
 #define STR_CONFIG_CLASS_BasicIndexator                 misc::StringRepository::m_STR_CONFIG_CLASS_BasicIndexator ()   // BasicIndexator
 #define STR_CONFIG_CLASS_BasicSortedIndexator           misc::StringRepository::m_STR_CONFIG_CLASS_BasicSortedIndexator ()   // BasicSortedIndexator
+#define STR_CONFIG_CLASS_BasicIndexatorOptim            misc::StringRepository::m_STR_CONFIG_CLASS_BasicIndexatorOptim ()   // BasicIndexatorOptim
 #define STR_CONFIG_CLASS_UngapHitIteratorNull           misc::StringRepository::m_STR_CONFIG_CLASS_UngapHitIteratorNull ()   // UngapHitIteratorNull
 #define STR_CONFIG_CLASS_UngapHitIterator               misc::StringRepository::m_STR_CONFIG_CLASS_UngapHitIterator ()   // UngapHitIterator
 #define STR_CONFIG_CLASS_UngapHitIteratorSSE16          misc::StringRepository::m_STR_CONFIG_CLASS_UngapHitIteratorSSE16 ()   // UngapHitIteratorSSE16

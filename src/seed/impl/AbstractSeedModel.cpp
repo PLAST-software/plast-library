@@ -37,8 +37,8 @@ namespace seed { namespace impl {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-AbstractSeedModel::AbstractSeedModel (size_t span)
-    : _alphabet(0), _span(span), _extraSpan(0)
+AbstractSeedModel::AbstractSeedModel (size_t span, size_t extraspan)
+    : _alphabet(0), _span(span), _extraSpan(extraspan)
 {
     /** We get a reference on the alphabet given the encoding scheme. */
     _alphabet = EncodingManager::singleton().getAlphabet (SUBSEED);

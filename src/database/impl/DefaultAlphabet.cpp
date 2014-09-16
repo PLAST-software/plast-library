@@ -229,6 +229,9 @@ const LETTER* EncodingManager::getEncodingConversion_aminoacid (Encoding from, E
         25, 23, 26, 27
     };
 
+    static const LETTER Encoding_ncbi2subseed_DNA [] = { 0, 1, 5, 16, 11, 24 };
+    static const LETTER Encoding_ncbiAmb2subseed_DNA [] = { 24, 0, 1, 11, 5, 11, 11, 11, 16, 11, 11, 11, 11, 11, 11, 11 };
+
     /** We define the result object. */
     const LETTER* result = 0;
 
@@ -237,7 +240,11 @@ const LETTER* EncodingManager::getEncodingConversion_aminoacid (Encoding from, E
     else if (from==ASCII   && to==SUBSEED)  { result = Encoding_ascii2subseed;  }
     else if (from==ASCII   && to==NCBI)     { result = Encoding_ascii2ncbi;     }
     else if (from==NCBI    && to==SUBSEED)  { result = Encoding_ncbi2subseed;   }
-    else                                    { result = 0;                       }
+    else if (from==NCBI_DNA_NO_AMB 	&& to==SUBSEED)  			{ result = Encoding_ncbi2subseed_DNA;   }
+    else if (from==NCBI_DNA_WITH_AMB&& to==SUBSEED)  			{ result = Encoding_ncbiAmb2subseed_DNA;}
+    else                                    {
+    	result = 0;
+    }
 
     return result;
 }

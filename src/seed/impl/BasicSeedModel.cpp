@@ -36,8 +36,8 @@ namespace seed { namespace impl {
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-BasicSeedModel::BasicSeedModel (Encoding encoding, size_t span)
-    : AbstractSeedModel(span),_seedsMaxNumber(1)
+BasicSeedModel::BasicSeedModel (Encoding encoding, size_t span, size_t extraspan)
+    : AbstractSeedModel(span,extraspan),_seedsMaxNumber(1)
 {
     /** We compute the maximum number of seeds. */
     _seedsMaxNumber = 1;

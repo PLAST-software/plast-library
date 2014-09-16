@@ -57,7 +57,7 @@ public:
      * \param[in] encoding : encoding scheme of the seeds
      * \param[in] span : number of characters of one seed.
      */
-    BasicSeedModel (database::Encoding encoding, size_t span);
+    BasicSeedModel (database::Encoding encoding, size_t span, size_t extraspan = 0);
 
     /** Destructor. */
     virtual ~BasicSeedModel ();

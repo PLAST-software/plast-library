@@ -28,6 +28,7 @@
 #include <seed/api/ISeedModel.hpp>
 #include <database/api/ISequenceDatabase.hpp>
 #include <index/api/IOccurrenceIterator.hpp>
+#include <designpattern/api/ICommand.hpp>
 
 /********************************************************************************/
 /** \brief Genomic database indexation concepts. */
@@ -208,7 +209,8 @@ public:
     virtual IDatabaseIndex* newDatabaseIndex (
         database::ISequenceDatabase* database,
         seed::ISeedModel*            model,
-        IDatabaseIndex*              otherIndex
+        IDatabaseIndex*              otherIndex,
+        dp::ICommandDispatcher* 	 dispatcher
     ) = 0;
 };
 
