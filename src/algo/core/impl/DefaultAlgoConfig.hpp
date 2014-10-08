@@ -98,7 +98,7 @@ public:
     );
 
     /** \copydoc IConfiguration::createGlobalParameters */
-    statistics::IGlobalParameters*  createGlobalParameters (algo::core::IParameters* params);
+    statistics::IGlobalParameters*  createGlobalParameters (algo::core::IParameters* params, size_t subjectDbLength);
 
     /** \copydoc IConfiguration::createSeedModel */
     seed::ISeedModel* createSeedModel (

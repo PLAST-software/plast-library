@@ -124,6 +124,70 @@ bool AbstractGlobalParameters::lookup (AbstractGlobalParameters* globalParams, v
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+double AbstractGlobalParameters::scoreToEvalue(double effSearchSp, double score, size_t qryLength, size_t sbjLength)
+{
+	return effSearchSp * exp((-lambda * (double) score) + logK);
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+bool AbstractGlobalParameters::evalueToCutoff(int&cutoff, double effSearchSp, double evalue, size_t qryLength, size_t sbjLength)
+{
+    int      es;
+    double   esave;
+    int      s_changed = 0;
+
+    if (lambda == -1. || K == -1. || H == -1.)
+        return 1;
+
+    /*
+   Calculate a cutoff score, S, from the Expected
+   (or desired) number of reported HSPs, E.
+     */
+    es = 1;
+    esave = evalue;
+
+    if (evalue > 0.)
+    {
+        es = (int) (ceil( log((double)(K * effSearchSp / evalue)) / lambda ));
+    }
+
+    /*
+   Pick the larger cutoff score between the user's choice
+   and that calculated from the value of E.
+     */
+    if (es > cutoff) {
+        s_changed = 1;
+        cutoff = es;
+    }
+
+    /*
+      Re-calculate E from the cutoff score, if E going in was too high
+     */
+    if (esave <= 0. || !s_changed)
+    {
+    	evalue = effSearchSp * exp((double)(-lambda * cutoff) + logK);
+    }
+
+    VERBOSE (("QueryInformation::evalueToCutoff:  S=%d  E=%f  es=%d  searchsp=%lld  s_changed=%d  esave=%f\n", cutoff, evalue, es, effSearchSp, s_changed, esave));
+
+    return 0;
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
 void GlobalParameters::build (void)
 {
     bool found = false;
@@ -332,6 +396,7 @@ void QueryInformation::build (void)
         cutoffs = 0;
         evalue  = _globalParams->evalue;
         computeCutoffs (cutoffs, evalue, eff_searchsp, 0);
+        //_globalParams->evalueToCutoff(cutoffs, eff_searchsp, evalue, seqLength, _subjectDbSize);
 
         /** We fill the current sequence info. */
         IQueryInformation::SequenceInfo info;

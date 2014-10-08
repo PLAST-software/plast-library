@@ -14,18 +14,28 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/** \file StatisticsPlastn.hpp
- *  \brief Implementation of statistics management
- *  \date 07/11/2011
- *  \author edrezen
+/** \file StatisticsSpouge.hpp
+ *  \brief Implementation of statistics for protein based on Spouge statistics management
+ *  \date 03/10/2014
+ *  \author sbrillet
  */
 
-#ifndef STATISTICS_PLASTN_HPP_
-#define STATISTICS_PLASTN_HPP_
+#ifndef STATISTICS_SPOUGE_HPP_
+#define STATISTICS_SPOUGE_HPP_
 
 /********************************************************************************/
 
-#include <algo/stats/impl/Statistics.hpp>
+#include <os/api/IThread.hpp>
+
+#include <database/api/ISequenceDatabase.hpp>
+
+#include <algo/core/api/IAlgoParameters.hpp>
+
+#include <algo/stats/api/IStatistics.hpp>
+
+#include <vector>
+#include <map>
+#include <stdio.h>
 
 /********************************************************************************/
 namespace statistics  {
@@ -33,13 +43,14 @@ namespace statistics  {
 namespace impl {
 /********************************************************************************/
 
-/** \brief Implementation of IGlobalParameters interface
+/********************************************************************************/
+
+/** \brief Implementation of IGlobalParametersSpouge interface
  *
  *  This class uses a IParameters instance (coming from command line options for instance)
- *  for customizing the generation of the statistical parameters
- *  (openGapCost, extendGapCost, etc...).
+ *  for customizing the generation of the statistical parameters comes form spouge statistics methods
  */
-class GlobalParametersPlastn : public AbstractGlobalParameters
+class GlobalParametersSpouge : public AbstractGlobalParameters
 {
 public:
 
@@ -47,10 +58,32 @@ public:
      *  \param[in] parameters : parameters used for configuring the global statistics.
      *  \param[in] subjectDbLength : Subject database length
      */
-    GlobalParametersPlastn (algo::core::IParameters* parameters, size_t subjectDbLength)
-        : AbstractGlobalParameters (parameters, subjectDbLength)  { build (); }
+	GlobalParametersSpouge (algo::core::IParameters* parameters, size_t subjectDbLength)
+        : AbstractGlobalParameters (parameters,subjectDbLength)  {  build(); }
 
-private:
+    /** Structure holding statistical information. */
+    struct Info
+    {
+        double openGap;
+        double extendGap;
+        double lambda;
+        double K;
+        double H;
+        double alpha;
+        double beta;
+        double C;
+        double alpha_v;
+        double sigma;
+    };
+
+protected:
+    bool lookup (AbstractGlobalParameters* globalParams, void* table, size_t size, int openGap, int extendGap);
+
+    /** \copydoc IGlobalParameters::scoreToEvalue */
+    double scoreToEvalue(double effSearchSp, double score, size_t qryLength, size_t sbjLength);
+
+    /** \copydoc IGlobalParameters::evalueToCutoff */
+    bool evalueToCutoff(int&cutoff, double effSearchSp, double evalue, size_t qryLength, size_t sbjLength);
 
     /** Computes statistics. */
     void build (void);
@@ -60,4 +93,4 @@ private:
 } } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* STATISTICS_PLASTN_HPP_ */
+#endif /* STATISTICS_SPOUGE_HPP_ */

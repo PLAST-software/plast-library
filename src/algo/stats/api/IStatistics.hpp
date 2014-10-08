@@ -27,6 +27,7 @@
 
 #include <designpattern/api/SmartPointer.hpp>
 #include <database/api/ISequence.hpp>
+#include <math.h>
 
 /********************************************************************************/
 /** \brief Statistics concepts */
@@ -39,7 +40,10 @@ class IGlobalParameters : public dp::SmartPointer
 {
 public:
 
-	IGlobalParameters () : evalue(0), K(0), H(0), logK(0), ln2(0), alpha(0), lambda(0), beta(0)  {}
+	IGlobalParameters ()
+	: evalue(0), K(0), H(0), logK(0), ln2(0), alpha(0), lambda(0), beta(0), C(0), Alpha_v(0), Sigma(0),
+	  a_un(0), Alpha_un(0), G(0), b(0), Beta(0), Tau(0), db_length(0)
+	{}
 
     /** */
     double evalue;
@@ -64,6 +68,65 @@ public:
 
     /** */
     double beta;
+
+    /** */
+    double C;
+
+    /** */
+    double Alpha_v;
+
+    /** */
+    double Sigma;
+
+    /** */
+    double a_un;
+
+    /** */
+    double Alpha_un;
+
+    /** */
+    double G;
+
+    /** */
+    double b;
+
+    /** */
+    double Beta;
+
+    /** */
+    double Tau;
+
+    /** */
+    u_int64_t db_length;
+
+    inline double rawToBitsValue (const double& score)
+    {
+        return ((lambda * (double)score - logK) / M_LN2);
+    }
+
+    inline double bitsToRawValue (const double& score)
+    {
+        return (((score * M_LN2)+ logK) / lambda);
+    }
+
+    /** Returns the Evalue calculated with the score.
+     * \param[in] effSearchSp : search space.
+     * \param[in] score : score value
+     * \param[in] qryLength : query length
+     * \param[in] sbjLength : subject length
+     * \return E-value
+     */
+    virtual double scoreToEvalue(double effSearchSp, double score, size_t qryLength, size_t sbjLength) = 0;
+
+    /** Returns the score calculated with the E-value. This function is used to calculate the cutoffs
+     * \param[out] cutoff : value of the cutoff.
+     * \param[in] effSearchSp : search space.
+     * \param[in] evalue : Evalue value
+     * \param[in] qryLength : query length
+     * \param[in] sbjLength : subject length
+     * \return true or false
+     */
+    virtual bool evalueToCutoff(int&cutoff, double effSearchSp, double evalue, size_t qryLength, size_t sbjLength) = 0;
 };
 
 /********************************************************************************/

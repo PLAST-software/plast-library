@@ -122,6 +122,9 @@ public:
     /** Expected value to be used. */
     float   evalue;
 
+    /** Ungapped X drop off. */
+    int XdroppofUnGap;
+
     /** X drop off. */
     int XdroppofGap;
 
@@ -194,6 +197,7 @@ public:
         result->add (1, STR_PARAM_openGapCost,          "%d", openGapCost);
         result->add (1, STR_PARAM_extendGapCost,        "%d", extendGapCost);
         result->add (1, STR_PARAM_evalue,               "%g", evalue);
+        result->add (1, STR_PARAM_XdroppofUngap,        "%d", XdroppofUnGap);
         result->add (1, STR_PARAM_XdroppofGap,          "%d", XdroppofGap);
         result->add (1, STR_PARAM_finalXdroppofGap,     "%d", finalXdroppofGap);
         result->add (1, STR_PARAM_strands, "%d", strands.size());

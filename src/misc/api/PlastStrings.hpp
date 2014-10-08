@@ -113,6 +113,11 @@ namespace misc {
  */
 #define STR_OPTION_EXTEND_GAP_COST          misc::StringRepository::m_STR_OPTION_EXTEND_GAP_COST ()
 
+/** "-xdrop_ungap"    Command Line option giving the dropoff value for ungap algorithm.
+ *  Integer value.
+ */
+#define STR_OPTION_X_DROPOFF_UNGAPPED       misc::StringRepository::m_STR_OPTION_X_DROPOFF_UNGAPPED ()
+
 /** "-X"    Command Line option giving the dropoff value for full gap algorithm.
  *  Integer value.
  */
@@ -204,6 +209,11 @@ namespace misc {
  *  String value, one of: SerialCommandDispatcher, ParallelCommandDispatcher (default)
  */
 #define STR_OPTION_FACTORY_DISPATCHER       misc::StringRepository::m_STR_OPTION_FACTORY_DISPATCHER ()
+
+/** "-factory-statistics"   Command Line option giving the factory name for creating statistics.
+ *  String value, one of: Karlin (default), Spouge
+ */
+#define STR_OPTION_FACTORY_STATISTICS       misc::StringRepository::m_STR_OPTION_FACTORY_STATISTICS ()
 
 /** "-factory-indexation"   Command Line option giving the factory name for creating indexator instances.
  *  String value, one of: BasicIndexator, BasicSortedIndexator (default)
@@ -381,6 +391,7 @@ namespace misc {
 #define STR_HELP_NB_PROCESSORS              misc::StringRepository::m_STR_HELP_NB_PROCESSORS ()   // Number of processors to use
 #define STR_HELP_OPEN_GAP_COST              misc::StringRepository::m_STR_HELP_OPEN_GAP_COST ()   // Cost to open a gap
 #define STR_HELP_EXTEND_GAP_COST            misc::StringRepository::m_STR_HELP_EXTEND_GAP_COST ()   // Cost to extend a gap
+#define STR_HELP_X_DROPOFF_UNGAPPED         misc::StringRepository::m_STR_HELP_X_DROPOFF_UNGAPPED ()   // X dropoff value for ungapped alignment (in bits) (zero invokes default behavior 20 bits)
 #define STR_HELP_X_DROPOFF_GAPPED           misc::StringRepository::m_STR_HELP_X_DROPOFF_GAPPED ()   // X dropoff value for gapped alignment (in bits) (zero invokes default behavior)
 #define STR_HELP_X_DROPOFF_FINAL            misc::StringRepository::m_STR_HELP_X_DROPOFF_FINAL ()   // X dropoff value for final gapped alignment in bits (0.0 invokes default behavior)
 #define STR_HELP_FILTER_QUERY               misc::StringRepository::m_STR_HELP_FILTER_QUERY ()   // Filter query sequence
@@ -397,6 +408,7 @@ namespace misc {
 #define STR_HELP_STRANDS_LIST               misc::StringRepository::m_STR_HELP_STRANDS_LIST ()   // List of the strands (ex: "1,2,6") to be used when using algo using nucleotids databases.
 #define STR_HELP_CODON_STOP_OPTIM           misc::StringRepository::m_STR_HELP_CODON_STOP_OPTIM ()   // size of the allowed range between the last invalid character and the next stop codon
 #define STR_HELP_FACTORY_DISPATCHER         misc::StringRepository::m_STR_HELP_FACTORY_DISPATCHER ()   // Factory that creates dispatcher.
+#define STR_HELP_FACTORY_STATISTICS         misc::StringRepository::m_STR_HELP_FACTORY_STATISTICS ()   // Factory that creates statistics builder.
 #define STR_HELP_FACTORY_INDEXATION         misc::StringRepository::m_STR_HELP_FACTORY_INDEXATION ()   // Factory that creates indexation builder.
 #define STR_HELP_FACTORY_HIT_UNGAP          misc::StringRepository::m_STR_HELP_FACTORY_HIT_UNGAP ()   // Factory that creates ungap hits iterator.
 #define STR_HELP_FACTORY_HIT_SMALLGAP       misc::StringRepository::m_STR_HELP_FACTORY_HIT_SMALLGAP ()   // Factory that creates small gap hits iterator.
@@ -423,6 +435,8 @@ namespace misc {
 #define STR_HELP_INFO_CONFIG_FILE           misc::StringRepository::m_STR_HELP_INFO_CONFIG_FILE ()   // Pathname of the plast config file.
 #define STR_HELP_WORD_SIZE                  misc::StringRepository::m_STR_HELP_WORD_SIZE ()   // Pathname of the plast config file.
 
+#define STR_CONFIG_CLASS_KarlinStats			        misc::StringRepository::m_STR_CONFIG_CLASS_KarlinStats ()   // KarlinStats
+#define STR_CONFIG_CLASS_SpougeStats				    misc::StringRepository::m_STR_CONFIG_CLASS_SpougeStats ()   // SpougeStats
 #define STR_CONFIG_CLASS_SerialCommandDispatcher        misc::StringRepository::m_STR_CONFIG_CLASS_SerialCommandDispatcher ()   // SerialCommandDispatcher
 #define STR_CONFIG_CLASS_ParallelCommandDispatcher      misc::StringRepository::m_STR_CONFIG_CLASS_ParallelCommandDispatcher ()   // ParallelCommandDispatcher
 #define STR_CONFIG_CLASS_BasicIndexator                 misc::StringRepository::m_STR_CONFIG_CLASS_BasicIndexator ()   // BasicIndexator
@@ -460,6 +474,7 @@ namespace misc {
 #define STR_PARAM_openGapCost           misc::StringRepository::m_STR_PARAM_openGapCost ()   // openGapCost
 #define STR_PARAM_extendGapCost         misc::StringRepository::m_STR_PARAM_extendGapCost ()   // extendGapCost
 #define STR_PARAM_evalue                misc::StringRepository::m_STR_PARAM_evalue ()   // evalue
+#define STR_PARAM_XdroppofUngap         misc::StringRepository::m_STR_PARAM_XdroppofUngap ()   // XdroppofUngap
 #define STR_PARAM_XdroppofGap           misc::StringRepository::m_STR_PARAM_XdroppofGap ()   // XdroppofGap
 #define STR_PARAM_finalXdroppofGap      misc::StringRepository::m_STR_PARAM_finalXdroppofGap ()   // finalXdroppofGap
 #define STR_PARAM_outputfile            misc::StringRepository::m_STR_PARAM_outputfile ()   // outputfile

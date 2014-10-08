@@ -43,8 +43,6 @@ using namespace alignment::tools::impl;
 #define DEBUG(a)    //printf a
 #define VERBOSE(a)  //printf a
 
-#define LOG2 0.69314718055994530941
-
 /********************************************************************************/
 namespace algo {
 namespace hits {
@@ -157,11 +155,12 @@ void AlignmentGeneratorCmd::execute ()
              IAlignmentSplitter::SplitOutput output;
              _splitter->splitAlign (align, output);
 
-             double evalue = (double) info.eff_searchsp * exp((-_globalStats->lambda * (double) score) + _globalStats->logK);
+             //double evalue = (double) info.eff_searchsp * exp((-_globalStats->lambda * (double) score) + _globalStats->logK);
+             double evalue = _globalStats->scoreToEvalue((double) info.eff_searchsp, (double) score, seqQry->getLength(), seqSbj->getLength());
 
              /** We complete missing alignment information. */
              align.setEvalue       (evalue);
-             align.setBitScore     ((_globalStats->lambda * (double)score - _globalStats->logK) / LOG2);
+             align.setBitScore     (_globalStats->rawToBitsValue((double)score));
              align.setScore        (score);
              align.setLength       (output.alignSize);
              align.setNbIdentities (output.identity);

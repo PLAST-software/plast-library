@@ -91,8 +91,6 @@ UngapExtendHitIterator::~UngapExtendHitIterator ()
  *********************************************************************/
 void UngapExtendHitIterator::iterateMethod (Hit* hit)
 {
-    static double ln2 = 0.69314718055994530941;
-
     /** Shortcuts. */
     const Vector<const ISeedOccurrence*>& occurSbjVector = hit->occur1;
     const Vector<const ISeedOccurrence*>& occurQryVector = hit->occur2;
@@ -114,6 +112,9 @@ void UngapExtendHitIterator::iterateMethod (Hit* hit)
         /** Shortcuts. */
         const ISeedOccurrence* occurSbj = occurSbjVector.data [idx.first];
         const ISeedOccurrence* occurQry = occurQryVector.data [idx.second];
+
+        const ISequence& subjectSeq = occurSbj->sequence;
+        const ISequence& querySeq   = occurQry->sequence;
 
         /** Shortcuts. */
         LETTER* loopSbj = occurSbj->sequence.data.letters.data + occurSbj->offsetInSequence;
@@ -180,8 +181,10 @@ void UngapExtendHitIterator::iterateMethod (Hit* hit)
             if (_ungapResult->doesExist(align) == false)
             {
                 /** We complete missing alignment information. */
-                align.setEvalue   ((double) info.eff_searchsp * exp((-_globalStats->lambda * (double) score) + _globalStats->logK));
-                align.setBitScore ((_globalStats->lambda * (double)score - _globalStats->logK) / ln2);
+                //align.setEvalue   ((double) info.eff_searchsp * exp((-_globalStats->lambda * (double) score) + _globalStats->logK));
+				align.setEvalue   (_globalStats->scoreToEvalue((double) info.eff_searchsp, (double) score, querySeq.getLength(),subjectSeq.getLength()));
+
+                align.setBitScore (_globalStats->rawToBitsValue((double)score));
                 align.setScore    (score);
                 align.setLength   (indexRight + indexLeft + 1);
 

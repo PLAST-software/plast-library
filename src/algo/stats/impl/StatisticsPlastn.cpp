@@ -18,6 +18,7 @@
 
 #include <misc/api/macros.hpp>
 
+#include <math.h>
 #include <stdio.h>
 #define DEBUG(a)  //printf a
 
@@ -207,8 +208,11 @@ void GlobalParametersPlastn::build (void)
     DEFPARAMS (4,-5, blastn_values_4_5, 12,  8);
     DEFPARAMS (5,-4, blastn_values_5_4, 25, 10);
 
-    _parameters->XdroppofGap      = (int)(((_parameters->XdroppofGap)      * 0.693174)/lambda);
-    _parameters->finalXdroppofGap = MAX  ((int)(((_parameters->finalXdroppofGap) * 0.693174)/lambda), _parameters->XdroppofGap);
+    _parameters->ungapScoreThreshold = (int)bitsToRawValue((double)_parameters->ungapScoreThreshold);
+
+    _parameters->XdroppofUnGap    = (int)(((_parameters->XdroppofUnGap)    * M_LN2)/lambda);
+    _parameters->XdroppofGap      = (int)(((_parameters->XdroppofGap)      * M_LN2)/lambda);
+    _parameters->finalXdroppofGap = MAX  ((int)(((_parameters->finalXdroppofGap) * M_LN2)/lambda), _parameters->XdroppofGap);
 
     DEBUG (("GlobalParametersPlastn::build:  reward=%d  penalty=%d  openCost=%d  extendCost=%d  lambda=%f  xdrop=%d  finalXdrop=%d\n",
         _parameters->reward, _parameters->penalty,

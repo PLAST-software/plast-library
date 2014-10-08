@@ -156,9 +156,10 @@ public:
 
     /** Create global statistical information used by the algorithm.
      * \param[in] params : for parameterizing the instance creation
+     * \param[in] subjectDbLength : Subject database length
      * \return a new IGlobalParameters instance
      */
-    virtual statistics::IGlobalParameters*  createGlobalParameters (algo::core::IParameters* params) = 0;
+    virtual statistics::IGlobalParameters*  createGlobalParameters (algo::core::IParameters* params, size_t subjectDbLength) = 0;
 
     /** Create a seeds model used by the algorithm (in particular, used for databases indexation)
      * \param[in] modelKind : kind of the model to be created; normally should be a subseed model

@@ -299,7 +299,7 @@ void DefaultEnvironment::run ()
             seedsModel,
             _dbProvider,
             indexator,
-            _config->createGlobalParameters (_parametersList[i]),
+            _config->createGlobalParameters (_parametersList[i],_quickSubjectDbReader->getDataSize()),
             _timeInfoAlgo,
             _isRunning
         );
@@ -572,6 +572,7 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
             if ( (prop = properties->getProperty (STR_OPTION_OPEN_GAP_COST)) != 0)          {  params->openGapCost          = misc::atoi (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_EXTEND_GAP_COST)) != 0)        {  params->extendGapCost        = misc::atoi (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_EVALUE)) != 0)                 {  params->evalue               = misc::atof (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_UNGAPPED)) != 0)     {  params->XdroppofUnGap        = misc::atoi (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_GAPPED)) != 0)       {  params->XdroppofGap          = misc::atoi (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_FINAL)) != 0)        {  params->finalXdroppofGap     = misc::atoi (prop->value.c_str()); }
 

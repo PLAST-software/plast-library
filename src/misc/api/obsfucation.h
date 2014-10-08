@@ -151,7 +151,7 @@
     #define CompositionHitIteratorNull x128
     #define compute x129
     #define computeAlignments x130
-    #define computeCutoffs x131
+    #define evalueToCutoff x131
     #define computeExtensionLeft x132
     #define computeExtensionRight x133
     #define computeLengthAdjustment x134

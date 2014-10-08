@@ -107,11 +107,11 @@ AlgorithmPlastn::AlgorithmPlastn (
 
 
     /** We may change the ungap score threshold according to the reward value. */
-    if (_params->ungapScoreThreshold == 0)
-    {
-        /** Empirical formula that optimizes the threshold, compared to blastn. */
-        _params->ungapScoreThreshold = 28 * _params->reward - 1;
-    }
+//    if (_params->ungapScoreThreshold == 0)
+//    {
+//        /** Empirical formula that optimizes the threshold, compared to blastn. */
+//        _params->ungapScoreThreshold = 28 * _params->reward - 1;
+//    }
 }
 
 /*********************************************************************
@@ -171,7 +171,8 @@ void AlgorithmPlastn::computeAlignments (
     /***************************   PASS 1  ********************************/
     /**********************************************************************/
     list<int> xdropoffs;
-    xdropoffs.push_back (_params->XdroppofGap / 2);
+    //xdropoffs.push_back (_params->XdroppofGap / 2);
+    xdropoffs.push_back (_params->XdroppofGap);
     xdropoffs.push_back (_params->finalXdroppofGap);
 
     for (list<int>::iterator it = xdropoffs.begin(); it != xdropoffs.end(); ++it)
@@ -280,7 +281,8 @@ IHspContainer* AlgorithmPlastn::pass0 (
             _params->ungapScoreThreshold,
             _params->reward,
             _params->penalty,
-            ABS (_params->penalty * 1),
+            _params->XdroppofUnGap,
+            //ABS (_params->penalty * 1),
             this
         ));
     }

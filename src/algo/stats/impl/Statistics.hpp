@@ -51,8 +51,13 @@ public:
 
     /** Constructor.
      *  \param[in] parameters : parameters used for configuring the global statistics.
+     *  \param[in] subjectDbLength : Subject database length
      */
-    AbstractGlobalParameters (algo::core::IParameters* parameters) : _parameters(0)  { setParameters (parameters); }
+    AbstractGlobalParameters (algo::core::IParameters* parameters, size_t subjectDbLength) : _parameters(0)
+	{
+    	setParameters (parameters);
+    	db_length=subjectDbLength;
+	}
 
     ~AbstractGlobalParameters () { setParameters (0); }
 
@@ -79,6 +84,12 @@ protected:
      * \return true if parameters are found, false otherwise
      */
     static bool lookup (AbstractGlobalParameters* globalParams, void* table, size_t size, int openGap, int extendGap);
+
+    /** \copydoc IGlobalParameters::scoreToEvalue */
+    double scoreToEvalue(double effSearchSp, double score, size_t qryLength, size_t sbjLength);
+
+    /** \copydoc IGlobalParameters::evalueToCutoff */
+    bool evalueToCutoff(int&cutoff, double effSearchSp, double evalue, size_t qryLength, size_t sbjLength);
 };
 
 /********************************************************************************/
@@ -95,14 +106,17 @@ public:
 
     /** Constructor.
      *  \param[in] parameters : parameters used for configuring the global statistics.
+     *  \param[in] subjectDbLength : Subject database length
+     *
      */
-    GlobalParameters (algo::core::IParameters* parameters)
-        : AbstractGlobalParameters (parameters)  {  build(); }
+    GlobalParameters (algo::core::IParameters* parameters, size_t subjectDbLength)
+        : AbstractGlobalParameters (parameters,subjectDbLength)  {  build(); }
 
 protected:
 
     /** Computes statistics. */
     void build (void);
+
 };
 
 /********************************************************************************/

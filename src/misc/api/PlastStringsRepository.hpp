@@ -229,6 +229,7 @@ public:
     static const char* m_STR_OPTION_NB_PROCESSORS () { return "-a"; }
     static const char* m_STR_OPTION_OPEN_GAP_COST () { return "-G"; }
     static const char* m_STR_OPTION_EXTEND_GAP_COST () { return "-E"; }
+    static const char* m_STR_OPTION_X_DROPOFF_UNGAPPED () { return "-xdrop-ungap"; }
     static const char* m_STR_OPTION_X_DROPOFF_GAPPED () { return "-X"; }
     static const char* m_STR_OPTION_X_DROPOFF_FINAL () { return "-Z"; }
     static const char* m_STR_OPTION_FILTER_QUERY () { return "-F"; }
@@ -245,6 +246,7 @@ public:
     static const char* m_STR_OPTION_STRANDS_LIST () { return "-strands-list"; }
     static const char* m_STR_OPTION_CODON_STOP_OPTIM () { return "-optim-codon-stop"; }
     static const char* m_STR_OPTION_FACTORY_DISPATCHER () { return "-factory-dispatcher"; }
+    static const char* m_STR_OPTION_FACTORY_STATISTICS () { return "-factory-statistics"; }
     static const char* m_STR_OPTION_FACTORY_INDEXATION () { return "-factory-indexation"; }
     static const char* m_STR_OPTION_FACTORY_HIT_UNGAP () { return "-factory-hit-ungap"; }
     static const char* m_STR_OPTION_FACTORY_HIT_SMALLGAP () { return "-factory-hit-smallgap"; }
@@ -308,6 +310,7 @@ public:
     static const char* m_STR_HELP_NB_PROCESSORS () { return "Number of processors to use"; }
     static const char* m_STR_HELP_OPEN_GAP_COST () { return "Cost to open a gap"; }
     static const char* m_STR_HELP_EXTEND_GAP_COST () { return "Cost to extend a gap"; }
+    static const char* m_STR_HELP_X_DROPOFF_UNGAPPED () { return "X dropoff value for Ungapped alignment (in bits) (zero invokes default behavior 20 bits)"; }
     static const char* m_STR_HELP_X_DROPOFF_GAPPED () { return "X dropoff value for gapped alignment (in bits) (zero invokes default behavior)"; }
     static const char* m_STR_HELP_X_DROPOFF_FINAL () { return "X dropoff value for final gapped alignment in bits (0.0 invokes default behavior)"; }
     static const char* m_STR_HELP_FILTER_QUERY () { return "Filter query sequence"; }
@@ -324,6 +327,7 @@ public:
     static const char* m_STR_HELP_STRANDS_LIST () { return "List of the strands (ex: \"1,2,6\") to be used when using algo using nucleotids databases."; }
     static const char* m_STR_HELP_CODON_STOP_OPTIM () { return "size of the allowed range between the last invalid character and the next stop codon"; }
     static const char* m_STR_HELP_FACTORY_DISPATCHER () { return "Factory that creates dispatcher."; }
+    static const char* m_STR_HELP_FACTORY_STATISTICS () { return "Factory that creates statistics builder."; }
     static const char* m_STR_HELP_FACTORY_INDEXATION () { return "Factory that creates indexation builder."; }
     static const char* m_STR_HELP_FACTORY_HIT_UNGAP () { return "Factory that creates ungap hits iterator."; }
     static const char* m_STR_HELP_FACTORY_HIT_SMALLGAP () { return "Factory that creates small gap hits iterator."; }
@@ -349,6 +353,8 @@ public:
     static const char* m_STR_HELP_INFO_RESOURCES_PROGRESS () { return "Dump in a file information about resources during algorithm."; }
     static const char* m_STR_HELP_INFO_CONFIG_FILE () { return "Pathname of the plast config file."; }
     static const char* m_STR_HELP_WORD_SIZE  () { return "size of the seeds"; }
+    static const char* m_STR_CONFIG_CLASS_KarlinStats () { return "KarlinStats"; }
+    static const char* m_STR_CONFIG_CLASS_SpougeStats () { return "SpougeStats"; }
     static const char* m_STR_CONFIG_CLASS_SerialCommandDispatcher () { return "SerialCommandDispatcher"; }
     static const char* m_STR_CONFIG_CLASS_ParallelCommandDispatcher () { return "ParallelCommandDispatcher"; }
     static const char* m_STR_CONFIG_CLASS_BasicIndexator () { return "BasicIndexator"; }
@@ -385,6 +391,7 @@ public:
     static const char* m_STR_PARAM_openGapCost () { return "openGapCost"; }
     static const char* m_STR_PARAM_extendGapCost () { return "extendGapCost"; }
     static const char* m_STR_PARAM_evalue () { return "evalue"; }
+    static const char* m_STR_PARAM_XdroppofUngap () { return "XdroppofUnGap"; }
     static const char* m_STR_PARAM_XdroppofGap () { return "XdroppofGap"; }
     static const char* m_STR_PARAM_finalXdroppofGap () { return "finalXdroppofGap"; }
     static const char* m_STR_PARAM_outputfile () { return "outputfile"; }

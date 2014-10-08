@@ -110,8 +110,6 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
 {
     HIT_STATS_VERBOSE (_iterateMethodNbCalls++);
 
-    double ln2 = 0.69314718055994530941;
-
     /** Shortcuts. */
     const Vector<const ISeedOccurrence*>& occur1Vector = hit->occur1;
     const Vector<const ISeedOccurrence*>& occur2Vector = hit->occur2;
@@ -167,6 +165,10 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
         /** We retrieve statistical information for the current query sequence. */
         IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfo (querySeq);
 
+/*        double evalue=_globalStats->scoreToEvalue((double) info.eff_searchsp, (double) score,querySeq.getLength(), subjectSeq.getLength());
+        _globalStats->evalueToCutoff(info.cut_offs, (double)info.eff_searchsp, evalue, querySeq.getLength(), subjectSeq.getLength());
+        printf ("cuttof=%d  evalue=%f\n", info.cut_offs,evalue);*/
+
         if (score >= info.cut_offs)
         {
             /** We create a new alignment. */
@@ -184,8 +186,10 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
                 HIT_STATS (_outputHitsNumber ++;)
 
                 /** We complete missing alignment information. */
-                align.setEvalue   ((double) info.eff_searchsp * exp((-_globalStats->lambda * (double) score) + _globalStats->logK));
-                align.setBitScore ((_globalStats->lambda * (double)score - _globalStats->logK) / ln2);
+//                align.setEvalue   ((double) info.eff_searchsp * exp((-_globalStats->lambda * (double) score) + _globalStats->logK));
+				align.setEvalue   (_globalStats->scoreToEvalue((double) info.eff_searchsp, (double) score,querySeq.getLength(), subjectSeq.getLength()) );
+
+                align.setBitScore (_globalStats->rawToBitsValue((double)score));
                 align.setScore    (score);
 
                 /** This will compute identity, nb gaps, ... */

@@ -133,14 +133,17 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
     params->filterQuery          = true;
     params->filterQueryThreshold = 1;      // not used for dust
     params->ungapNeighbourLength = 0;
-    params->ungapScoreThreshold  = 0;
+//    params->ungapScoreThreshold  = 27;
+    params->ungapScoreThreshold  = 51;
     params->smallGapBandLength   = 0;
     params->smallGapBandWidth    = 0;
     params->smallGapThreshold    = 0;
     params->openGapCost          = 5;
     params->extendGapCost        = 2;
     params->evalue               = 10.0;
-    params->XdroppofGap          = 25;
+    params->XdroppofUnGap        = 20;
+    //params->XdroppofGap          = 25;
+    params->XdroppofGap          = 30;
     params->finalXdroppofGap     = 100;
     params->outputfile           = "stdout";
     params->reward               =  2;
@@ -227,11 +230,11 @@ algo::core::IDatabasesProvider* PlastnConfiguration::createDatabaseProvider ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-statistics::IGlobalParameters*  PlastnConfiguration::createGlobalParameters (algo::core::IParameters* params)
+statistics::IGlobalParameters*  PlastnConfiguration::createGlobalParameters (algo::core::IParameters* params, size_t subjectDbLength)
 {
     DEBUG ((cout << "PlastnConfiguration::createGlobalParameters" << endl));
 
-    return new statistics::impl::GlobalParametersPlastn (params);
+    return new statistics::impl::GlobalParametersPlastn (params, subjectDbLength);
 }
 
 /*********************************************************************
@@ -305,7 +308,7 @@ IAlignmentContainer* PlastnConfiguration::createGapAlignmentResult  ()
 
 	IProperty* prop = 0;
 
-    size_t nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 0;
+    size_t nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 500;
     size_t nbAlignPerHit = (prop = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT))   != 0 ?  prop->getInt() : 0;
 
     return new BasicAlignmentContainerBis (nbHitPerQuery, nbAlignPerHit);

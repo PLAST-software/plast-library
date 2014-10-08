@@ -64,6 +64,7 @@ void PlastOptionsParser::build ()
     this->add (new OptionOneParam (STR_OPTION_NB_PROCESSORS,            STR_HELP_NB_PROCESSORS));
     this->add (new OptionOneParam (STR_OPTION_OPEN_GAP_COST,            STR_HELP_OPEN_GAP_COST));
     this->add (new OptionOneParam (STR_OPTION_EXTEND_GAP_COST,          STR_HELP_EXTEND_GAP_COST));
+    this->add (new OptionOneParam (STR_OPTION_X_DROPOFF_UNGAPPED,       STR_HELP_X_DROPOFF_UNGAPPED));
     this->add (new OptionOneParam (STR_OPTION_X_DROPOFF_GAPPED,         STR_HELP_X_DROPOFF_GAPPED));
     this->add (new OptionOneParam (STR_OPTION_X_DROPOFF_FINAL,          STR_HELP_X_DROPOFF_FINAL));
     this->add (new OptionOneParam (STR_OPTION_FILTER_QUERY,             STR_HELP_FILTER_QUERY));
@@ -91,6 +92,7 @@ void PlastOptionsParser::build ()
 
     /** Factories. */
     this->add (new OptionOneParam (STR_OPTION_FACTORY_DISPATCHER,       STR_HELP_FACTORY_DISPATCHER));
+    this->add (new OptionOneParam (STR_OPTION_FACTORY_STATISTICS,       STR_HELP_FACTORY_STATISTICS));
     this->add (new OptionOneParam (STR_OPTION_FACTORY_INDEXATION,       STR_HELP_FACTORY_INDEXATION));
     //this->add (new OptionOneParam ("-factory-hit-seeds",              "Factory that creates seeds hits iterator."));
     this->add (new OptionOneParam (STR_OPTION_FACTORY_HIT_UNGAP,        STR_HELP_FACTORY_HIT_UNGAP));

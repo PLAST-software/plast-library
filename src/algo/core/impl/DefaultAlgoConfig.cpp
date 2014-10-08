@@ -38,6 +38,7 @@
 #include <algo/core/impl/DatabasesProvider.hpp>
 
 #include <algo/stats/impl/Statistics.hpp>
+#include <algo/stats/impl/StatisticsSpouge.hpp>
 
 #include <algo/hits/ungap/UngapHitIterator.hpp>
 #include <algo/hits/ungap/UngapHitIteratorSSE8.hpp>
@@ -202,6 +203,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->openGapCost          = 0;  // 0 means default value; actual value will be set later
         params->extendGapCost        = 0;  // 0 means default value; actual value will be set later
         params->evalue               = 10.0;
+        params->XdroppofUnGap        = 0;
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
         params->outputfile           = "stdout";
@@ -232,6 +234,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->openGapCost          = 0;  // 0 means default value; actual value will be set later
         params->extendGapCost        = 0;  // 0 means default value; actual value will be set later
         params->evalue               = 10.0;
+        params->XdroppofUnGap        = 0;
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
         params->outputfile           = "stdout";
@@ -262,6 +265,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->openGapCost          = 0; // 0 means default value; actual value will be set later
         params->extendGapCost        = 0; // 0 means default value; actual value will be set later
         params->evalue               = 10.0;
+        params->XdroppofUnGap        = 0;
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
         params->outputfile           = "stdout";
@@ -292,6 +296,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->openGapCost          = 0; // 0 means default value; actual value will be set later
         params->extendGapCost        = 0; // 0 means default value; actual value will be set later
         params->evalue               = 10.0;
+        params->XdroppofUnGap        = 0;
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
         params->outputfile           = "stdout";
@@ -301,7 +306,7 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
 
     /** We may want to restrict the number of dumped alingments. */
     params->nbAlignPerHit = (prop = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT))   != 0 ?  prop->getInt() : 0;
-    params->nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 0;
+    params->nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 500;
 
     return params;
 }
@@ -476,15 +481,25 @@ IQueryInformation* DefaultConfiguration::createQueryInformation (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IGlobalParameters*  DefaultConfiguration::createGlobalParameters (IParameters* params)
+IGlobalParameters*  DefaultConfiguration::createGlobalParameters (IParameters* params, size_t subjectDbLength)
 {
     IGlobalParameters* result = 0;
+    IProperty* prop = 0;
 
-    result = new GlobalParameters (params);
+    /** We retrieve the property. */
+    prop = _properties->getProperty (STR_OPTION_FACTORY_STATISTICS);
+
+    if (prop && prop->value.compare(STR_CONFIG_CLASS_SpougeStats)==0)
+    {
+        result = new GlobalParametersSpouge (params, subjectDbLength);
+    }
+    else
+    {
+        result = new GlobalParameters (params, subjectDbLength);
+    }
 
     return result;
 }
-
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
@@ -899,7 +914,7 @@ IAlignmentContainer* DefaultConfiguration::createGapAlignmentResult  ()
     /** We retrieve the property. */
     IProperty* prop = _properties->getProperty (STR_OPTION_FACTORY_GAP_RESULT);
 
-    size_t nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 0;
+    size_t nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 500;
     size_t nbAlignPerHit = (prop = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT))   != 0 ?  prop->getInt() : 0;
 
     if (prop && prop->value.compare(STR_CONFIG_CLASS_BasicAlignmentResult)==0)
@@ -972,7 +987,7 @@ IAlignmentContainerVisitor* DefaultConfiguration::createResultVisitor ()
         u_int32_t nbAlignPerNotif = forceQryOrdering->getInt();
         if (nbAlignPerNotif == 0)  { nbAlignPerNotif = 10*1000; }
 
-        size_t nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 0;
+        size_t nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 500;
         size_t nbAlignPerHit = (prop = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT))   != 0 ?  prop->getInt() : 0;
 
         result = new QueryReorderVisitor (

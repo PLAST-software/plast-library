@@ -270,9 +270,9 @@ void PlastCmd::update (dp::EventInfo* evt, dp::ISubject* subject)
         	    IProperty* algoProp = _properties->getProperty (STR_OPTION_ALGO_TYPE);
         	    IParameters* params2 = params->clone();LOCAL(params2);
         		if (algoProp == 0 ||  algoProp->getValue().compare ("plastn")!=0)
-        			result = new GlobalParameters (params2);
+        			result = new GlobalParameters (params2,0);
         		else
-            	    result = new GlobalParametersPlastn (params2);
+            	    result = new GlobalParametersPlastn (params2,0);
 
         		LOCAL(result);
         		/** We retrieve the type of algorithm (may be not set). */
@@ -301,6 +301,9 @@ void PlastCmd::update (dp::EventInfo* evt, dp::ISubject* subject)
 
         		if (algoProp != 0  &&  algoProp->getValue().compare ("plastn")==0)
         		{
+            		if (_properties->getProperty(STR_OPTION_X_DROPOFF_UNGAPPED)==0)
+            			_properties->add(0,STR_OPTION_X_DROPOFF_UNGAPPED,paramsProps->getProperty(STR_PARAM_XdroppofUngap)->getValue());
+
             		if (_properties->getProperty(STR_OPTION_X_DROPOFF_GAPPED)==0)
             			_properties->add(0,STR_OPTION_X_DROPOFF_GAPPED,paramsProps->getProperty(STR_PARAM_XdroppofGap)->getValue());
 
@@ -322,6 +325,9 @@ void PlastCmd::update (dp::EventInfo* evt, dp::ISubject* subject)
 
 					if (_properties->getProperty(STR_OPTION_PENALTY)==0)
 						_properties->add(0,STR_OPTION_PENALTY,"%d",params2->penalty);
+
+					if (_properties->getProperty(STR_OPTION_INDEX_FILTER_SEED)==0)
+	        			_properties->add(0,STR_OPTION_INDEX_FILTER_SEED,"%d",_properties->getProperty (STR_OPTION_ALGO_TYPE)->getInt());
         		}
         		else
         		{
