@@ -85,6 +85,9 @@ protected:
     /** \copydoc IGlobalParameters::evalueToCutoff */
     bool evalueToCutoff(int&cutoff, double effSearchSp, double evalue, size_t qryLength, size_t sbjLength);
 
+    /** \copydoc IGlobalParameters::useCutoff */
+    bool useCutoff() {return false;};
+
     /** Computes statistics. */
     void build (void);
 };

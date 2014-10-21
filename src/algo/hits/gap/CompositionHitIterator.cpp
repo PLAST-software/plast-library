@@ -165,11 +165,12 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
         /** We retrieve statistical information for the current query sequence. */
         IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfo (querySeq);
 
-/*        double evalue=_globalStats->scoreToEvalue((double) info.eff_searchsp, (double) score,querySeq.getLength(), subjectSeq.getLength());
-        _globalStats->evalueToCutoff(info.cut_offs, (double)info.eff_searchsp, evalue, querySeq.getLength(), subjectSeq.getLength());
-        printf ("cuttof=%d  evalue=%f\n", info.cut_offs,evalue);*/
+        double evalue = 0;
+        if (!_globalStats->useCutoff())
+            evalue=_globalStats->scoreToEvalue((double) info.eff_searchsp, (double) score,querySeq.getLength(), subjectSeq.getLength());
 
-        if (score >= info.cut_offs)
+        if (((_globalStats->useCutoff())&&(score >= info.cut_offs))||
+        	((!_globalStats->useCutoff())&&(evalue <= _parameters->evalue)))
         {
             /** We create a new alignment. */
             Alignment align (
@@ -186,8 +187,10 @@ void CompositionHitIterator::iterateMethod  (Hit* hit)
                 HIT_STATS (_outputHitsNumber ++;)
 
                 /** We complete missing alignment information. */
-//                align.setEvalue   ((double) info.eff_searchsp * exp((-_globalStats->lambda * (double) score) + _globalStats->logK));
-				align.setEvalue   (_globalStats->scoreToEvalue((double) info.eff_searchsp, (double) score,querySeq.getLength(), subjectSeq.getLength()) );
+                if (_globalStats->useCutoff())
+                	align.setEvalue   (_globalStats->scoreToEvalue((double) info.eff_searchsp, (double) score,querySeq.getLength(), subjectSeq.getLength()));
+                else
+                	align.setEvalue   (evalue);
 
                 align.setBitScore (_globalStats->rawToBitsValue((double)score));
                 align.setScore    (score);

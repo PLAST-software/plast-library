@@ -62,6 +62,9 @@ namespace algo {
 namespace core {
 namespace impl {
 /********************************************************************************/
+static const char* keyPass0      = "Algo Pass0";
+static const char* keyPass1      = "Algo Pass1";
+static const char* keyPass2      = "Algo Pass2";
 
 /*********************************************************************
 ** METHOD  :
@@ -155,12 +158,14 @@ void AlgorithmPlastn::computeAlignments (
     RangeIterator<u_int32_t> rangeIterator (range, 1000, DefaultFactory::thread().newSynchronizer());
 
     timesVec.push_back (DefaultFactory::time().gettime());
+    _timeStats->addEntry (keyPass0);
 
     /**********************************************************************/
     /***************************   PASS 0  ********************************/
     /**********************************************************************/
     setHspContainer (pass0 (subjectDb, queryDb, dispatcher, rangeIterator));
 
+    _timeStats->stopEntry(keyPass0);
     timesVec.push_back (DefaultFactory::time().gettime());
 
     DEBUG (("AlgorithmPlastn::computeAlignments: PASS 0:  %ld HSP generated in %d msec\n",
@@ -170,6 +175,7 @@ void AlgorithmPlastn::computeAlignments (
     /**********************************************************************/
     /***************************   PASS 1  ********************************/
     /**********************************************************************/
+    _timeStats->addEntry (keyPass1);
     list<int> xdropoffs;
     //xdropoffs.push_back (_params->XdroppofGap / 2);
     xdropoffs.push_back (_params->XdroppofGap);
@@ -186,14 +192,17 @@ void AlgorithmPlastn::computeAlignments (
             _hspContainer->getItemsNumber(), timesVec[timesVec.size()-1] - timesVec[timesVec.size()-2], *it
         ));
     }
+    _timeStats->stopEntry(keyPass1);
 
     /**********************************************************************/
     /***************************   PASS 2  ********************************/
     /**********************************************************************/
+    _timeStats->addEntry (keyPass2);
     _currentPass++;
     pass2 (subjectDb, queryDb, dispatcher, _hspContainer, alignmentResult);
 
     timesVec.push_back (DefaultFactory::time().gettime());
+    _timeStats->stopEntry (keyPass2);
 
     DEBUG (("AlgorithmPlastn::computeAlignments: PASS 2:  %d alignments generated in %d msec\n",
         alignmentResult->getAlignmentsNumber(),
@@ -276,6 +285,7 @@ IHspContainer* AlgorithmPlastn::pass0 (
     {
         commands.push_back (new HSPGenerator(
             getIndexator(),
+            getQueryInfo(),
             containers[i],
             rangeIterator,
             _params->ungapScoreThreshold,

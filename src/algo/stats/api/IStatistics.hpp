@@ -127,6 +127,8 @@ public:
      * \return true or false
      */
     virtual bool evalueToCutoff(int&cutoff, double effSearchSp, double evalue, size_t qryLength, size_t sbjLength) = 0;
+
+    virtual bool useCutoff() = 0;
 };
 
 /********************************************************************************/

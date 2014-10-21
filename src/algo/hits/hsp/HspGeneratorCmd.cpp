@@ -65,16 +65,17 @@ namespace hsp  {
 ** REMARKS :
 *********************************************************************/
 HSPGenerator::HSPGenerator (
-    IIndexator*                 indexator,
-    IHspContainer*              hspContainer,
-    RangeIterator<u_int32_t>&   rangeIterator,
+    IIndexator*                 	indexator,
+    statistics::IQueryInformation*  queryInfo,
+    IHspContainer*              	hspContainer,
+    RangeIterator<u_int32_t>&   	rangeIterator,
     int32_t threshold,
     int32_t match,
     int32_t mismatch,
     int32_t xdrop,
     dp::IObserver* observer
 )
-    : _indexator (0), _hspContainer(0), _rangeIterator(rangeIterator),
+    : _indexator (0), _queryInfo(0), _hspContainer(0), _rangeIterator(rangeIterator),
       _threshold(threshold), _match(match), _mismatch(mismatch), _xdrop(xdrop)
 {
     DEBUG (("HSPGenerator::HSPGenerator:  threshold=%d  match=%d  mismatch=%d  xdrop=%d\n",
@@ -83,6 +84,7 @@ HSPGenerator::HSPGenerator (
 
     setIndexator    (indexator);
     setHspContainer (hspContainer);
+    setQueryInfo    (queryInfo);
 
     /** Shortcut. */
     _span = _indexator->getQueryIndex()->getModel()->getSpan();
@@ -106,6 +108,7 @@ HSPGenerator::~HSPGenerator ()
 {
     setIndexator    (0);
     setHspContainer (0);
+    setQueryInfo    (0);
 }
 
 /*********************************************************************
@@ -273,7 +276,13 @@ void HSPGenerator::execute ()
 
                     int score = rightScore + leftScore - _span * _match;
 
-                    if (score > _threshold)
+                    const ISequence* seqQuery = dbi2->getSequenceRefByIndex (e2.seqId);
+                    statistics::IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfo (*seqQuery);
+                    int32_t  threshold = MAX(info.cut_offs,27);
+                    threshold = MIN(threshold,_threshold);
+
+                    //if (score > _threshold)
+                    if (score > threshold)
                     {
                         /** We build the ranges to be used for adding a diagonal HSP. Note that we have to add back
                          *  the offset of the database. */

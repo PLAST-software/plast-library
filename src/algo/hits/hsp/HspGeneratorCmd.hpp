@@ -33,6 +33,7 @@
 
 #include <designpattern/impl/RangeIterator.hpp>
 #include <designpattern/impl/Observer.hpp>
+#include <algo/stats/api/IStatistics.hpp>
 
 #include <stdio.h>
 
@@ -49,6 +50,7 @@ public:
     /** */
     HSPGenerator (
         algo::core::IIndexator* 			 indexator,
+        statistics::IQueryInformation*       queryInfo,
         alignment::core::IHspContainer* 	 hspContainer,
         dp::impl::RangeIterator<u_int32_t>&  rangeIterator,
         int32_t threshold,
@@ -69,8 +71,12 @@ private:
     algo::core::IIndexator* _indexator;
     void setIndexator (algo::core::IIndexator* indexator)  { SP_SETATTR(indexator); }
 
+    statistics::IQueryInformation* _queryInfo;
+    void setQueryInfo (statistics::IQueryInformation* queryInfo)  { SP_SETATTR(queryInfo); }
+
     alignment::core::IHspContainer* _hspContainer;
     void setHspContainer (alignment::core::IHspContainer* hspContainer)  { SP_SETATTR(hspContainer); }
+
 
     dp::impl::RangeIterator<u_int32_t>& _rangeIterator;
 

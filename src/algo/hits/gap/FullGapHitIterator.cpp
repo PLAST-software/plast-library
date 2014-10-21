@@ -197,8 +197,12 @@ void FullGapHitIterator::iterateMethod  (Hit* hit)
 
         /** We retrieve statistical information for the current query sequence. */
         IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfo (querySeq);
+        double evalue = 0;
+        if (!_globalStats->useCutoff())
+        	evalue =_globalStats->scoreToEvalue((double) info.eff_searchsp, (double) score,querySeq.getLength(), subjectSeq.getLength());
 
-        if (score >= info.cut_offs)
+        if (((_globalStats->useCutoff())&&(score >= info.cut_offs))||
+        	((!_globalStats->useCutoff())&&(evalue <= _parameters->evalue)))
         {
             /** We create a new alignment. */
             Alignment align (
