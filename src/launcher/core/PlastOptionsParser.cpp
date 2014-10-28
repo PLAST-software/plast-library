@@ -124,6 +124,8 @@ void PlastOptionsParser::build ()
     this->add (new OptionOneParam (STR_OPTION_SEEDS_USE_RATIO,          STR_HELP_SEEDS_USE_RATIO));
     this->add (new OptionOneParam (STR_OPTION_INDEX_FILTER_SEED,        STR_HELP_INDEX_FILTER_SEED));
 
+    this->add (new OptionOneParam (STR_OPTION_COMPLETE_SUBJECT_DB_STATS_FILE,       STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE));
+
     this->add (new OptionOneParam (STR_OPTION_WORD_SIZE,                STR_HELP_WORD_SIZE));
 
     this->add (new OptionNoParam  (STR_OPTION_HELP, STR_HELP_HELP));

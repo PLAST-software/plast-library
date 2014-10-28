@@ -29,6 +29,7 @@
 #include <designpattern/impl/Property.hpp>
 
 #include <misc/api/types.hpp>
+#include <misc/api/CompleteSubjectDatabaseStats.hpp>
 #include <misc/api/PlastStrings.hpp>
 
 #include <string>
@@ -152,6 +153,9 @@ public:
 
     /** Strand to be used by plastn: O for both, 1 for plus, -1 for minus. */
     int strand;
+
+    /** Stats of the complete subject database */
+    misc::CompleteSubjectDatabaseStats completeSubjectDatabaseStats;
 
     /** Clone the instance.
      * \return the cloned instance. */

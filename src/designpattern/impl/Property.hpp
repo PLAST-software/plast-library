@@ -78,10 +78,10 @@ public:
     IProperty* add (size_t depth, const std::string& aKey, const char* format=0, ...);
 
     /** \copydoc IProperties::add(size_t,const std::string&,const std::string&)  */
-    IProperty* add (size_t depth, const std::string& aKey, const std::string& aValue);
+    virtual IProperty* add (size_t depth, const std::string& aKey, const std::string& aValue);
 
     /** \copydoc IProperties::add(size_t,IProperties*)  */
-    void add (size_t depth, IProperties* prop);
+    virtual void add (size_t depth, IProperties* prop);
 
     /** \copydoc IProperties::merge  */
     void  merge (IProperties* prop);
@@ -105,15 +105,17 @@ public:
      * \param[in] stream: the stream to be read (file, string...) */
     void readXML (std::istream& stream);
 
+protected:
+    /** Read a file holding [key,value] entries and add them through 'add' method.
+     * \param[in] file : the file to be read
+     */
+    void readFile (const char* file);
+
 private:
 
     /** List of IProperty instances. */
     std::list<IProperty*> _properties;
 
-    /** Read a file holding [key,value] entries and add them through 'add' method.
-     * \param[in] file : the file to be read
-     */
-    void readFile (const char* file);
 };
 
 /********************************************************************************/

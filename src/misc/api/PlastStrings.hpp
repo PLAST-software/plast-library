@@ -346,7 +346,20 @@ namespace misc {
  */
 #define STR_OPTION_WORD_SIZE   				misc::StringRepository::m_STR_OPTION_WORD_SIZE ()
 
+/** "-complete-subject-database-stats-file"  Command Line option giving the path of the complete subject database stats file.
+ *  String.
+ */
+#define STR_OPTION_COMPLETE_SUBJECT_DB_STATS_FILE       misc::StringRepository::m_STR_OPTION_COMPLETE_SUBJECT_DB_STATS_FILE ()
 
+/** "-complete-subject-database-size"  Option giving the size of the complete subject database file.
+ *  size_t.
+ */
+#define STR_OPTION_COMPLETE_SUBJECT_DB_SIZE             misc::StringRepository::m_STR_OPTION_COMPLETE_SUBJECT_DB_SIZE ()
+
+/** "-complete-subject-database-sequences-number"  Option giving the number of sequences of the complete subject database file.
+ *  int.
+ */
+#define STR_OPTION_COMPLETE_SUBJECT_DB_SEQUENCE_NUMBER  misc::StringRepository::m_STR_OPTION_COMPLETE_SUBJECT_DB_SEQUENCE_NUMBER ()
 /********************************************************************************/
 
 /** Strings occurring in messages, exceptions... */
@@ -440,6 +453,7 @@ namespace misc {
 #define STR_HELP_INFO_RESOURCES_PROGRESS    misc::StringRepository::m_STR_HELP_INFO_RESOURCES_PROGRESS ()   // Dump in a file information about resources during algorithm.
 #define STR_HELP_INFO_CONFIG_FILE           misc::StringRepository::m_STR_HELP_INFO_CONFIG_FILE ()   // Pathname of the plast config file.
 #define STR_HELP_WORD_SIZE                  misc::StringRepository::m_STR_HELP_WORD_SIZE ()   // Pathname of the plast config file.
+#define STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE   misc::StringRepository::m_STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE ()   // File path to the stats of the complete subject db
 
 #define STR_CONFIG_CLASS_KarlinStats			        misc::StringRepository::m_STR_CONFIG_CLASS_KarlinStats ()   // KarlinStats
 #define STR_CONFIG_CLASS_SpougeStats				    misc::StringRepository::m_STR_CONFIG_CLASS_SpougeStats ()   // SpougeStats

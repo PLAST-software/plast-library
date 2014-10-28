@@ -289,6 +289,10 @@ void DefaultEnvironment::run ()
         /** We send a notification to potential listeners. */
         this->notify (new AlgorithmConfigurationEvent (_properties, i, _parametersList.size()));
 
+        bool dbStatsOverwrite = _parametersList[i]->completeSubjectDatabaseStats.isFilled;
+        int completeSubjectDatabaseSize = (dbStatsOverwrite) ?
+                _parametersList[i]->completeSubjectDatabaseStats.size : _quickSubjectDbReader->getDataSize();
+
         /** We create an Algorithm instance. */
         list<IAlgorithm*> algos = this->createAlgorithm (
             _config,
@@ -299,7 +303,7 @@ void DefaultEnvironment::run ()
             seedsModel,
             _dbProvider,
             indexator,
-            _config->createGlobalParameters (_parametersList[i],_quickSubjectDbReader->getDataSize()),
+            _config->createGlobalParameters (_parametersList[i], completeSubjectDatabaseSize),
             _timeInfoAlgo,
             _isRunning
         );
@@ -597,6 +601,11 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
                     ReadingFrame_e val = (ReadingFrame_e) (misc::atoi(it.currentItem()) - 1);
                     params->strands.push_back (val);
                 }
+            }
+
+            if ( (prop = properties->getProperty (STR_OPTION_COMPLETE_SUBJECT_DB_STATS_FILE)) != 0)
+            {
+                params->completeSubjectDatabaseStats.readFromFile(prop->value.c_str());
             }
 
             /** We set databases ranges. */

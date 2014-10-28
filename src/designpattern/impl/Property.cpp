@@ -1,5 +1,5 @@
 /*******************************************************************************
- * 
+ *
  * @file /vobs/th_comp/util_design_pattern/src/dp_observer.cpp
  *
  * @brief this file contains the definition of the EventInfoLocator class
@@ -270,7 +270,7 @@ void Properties::readFile (const char* filename)
 
                 for ( ;  value; ++value)  {  if (*value != ' '  &&  *value != '\t')  { break; }  }
 
-                add (0, key, (value ? value : ""));
+                add (0, key, string(value ? value : ""));
             }
         }
     }
