@@ -438,55 +438,58 @@ public:
         	/* loop on the number of data */
         	for (x = 0; x < res_cnt; ++x)
         	{
-        		/* decode the ambiguity table */
-        		if (x == 0 || x > eoff)
+        		if (amb_cnt>0)
         		{
-					/* get the residue symbol */
-					amb_res = (int32_t) (*amb_ptr >> 4);
-
-					/* the layout of the ambiguity table differs if it is using
-					 * large offsets, i.e. offsets > 16 million.
-					 *
-					 * for small offsets the layout is:
-					 *    4 bits - nucleotide
-					 *    4 bits - repeat count
-					 *   24 bits - offset
-					 *
-					 * for large offsets the layout is:
-					 *    4 bits - nucleotide
-					 *   12 bits - repeat count
-					 *   48 bits - offset
-					 */
-					if (large_amb)
+					/* decode the ambiguity table */
+					if (x == 0 || x > eoff)
 					{
-						/* get the repeat count */
-						eoff  = (((u_int64_t) (*amb_ptr & 0x0f)) << 8) + (((u_int64_t) *(amb_ptr+1)) << 0);
+						/* get the residue symbol */
+						amb_res = (int32_t) (*amb_ptr >> 4);
 
-						/* get the offset */
-						soff  = (((u_int64_t) *(amb_ptr+2)) << 40);
-						soff += (((u_int64_t) *(amb_ptr+3)) << 32);
-						soff += (((u_int64_t) *(amb_ptr+4)) << 24);
-						soff += (((u_int64_t) *(amb_ptr+5)) << 16);
-						soff += (((u_int64_t) *(amb_ptr+6)) << 8);
-						soff += (((u_int64_t) *(amb_ptr+7)) << 0);
+						/* the layout of the ambiguity table differs if it is using
+						 * large offsets, i.e. offsets > 16 million.
+						 *
+						 * for small offsets the layout is:
+						 *    4 bits - nucleotide
+						 *    4 bits - repeat count
+						 *   24 bits - offset
+						 *
+						 * for large offsets the layout is:
+						 *    4 bits - nucleotide
+						 *   12 bits - repeat count
+						 *   48 bits - offset
+						 */
+						if (large_amb)
+						{
+							/* get the repeat count */
+							eoff  = (((u_int64_t) (*amb_ptr & 0x0f)) << 8) + (((u_int64_t) *(amb_ptr+1)) << 0);
 
-						amb_ptr += 8;
-						amb_cnt -= 2;
+							/* get the offset */
+							soff  = (((u_int64_t) *(amb_ptr+2)) << 40);
+							soff += (((u_int64_t) *(amb_ptr+3)) << 32);
+							soff += (((u_int64_t) *(amb_ptr+4)) << 24);
+							soff += (((u_int64_t) *(amb_ptr+5)) << 16);
+							soff += (((u_int64_t) *(amb_ptr+6)) << 8);
+							soff += (((u_int64_t) *(amb_ptr+7)) << 0);
+
+							amb_ptr += 8;
+							amb_cnt -= 2;
+						}
+						else
+						{
+							/* get the repeat count */
+							eoff  = (u_int64_t) (*amb_ptr & 0x0f);
+
+							/* get the offset */
+							soff  = (((u_int64_t) *(amb_ptr+1)) << 16);
+							soff += (((u_int64_t) *(amb_ptr+2)) << 8);
+							soff += (((u_int64_t) *(amb_ptr+3)) << 0);
+
+							amb_ptr += 4;
+							amb_cnt -= 1;
+						}
+						eoff += soff;
 					}
-					else
-					{
-						/* get the repeat count */
-						eoff  = (u_int64_t) (*amb_ptr & 0x0f);
-
-						/* get the offset */
-						soff  = (((u_int64_t) *(amb_ptr+1)) << 16);
-						soff += (((u_int64_t) *(amb_ptr+2)) << 8);
-						soff += (((u_int64_t) *(amb_ptr+3)) << 0);
-
-						amb_ptr += 4;
-						amb_cnt -= 1;
-					}
-					eoff += soff;
         		}
 
         		/* read the next byte if necessary */
