@@ -94,7 +94,7 @@ BlastdbSequenceIterator::BlastdbSequenceIterator (
 *********************************************************************/
 BlastdbSequenceIterator::~BlastdbSequenceIterator ()
 {
-	DEBUG ("BlastdbSequenceIterator::~BlastdbSequenceIterator");
+	DEBUG (("BlastdbSequenceIterator::~BlastdbSequenceIterator\n"));
 	setBuilder (0);
 	/** We delete each IFile instance of the list of files. */
 	for (list<BlastdbFileIndexReader*>::iterator it= _filesIndex.begin(); it != _filesIndex.end(); it++)
@@ -127,7 +127,7 @@ void BlastdbSequenceIterator::first()
 {
 	_isDone = false;
 
-    DEBUG (("BlastdbSequenceIterator::first:  range=[%ld,%ld] \n", offset0, offset1));
+    DEBUG (("BlastdbSequenceIterator::first:  range=[%ld,%ld] \n", _offset0, _offset1));
     /* Read firstly the index table to get the index table
      * for the header and sequence file
      */

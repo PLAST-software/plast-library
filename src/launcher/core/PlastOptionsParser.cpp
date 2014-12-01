@@ -67,6 +67,7 @@ void PlastOptionsParser::build ()
     this->add (new OptionOneParam (STR_OPTION_X_DROPOFF_UNGAPPED,       STR_HELP_X_DROPOFF_UNGAPPED));
     this->add (new OptionOneParam (STR_OPTION_X_DROPOFF_GAPPED,         STR_HELP_X_DROPOFF_GAPPED));
     this->add (new OptionOneParam (STR_OPTION_X_DROPOFF_FINAL,          STR_HELP_X_DROPOFF_FINAL));
+    this->add (new OptionOneParam (STR_OPTION_INDEX_NEIGHBOUR_THRESHOLD,  STR_HELP_INDEX_NEIGHBOUR_THRESHOLD));
     this->add (new OptionOneParam (STR_OPTION_FILTER_QUERY,             STR_HELP_FILTER_QUERY));
     this->add (new OptionOneParam (STR_OPTION_SCORE_MATRIX,             STR_HELP_SCORE_MATRIX));
     this->add (new OptionOneParam (STR_OPTION_STRAND,                   STR_HELP_STRAND));

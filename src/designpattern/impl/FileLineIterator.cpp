@@ -14,6 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+#include <misc/api/PlastStrings.hpp>
 #include <designpattern/impl/FileLineIterator.hpp>
 #include <designpattern/impl/TokenizerIterator.hpp>
 #include <string.h>
@@ -114,7 +115,9 @@ void FileLineIterator::first()
             _currentFile = *_filesIterator;
 
             /** We go to the end of the file to get its size. */
-            _currentFile->seeko (0, SEEK_END);
+            if (_currentFile->seeko (0, SEEK_END)!=0)
+                	throw "Bad input file";
+
             u_int64_t len  = _currentFile->tell();
 
             DEBUG (cout << "FileLineIterator::first  filelen=" << len << "  offset=" << _offset0 << "  cummulatedFilesLength=" << _cummulatedFilesLength << endl);

@@ -232,6 +232,7 @@ public:
     static const char* m_STR_OPTION_X_DROPOFF_UNGAPPED () { return "-xdrop-ungap"; }
     static const char* m_STR_OPTION_X_DROPOFF_GAPPED () { return "-X"; }
     static const char* m_STR_OPTION_X_DROPOFF_FINAL () { return "-Z"; }
+    static const char* m_STR_OPTION_INDEX_NEIGHBOUR_THRESHOLD () { return "-index-threshold"; }
     static const char* m_STR_OPTION_FILTER_QUERY () { return "-F"; }
     static const char* m_STR_OPTION_SCORE_MATRIX () { return "-M"; }
     static const char* m_STR_OPTION_REWARD () { return "-r"; }
@@ -313,6 +314,7 @@ public:
     static const char* m_STR_HELP_X_DROPOFF_UNGAPPED () { return "X dropoff value for Ungapped alignment (in bits) (zero invokes default behavior 20 bits)"; }
     static const char* m_STR_HELP_X_DROPOFF_GAPPED () { return "X dropoff value for gapped alignment (in bits) (zero invokes default behavior)"; }
     static const char* m_STR_HELP_X_DROPOFF_FINAL () { return "X dropoff value for final gapped alignment in bits (0.0 invokes default behavior)"; }
+    static const char* m_STR_HELP_INDEX_NEIGHBOUR_THRESHOLD () { return "Index threshold to calculate the similarity between neighbour"; }
     static const char* m_STR_HELP_FILTER_QUERY () { return "Filter query sequence"; }
     static const char* m_STR_HELP_SCORE_MATRIX () { return "Score matrix (BLOSUM62 or BLOSUM50)"; }
     static const char* m_STR_HELP_STRAND () { return "strands for plastn: 'plus', 'minus' or 'both' (default)"; }

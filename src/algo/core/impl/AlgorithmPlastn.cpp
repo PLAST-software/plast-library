@@ -292,6 +292,7 @@ IHspContainer* AlgorithmPlastn::pass0 (
             _params->reward,
             _params->penalty,
             _params->XdroppofUnGap,
+            _params->index_neighbor_threshold,
             //ABS (_params->penalty * 1),
             this
         ));
@@ -483,6 +484,8 @@ void AlgorithmPlastn::update (dp::EventInfo* evt, dp::ISubject* subject)
 
         	notify (new IterationStatusEvent (ITER_ON_GOING, currentIndex, totalNumber, e1->getMessage(), currentIndex, totalNumber));
         }
+        /** We forward the event to potential listeners. */
+        this->notify (evt);
 	}
 }
 

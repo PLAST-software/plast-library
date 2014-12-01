@@ -22,6 +22,7 @@
 #include <misc/api/macros.hpp>
 #include <misc/api/types.hpp>
 #include <misc/api/PlastStrings.hpp>
+#include <index/impl/DatabaseNucleotidIndexOptim.hpp>
 
 #include <string.h>
 
@@ -40,6 +41,7 @@ using namespace misc;
 using namespace database;
 using namespace seed;
 using namespace indexation;
+using namespace indexation::impl;
 
 using namespace algo::core;
 
@@ -50,11 +52,39 @@ using namespace alignment::core;
 #define VERBOSE(a)  //printf a
 #define INFO(a)     printf a
 
+
 /********************************************************************************/
 namespace algo {
 namespace hits {
 namespace hsp  {
-/********************************************************************************/
+
+static const u_int32_t NB_MAX_MINUS_NEIGHBORS_TAB = 256;
+static const u_int8_t reverse_neighbors_tab[DatabaseNucleotidIndexOptim::NB_MAX_MMER]={42,58,10,26,46,62,14,30,34,50,2,18,38,54,6,22,43,59,11,27,47,63,15,31,35,51,3,19,39,55,7,23,40,56,8,24,44,60,12,28,32,48,0,16,36,52,4,20,41,57,9,25,45,61,13,29,33,49,1,17,37,53,5,21};
+
+static inline int popcount_wikipedia_3(u_int64_t bitset1, u_int64_t bitset2)
+{
+	u_int64_t x;
+	x = bitset1&bitset2;
+	x -= (x >> 1) & 0x5555555555555555UL;             //put count of each 2 bits into those 2 bits
+	x = (x & 0x3333333333333333UL) + ((x >> 2) & 0x3333333333333333UL); //put count of each 4 bits into those 4 bits
+	//put count of each 8 bits into those 8 bits
+
+	return (((x + (x >> 4)) & 0x0f0f0f0f0f0f0f0fUL)* 0x0101010101010101UL)>>56;
+}
+
+static inline u_int64_t calculate_neighbors_minus_strand(u_int64_t bitset, const u_int64_t reverse_neighbors_tab_8bits[])
+{
+	u_int64_t neighborM;
+	neighborM = reverse_neighbors_tab_8bits[(u_int8_t)((bitset)&0x00000000000000FF)];
+	neighborM = neighborM|(reverse_neighbors_tab_8bits[(u_int8_t)((bitset>>8)&0x00000000000000FF)]>>8);
+	neighborM = neighborM|(reverse_neighbors_tab_8bits[(u_int8_t)((bitset>>16)&0x00000000000000FF)]<<1);
+	neighborM = neighborM|(reverse_neighbors_tab_8bits[(u_int8_t)((bitset>>24)&0x00000000000000FF)]>>7);
+	neighborM = neighborM|(reverse_neighbors_tab_8bits[(u_int8_t)((bitset>>32)&0x00000000000000FF)]>>2);
+	neighborM = neighborM|(reverse_neighbors_tab_8bits[(u_int8_t)((bitset>>40)&0x00000000000000FF)]>>10);
+	neighborM = neighborM|(reverse_neighbors_tab_8bits[(u_int8_t)((bitset>>48)&0x00000000000000FF)]>>1);
+	neighborM = neighborM|(reverse_neighbors_tab_8bits[(u_int8_t)((bitset>>56)&0x00000000000000FF)]>>9);
+	return neighborM;
+}
 
 /*********************************************************************
 ** METHOD  :
@@ -73,10 +103,11 @@ HSPGenerator::HSPGenerator (
     int32_t match,
     int32_t mismatch,
     int32_t xdrop,
+    int32_t alpha_threshold,
     dp::IObserver* observer
 )
     : _indexator (0), _queryInfo(0), _hspContainer(0), _rangeIterator(rangeIterator),
-      _threshold(threshold), _match(match), _mismatch(mismatch), _xdrop(xdrop)
+      _threshold(threshold), _match(match), _mismatch(mismatch), _xdrop(xdrop), _alpha_threshold(alpha_threshold)
 {
     DEBUG (("HSPGenerator::HSPGenerator:  threshold=%d  match=%d  mismatch=%d  xdrop=%d\n",
 		threshold, match, mismatch, xdrop
@@ -121,7 +152,7 @@ HSPGenerator::~HSPGenerator ()
 *********************************************************************/
 void HSPGenerator::execute ()
 {
-    /** Shortcuts. */
+	/** Shortcuts. */
     ISequenceDatabase* dbi1 = _indexator->getSubjectDatabase();
     ISequenceDatabase* dbi2 = _indexator->getQueryDatabase();
 
@@ -142,9 +173,16 @@ void HSPGenerator::execute ()
     size_t maxNb1 = 0;
     size_t maxNb2 = 0;
 
-    size_t maxProd    = 0;
+/*    size_t maxProd    = 0;
     size_t nbIterated = 0;
-    size_t nbInserted = 0;
+    size_t nbInserted = 0;*/
+    int32_t alpha_int=0.0;
+    
+/*    double alpha_threshold = _alpha_threshold/100.0;
+	double alpha=0.0;*/
+	
+
+	u_int64_t reverse_neighbors_tab_8bits[NB_MAX_MINUS_NEIGHBORS_TAB];
 
     if (maxNb1 < nb1)   {  maxNb1 = nb1;  seqs1 = (Entry*) allocator.calloc (maxNb1, sizeof(Entry));  }
     if (maxNb2 < nb2)   {  maxNb2 = nb2;  seqs2 = (Entry*) allocator.calloc (maxNb2, sizeof(Entry));  }
@@ -153,9 +191,16 @@ void HSPGenerator::execute ()
     size_t nbTotal     = _rangeIterator.getNbItems();
 
     ISequenceDatabase::StrandId_e direction = idx1->getDatabase()->getDirection();
+	for (u_int64_t bits_8=0;bits_8<NB_MAX_MINUS_NEIGHBORS_TAB;bits_8++)
+	{
+		reverse_neighbors_tab_8bits[bits_8] = 0;
+		for (u_int32_t bits=0;bits<DatabaseNucleotidIndexOptim::NB_MAX_MMER;bits++)
+		{
+			reverse_neighbors_tab_8bits[bits_8] = reverse_neighbors_tab_8bits[bits_8]|((u_int64_t)((bits_8>>bits)&0x0000000000000001)<<reverse_neighbors_tab[bits]);
+		}
+	}
 
-    DEBUG (("HSPGenerator::execute: LOOP BEGIN (this=%p) \n", this));
-
+	DEBUG (("HSPGenerator::execute: LOOP BEGIN (this=%p) \n", this));
     while (_rangeIterator.retrieve (s, nbRetrieved) == true)
     {
         /** We send a notification about the % of execution. */
@@ -195,13 +240,17 @@ void HSPGenerator::execute ()
                     const ISequence* seq1 = dbi1->getSequenceRefByIndex (occur.sequenceIdx);
                     u_int32_t        off1 = (occur.offsetInDatabase - seq1->offsetInDb);
 
-                    seqs1[i].set (
-                            seq1->getData() + off1,
-                            occur.offsetInDatabase,
-                            seq1->getLength() - off1,
-                            off1,
-                            seq1->index
-                    );
+					seqs1[i].set (
+							seq1->getData() + off1,
+							occur.offsetInDatabase,
+							seq1->getLength() - off1,
+							off1,
+							seq1->index,
+							occur.neighborBitsetR,
+							occur.neighborBitsetL,
+							occur.nbNeighbors,
+							0
+					);
                 }
             }
             else
@@ -213,14 +262,20 @@ void HSPGenerator::execute ()
                     const ISequence* seq1 = dbi1->getSequenceRefByIndex (occur.sequenceIdx);
                     u_int32_t        off1 = (occur.offsetInDatabase - seq1->offsetInDb);
                     off1 = seq1->getLength() - (off1 + _span);
+                    u_int64_t		 neighborR = calculate_neighbors_minus_strand(occur.neighborBitsetR,reverse_neighbors_tab_8bits);
+                    u_int64_t		 neighborL = calculate_neighbors_minus_strand(occur.neighborBitsetL,reverse_neighbors_tab_8bits);
 
-                    seqs1[i].set (
-                            seq1->getData()   + off1,
-                            seq1->offsetInDb  + off1,
-                            seq1->getLength() - off1,
-                            off1,
-                            seq1->index
-                    );
+					seqs1[i].set (
+							seq1->getData()   + off1,
+							seq1->offsetInDb  + off1,
+							seq1->getLength() - off1,
+							off1,
+							seq1->index,
+							neighborL,
+							neighborR,
+							occur.nbNeighbors,
+							0
+					);
                 }
             }
 
@@ -234,82 +289,105 @@ void HSPGenerator::execute ()
                 const ISequence* seq2 = dbi2->getSequenceRefByIndex (occur.sequenceIdx);
                 u_int32_t        off2 = (occur.offsetInDatabase - seq2->offsetInDb);
 
-                seqs2[i].set (
-                    seq2->getData() + off2,
-                    occur.offsetInDatabase,
-                    seq2->getLength() - off2,
-                    off2,
-                    seq2->index
-                );
-            }
+                statistics::IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfo (*seq2);
+				int32_t  threshold = MAX(info.cut_offs,27);
+				threshold = MIN(threshold,_threshold);
 
-            maxProd = MAX (maxProd, nb1*nb2);
-            nbIterated += nb1*nb2;
+				seqs2[i].set (
+					seq2->getData() + off2,
+					occur.offsetInDatabase,
+					seq2->getLength() - off2,
+					off2,
+					seq2->index,
+					occur.neighborBitsetR,
+					occur.neighborBitsetL,
+					occur.nbNeighbors,
+					threshold
+				);
+            }
 
             for (size_t i=0; i<nb1; i++)
             {
                 Entry& e1 = seqs1[i];
 
-                const LETTER*    s1        = e1.data;
-                u_int32_t        rightLen1 = e1.rightLen;
-                u_int32_t        leftLen1  = e1.leftLen;
+                const LETTER*    s1        				= e1.data;
+                u_int32_t        rightLen1 				= e1.rightLen;
+                u_int32_t        leftLen1  				= e1.leftLen;
+                u_int64_t 		 bitset_Mmer_R_subject 	= e1.neighborBitsetR;
+                u_int64_t 		 bitset_Mmer_L_subject 	= e1.neighborBitsetL;
+                int32_t 		 N_S 					= e1.nbNeighbors;
+
 
                 for (size_t j=0; j<nb2; j++)
                 {
                     Entry& e2 = seqs2[j];
 
-                    const LETTER*    s2        = e2.data;
-                    u_int32_t        rightLen2 = e2.rightLen;
-                    u_int32_t        leftLen2  = e2.leftLen;
+                    const LETTER*    s2        				= e2.data;
+                    u_int32_t        rightLen2 				= e2.rightLen;
+                    u_int32_t        leftLen2  				= e2.leftLen;
+                    u_int64_t 		 bitset_Mmer_R_query 	= e2.neighborBitsetR;
+                    u_int64_t 		 bitset_Mmer_L_query 	= e2.neighborBitsetL;
+                    int32_t 		 N_Q 					= e2.nbNeighbors;
+                    int32_t          threshold 				= e2.threshold;
 
-                    bool alreadySeenRight = false;
-                    bool alreadySeenLeft  = false;
 
-                    size_t rightLen = MIN (rightLen1, rightLen2);
-                    size_t leftLen  = MIN (leftLen1,  leftLen2);
+                    int32_t N_I = popcount_wikipedia_3(bitset_Mmer_R_subject,bitset_Mmer_R_query)+popcount_wikipedia_3(bitset_Mmer_L_subject,bitset_Mmer_L_query);
+                    //int32_t N_I = __builtin_popcountll((bitset_Mmer_R_subject&bitset_Mmer_R_query)) +__builtin_popcountll((bitset_Mmer_L_subject&bitset_Mmer_L_query));
+					double div=(N_Q+N_S-2*N_I);
+					if (div!=0)
+						alpha_int = (int32_t)(((double)N_I/div)*100.0);
+					else
+						alpha_int = 100;
 
-                    int rightScore = computeExtensionRight (seed.code, s1, s2, rightLen, _span, alreadySeenRight);
-                    if (alreadySeenRight)  {  continue;  }
+/*					if (div!=0)
+						alpha = ((double)N_I/div);
+					else
+						alpha = 1.1;
 
-                    int leftScore  = computeExtensionLeft  (seed.code, s1, s2, leftLen,  _span, alreadySeenLeft);
-                    if (alreadySeenLeft)   {  continue;  }
+					if (alpha>alpha_threshold)*/
+ 					if (alpha_int>_alpha_threshold)
+                	{
 
-                    int score = rightScore + leftScore - _span * _match;
+						bool alreadySeenRight = false;
+						bool alreadySeenLeft  = false;
 
-                    const ISequence* seqQuery = dbi2->getSequenceRefByIndex (e2.seqId);
-                    statistics::IQueryInformation::SequenceInfo& info = _queryInfo->getSeqInfo (*seqQuery);
-                    int32_t  threshold = MAX(info.cut_offs,27);
-                    threshold = MIN(threshold,_threshold);
+						size_t rightLen = MIN (rightLen1, rightLen2);
+						size_t leftLen  = MIN (leftLen1,  leftLen2);
 
-                    //if (score > _threshold)
-                    if (score > threshold)
-                    {
-                        /** We build the ranges to be used for adding a diagonal HSP. Note that we have to add back
-                         *  the offset of the database. */
-                        misc::Range64 qryRange (e2.offsetInDb-leftLen, e2.offsetInDb+rightLen-1);
-                        misc::Range64 sbjRange (e1.offsetInDb-leftLen, e1.offsetInDb+rightLen-1);
+						int rightScore = computeExtensionRight (seed.code, s1, s2, rightLen, _span, alreadySeenRight);
+						if (alreadySeenRight)  {  continue;  }
 
-                        /** We add the alignment. */
-                        _hspContainer->insert (qryRange, sbjRange, e2.seqId, e1.seqId, score);
+						int leftScore  = computeExtensionLeft  (seed.code, s1, s2, leftLen,  _span, alreadySeenLeft);
+						if (alreadySeenLeft)   {  continue;  }
 
-                        nbInserted ++;
+						int score = rightScore + leftScore - _span * _match;
 
-#if 0
-                        dump (seed.code, e1.seqId, e2.seqId, leftLen1, leftLen2);
-#endif
-                    }
+						if (score > threshold)
+						{
+							/** We build the ranges to be used for adding a diagonal HSP. Note that we have to add back
+							 *  the offset of the database. */
+							misc::Range64 qryRange (e2.offsetInDb-leftLen, e2.offsetInDb+rightLen-1);
+							misc::Range64 sbjRange (e1.offsetInDb-leftLen, e1.offsetInDb+rightLen-1);
 
+							/** We add the alignment. */
+							_hspContainer->insert (qryRange, sbjRange, e2.seqId, e1.seqId, score);
+
+//							nbInserted ++;
+
+	#if 0
+							dump (seed.code, e1.seqId, e2.seqId, leftLen1, leftLen2);
+	#endif
+						}
+                	}
                 }  /* end of for (size_t j=0... */
-
             } /* end of for (size_t i=0... */
-
         } /* end of for (int g=s.begin... */
 
     } /** end of while (getNextSeedCodes (s)... */
-
     DEBUG (("HSPGenerator::execute: LOOP END (this=%p)  maxNb1=%ld  maxNb2=%ld  nbIterated=%ld  maxProd=%ld  nbInserted=%ld\n",
 		this, maxNb1, maxNb2, nbIterated, maxProd, nbInserted
 	));
+
 
     allocator.free (seqs1);
     allocator.free (seqs2);

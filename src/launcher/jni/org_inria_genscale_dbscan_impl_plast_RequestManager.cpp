@@ -252,11 +252,14 @@ JNIEXPORT jlong JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager
     props->add (0, new Properties (plastrc.c_str()));
 #endif
 
-    /** We create a Plast request. */
-    PlastCmd* cmd = new PlastCmd (props);
+    try
+    {
+		/** We create a Plast request. */
+		PlastCmd* cmd = new PlastCmd (props);
 
-    /** We use this command. */
-    cmd->use ();
+		/** We use this command. */
+		cmd->use ();
+
 
 #if 0
     /** We may want to automatically generate files holding information about the algorithm execution. */
@@ -271,31 +274,42 @@ JNIEXPORT jlong JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager
     }
 #endif
 
-    /** We update the java props with the properties of the brand new command. */
-    class UpdatePropsVisitor : public IPropertiesVisitor
+		/** We update the java props with the properties of the brand new command. */
+		class UpdatePropsVisitor : public IPropertiesVisitor
+		{
+		public:
+			UpdatePropsVisitor (JNIEnv* env, jobject javaprops) : _env(env), _javaprops(javaprops) {}
+
+			void visitBegin () {}
+			void visitEnd   () {}
+
+			void visitProperty (IProperty* prop)
+			{
+				_env->CallObjectMethod (_javaprops, METHOD (Properties,setProperty),
+					_env->NewStringUTF(prop->key.c_str()),  _env->NewStringUTF (prop->getString())
+				);
+			}
+
+		private:
+			JNIEnv* _env;
+			jobject _javaprops;
+		};
+
+		UpdatePropsVisitor v (env, javaProps);
+		cmd->getProperties()->accept (&v);
+
+		/** We return the command as a peer. */
+		return (jlong) cmd;
+    }
+    catch (statistics::GlobalParametersFailure& e)
     {
-    public:
-        UpdatePropsVisitor (JNIEnv* env, jobject javaprops) : _env(env), _javaprops(javaprops) {}
-
-        void visitBegin () {}
-        void visitEnd   () {}
-
-        void visitProperty (IProperty* prop)
-        {
-            _env->CallObjectMethod (_javaprops, METHOD (Properties,setProperty),
-                _env->NewStringUTF(prop->key.c_str()),  _env->NewStringUTF (prop->getString())
-            );
-        }
-
-    private:
-        JNIEnv* _env;
-        jobject _javaprops;
-    };
-
-    UpdatePropsVisitor v (env, javaProps);
-    cmd->getProperties()->accept (&v);
-
-    /** We return the command as a peer. */
-    return (jlong) cmd;
+        jclass newExcCls = env->FindClass("java/lang/IllegalArgumentException");
+        if (newExcCls != NULL)  {  env->ThrowNew (newExcCls, "Bad arguments");  }
+    }
+    catch (...)
+    {
+        jclass newExcCls = env->FindClass("java/lang/Exception");
+        if (newExcCls != NULL)  {  env->ThrowNew (newExcCls, "Generic exception");  }
+    }
 }
 

@@ -128,6 +128,11 @@ namespace misc {
  */
 #define STR_OPTION_X_DROPOFF_FINAL          misc::StringRepository::m_STR_OPTION_X_DROPOFF_FINAL ()
 
+/** "-index-threshold"    Command Line option giving the threshold for the indexation neighbourg calculation.
+ *  Integer value.
+ */
+#define STR_OPTION_INDEX_NEIGHBOUR_THRESHOLD    misc::StringRepository::m_STR_OPTION_INDEX_NEIGHBOUR_THRESHOLD ()
+
 /** "-F"    Command Line option telling if the algorithm should filter out low information parts
  *  in the query database.
  *  String value (F or T).
@@ -394,6 +399,7 @@ namespace misc {
 #define STR_HELP_X_DROPOFF_UNGAPPED         misc::StringRepository::m_STR_HELP_X_DROPOFF_UNGAPPED ()   // X dropoff value for ungapped alignment (in bits) (zero invokes default behavior 20 bits)
 #define STR_HELP_X_DROPOFF_GAPPED           misc::StringRepository::m_STR_HELP_X_DROPOFF_GAPPED ()   // X dropoff value for gapped alignment (in bits) (zero invokes default behavior)
 #define STR_HELP_X_DROPOFF_FINAL            misc::StringRepository::m_STR_HELP_X_DROPOFF_FINAL ()   // X dropoff value for final gapped alignment in bits (0.0 invokes default behavior)
+#define STR_HELP_INDEX_NEIGHBOUR_THRESHOLD            misc::StringRepository::m_STR_HELP_INDEX_NEIGHBOUR_THRESHOLD ()   // Index threshold to calculate the similarity between neighbour
 #define STR_HELP_FILTER_QUERY               misc::StringRepository::m_STR_HELP_FILTER_QUERY ()   // Filter query sequence
 #define STR_HELP_SCORE_MATRIX               misc::StringRepository::m_STR_HELP_SCORE_MATRIX ()   // Score matrix (BLOSUM62 or BLOSUM50)
 #define STR_HELP_STRAND                     misc::StringRepository::m_STR_HELP_STRAND ()   // strands for plastn: 'plus', 'minus' or 'both' (default)

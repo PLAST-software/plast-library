@@ -131,6 +131,9 @@ public:
     /** Final X drop off. */
     int finalXdroppofGap;
 
+    /** Index neighbor threshold for nucleotid indexation optimization. */
+    int index_neighbor_threshold;
+
     /** URI (filepath) of the file where the algorithm results (alignments list). */
     std::string outputfile;
 

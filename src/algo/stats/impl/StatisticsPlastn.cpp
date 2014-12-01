@@ -207,6 +207,7 @@ void GlobalParametersPlastn::build (void)
     DEFPARAMS (3,-2, blastn_values_3_2,  5,  5);
     DEFPARAMS (4,-5, blastn_values_4_5, 12,  8);
     DEFPARAMS (5,-4, blastn_values_5_4, 25, 10);
+    if (!found) {  throw GlobalParametersFailure (MSG_STATS_MSG2); }
 
     _parameters->ungapScoreThreshold = (int)bitsToRawValue((double)_parameters->ungapScoreThreshold);
 

@@ -133,8 +133,8 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
     params->filterQuery          = true;
     params->filterQueryThreshold = 1;      // not used for dust
     params->ungapNeighbourLength = 0;
-//    params->ungapScoreThreshold  = 27;
-    params->ungapScoreThreshold  = 51;
+    params->ungapScoreThreshold  = 35;
+//    params->ungapScoreThreshold  = 51;
     params->smallGapBandLength   = 0;
     params->smallGapBandWidth    = 0;
     params->smallGapThreshold    = 0;
@@ -142,6 +142,7 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
     params->extendGapCost        = 2;
     params->evalue               = 10.0;
     params->XdroppofUnGap        = 20;
+    params->index_neighbor_threshold  = 0;
     //params->XdroppofGap          = 25;
     params->XdroppofGap          = 30;
     params->finalXdroppofGap     = 100;
@@ -157,6 +158,37 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
         else if (strandProp->getValue().compare ("minus") == 0)  {  params->strand = -1;  }
     }
 
+    IProperty* evalue = _properties->getProperty (STR_OPTION_EVALUE);
+    if (evalue != 0)
+    {
+    	double evalue_val = misc::atof (evalue->value.c_str());
+    	if (evalue_val>1)
+    	{
+    	    params->ungapScoreThreshold  = 35;
+    		params->index_neighbor_threshold = 10;
+    	}
+		else if (evalue_val>1e-3)
+		{
+    	    params->ungapScoreThreshold  = 35;
+			params->index_neighbor_threshold = 20;
+		}
+		else if (evalue_val>1e-10)
+		{
+    	    params->ungapScoreThreshold  = 35;
+			params->index_neighbor_threshold = 30;
+		}
+		else if (evalue_val>1e-30)
+		{
+    	    params->ungapScoreThreshold  = 40;
+			params->index_neighbor_threshold = 40;
+		}
+		else
+		{
+    	    params->ungapScoreThreshold  = 45;
+			params->index_neighbor_threshold = 50;
+		}
+    }
+    
     return params;
 }
 

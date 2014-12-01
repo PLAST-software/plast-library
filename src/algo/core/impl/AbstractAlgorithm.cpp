@@ -364,15 +364,18 @@ void AbstractAlgorithm::execute (void)
             _timeStats->stopEntry (keyAlgorithm);
 
             /** We notify some report to potential listeners. */
-            this->notify (new AlgorithmReportEvent (
-                this,
-                subjectDb,
-                queryDb,
-                _timeStats,
-                ungapAlignmentResult,
-                alignmentResult,
-                _filter
-            ) );
+            if (((_params->strand==0)&&(subjectDb->getDirection() == ISequenceDatabase::PLUS))||(_params->strand!=0))
+            {
+				this->notify (new AlgorithmReportEvent (
+					this,
+					subjectDb,
+					queryDb,
+					_timeStats,
+					ungapAlignmentResult,
+					alignmentResult,
+					_filter
+				) );
+            }
 
         }  /* end of for (subjectDbIt.first(); ... */
 

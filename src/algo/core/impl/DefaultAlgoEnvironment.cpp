@@ -575,6 +575,7 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
             if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_UNGAPPED)) != 0)     {  params->XdroppofUnGap        = misc::atoi (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_GAPPED)) != 0)       {  params->XdroppofGap          = misc::atoi (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_X_DROPOFF_FINAL)) != 0)        {  params->finalXdroppofGap     = misc::atoi (prop->value.c_str()); }
+            if ( (prop = properties->getProperty (STR_OPTION_INDEX_NEIGHBOUR_THRESHOLD)) != 0)     {  params->index_neighbor_threshold      = misc::atoi (prop->value.c_str()); }
 
             if ( (prop = properties->getProperty (STR_OPTION_REWARD))  != 0)                {  params->reward  = misc::atoi (prop->value.c_str()); }
             if ( (prop = properties->getProperty (STR_OPTION_PENALTY)) != 0)                {  params->penalty = misc::atoi (prop->value.c_str()); }

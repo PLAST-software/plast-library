@@ -16,6 +16,7 @@
  *
  ******************************************************************************/
 
+#include <os/impl/CommonOsImpl.hpp>
 #include <designpattern/impl/Property.hpp>
 #include <designpattern/impl/FileLineIterator.hpp>
 #include <designpattern/impl/TokenizerIterator.hpp>
@@ -33,6 +34,7 @@
 using namespace std;
 using namespace dp;
 using namespace dp::impl;
+using namespace os::impl;
 
 /********************************************************************************/
 namespace dp { namespace impl {
@@ -74,7 +76,7 @@ private:
 *********************************************************************/
 Properties::Properties (const char* initfile)
 {
-    if (initfile != 0)  {   readFile (initfile);  }
+    if ((initfile != 0)&&(CommonFile::isFileExist(string(initfile))))  {   readFile (initfile);  }
 }
 
 /*********************************************************************

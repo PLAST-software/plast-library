@@ -100,12 +100,26 @@ public:
      */
     struct SeedOccurrence
     {
-        SeedOccurrence () : offsetInDatabase(0), sequenceIdx(0) {}
-        SeedOccurrence (u_int32_t off, u_int32_t seqIdx) : offsetInDatabase(off), sequenceIdx(seqIdx) {}
+        SeedOccurrence () : offsetInDatabase(0), sequenceIdx(0), neighborBitsetR(0), neighborBitsetL(0), nbNeighbors(0) {}
+        SeedOccurrence (u_int32_t off, u_int32_t seqIdx) : offsetInDatabase(off), sequenceIdx(seqIdx), neighborBitsetR(0), neighborBitsetL(0), nbNeighbors(0) {}
+        SeedOccurrence (u_int32_t off, u_int32_t seqIdx, u_int64_t  neighborR, u_int64_t  neighborL, u_int8_t  nbNeighbors_l) : offsetInDatabase(off), sequenceIdx(seqIdx), neighborBitsetR(neighborR), neighborBitsetL(neighborL), nbNeighbors(nbNeighbors_l) {}
 
         u_int32_t  offsetInDatabase;
         u_int32_t  sequenceIdx;
+        u_int64_t  neighborBitsetR;
+        u_int64_t  neighborBitsetL;
+        u_int8_t   nbNeighbors;
     };
+
+/*    class SeedOccurrence
+    {
+public:
+        virtual ~SeedOccurrence() {}
+
+        virtual u_int32_t getOffsetInDatabase () = 0;
+        virtual u_int32_t getSequenceIdx () = 0;
+        virtual void getBitsetNeighbors (const database::ISequenceDatabase::StrandId_e direction,  u_int64_t  &neighborR, u_int64_t  &neighborL) = 0;
+    };*/
 
     /********************************************************************************/
 

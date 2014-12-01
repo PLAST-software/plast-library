@@ -110,6 +110,10 @@ public:
     /** */
     void setDatabase (database::ISequenceDatabase* database);
 
+    static const int INDEX_MMER_SIZE = 3;
+    static const int NB_MAX_MMER = 64;
+    static const int MAX_MMER_WINDOWS = 10;
+
 protected:
 
     /** */
@@ -135,6 +139,10 @@ protected:
     size_t  _span;
     size_t  _extraSpan;
     int32_t _bitshift;
+    int32_t _bitshiftKmerMmer;
+    int32_t _bitshiftMmer;
+    int32_t _bitmaskMmer;
+    u_int32_t _max_Mmer_Windows_size;
 
     word_t* _maskIn;
     word_t* _maskOut;
