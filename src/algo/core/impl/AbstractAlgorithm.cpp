@@ -370,7 +370,7 @@ void AbstractAlgorithm::execute (void)
             _timeStats->stopEntry (keyAlgorithm);
 
             /** We notify some report to potential listeners. */
-            if (((_params->strand==0)&&(subjectDb->getDirection() == ISequenceDatabase::PLUS))||(_params->strand!=0))
+            //if (((_params->strand==0)&&(subjectDb->getDirection() == ISequenceDatabase::PLUS))||(_params->strand!=0))
             {
 				this->notify (new AlgorithmReportEvent (
 					this,

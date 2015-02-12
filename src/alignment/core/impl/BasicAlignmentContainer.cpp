@@ -103,6 +103,7 @@ bool BasicAlignmentContainer::doesExist (const Alignment& align)
     /** We retrieve the list of alignments for the [query,subject] pair of the alignment. */
     ContainerLevel3* containerLevel3 = getContainer (align.getSequence(Alignment::QUERY), align.getSequence(Alignment::SUBJECT));
 
+    //int32_t delta = MIN(align.getRange(Alignment::SUBJECT).getLength(),align.getRange(Alignment::QUERY).getLength())/100;
     found = isInContainer (containerLevel3, align.getRange(Alignment::SUBJECT), align.getRange(Alignment::QUERY));
 
     /** We return true if we found the provided alignment, false otherwise. */
@@ -148,6 +149,7 @@ bool BasicAlignmentContainer::doesExist (
             qryOccur->offsetInSequence  + bandLength <  qryLen ? qryOccur->offsetInSequence + bandLength : qryLen-1
         );
 
+        //int32_t delta = MIN(sbjRange.getLength(),qryRange.getLength())/100;
         found = isInContainer (containerLevel3, sbjRange, qryRange);
     }
 
@@ -296,10 +298,31 @@ bool BasicAlignmentContainer::insert (Alignment& align, void* context)
     align.setSequence (Alignment::QUERY,   seqLevel1);
     align.setSequence (Alignment::SUBJECT, seqLevel2);
 
-    /** Now, we have the list of alignments for the first and second levels entries. */
-    bool found = isInContainer (containerLevel3, align.getRange(Alignment::SUBJECT), align.getRange(Alignment::QUERY));
+    //int32_t delta = MIN(align.getRange(Alignment::SUBJECT).getLength(),align.getRange(Alignment::QUERY).getLength())/100;
+    bool foundIncludedAlign = false;
+    bool foundBiggerAlignment = false;
+    for (ContainerLevel3::iterator it = containerLevel3->begin(); it != containerLevel3->end(); )
+    {
+    	foundBiggerAlignment = (*it).getRange(Alignment::SUBJECT).includes (align.getRange(Alignment::SUBJECT))  &&
+            (*it).getRange(Alignment::QUERY).includes (align.getRange(Alignment::QUERY)) &&
+            ((*it).getScore()>=align.getScore());
+    	if (foundBiggerAlignment) break;
 
-    if (!found)
+    	foundIncludedAlign = align.getRange(Alignment::SUBJECT).includes ((*it).getRange(Alignment::SUBJECT))  &&
+        	align.getRange(Alignment::QUERY).includes ((*it).getRange(Alignment::QUERY));
+
+        if (foundIncludedAlign)
+        {
+        	it = containerLevel3->erase (it);
+        	if (_nbAlignments>0)
+        		_nbAlignments --;
+        }
+        else
+        {
+        	it++;
+        }
+    }
+    if (!foundBiggerAlignment)
     {
         /** Finally, we can simply add the alignment into the container. */
         containerLevel3->push_back (align);
@@ -308,7 +331,7 @@ bool BasicAlignmentContainer::insert (Alignment& align, void* context)
     }
     //else  {  printf ("BasicAlignmentContainer::insert FOUND\n"); }
 
-    return found;
+    return foundBiggerAlignment;
 }
 
 /*********************************************************************

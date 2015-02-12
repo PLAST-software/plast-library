@@ -125,6 +125,7 @@ public:
         fillJavaProperties (props, "memory_used",    _usedMemory/1024);
         fillJavaProperties (props, "memory_max",     _maxUsedMemory/1024);
         fillJavaProperties (props, "memory_total",   _totalUsedMemory/1024);
+        fillJavaProperties (props, "strand",   _strandExecution);
 
         return props;
     }
@@ -182,6 +183,7 @@ protected:
             _globalPercentage     = 1;
             _currentAlgo          = 0;
             _totalAlgo            = 0;
+            _strandExecution	  = 1;
 
             _firstResultNotification = false;
         }

@@ -157,8 +157,8 @@ protected:
             for (ContainerLevel3::iterator it = container->begin(); !found  &&  it != container->end(); it++)
             {
                 found =
-                    (*it).getRange(Alignment::SUBJECT).includes (sbjRange)  &&
-                    (*it).getRange(Alignment::QUERY).includes (qryRange);
+                    (*it).getRange(Alignment::SUBJECT).includes (sbjRange,delta)  &&
+                    (*it).getRange(Alignment::QUERY).includes (qryRange,delta);
             }
         }
         return found;

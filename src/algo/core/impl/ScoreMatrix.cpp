@@ -18,6 +18,8 @@
 
 #include <algo/core/impl/ScoreMatrix.hpp>
 
+#include <misc/api/types.hpp>
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -207,6 +209,20 @@ IScoreMatrix* ScoreMatrixManager::getMatrix (const char* matrixName, Encoding en
         /** We fill the matrix. */
         fillMatrix (result, IDENTITY_NUCLEOTID_matrix);
     }
+    else if (strcmp(matrixName,"IDENTITY_BLAST")==0)
+    {
+        DEBUG (("ScoreMatrixManager::getMatrix => IDENTITY\n"));
+
+        /** We create the score matrix. */
+        result = new ScoreMatrix (encoding, 28, -3);
+
+        /** We set up the nucleotide matrix with reward and penalty like blast algorithm. In this case a specific score is calculated
+         * for the ambiguity */
+        setupNucleotideMatrixBlast (IDENTITY_NUCLEOTID_matrix, reward, penalty);
+
+        /** We fill the matrix. */
+        fillMatrix (result, IDENTITY_NUCLEOTID_matrix);
+    }
 
     /** We may have no matrix: we send an exception. */
     if (result == 0)  {   throw ScoreMatrixFailure ("unknown matrix");   }
@@ -281,6 +297,28 @@ void ScoreMatrixManager::setupNucleotideMatrix (int8_t m[28][28], int reward, in
 
     /** We set the reward score on diagonal.*/
     for (int i=0; i<28; i++)  {  m[i][i] = reward; }
+
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+void ScoreMatrixManager::setupNucleotideMatrixBlast (int8_t m[28][28], int reward, int penalty)
+{
+    /** We set by default the penalty score for all matrix items. */
+    for (int i=0; i<28; i++)  {  for (int j=0; j<28; j++)  {  m[i][j] = penalty;  }  }
+
+    /** We set the reward score on diagonal.*/
+    for (int i=0; i<28; i++)  {  m[i][i] = reward; }
+
+    /** Set the score value for the ambiguity **/
+    for (int i=0; i<28; i++)  {  m[i][4] = misc::aroundInt((double)((3*penalty+reward)/4.0)); m[4][i] = m[i][4];}
+
 }
 
 /********************************************************************************/

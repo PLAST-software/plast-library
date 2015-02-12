@@ -24,6 +24,7 @@
 #include <algo/core/api/IAlgoEvents.hpp>
 
 #include <launcher/observers/AbstractProgressionObserver.hpp>
+#include <database/api/ISequenceDatabase.hpp>
 
 #include <stdio.h>
 #include <string.h>
@@ -60,7 +61,8 @@ AbstractProgressionObserver::AbstractProgressionObserver ()
       _ellapsedTime(0), _remainingTime(0),
       _currentNbAlignments(0), _nbAlignments(0),
       _usedMemory(0), _maxUsedMemory(0), _totalUsedMemory(0),
-      _currentFrame(0), _nbSubjectFrames(1), _nbQueryFrames(1)
+      _currentFrame(0), _nbSubjectFrames(1), _nbQueryFrames(1),
+      _strandExecution(database::ISequenceDatabase::PLUS)
 {
 }
 
@@ -135,7 +137,8 @@ void AbstractProgressionObserver::update (dp::EventInfo* evt, dp::ISubject* subj
         IAlignmentContainer*  alignmentResult  = e3->getAlignmentContainer();
         if (e3 != 0)
         {
-            _currentNbAlignments = alignmentResult->getAlignmentsNumber();
+        	_strandExecution = e3->getSubjectDb()->getDirection();
+        	_currentNbAlignments = alignmentResult->getAlignmentsNumber();
             _nbAlignments += _currentNbAlignments;
         }
 

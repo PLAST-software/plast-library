@@ -20,6 +20,8 @@
 
 #include <launcher/observers/BargraphObserver.hpp>
 
+#include <database/api/ISequenceDatabase.hpp>
+
 #include <string.h>
 
 using namespace std;

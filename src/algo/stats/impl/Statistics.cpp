@@ -190,8 +190,6 @@ bool AbstractGlobalParameters::evalueToCutoff(int&cutoff, double effSearchSp, do
 *********************************************************************/
 void GlobalParameters::build (void)
 {
-    bool found = false;
-
     switch (_parameters->matrixKind)
     {
         case ENUM_BLOSUM62:
@@ -210,7 +208,7 @@ void GlobalParameters::build (void)
             }
             else
             {
-                found = lookup (this, blosum62_values, ARRAYSIZE(blosum62_values), _parameters->openGapCost, _parameters->extendGapCost);
+                lookup (this, blosum62_values, ARRAYSIZE(blosum62_values), _parameters->openGapCost, _parameters->extendGapCost);
             }
 
             if (_parameters->smallGapThreshold   == 0)    { _parameters->smallGapThreshold   = 54; }
@@ -241,7 +239,7 @@ void GlobalParameters::build (void)
             }
             else
             {
-                found = lookup (this, blosum50_values, ARRAYSIZE(blosum50_values), _parameters->openGapCost, _parameters->extendGapCost);
+                lookup (this, blosum50_values, ARRAYSIZE(blosum50_values), _parameters->openGapCost, _parameters->extendGapCost);
             }
 
             if (_parameters->smallGapThreshold   == 0)    { _parameters->smallGapThreshold   = 60; }

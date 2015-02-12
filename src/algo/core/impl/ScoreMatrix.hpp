@@ -100,6 +100,10 @@ private:
 
     /** */
     void setupNucleotideMatrix (int8_t source[28][28], int reward, int penalty);
+
+    /** */
+    void setupNucleotideMatrixBlast (int8_t source[28][28], int reward, int penalty);
+
 };
 
 /********************************************************************************/

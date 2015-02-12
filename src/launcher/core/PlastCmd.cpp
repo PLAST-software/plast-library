@@ -350,6 +350,9 @@ void PlastCmd::update (dp::EventInfo* evt, dp::ISubject* subject)
             			case ENUM_NUCLEOTIDE_IDENTITY:
             				_properties->add(0,STR_OPTION_SCORE_MATRIX,"IDENTITY");
             				break;
+            			case ENUM_NUCLEOTIDE_IDENTITY_BLAST:
+            				_properties->add(0,STR_OPTION_SCORE_MATRIX,"IDENTITY_BLAST");
+            				break;
             			}
             		}
             		if (_properties->getProperty(STR_OPTION_UNGAP_NEIGHBOUR_LENGTH)==0)

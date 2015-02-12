@@ -107,7 +107,7 @@ void DatabaseIndex::iterateSeed (const ISeed* seed)
         ));
 
         /** We add the offset in the database for the current seed. */
-        entry.push_back (SeedOccurrence (_sequenceOffset + seed->offset, _currentSequence->index));
+        entry.push_back (SeedOccurrenceProt (_sequenceOffset + seed->offset, _currentSequence->index));
     }
 }
 

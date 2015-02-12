@@ -158,6 +158,10 @@ protected:
      */
     size_t _nbQueryFrames;
 
+    /** Gives the current strand execution.
+     */
+    int32_t _strandExecution;
+
     /** Primitive of the update() Template Method. Called when some hits iteration begins. */
     virtual void start   (void);
 

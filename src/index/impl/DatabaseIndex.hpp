@@ -103,7 +103,7 @@ public:
 protected:
 
 	/** Shortcut. */
-    typedef std::vector<SeedOccurrence> IndexEntry;
+    typedef std::vector<SeedOccurrenceProt> IndexEntry;
 
     /** The index itself. Defined as a vector of vectors. */
     std::vector <IndexEntry>  _index;

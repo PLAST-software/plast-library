@@ -63,6 +63,17 @@ static const u_int8_t reverse_neighbors_tab[DatabaseNucleotidIndexOptim::NB_MAX_
 
 static inline int popcount_wikipedia_3(u_int64_t bitset1, u_int64_t bitset2)
 {
+// pop count asm
+	/*	u_int64_t x=bitset1&bitset2;
+	__asm__ ("popcnt %1, %0" : "=r" (x) : "0" (x));
+	return x;*/
+
+// pop count SSE4.2 if msse4.2 otpion is activated
+	//	return __builtin_popcountll((bitset1&bitset2));
+
+// provide a parallel popcount is not very efficient because need to prepare and calculate the each 64 bits
+// peraphs, the best solution is to parallelize the popcount and NI, alpha calculation
+// Hamming weight popcount (most efficient and portable)
 	u_int64_t x;
 	x = bitset1&bitset2;
 	x -= (x >> 1) & 0x5555555555555555UL;             //put count of each 2 bits into those 2 bits
@@ -109,8 +120,8 @@ HSPGenerator::HSPGenerator (
     : _indexator (0), _queryInfo(0), _hspContainer(0), _rangeIterator(rangeIterator),
       _threshold(threshold), _match(match), _mismatch(mismatch), _xdrop(xdrop), _alpha_threshold(alpha_threshold)
 {
-    DEBUG (("HSPGenerator::HSPGenerator:  threshold=%d  match=%d  mismatch=%d  xdrop=%d\n",
-		threshold, match, mismatch, xdrop
+    DEBUG (("HSPGenerator::HSPGenerator:  threshold=%d  match=%d  mismatch=%d  xdrop=%d index_threshold=%d\n",
+		threshold, match, mismatch, xdrop, alpha_threshold
 	));
 
     setIndexator    (indexator);
@@ -306,6 +317,9 @@ void HSPGenerator::execute ()
 				);
             }
 
+/*            maxProd = MAX (maxProd, nb1*nb2);
+            nbIterated += nb1*nb2;*/
+
             for (size_t i=0; i<nb1; i++)
             {
                 Entry& e1 = seqs1[i];
@@ -372,14 +386,14 @@ void HSPGenerator::execute ()
 							/** We add the alignment. */
 							_hspContainer->insert (qryRange, sbjRange, e2.seqId, e1.seqId, score);
 
-//							nbInserted ++;
+							//nbInserted ++;
 
 	#if 0
 							dump (seed.code, e1.seqId, e2.seqId, leftLen1, leftLen2);
 	#endif
 						}
                 	}
-                }  /* end of for (size_t j=0... */
+                 }  /* end of for (size_t j=0... */
             } /* end of for (size_t i=0... */
         } /* end of for (int g=s.begin... */
 
@@ -420,9 +434,9 @@ int HSPGenerator::computeExtensionRight (int code, const LETTER* s1, const LETTE
     int32_t bitshift = 2*(span-1);
     int32_t bitmask  = (1 << (2*span)) - 1;
 
-    u_int32_t kmaxi=0;
+    u_int32_t kmaxi=span;
     u_int32_t k=0;
-    for (k=span;  ((maxi-score) < _xdrop) && k<length;  k++, ss1++, ss2++)
+    for (k=span;  ((maxi-score) <= _xdrop) && k<length;  k++, ss1++, ss2++)
     {
         /** Shortcut. */
         ss1Letter = *ss1;
@@ -498,7 +512,7 @@ int HSPGenerator::computeExtensionLeft (int code, const LETTER* s1, const LETTER
 
     u_int32_t kmaxi=0;
     u_int32_t k=0;
-    for (k=0;  (maxi-score) < _xdrop  &&  k<length;  k++, ss1--, ss2--)
+    for (k=0;  (maxi-score) <= _xdrop  &&  k<length;  k++, ss1--, ss2--)
     {
         /** Shortcut. */
         ss1Letter = *ss1;

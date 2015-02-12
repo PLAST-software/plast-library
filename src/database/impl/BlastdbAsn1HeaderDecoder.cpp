@@ -72,7 +72,11 @@ string BlastdbAsn1HeaderDecoder::getDecodeSeqid(const char *ptr, u_int32_t size)
 	asn.name      		= (char*)"";
 	asn.decodedString 	= "";
 
-    parseSequenceOf(&asn, &BlastdbAsn1HeaderDecoder::parseSeqId);
+	// permits to manage the formatdb -o T case for the string
+	if (asn.ptr[0] == 0x1A)
+		parseVisibleString(&asn);
+	else
+		parseSequenceOf(&asn, &BlastdbAsn1HeaderDecoder::parseSeqId);
     return asn.decodedString + " ";
 }
 

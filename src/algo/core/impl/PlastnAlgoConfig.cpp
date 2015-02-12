@@ -125,7 +125,7 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
     params->seedModelKind = ENUM_BasicSeedModel;
     params->seedSpan      = 11;
 
-    params->matrixKind           = ENUM_BLOSUM62;
+    params->matrixKind           = ENUM_NUCLEOTIDE_IDENTITY_BLAST;
     params->subjectUri           = string ("foo");
     params->subjectRange         = Range64(0,0);
     params->queryUri             = string ("bar");
@@ -162,7 +162,31 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
     if (evalue != 0)
     {
     	double evalue_val = misc::atof (evalue->value.c_str());
-    	if (evalue_val>1)
+     	double evalue_step[6]				={1e-50,	1e-30,	1e-10,	1e-3,	1,		10};
+    	int index_neighbor_threshold_step[6]={50, 		40,		30,		15,		10,		5};
+    	int ungapScoreThreshold_step[6]		={46, 		45,		40,		35,		35,		35};
+    	u_int32_t i=0;
+    	double a_neighbor = 0;
+    	double b_neighbor = index_neighbor_threshold_step[0];
+    	double a_threshold = 0;
+    	double b_threshold = ungapScoreThreshold_step[0];
+    	do
+    	{
+			if (i>0)
+			{
+				a_neighbor=((double)(index_neighbor_threshold_step[i]-index_neighbor_threshold_step[(i-1)])/
+						(double)(log(evalue_step[i])-log(evalue_step[(i-1)])));
+				b_neighbor = (double)index_neighbor_threshold_step[i] - a_neighbor*log(evalue_step[i]);
+				a_threshold=((double)(ungapScoreThreshold_step[i]-ungapScoreThreshold_step[(i-1)])/
+						(double)(log(evalue_step[i])-log(evalue_step[(i-1)])));
+				b_threshold = (double)ungapScoreThreshold_step[i] - a_threshold*log(evalue_step[i]);
+			}
+			i++;
+    	}while((i<6)&&(evalue_val>=evalue_step[(i-1)]));
+		params->ungapScoreThreshold  = a_threshold*log(evalue_val) + b_threshold;
+		params->index_neighbor_threshold = a_neighbor*log(evalue_val) + b_neighbor;
+
+/*    	if (evalue_val>1)
     	{
     	    params->ungapScoreThreshold  = 35;
     		params->index_neighbor_threshold = 10;
@@ -186,7 +210,7 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
 		{
     	    params->ungapScoreThreshold  = 45;
 			params->index_neighbor_threshold = 50;
-		}
+		}*/
     }
     
     return params;
@@ -299,8 +323,28 @@ ISeedModel* PlastnConfiguration::createSeedModel (SeedModelKind_e modelKind, siz
 IScoreMatrix* PlastnConfiguration::createScoreMatrix (ScoreMatrixKind_e kind, database::Encoding encoding, int reward, int penalty)
 {
     DEBUG ((cout << "PlastnConfiguration::createScoreMatrix" << endl));
+    IScoreMatrix* result = 0;
 
-    return ScoreMatrixManager::singleton().getMatrix ("IDENTITY", encoding, reward, penalty);
+    switch (kind)
+    {
+		case ENUM_NUCLEOTIDE_IDENTITY:
+		{
+			result = ScoreMatrixManager::singleton().getMatrix ("IDENTITY", encoding, reward, penalty);
+			break;
+		}
+
+		case ENUM_NUCLEOTIDE_IDENTITY_BLAST:
+		{
+			result = ScoreMatrixManager::singleton().getMatrix ("IDENTITY_BLAST", encoding, reward, penalty);
+			break;
+		}
+
+		default:
+			/** We should not be here... */
+			break;
+    }
+
+    return result;
 }
 
 /*********************************************************************
@@ -343,7 +387,8 @@ IAlignmentContainer* PlastnConfiguration::createGapAlignmentResult  ()
     size_t nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 500;
     size_t nbAlignPerHit = (prop = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT))   != 0 ?  prop->getInt() : 0;
 
-    return new BasicAlignmentContainerBis (nbHitPerQuery, nbAlignPerHit);
+//    return new BasicAlignmentContainerBis (nbHitPerQuery, nbAlignPerHit);
+    return new BasicAlignmentContainer (nbHitPerQuery, nbAlignPerHit);
 }
 
 /********************************************************************************/

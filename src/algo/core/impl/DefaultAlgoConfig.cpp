@@ -634,6 +634,12 @@ IScoreMatrix* DefaultConfiguration::createScoreMatrix (
             break;
         }
 
+        case ENUM_NUCLEOTIDE_IDENTITY_BLAST:
+        {
+            result = ScoreMatrixManager::singleton().getMatrix ("IDENTITY_BLAST", encoding, reward, penalty);
+            break;
+        }
+
         default:
             /** We should not be here... */
             break;

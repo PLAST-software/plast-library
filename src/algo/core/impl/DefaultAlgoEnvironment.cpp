@@ -588,9 +588,18 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
 
             if ( (prop = properties->getProperty (STR_OPTION_SCORE_MATRIX)) != 0)
             {
-                     if (prop->value.compare ("BLOSUM62")==0)   {  params->matrixKind = ENUM_BLOSUM62;  }
-                else if (prop->value.compare ("BLOSUM50")==0)   {  params->matrixKind = ENUM_BLOSUM50;  }
-                else                                            {  params->matrixKind = ENUM_BLOSUM62;  }
+            	if (params->algoKind == ENUM_PLASTN)
+            	{
+					if (prop->value.compare ("IDENTITY")==0)   {  params->matrixKind = ENUM_NUCLEOTIDE_IDENTITY;  }
+					else if (prop->value.compare ("IDENTITY_BLAST")==0)   {  params->matrixKind = ENUM_NUCLEOTIDE_IDENTITY_BLAST;  }
+					else                                            {  params->matrixKind = ENUM_NUCLEOTIDE_IDENTITY_BLAST;  }
+            	}
+            	else
+            	{
+					if (prop->value.compare ("BLOSUM62")==0)   {  params->matrixKind = ENUM_BLOSUM62;  }
+					else if (prop->value.compare ("BLOSUM50")==0)   {  params->matrixKind = ENUM_BLOSUM50;  }
+					else                                            {  params->matrixKind = ENUM_BLOSUM62;  }
+            	}
             }
 
             if ( (prop = properties->getProperty (STR_OPTION_STRANDS_LIST)) != 0)

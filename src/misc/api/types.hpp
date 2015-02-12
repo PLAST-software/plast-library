@@ -222,6 +222,12 @@ inline double atof (const char* str)
 inline int  atoi (const char* str)  { return ::atoi (str); }
 inline long atol (const char* str)  { return ::atol (str); }
 
+inline long aroundInt(double x)
+{
+   x += (x >= 0. ? 0.5 : -0.5);
+   return (long)x;
+}
+
 /********************************************************************************/
 
 /** Enumeration of possible ORF (opening read frames). */
@@ -257,7 +263,8 @@ enum ScoreMatrixKind_e
 {
     ENUM_BLOSUM62,
     ENUM_BLOSUM50,
-    ENUM_NUCLEOTIDE_IDENTITY
+    ENUM_NUCLEOTIDE_IDENTITY,
+    ENUM_NUCLEOTIDE_IDENTITY_BLAST
 };
 
 /********************************************************************************/

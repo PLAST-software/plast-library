@@ -111,15 +111,14 @@ public:
         u_int8_t   nbNeighbors;
     };
 
-/*    class SeedOccurrence
+    struct SeedOccurrenceProt
     {
-public:
-        virtual ~SeedOccurrence() {}
+        SeedOccurrenceProt () : offsetInDatabase(0), sequenceIdx(0) {}
+        SeedOccurrenceProt (u_int32_t off, u_int32_t seqIdx) : offsetInDatabase(off), sequenceIdx(seqIdx) {}
 
-        virtual u_int32_t getOffsetInDatabase () = 0;
-        virtual u_int32_t getSequenceIdx () = 0;
-        virtual void getBitsetNeighbors (const database::ISequenceDatabase::StrandId_e direction,  u_int64_t  &neighborR, u_int64_t  &neighborL) = 0;
-    };*/
+        u_int32_t  offsetInDatabase;
+        u_int32_t  sequenceIdx;
+    };
 
     /********************************************************************************/
 
