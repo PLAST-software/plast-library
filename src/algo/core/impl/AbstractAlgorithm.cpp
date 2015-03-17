@@ -274,9 +274,9 @@ void AbstractAlgorithm::execute (void)
         getIndexator()->setQueryDatabase (queryDb);
 
         bool dbStatsOverwrite = _params->completeSubjectDatabaseStats.isFilled;
-        int completeSubjectDatabaseSize = (dbStatsOverwrite) ?
+        u_int64_t completeSubjectDatabaseSize = (dbStatsOverwrite) ?
                 _params->completeSubjectDatabaseStats.size : _reader->getDataSize();
-        int completeSubjectDatabaseNumboerOfSequences = (dbStatsOverwrite) ?
+        u_int32_t completeSubjectDatabaseNumberOfSequences = (dbStatsOverwrite) ?
                 _params->completeSubjectDatabaseStats.numberOfSequences : _reader->getNbSequences();
 
         /** We can compute query statistics information. Note that we use the reader (holding information
@@ -286,7 +286,7 @@ void AbstractAlgorithm::execute (void)
             getParams(),
             queryDb,
             completeSubjectDatabaseSize,
-            completeSubjectDatabaseNumboerOfSequences
+            completeSubjectDatabaseNumberOfSequences
         ));
 
         DEBUG (("AbstractAlgorithm::execute : query statistics computed...\n"));
