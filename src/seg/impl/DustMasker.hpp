@@ -63,9 +63,9 @@ private:
         {
             switch (r)
             {
-                case 67: return 1;
-                case 71: return 2;
-                case 84: return 3;
+                case 67: case  99: return 1;
+                case 71: case 103: return 2;
+                case 84: case 116: return 3;
                 default: return 0;
             }
         }

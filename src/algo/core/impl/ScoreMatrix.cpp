@@ -201,7 +201,7 @@ IScoreMatrix* ScoreMatrixManager::getMatrix (const char* matrixName, Encoding en
         DEBUG (("ScoreMatrixManager::getMatrix => IDENTITY\n"));
 
         /** We create the score matrix. */
-        result = new ScoreMatrix (encoding, 28, -3);
+        result = new ScoreMatrix (encoding, 6, -3);
 
         /** We set up the nucleotide matrix with reward and penalty. */
         setupNucleotideMatrix (IDENTITY_NUCLEOTID_matrix, reward, penalty);
@@ -214,7 +214,7 @@ IScoreMatrix* ScoreMatrixManager::getMatrix (const char* matrixName, Encoding en
         DEBUG (("ScoreMatrixManager::getMatrix => IDENTITY\n"));
 
         /** We create the score matrix. */
-        result = new ScoreMatrix (encoding, 28, -3);
+        result = new ScoreMatrix (encoding, 6, -3);
 
         /** We set up the nucleotide matrix with reward and penalty like blast algorithm. In this case a specific score is calculated
          * for the ambiguity */

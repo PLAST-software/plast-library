@@ -121,7 +121,7 @@ public:
     int     extendGapCost;
 
     /** Expected value to be used. */
-    float   evalue;
+    double   evalue;
 
     /** Ungapped X drop off. */
     int XdroppofUnGap;
