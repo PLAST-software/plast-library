@@ -276,6 +276,7 @@ public:
     static const char* m_STR_OPTION_COMPLETE_SUBJECT_DB_SIZE () { return "-complete-subject-database-size"; }
     static const char* m_STR_OPTION_COMPLETE_SUBJECT_DB_SEQUENCE_NUMBER () { return "-complete-subject-database-sequences-number"; }
     static const char* m_STR_OPTION_COMPLETE_SUBJECT_DB_STATS_FILE () { return "-complete-subject-database-stats-file"; }
+    static const char* m_STR_OPTION_CREATE_SEEDS_MASK_FOR_CLOSE_HOMOLOGS () { return "-C"; }
     static const char* m_MSG_MAIN_RC_FILE () { return "/.plastrc"; }
     static const char* m_MSG_MAIN_HOME () { return "HOME"; }
     static const char* m_MSG_MAIN_MSG1 () { return "PLAST %s (%ld cores available)\n"; }
@@ -359,6 +360,7 @@ public:
     static const char* m_STR_HELP_INFO_CONFIG_FILE () { return "Pathname of the plast config file."; }
     static const char* m_STR_HELP_WORD_SIZE  () { return "size of the seeds"; }
     static const char* m_STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE  () { return "File path to the stats of the complete subject database"; }
+    static const char* m_STR_HELP_CREATE_SEEDS_MASK_FOR_CLOSE_HOMOLOGS () { return "Useful option to optimize close homologs comparison"; }
     static const char* m_STR_CONFIG_CLASS_KarlinStats () { return "KarlinStats"; }
     static const char* m_STR_CONFIG_CLASS_SpougeStats () { return "SpougeStats"; }
     static const char* m_STR_CONFIG_CLASS_SerialCommandDispatcher () { return "SerialCommandDispatcher"; }
@@ -403,6 +405,7 @@ public:
     static const char* m_STR_PARAM_outputfile () { return "outputfile"; }
     static const char* m_STR_PARAM_strands () { return "strands"; }
     static const char* m_STR_PARAM_wordSize () { return "wordSize"; }
+    static const char* m_STR_PARAM_maskForCloseHomologs () {return "maskForCloseHomologs";}
 };
 
 #endif

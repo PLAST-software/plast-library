@@ -157,6 +157,10 @@ public:
     /** Stats of the complete subject database */
     misc::CompleteSubjectDatabaseStats completeSubjectDatabaseStats;
 
+    /** Tells if the comparison is a close homolgs one in order to create seed's mask in subject and query dbs */
+    int maskForCloseHomologs;
+
+
     /** Clone the instance.
      * \return the cloned instance. */
     IParameters* clone ()
@@ -212,6 +216,7 @@ public:
         result->add (1, STR_PARAM_outputfile, outputfile);
 
         result->add (1, STR_PARAM_strands, "%d", strands.size());
+        result->add (1, STR_PARAM_maskForCloseHomologs, "%d", maskForCloseHomologs);
 
         return result;
     }

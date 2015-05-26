@@ -126,7 +126,8 @@ void PlastOptionsParser::build ()
 
     this->add (new OptionOneParam (STR_OPTION_COMPLETE_SUBJECT_DB_STATS_FILE,       STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE));
 
-    this->add (new OptionOneParam (STR_OPTION_WORD_SIZE,                STR_HELP_WORD_SIZE));
+    this->add (new OptionOneParam (STR_OPTION_WORD_SIZE,                			STR_HELP_WORD_SIZE));
+    this->add (new OptionOneParam (STR_OPTION_CREATE_SEEDS_MASK_FOR_CLOSE_HOMOLOGS, STR_HELP_CREATE_SEEDS_MASK_FOR_CLOSE_HOMOLOGS));
 
     this->add (new OptionNoParam  (STR_OPTION_HELP, STR_HELP_HELP));
 }

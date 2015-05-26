@@ -360,6 +360,13 @@ namespace misc {
  *  int.
  */
 #define STR_OPTION_COMPLETE_SUBJECT_DB_SEQUENCE_NUMBER  misc::StringRepository::m_STR_OPTION_COMPLETE_SUBJECT_DB_SEQUENCE_NUMBER ()
+
+
+/** option very useful for ARN16S comparison.
+ * This option will tell PLAST to create a special mask in order to keep only nice seeds in query and subject.
+ * Because in ARN16S databanks, many seeds are found in all sequences.
+ */
+#define STR_OPTION_CREATE_SEEDS_MASK_FOR_CLOSE_HOMOLOGS misc::StringRepository::m_STR_OPTION_CREATE_SEEDS_MASK_FOR_CLOSE_HOMOLOGS ()
 /********************************************************************************/
 
 /** Strings occurring in messages, exceptions... */
@@ -453,7 +460,8 @@ namespace misc {
 #define STR_HELP_INFO_RESOURCES_PROGRESS    misc::StringRepository::m_STR_HELP_INFO_RESOURCES_PROGRESS ()   // Dump in a file information about resources during algorithm.
 #define STR_HELP_INFO_CONFIG_FILE           misc::StringRepository::m_STR_HELP_INFO_CONFIG_FILE ()   // Pathname of the plast config file.
 #define STR_HELP_WORD_SIZE                  misc::StringRepository::m_STR_HELP_WORD_SIZE ()   // Pathname of the plast config file.
-#define STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE   misc::StringRepository::m_STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE ()   // File path to the stats of the complete subject db
+#define STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE   		misc::StringRepository::m_STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE ()   // File path to the stats of the complete subject db
+#define STR_HELP_CREATE_SEEDS_MASK_FOR_CLOSE_HOMOLOGS 	misc::StringRepository::m_STR_HELP_CREATE_SEEDS_MASK_FOR_CLOSE_HOMOLOGS () // Option to create mask seeds for close homologs comparison
 
 #define STR_CONFIG_CLASS_KarlinStats			        misc::StringRepository::m_STR_CONFIG_CLASS_KarlinStats ()   // KarlinStats
 #define STR_CONFIG_CLASS_SpougeStats				    misc::StringRepository::m_STR_CONFIG_CLASS_SpougeStats ()   // SpougeStats
@@ -499,7 +507,8 @@ namespace misc {
 #define STR_PARAM_finalXdroppofGap      misc::StringRepository::m_STR_PARAM_finalXdroppofGap ()   // finalXdroppofGap
 #define STR_PARAM_outputfile            misc::StringRepository::m_STR_PARAM_outputfile ()   // outputfile
 #define STR_PARAM_strands               misc::StringRepository::m_STR_PARAM_strands ()   // strands
-#define STR_PARAM_wordSize              misc::StringRepository::m_STR_PARAM_strands ()   // strands
+#define STR_PARAM_wordSize              misc::StringRepository::m_STR_PARAM_wordSize ()   // word size
+#define STR_PARAM_maskForCloseHomologs  misc::StringRepository::m_STR_PARAM_maskForCloseHomologs ()// mask for close homologs
 
 /********************************************************************************/
 } /* end of namespaces. */
