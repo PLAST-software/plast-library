@@ -141,10 +141,10 @@ void IndexatorNucleotide::build (dp::ICommandDispatcher* dispatcher)
 
         if (_qryHasChanged)  {  setQueryIndex(0);  setSubjectIndex(0);    _qryHasChanged=false; }
 
-        if (_params->maskForCloseHomologs)
+        if (!_params->kmersBitsetPath.empty())
         {
         	/** create a new fake indexator to create a mask */
-        	FakeDatabaseNucleotideIndex* indexforMask = new FakeDatabaseNucleotideIndex (_subjectDatabase, _model);
+            FakeDatabaseNucleotideIndex* indexforMask = new FakeDatabaseNucleotideIndex (_subjectDatabase, _model, _params->kmersBitsetPath);
         	indexforMask->build();
             buildIndex (_queryIndex ,  _queryDatabase,   _model, dispatcher, indexforMask);
             buildIndex (_subjectIndex, _subjectDatabase, _model, dispatcher, indexforMask);

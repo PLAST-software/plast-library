@@ -20,6 +20,7 @@
 #include <os/impl/DefaultOsFactory.hpp>
 
 #include <math.h>
+#include <fstream>
 
 using namespace database;
 using namespace seed;
@@ -29,31 +30,7 @@ using namespace indexation;
 namespace indexation { namespace impl {
 /********************************************************************************/
 
-/********************************************************************************/
-inline static SeedHashCode revcomp (SeedHashCode x, size_t sizeKmer)
-{
-	u_int64_t res = x;
-
-	res = ((res>> 2 & 0x3333333333333333) | (res & 0x3333333333333333) <<  2);
-	res = ((res>> 4 & 0x0F0F0F0F0F0F0F0F) | (res & 0x0F0F0F0F0F0F0F0F) <<  4);
-	res = ((res>> 8 & 0x00FF00FF00FF00FF) | (res & 0x00FF00FF00FF00FF) <<  8);
-	res = ((res>>16 & 0x0000FFFF0000FFFF) | (res & 0x0000FFFF0000FFFF) << 16);
-	res = ((res>>32 & 0x00000000FFFFFFFF) | (res & 0x00000000FFFFFFFF) << 32);
-	res = res ^ 0xAAAAAAAAAAAAAAAA;
-
-	return (res >> (2*(32-sizeKmer))) ;
-}
-
-/********************************************************************************/
-
-
 enum { WORD_SIZE = sizeof(FakeDatabaseNucleotideIndex::word_t) * 8 };
-
-inline int bindex(int b)  { return b / WORD_SIZE; }
-inline int boffset(int b) { return b % WORD_SIZE; }
-
-#define SETMASK(data,b)  data[bindex(b)] |= 1LL << (boffset(b))
-
 
 
 /*********************************************************************
@@ -64,8 +41,10 @@ inline int boffset(int b) { return b % WORD_SIZE; }
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-FakeDatabaseNucleotideIndex::FakeDatabaseNucleotideIndex (ISequenceDatabase* database, ISeedModel* model)
-    : AbstractDatabaseIndex (database, model), _maskOut(0), _maskSize(0)
+FakeDatabaseNucleotideIndex::FakeDatabaseNucleotideIndex (ISequenceDatabase* database,
+    ISeedModel* model,
+    std::string kmersBitsetPath)
+    : AbstractDatabaseIndex (database, model), _maskOut(0), _maskSize(0), kmersBitsetPath(kmersBitsetPath)
 {
 	// compute the mask size
 	size_t alphabetSize = getModel()->getAlphabet()->size;
@@ -100,15 +79,22 @@ FakeDatabaseNucleotideIndex::~FakeDatabaseNucleotideIndex ()
 *********************************************************************/
 void FakeDatabaseNucleotideIndex::build ()
 {
-
-    for (size_t currentCode=0; currentCode<_maskSize; currentCode++)
+    std::ifstream is(kmersBitsetPath.c_str(), std::ifstream::binary);
+    if (!is)
     {
-		/** We setup the mask */
-    	SETMASK (_maskOut, currentCode);
-		SETMASK (_maskOut, revcomp(currentCode, getModel()->getSpan()));
-//    	_maskOut[currentCode] = 1;
+        throw "Error reading bitset file";
+    }
+    // get length of file:
+    is.seekg (0, is.end);
+    size_t length = is.tellg();
+    is.seekg (0, is.beg);
+
+    if (length != _maskSize * sizeof(word_t))
+    {
+        throw "File size incorrect";
     }
 
+    is.read((char*)_maskOut, length);
 }
 
 /*********************************************************************

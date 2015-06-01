@@ -617,12 +617,10 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
                 params->completeSubjectDatabaseStats.readFromFile(prop->value.c_str());
             }
 
-            if ( (prop = properties->getProperty (STR_OPTION_CREATE_SEEDS_MASK_FOR_CLOSE_HOMOLOGS)) != 0)
-			{
-            	if (prop->value == "T")   		{  params->maskForCloseHomologs = 1;   }
-				else if (prop->value == "F")   	{  params->maskForCloseHomologs = 0;  }
-				else                           	{  params->maskForCloseHomologs = misc::atoi(prop->value.c_str()); }
-			}
+            if ( (prop = properties->getProperty (STR_OPTION_KMERS_BITSET_PATH)) != 0)
+            {
+                params->kmersBitsetPath = prop->value;
+            }
 
             /** We set databases ranges. */
             params->subjectRange = uri[i].first;

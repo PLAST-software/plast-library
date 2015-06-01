@@ -45,7 +45,10 @@ public:
 	 * \param[in] database : the database to be indexed
 	 * \param[in] model : the seed model whose seeds are index keys
 	 * */
-	FakeDatabaseNucleotideIndex (database::ISequenceDatabase* database, seed::ISeedModel* model);
+    FakeDatabaseNucleotideIndex (database::ISequenceDatabase* database,
+        seed::ISeedModel* model,
+        std::string kmersBitsetPath);
+
 	virtual ~FakeDatabaseNucleotideIndex ();
 
 	/** \copydoc AbstractDatabaseIndex::build */
@@ -87,6 +90,7 @@ protected:
 
 	word_t* _maskOut;
 	size_t  _maskSize;
+    std::string kmersBitsetPath;
 
 }; // end of FakeDatabaseNucleotideIndex class
 

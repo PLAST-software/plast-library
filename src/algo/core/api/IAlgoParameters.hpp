@@ -157,9 +157,8 @@ public:
     /** Stats of the complete subject database */
     misc::CompleteSubjectDatabaseStats completeSubjectDatabaseStats;
 
-    /** Tells if the comparison is a close homolgs one in order to create seed's mask in subject and query dbs */
-    int maskForCloseHomologs;
-
+    /** Path to the bitset file for the present kmers */
+    std::string kmersBitsetPath;
 
     /** Clone the instance.
      * \return the cloned instance. */
@@ -216,7 +215,7 @@ public:
         result->add (1, STR_PARAM_outputfile, outputfile);
 
         result->add (1, STR_PARAM_strands, "%d", strands.size());
-        result->add (1, STR_PARAM_maskForCloseHomologs, "%d", maskForCloseHomologs);
+        result->add (1, STR_PARAM_kmersBitsetPath, kmersBitsetPath);
 
         return result;
     }
