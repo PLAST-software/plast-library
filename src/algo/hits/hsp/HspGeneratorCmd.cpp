@@ -58,6 +58,15 @@ namespace algo {
 namespace hits {
 namespace hsp  {
 
+/* Get if the value of a specific bit in a bitset is true or false
+ *
+ * We expect an array with elements of exactly eight bits. The index is the
+ * index of the bit inside the bitset.
+ *
+ * The returned value is 0 for false and non-zero for true.
+ */
+#define GETMASK(data, index)  (data[index >> 3] & (1 << (index & 7)))
+
 static const u_int32_t NB_MAX_MINUS_NEIGHBORS_TAB = 256;
 static const u_int8_t reverse_neighbors_tab[DatabaseNucleotidIndexOptim::NB_MAX_MMER]={42,58,10,26,46,62,14,30,34,50,2,18,38,54,6,22,43,59,11,27,47,63,15,31,35,51,3,19,39,55,7,23,40,56,8,24,44,60,12,28,32,48,0,16,36,52,4,20,41,57,9,25,45,61,13,29,33,49,1,17,37,53,5,21};
 
@@ -188,10 +197,10 @@ void HSPGenerator::execute ()
     size_t nbIterated = 0;
     size_t nbInserted = 0;*/
     int32_t alpha_int=0.0;
-    
+
 /*    double alpha_threshold = _alpha_threshold/100.0;
 	double alpha=0.0;*/
-	
+
 
 	u_int64_t reverse_neighbors_tab_8bits[NB_MAX_MINUS_NEIGHBORS_TAB];
 
@@ -420,6 +429,8 @@ int HSPGenerator::computeExtensionRight (int code, const LETTER* s1, const LETTE
     int code_ss1 = code;
 
     alreadySeen = false;
+    IDatabaseIndex* idx = _indexator->getQueryIndex();
+    u_int8_t* mask = idx->getMask();
 
     /** We reset the score. */
     size_t  nbMatch = span;
@@ -460,7 +471,7 @@ int HSPGenerator::computeExtensionRight (int code, const LETTER* s1, const LETTE
 
             if ((_extraSpan==0)&&(nbMatch >= span))
             {
-                if (code_ss1 < code)
+                if (code_ss1 < code && GETMASK(mask, code_ss1))
                 {
                     score = -1;
                     alreadySeen = true;
@@ -497,6 +508,8 @@ int HSPGenerator::computeExtensionLeft (int code, const LETTER* s1, const LETTER
     int code_ss1 = code;
 
     alreadySeen = false;
+    IDatabaseIndex* idx = _indexator->getQueryIndex();
+    u_int8_t* mask = idx->getMask();
 
     /** We reset the score. */
     size_t  nbMatch = span;
@@ -536,7 +549,7 @@ int HSPGenerator::computeExtensionLeft (int code, const LETTER* s1, const LETTER
 
             if ((_extraSpan==0)&&(nbMatch >= span))
             {
-                if (code_ss1 < code)
+                if (code_ss1 < code && GETMASK(mask, code_ss1))
                 {
                     score = -1;
                     alreadySeen = true;
