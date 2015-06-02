@@ -20,7 +20,7 @@
 #include <os/impl/DefaultOsFactory.hpp>
 
 #include <math.h>
-#include <fstream>
+#include <cstdlib>
 
 using namespace database;
 using namespace seed;
@@ -79,22 +79,30 @@ FakeDatabaseNucleotideIndex::~FakeDatabaseNucleotideIndex ()
 *********************************************************************/
 void FakeDatabaseNucleotideIndex::build ()
 {
-    std::ifstream is(kmersBitsetPath.c_str(), std::ifstream::binary);
-    if (!is)
+    FILE* inFile = fopen(kmersBitsetPath.c_str(), "rb");
+
+    if (!inFile)
     {
         throw "Error reading bitset file";
     }
+
     // get length of file:
-    is.seekg (0, is.end);
-    size_t length = is.tellg();
-    is.seekg (0, is.beg);
+    fseek (inFile, 0, SEEK_END);
+    size_t length = ftell(inFile);
+    rewind(inFile);
 
     if (length != _maskSize * sizeof(word_t))
     {
         throw "File size incorrect";
     }
 
-    is.read((char*)_maskOut, length);
+    size_t bytesRead = fread((char*)_maskOut, sizeof(char), length, inFile);
+
+    if (bytesRead != length)
+    {
+        // Incorrect size read => Error
+        throw "Bitset file read error";
+    }
 }
 
 /*********************************************************************
