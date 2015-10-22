@@ -328,7 +328,7 @@ public:
     static const char* m_STR_HELP_MAX_HIT_PER_QUERY () { return "Maximum hits per query. 0 value will dump all hits (default)"; }
     static const char* m_STR_HELP_MAX_HSP_PER_HIT () { return "Maximum alignments per hit. 0 value will dump all hits (default)"; }
     static const char* m_STR_HELP_MAX_HIT_PER_ITERATION () { return "Maximum hits per iteration (for memory usage control). 1000000 by default"; }
-    static const char* m_STR_HELP_OUTPUT_FORMAT () { return "Output format: 1 for tabulated (default)."; }
+    static const char* m_STR_HELP_OUTPUT_FORMAT () { return "Output format: 1 for tabulated (default), 2 for extended tubulated, 4 for NCBI Blast-like."; }
     static const char* m_STR_HELP_STRANDS_LIST () { return "List of the strands (ex: \"1,2,6\") to be used when using algo using nucleotids databases."; }
     static const char* m_STR_HELP_CODON_STOP_OPTIM () { return "size of the allowed range between the last invalid character and the next stop codon"; }
     static const char* m_STR_HELP_FACTORY_DISPATCHER () { return "Factory that creates dispatcher."; }
