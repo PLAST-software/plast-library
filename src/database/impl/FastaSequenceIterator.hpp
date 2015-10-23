@@ -117,10 +117,7 @@ class FastaSequenceIteratorFactory  : public ISequenceIteratorFactory
 {
 public:
     /** \copydoc ISequenceIteratorFactory::createSequenceIterator */
-    virtual ISequenceIterator* createSequenceIterator (const std::string& uri, const misc::Range64& range)
-    {
-        return new FastaSequenceIterator (uri.c_str(), SEQUENCE_MAX_COMMENT_SIZE, range.begin, range.end);
-    }
+    virtual ISequenceIterator* createSequenceIterator (const std::string& uri, const misc::Range64& range);
 };
 
 /********************************************************************************/

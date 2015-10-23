@@ -14,6 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+#include <database/impl/FastaSequencePureIterator.hpp>
 #include <database/impl/FastaSequenceIterator.hpp>
 #include <database/impl/BasicSequenceBuilder.hpp>
 
@@ -151,6 +152,11 @@ dp::IteratorStatus FastaSequenceIterator::next()
     }
 
     return dp::ITER_UNKNOWN;
+}
+
+ISequenceIterator* FastaSequenceIteratorFactory::createSequenceIterator (const std::string& uri, const misc::Range64& range)
+{
+    return new FastaSequencePureIterator (uri.c_str(), SEQUENCE_MAX_COMMENT_SIZE, range.begin, range.end);
 }
 
 /********************************************************************************/

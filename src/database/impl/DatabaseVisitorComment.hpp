@@ -23,6 +23,7 @@
 #define _DATABASE_VISITOR_HPP_
 
 #include <database/impl/BufferedSequenceDatabase.hpp>
+#include <database/impl/CachedSubDatabase.hpp>
 
 /********************************************************************************/
 /** \brief Definition of concepts related to genomic databases. */
@@ -41,6 +42,11 @@ public:
 	}
 	void visitCompositeSequenceDatabase (CompositeSequenceDatabase& db) {
 		_result="CompositeSequenceDatabase";}
+
+	void visitCachedSubDatabase (CachedSubDatabase& db) {
+		_result = db.transformComment(_sequence);
+    }
+
 protected:
 	std::string &_result;
 	const ISequence& _sequence;
