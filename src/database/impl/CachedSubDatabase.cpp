@@ -7,28 +7,33 @@
 
 namespace database { namespace impl {
 
-CachedSubDatabase::CachedSubDatabase(ISequenceIterator* refIterator, std::set<u_int32_t>* blacklist)
-    : _sequenceIterator(refIterator),
+CachedSubDatabase::CachedSubDatabase(ISequenceIterator* refIterator, std::set<u_int64_t>* blacklist)
+    : _sequenceIterator(0),
       _blacklist(blacklist),
       _size(0),
       _direction(ISequenceDatabase::PLUS)
 {
+    setSequenceIterator(refIterator);
     initializeCache();
     setId(refIterator->getId());
 }
 
-CachedSubDatabase::~CachedSubDatabase() {}
+CachedSubDatabase::~CachedSubDatabase() {
+    setSequenceIterator(0);
+}
 
 void CachedSubDatabase::initializeCache()
 {
     int i = 0;
     _size = 0;
     for (_sequenceIterator->first(); !_sequenceIterator->isDone(); _sequenceIterator->next()) {
-        if (!_blacklist || _blacklist->find(i) == _blacklist->end()) {
-            _sequences.push_back(*_sequenceIterator->currentItem());
-            ISequence& currentSequence = _sequences[_sequences.size() - 1];
-            currentSequence.database = this;
-            _size += currentSequence.getLength();
+        _sequences.push_back(*_sequenceIterator->currentItem());
+        ISequence& currentSequence = _sequences[_sequences.size() - 1];
+        currentSequence.database = this;
+
+        _size += currentSequence.getLength();
+        if (_blacklist && _blacklist->find(currentSequence.offsetInDb) != _blacklist->end()) {
+            currentSequence.data.letters.reset();
         }
         i++;
     }
@@ -52,7 +57,9 @@ bool CachedSubDatabase::getSequenceByIndex (size_t index, ISequence& sequence)
     return true;
 }
 
-size_t CachedSubDatabase::getSequencesNumber() {
+size_t CachedSubDatabase::getSequencesNumber()
+{
+    throw "Unsupported operation CachedSubDatabase::getSequencesNumber";
     return _sequences.size();
 }
 
@@ -65,6 +72,7 @@ ISequence* CachedSubDatabase::getSequenceRefByIndex (size_t index)
             return &(*it);
         }
     }
+    throw "Unsupported operation CachedSubDatabase::getSequenceRefByIndex";
 
     return NULL;
 }
@@ -75,6 +83,8 @@ bool CachedSubDatabase::getSequenceByOffset(
         u_int32_t& offsetInSequence,
         u_int64_t& offsetInDatabase)
 {
+    throw "Unsupported operation CachedSubDatabase::getSequenceByOffset";
+
     for (std::vector<ISequence>::iterator it = _sequences.begin(); it != _sequences.end(); ++it) {
         if (it->offsetInDb > offset) {
             if (it != _sequences.begin()) {
@@ -95,6 +105,7 @@ bool CachedSubDatabase::getSequenceByOffset(
 
 bool CachedSubDatabase::getSequenceByName(const std::string& id, ISequence& sequence)
 {
+    throw "Unsupported operation CachedSubDatabase::getSequenceByName";
     for (std::vector<ISequence>::iterator it = _sequences.begin(); it != _sequences.end(); ++it) {
         if (it->getComment().find(id) != std::string::npos) {
             sequence = *it;
@@ -120,9 +131,7 @@ std::vector<ISequenceDatabase*> CachedSubDatabase::split (size_t nbSplit)
 
 dp::IProperties* CachedSubDatabase::getProperties (const std::string& root)
 {
-    dp::IProperties* props = new dp::impl::Properties();
-
-    return props;
+    throw "Unsupported operation CachedSubDatabase::getProperties";
 }
 
 std::string CachedSubDatabase::getId ()
@@ -132,11 +141,13 @@ std::string CachedSubDatabase::getId ()
 
 void CachedSubDatabase::setId (const std::string& id)
 {
-    _id=id;
+    _id = id;
 }
 
 void CachedSubDatabase::retrieveSequencesIdentifiers (std::set<std::string>& ids)
 {
+    throw "Unsupported operation CachedSubDatabase::retrieveSequencesIdentifiers";
+
     for (std::vector<ISequence>::iterator it = _sequences.begin(); it != _sequences.end(); ++it) {
         std::string const & comment = it->getComment();
 
@@ -159,6 +170,8 @@ ISequenceDatabase::StrandId_e CachedSubDatabase::getDirection ()
 }
 
 void CachedSubDatabase::reverseSequence(ISequence& sequence) {
+    throw "Unsupported operation CachedSubDatabase::reverseSequences";
+
     IWord& data = sequence.data;
     LETTER* sequenceLetters = data.letters.data;
     size_t length = sequence.getLength();

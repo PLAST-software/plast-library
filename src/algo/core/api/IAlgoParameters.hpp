@@ -157,6 +157,8 @@ public:
     /** Stats of the complete subject database */
     misc::CompleteSubjectDatabaseStats completeSubjectDatabaseStats;
 
+    std::set<u_int64_t>* querySequencesBlacklist;
+
     /** Path to the bitset file for the present kmers */
     std::string kmersBitsetPath;
 

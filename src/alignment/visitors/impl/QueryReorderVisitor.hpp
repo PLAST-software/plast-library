@@ -47,7 +47,7 @@ public:
 
     /** Constructor. */
     QueryReorderVisitor  (
-        algo::core::IConfiguration*         config,
+        algo::core::IDatabasesProvider*     databaseProvider,
         const std::string&                  uri,
         core::IAlignmentContainerVisitor*   realVisitor,
         core::IAlignmentContainerVisitor*   finalVisitor,
@@ -84,7 +84,8 @@ protected:
 private:
 
     /** */
-    algo::core::IConfiguration* _config;
+    algo::core::IDatabasesProvider* _databaseProvider;
+    void setDatabasesProvider(algo::core::IDatabasesProvider* databaseProvider) { SP_SETATTR(databaseProvider); }
 
     /** */
     std::string _outputUri;

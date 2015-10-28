@@ -25,7 +25,12 @@
 
 /********************************************************************************/
 
+#include <algo/core/api/IAlgoParameters.hpp>
+
 #include <designpattern/impl/ListIterator.hpp>
+
+#include <database/api/ISequenceIterator.hpp>
+#include <database/api/ISequenceDatabase.hpp>
 
 /********************************************************************************/
 namespace algo {
@@ -65,6 +70,23 @@ public:
 
     /** */
     virtual dp::Iterator<database::ISequenceDatabase*>* getQueryDbIterator () = 0;
+
+    /** Create a database object (with means for retrieving sequence within the database) from an uri (likely
+     *  a local file, but it should be a location on a remote computer). A Range can be provided for using only
+     *  a part of the database.
+     *  \param[in] uri : uri of the database file to be read
+     *  \param[in] range : a range to be read in the file (ie. a starting and ending offsets)
+     *  \param[in] filtering : tells whether low informative regions have to be filtered out from the database
+     *  \param[in] sequenceIteratorFactory : a factory can be provided. If null, should use createSequenceIteratorFactory
+     *  \return a new ISequenceDatabase instance
+     */
+    virtual database::ISequenceDatabase* createDatabase (
+            const std::string& uri,
+            const misc::Range64& range,
+            int filtering,
+            database::ISequenceIteratorFactory* sequenceIteratorFactory,
+            std::set<u_int64_t>* blacklist = NULL
+            ) = 0;
 };
 
 /********************************************************************************/

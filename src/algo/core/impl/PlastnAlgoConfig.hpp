@@ -60,14 +60,6 @@ public:
     /** \copydoc IConfiguration::createIndexationDispatcher */
     dp::ICommandDispatcher* createIndexationDispatcher ();
 
-    /** \copydoc IConfiguration::createDatabase */
-    database::ISequenceDatabase*  createDatabase (
-        const std::string& uri,
-        const misc::Range64& range,
-        int filtering,
-        database::ISequenceIteratorFactory* sequenceIteratorFactory
-    );
-
     /** */
     algo::core::IDatabasesProvider* createDatabaseProvider ();
 

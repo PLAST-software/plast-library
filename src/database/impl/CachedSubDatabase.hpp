@@ -24,7 +24,7 @@ namespace impl {
 class CachedSubDatabase : public ISequenceDatabase
 {
 public:
-    CachedSubDatabase(ISequenceIterator* refIterator, std::set<u_int32_t>* blacklist = NULL);
+    CachedSubDatabase(ISequenceIterator* refIterator, std::set<u_int64_t>* blacklist = NULL);
 
     /** Destructor. */
     virtual ~CachedSubDatabase ();
@@ -131,7 +131,9 @@ private:
 
     ISequenceIterator* _sequenceIterator;
 
-    std::set<u_int32_t>* _blacklist;
+    void setSequenceIterator(ISequenceIterator* sequenceIterator) { SP_SETATTR(sequenceIterator); }
+
+    std::set<u_int64_t>* _blacklist;
 
     std::vector<ISequence> _sequences;
 

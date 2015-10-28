@@ -31,6 +31,7 @@
 #include <algo/core/impl/AbstractAlgorithm.hpp>
 #include <algo/core/impl/AlgorithmPlastn.hpp>
 #include <algo/core/impl/DatabasesProvider.hpp>
+#include <algo/core/impl/ResultVisitorsFactory.hpp>
 
 #include <alignment/filter/api/IAlignmentFilter.hpp>
 #include <alignment/filter/impl/AlignmentFilterXML.hpp>
@@ -38,6 +39,8 @@
 #include <alignment/visitors/impl/XmlOutputVisitor.hpp>
 #include <alignment/visitors/impl/NucleotidConversionVisitor.hpp>
 #include <alignment/visitors/impl/ReverseStrandVisitor.hpp>
+
+#include <set>
 
 using namespace std;
 using namespace os;
@@ -119,15 +122,15 @@ void DefaultEnvironment::configure ()
     setConfig (createConfiguration (_properties));
 
     /** We create a TimeInfo instance for the current instance. */
-    setTimeInfo (_config->createTimeInfo());
+    setTimeInfo (getConfig()->createTimeInfo());
 
     /** We create a TimeInfo instance for the algorithm instances. */
-    setTimeInfoAlgo (_config->createTimeInfo());
+    setTimeInfoAlgo (getConfig()->createTimeInfo());
 
     _timeInfo->addEntry (keyConfig);
 
     /** We create a subject/query databases provider. */
-    setDatabasesProvider (_config->createDatabaseProvider());
+    setDatabasesProvider (getConfig()->createDatabaseProvider());
 
     /** We retrieve the type of algorithm (may be not set). */
     IProperty* algoProp = _properties->getProperty (STR_OPTION_ALGO_TYPE);
@@ -195,7 +198,12 @@ void DefaultEnvironment::configure ()
      *  we have to run several algorithm; in such a case, the results are 'concatenated' by the same visitor.
      *  IMPORTANT: we should create this instance after creating quick readers since these ones may depend
      *  on this result visitor. */
-    setResultVisitor (_config->createResultVisitor ());
+    IResultVisitorsFactory* resultVisitorsFactory = getResultsVisitorFactory();
+    LOCAL(resultVisitorsFactory);
+
+    // NOTE ipetrov: Consider creating a new databaseProvider to avoid hassard in case none is
+    // already created (currently not possible, but who knows what the future holds for us).
+    setResultVisitor (resultVisitorsFactory->getInstance(_properties, _dbProvider));
 
     /** We register as listener to the result visitor. */
     _resultVisitor->addObserver (this);
@@ -204,7 +212,7 @@ void DefaultEnvironment::configure ()
     vector<pair<Range64,Range64> > uriList = buildUri (_quickSubjectDbReader, _quickQueryDbReader);
 
     /** We build a list of Parameters. We will launch the algorithm for each item of this list. */
-    _parametersList = createParametersList (_config, _properties, uriList);
+    _parametersList = createParametersList (getConfig(), _properties, uriList);
 
     _timeInfo->stopEntry (keyConfig);
 }
@@ -267,7 +275,7 @@ void DefaultEnvironment::run ()
     }
 
     /** We create the seeds model. */
-    seed::ISeedModel* seedsModel = _config->createSeedModel (
+    seed::ISeedModel* seedsModel = getConfig()->createSeedModel (
         _parametersList[0]->seedModelKind,
         _parametersList[0]->seedSpan,
         _parametersList[0]->subseedStrings
@@ -278,7 +286,7 @@ void DefaultEnvironment::run ()
      * charge to feed the algorithm with the source Hit Iterator, ie the one that provides for
      * a given seed all the occurrences in subject and query databases.
      */
-    IIndexator* indexator = _config->createIndexator (seedsModel, _parametersList[0], _isRunning);
+    IIndexator* indexator = getConfig()->createIndexator (seedsModel, _parametersList[0], _isRunning);
     LOCAL (indexator);
 
     /** We iterate each parameters. */
@@ -295,7 +303,7 @@ void DefaultEnvironment::run ()
 
         /** We create an Algorithm instance. */
         list<IAlgorithm*> algos = this->createAlgorithm (
-            _config,
+            getConfig(),
             _quickSubjectDbReader,
             _parametersList[i],
             _filter,
@@ -303,7 +311,7 @@ void DefaultEnvironment::run ()
             seedsModel,
             _dbProvider,
             indexator,
-            _config->createGlobalParameters (_parametersList[i], completeSubjectDatabaseSize),
+            getConfig()->createGlobalParameters (_parametersList[i], completeSubjectDatabaseSize),
             _timeInfoAlgo,
             _isRunning
         );
@@ -333,7 +341,7 @@ void DefaultEnvironment::run ()
         /** We finalize the output result visitor. */
         _timeInfo->addEntry (keyFinal);
 
-        _resultVisitor->finalize ();
+        flushResults();
 
         _timeInfo->stopEntry (keyFinal);
     }
@@ -650,7 +658,7 @@ void DefaultEnvironment::setSubjectBank (dp::IProperties* properties, u_int64_t 
     IProperty* subjectUriProp = properties->getProperty (STR_OPTION_SUBJECT_URI);
 
     /** We create the quick reader instance for the subject bank. */
-    setQuickSubjectDbReader (_config->createDefaultQuickReader(subjectUriProp->value, true));
+    setQuickSubjectDbReader (getConfig()->createDefaultQuickReader(subjectUriProp->value, true));
     subjectUriProp->value = _quickSubjectDbReader->getUri();
 
     /** We check whether it is an 'info' file or a fasta file. */
@@ -678,6 +686,21 @@ void DefaultEnvironment::setSubjectBank (dp::IProperties* properties, u_int64_t 
         /** We have to read the subject database to extract some information. */
         _quickSubjectDbReader->read (maxblocksize);
     }
+}
+
+IConfiguration* DefaultEnvironment::getConfig()
+{
+    return _config;
+}
+
+void DefaultEnvironment::flushResults()
+{
+    _resultVisitor->finalize ();
+}
+
+IResultVisitorsFactory* DefaultEnvironment::getResultsVisitorFactory()
+{
+    return new ResultVisitorsFactory();
 }
 
 /********************************************************************************/
