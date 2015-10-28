@@ -242,38 +242,6 @@ dp::ICommandDispatcher* PlastnConfiguration::createIndexationDispatcher ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-ISequenceDatabase*  PlastnConfiguration::createDatabase (
-    const string& uri,
-    const Range64& range,
-    int filtering,
-    database::ISequenceIteratorFactory* sequenceIteratorFactory
-)
-{
-    DEBUG ((cout << "PlastnConfiguration::createDatabase : "
-        << "  uri='" << uri << "'  range=" << range
-        << "  filtering=" << filtering << "  sequenceIteratorFactory=" << sequenceIteratorFactory << endl
-    ));
-
-    LOCAL (sequenceIteratorFactory);
-    ISequenceIteratorFactory* tempFactory = createSequenceIteratorFactory(uri);
-    LOCAL (tempFactory);
-
-    /** We create the sequence iterator. */
-    ISequenceIterator* seqIterator =  sequenceIteratorFactory ?
-        sequenceIteratorFactory->createSequenceIterator (uri, range) :
-        tempFactory->createSequenceIterator (uri, range);
-
-    return new BufferedCachedSequenceDatabase (seqIterator, filtering);
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
 algo::core::IDatabasesProvider* PlastnConfiguration::createDatabaseProvider ()
 {
     return new DatabasesProviderReverse (this);

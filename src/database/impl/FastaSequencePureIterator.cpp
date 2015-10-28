@@ -21,13 +21,14 @@ FastaSequencePureIterator::FastaSequencePureIterator (const char* filename,
 {
     size_t maxDataSize = offset1 - offset0;
     _rawData = new char[maxDataSize];
+    memset(_rawData, 0, maxDataSize * sizeof(char));
     AbstractSequenceIterator::setBuilder(new BasicSequenceBuilder(SUBSEED));
 }
 
 /** Destructor. */
 FastaSequencePureIterator::~FastaSequencePureIterator ()
 {
-    delete _rawData;
+    delete[] _rawData;
 }
 
 /** \copydoc AbstractSequenceIterator::first */
@@ -46,13 +47,11 @@ void FastaSequencePureIterator::first()
 dp::IteratorStatus FastaSequencePureIterator::next()
 {
     size_t commentStart = _rawDataEnd;
-    u_int64_t currentSequenceOffset = sequenceDbOffset;
+    u_int64_t currentSequenceOffset = 0;
 
     char* buffer = 0;
 
     _isDone = _fileIterator.isDone();
-
-    sequenceDbOffset = _fileIterator.tell();
 
     /** We retrieve the builder => shortcut and optimization (avoid method call) */
     ISequenceBuilder* builder = getBuilder();
@@ -63,9 +62,13 @@ dp::IteratorStatus FastaSequencePureIterator::next()
         /** We retrieve the current file line. */
         buffer = _fileIterator.currentItem();
 
-        if  (buffer && buffer[0]=='>')  { break; }
-
-        sequenceDbOffset = _fileIterator.tell();
+        if  (buffer && buffer[0]=='>')  {
+            // from the current position we subtract the length of the read
+            // text + 1 for the newline at the end, which is also read, but
+            // not counted by strlen.
+            currentSequenceOffset = _fileIterator.tell() - strlen(buffer) - 1;
+            break;
+        }
     }
 
     /** We may have found a comment. */
@@ -103,9 +106,9 @@ dp::IteratorStatus FastaSequencePureIterator::next()
     size_t commentLength = strlen(comment);
     // We would like to keep the '\0' character
     size_t currentSequenceDataStart = commentLength + commentStart + 1;
-    size_t commentBytes = commentLength * sizeof(char);
+    size_t commentBytesCount = commentLength * sizeof(char);
 
-    copyToRawData(_rawDataEnd, comment, commentBytes);
+    copyToRawData(_rawDataEnd, comment, commentBytesCount);
 
     size_t dataLength = currentSequence->getLength();
     size_t dataBytes = dataLength * sizeof(LETTER);

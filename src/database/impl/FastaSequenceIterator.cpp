@@ -156,7 +156,7 @@ dp::IteratorStatus FastaSequenceIterator::next()
 
 ISequenceIterator* FastaSequenceIteratorFactory::createSequenceIterator (const std::string& uri, const misc::Range64& range)
 {
-    return new FastaSequencePureIterator (uri.c_str(), SEQUENCE_MAX_COMMENT_SIZE, range.begin, range.end);
+    return new FastaSequenceIterator (uri.c_str(), SEQUENCE_MAX_COMMENT_SIZE, range.begin, range.end);
 }
 
 /********************************************************************************/

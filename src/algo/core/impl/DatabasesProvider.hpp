@@ -29,6 +29,8 @@
 #include <algo/core/api/IDatabasesProvider.hpp>
 #include <database/impl/ReverseStrandSequenceIterator.hpp>
 
+#include <set>
+
 /********************************************************************************/
 namespace algo {
 namespace core {
@@ -49,7 +51,7 @@ public:
     virtual ~DatabasesProvider ();
 
     /** */
-    void createDatabases (
+    virtual void createDatabases (
         algo::core::IParameters* params,
         const std::vector<misc::ReadingFrame_e>&    sbjFrames,
         const std::vector<misc::ReadingFrame_e>&    qryFrames,
@@ -67,6 +69,13 @@ public:
     {
         return new dp::impl::ListIterator<database::ISequenceDatabase*> (_qryDbList);
     }
+
+    virtual database::ISequenceDatabase* createDatabase (
+            const std::string& uri,
+            const misc::Range64& range,
+            int filtering,
+            database::ISequenceIteratorFactory* sequenceIteratorFactory,
+            std::set<u_int64_t>* blacklist = NULL);
 
 protected:
 
@@ -97,7 +106,8 @@ protected:
         int                 filtering,
         const std::vector<misc::ReadingFrame_e>& frames,
         std::list<database::ISequenceDatabase*>& dbList,
-        database::ISequenceIteratorFactory* seqIterFactory
+        database::ISequenceIteratorFactory* seqIterFactory,
+        std::set<u_int64_t>* blacklist = NULL
     );
 
     /** */
@@ -120,6 +130,19 @@ protected:
 
     database::ISequenceIteratorFactory* _qryFactory;
     void setQryFactory (database::ISequenceIteratorFactory* qryFactory)  { SP_SETATTR(qryFactory); }
+
+    database::ISequenceIterator* getSequenceIterator(
+            const std::string& uri,
+            const misc::Range64& range,
+            database::ISequenceIteratorFactory* sequenceIteratorFactory);
+
+private:
+    /** Create a factory that builds ISequenceIterator objects.
+     * \param[in] uri : uri path to select the sequence iterator factory depending of the file type
+     * \return the factory instance.
+     */
+    database::ISequenceIteratorFactory* createSequenceIteratorFactory (const std::string& uri);
+
 };
 
 /********************************************************************************/
@@ -199,6 +222,15 @@ public:
     /** Destructor. */
     virtual ~DatabasesProviderReverse ()  { }
 
+    /** */
+    virtual void createDatabases (
+        algo::core::IParameters* params,
+        const std::vector<misc::ReadingFrame_e>&    sbjFrames,
+        const std::vector<misc::ReadingFrame_e>&    qryFrames,
+        database::ISequenceIteratorFactory*         sbjFactory,
+        database::ISequenceIteratorFactory*         qryFactory
+    );
+
 private:
 
     virtual void createDatabaseList (
@@ -207,7 +239,8 @@ private:
         int                 filtering,
         const std::vector<misc::ReadingFrame_e>& frames,
         std::list<database::ISequenceDatabase*>& dbList,
-        database::ISequenceIteratorFactory* seqIterFactory
+        database::ISequenceIteratorFactory* seqIterFactory,
+        std::set<u_int64_t>* blacklist = NULL
     );
 };
 

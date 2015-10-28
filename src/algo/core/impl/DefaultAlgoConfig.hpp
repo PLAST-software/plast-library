@@ -74,17 +74,6 @@ public:
     /** \copydoc IConfiguration::createTimeInfo */
     os::impl::TimeInfo* createTimeInfo ();
 
-    /** \copydoc IConfiguration::createSequenceIteratorFactory */
-    database::ISequenceIteratorFactory* createSequenceIteratorFactory (const std::string& uri);
-
-    /** \copydoc IConfiguration::createDatabase */
-    database::ISequenceDatabase*  createDatabase (
-        const std::string& uri,
-        const misc::Range64& range,
-        int filtering,
-        database::ISequenceIteratorFactory* sequenceIteratorFactory
-    );
-
     /** \copydoc IConfiguration::createDatabaseProvider */
     algo::core::IDatabasesProvider* createDatabaseProvider ();
 
@@ -187,9 +176,6 @@ public:
     /** \copydoc IConfiguration::createUnapAlignmentResult */
     alignment::core::IAlignmentContainer* createUnapAlignmentResult (size_t querySize);
 
-    /** \copydoc IConfiguration::createResultVisitor */
-    alignment::core::IAlignmentContainerVisitor* createResultVisitor ();
-
     /** \copydoc IConfiguration::createAlignmentSplitter */
     alignment::tools::IAlignmentSplitter* createAlignmentSplitter (
         algo::core::IScoreMatrix* scoreMatrix,
@@ -211,9 +197,6 @@ protected:
 
     dp::IProperties* _properties;
     void setProperties (dp::IProperties* properties)  { SP_SETATTR(properties);  }
-
-    alignment::core::IAlignmentContainerVisitor* createSimpleResultVisitor    (const std::string& uri, int outfmt);
-    alignment::core::IAlignmentContainerVisitor* createAlgorithmResultVisitor (const std::string& uri, int outfmt);
 };
 
 /********************************************************************************/
