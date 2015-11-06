@@ -17,9 +17,9 @@ namespace impl {
 class EnviromentFactory {
 public:
     static IEnvironment* createEnvironment(dp::IProperties* properties,
-            bool& isRunning,
-            std::set<u_int32_t>* blacklist = NULL) {
-        if (blacklist != NULL) {
+            bool& isRunning) {
+        dp::IProperty* stepsProperty = properties->getProperty(STR_OPTION_ITERATIONS_STEPS);
+        if (stepsProperty != NULL) {
             return new IterativeAlgoEnvironment(properties, isRunning);
         }
 

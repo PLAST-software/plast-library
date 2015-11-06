@@ -306,6 +306,8 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->kmersBitsetPath      = "";
     }
 
+    params->querySequencesBlacklist = NULL;
+
     IProperty* prop = 0;
 
     /** We may want to restrict the number of dumped alingments. */

@@ -28,6 +28,8 @@ public:
 private:
 
     std::set<u_int64_t>& _blacklist;
+
+    void updateKmersBitsetPath(IParameters* params);
 };
 
 } // namespace impl

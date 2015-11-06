@@ -65,8 +65,7 @@ PlastCmd::PlastCmd (IProperties* properties)
     : _env(0), _properties(0), _isRunning(false), _isFinished(false)
 {
     setProperties (properties);
-    std::set<u_int32_t> blacklist;
-    setEnv        (EnviromentFactory::createEnvironment(properties, _isRunning, &blacklist));
+    setEnv        (EnviromentFactory::createEnvironment(properties, _isRunning));
 
     /** We subscribe ourself as listener. */
     _env->addObserver (this);
