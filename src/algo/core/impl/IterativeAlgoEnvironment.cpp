@@ -3,6 +3,8 @@
 
 #include <algo/core/impl/SingleResultVisitorFactory.hpp>
 
+#include <designpattern/impl/TokenizerIterator.hpp>
+
 /********************************************************************************/
 namespace algo {
 namespace core {
@@ -32,37 +34,47 @@ void IterativeAlgoEnvironment::run ()
 {
     algo::core::impl::SingleResultVisitorFactory* visitorFactory = new algo::core::impl::SingleResultVisitorFactory();
     LOCAL(visitorFactory);
-    dp::IProperties* currentStepProps = _properties->clone();
-    LOCAL(currentStepProps);
 
-    std::string kmersBitsetPath = "/tmp/seed_bacteria_test_d_1.bin";
+    dp::IProperty* iterationSteps = _properties->getProperty(STR_OPTION_ITERATIONS_STEPS);
 
-    currentStepProps->add(1, STR_OPTION_KMERS_BITSET_PATH, kmersBitsetPath);
+    if (iterationSteps == NULL) {
+        throw "Internal error! Iterative algorithm started without required parameters";
+    }
 
     std::set<u_int64_t> foundQueryIndexes;
-    bool tmpIsRunning = _isRunning;
-    SingleIterationAlgoEnvironment firstStep(currentStepProps, tmpIsRunning, foundQueryIndexes, visitorFactory);
-    _currentStepEnvironment = &firstStep;
 
-    _currentStepEnvironment->configure ();
-    _currentStepEnvironment->run ();
-    std::set<u_int64_t>* found = visitorFactory->getFoundQueryIndexes();
-    foundQueryIndexes.insert(found->begin(), found->end());
+    dp::impl::TokenizerIterator it (iterationSteps->getString(), ",");
+    for (it.first(); !it.isDone(); it.next())
+    {
+        std::string kmersToSelect = it.currentItem();
+        dp::IProperties* currentStepProps = _properties->clone();
+        LOCAL(currentStepProps);
 
-    std::cout << "End step one" << found->size() << "\n";
+        currentStepProps->add(1, STR_OPTION_KMERS_TO_SELECT, kmersToSelect);
+        bool tmpIsRunning = _isRunning;
+        SingleIterationAlgoEnvironment firstStep(currentStepProps, tmpIsRunning, foundQueryIndexes, visitorFactory);
+        _currentStepEnvironment = &firstStep;
 
-    tmpIsRunning = _isRunning;
-    SingleIterationAlgoEnvironment secondStep(_properties, tmpIsRunning, foundQueryIndexes, visitorFactory);
-    _currentStepEnvironment = &secondStep;
+        _currentStepEnvironment->configure ();
+        _currentStepEnvironment->run ();
+        std::set<u_int64_t>* found = visitorFactory->getFoundQueryIndexes();
+        foundQueryIndexes.insert(found->begin(), found->end());
 
-    _currentStepEnvironment->configure ();
-    _currentStepEnvironment->run ();
+        std::cout << "End step " << kmersToSelect << " " << found->size() << "\n";
+    }
 
-    visitorFactory->getInstance(_properties, NULL)->finalize();
+    //tmpIsRunning = _isRunning;
+    //SingleIterationAlgoEnvironment secondStep(_properties, tmpIsRunning, foundQueryIndexes, visitorFactory);
+    //_currentStepEnvironment = &secondStep;
 
-    _currentStepEnvironment = NULL;
-    found = visitorFactory->getFoundQueryIndexes();
-    foundQueryIndexes.insert(found->begin(), found->end());
+    //_currentStepEnvironment->configure ();
+    //_currentStepEnvironment->run ();
+
+    //visitorFactory->getInstance(_properties, NULL)->finalize();
+
+    //_currentStepEnvironment = NULL;
+    //found = visitorFactory->getFoundQueryIndexes();
+    //foundQueryIndexes.insert(found->begin(), found->end());
 
     std::cout << "Size " << foundQueryIndexes.size() << std::endl;
 

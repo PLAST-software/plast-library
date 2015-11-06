@@ -26,9 +26,33 @@ IParameters* IterativePlastnConfig::createDefaultParameters (const std::string& 
 {
     IParameters* params = PlastnConfiguration::createDefaultParameters(algoName);
 
+    updateKmersBitsetPath(params);
+
     params->querySequencesBlacklist = &_blacklist;
 
     return params;
+}
+
+void IterativePlastnConfig::updateKmersBitsetPath(IParameters* params)
+{
+    dp::IProperty* kmersToSelect= _properties->getProperty(STR_OPTION_KMERS_TO_SELECT);
+
+    if (kmersToSelect == NULL) {
+        return;
+    }
+
+    long kmersToSelectCount = kmersToSelect->getInt();
+    if (kmersToSelectCount == 0) {
+        params->kmersBitsetPath = "";
+
+        return;
+    }
+
+    const size_t bufferMaxSize = 128;
+    char buffer[bufferMaxSize];
+    snprintf(buffer, bufferMaxSize, "/tmp/seed_bacteria_test_d_%ld.bin", kmersToSelect->getInt());
+
+    params->kmersBitsetPath = buffer;
 }
 
 } // namespace impl

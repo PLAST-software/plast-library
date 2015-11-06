@@ -368,6 +368,11 @@ namespace misc {
  * bitset file.
  */
 #define STR_OPTION_KMERS_BITSET_PATH misc::StringRepository::m_STR_OPTION_KMERS_BITSET_PATH ()
+
+#define STR_OPTION_ITERATIONS_STEPS misc::StringRepository::m_STR_OPTION_ITERATIONS_STEPS ()
+
+#define STR_OPTION_KMERS_TO_SELECT misc::StringRepository::m_STR_OPTION_KMERS_TO_SELECT ()
+
 /********************************************************************************/
 
 /** Strings occurring in messages, exceptions... */
@@ -464,6 +469,7 @@ namespace misc {
 #define STR_HELP_WORD_SIZE                  misc::StringRepository::m_STR_HELP_WORD_SIZE ()   // Pathname of the plast config file.
 #define STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE   		misc::StringRepository::m_STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE ()   // File path to the stats of the complete subject db
 #define STR_HELP_KMERS_BITSET_PATH                      misc::StringRepository::m_STR_HELP_KMERS_BITSET_PATH () // Option to read a bitset to filter kmers.
+#define STR_HELP_ITERATIONS_STEPS                      misc::StringRepository::m_STR_HELP_ITERATIONS_STEPS () // Option to run multiple iterations
 
 #define STR_CONFIG_CLASS_KarlinStats			        misc::StringRepository::m_STR_CONFIG_CLASS_KarlinStats ()   // KarlinStats
 #define STR_CONFIG_CLASS_SpougeStats				    misc::StringRepository::m_STR_CONFIG_CLASS_SpougeStats ()   // SpougeStats
