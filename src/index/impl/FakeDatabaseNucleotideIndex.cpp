@@ -16,6 +16,7 @@
 
 
 #include <index/impl/FakeDatabaseNucleotideIndex.hpp>
+#include <index/impl/SeedMaskGenerator.hpp>
 
 #include <os/impl/DefaultOsFactory.hpp>
 
@@ -43,8 +44,15 @@ enum { WORD_SIZE = sizeof(FakeDatabaseNucleotideIndex::word_t) * 8 };
 *********************************************************************/
 FakeDatabaseNucleotideIndex::FakeDatabaseNucleotideIndex (ISequenceDatabase* database,
     ISeedModel* model,
-    std::string kmersBitsetPath)
-    : AbstractDatabaseIndex (database, model), _maskOut(0), _maskSize(0), kmersBitsetPath(kmersBitsetPath)
+    std::string subjectUri,
+    std::string queryUri,
+    long kmersPerSequence)
+    : AbstractDatabaseIndex (database, model),
+    _maskOut(0),
+    _maskSize(0),
+    _subjectUri(subjectUri),
+    _queryUri(queryUri),
+    _kmersPerSequence(kmersPerSequence)
 {
 	// compute the mask size
 	size_t alphabetSize = getModel()->getAlphabet()->size;
@@ -79,30 +87,22 @@ FakeDatabaseNucleotideIndex::~FakeDatabaseNucleotideIndex ()
 *********************************************************************/
 void FakeDatabaseNucleotideIndex::build ()
 {
-    FILE* inFile = fopen(kmersBitsetPath.c_str(), "rb");
+    SeedMaskGenerator maskGenerator(getModel()->getSpan(), _queryUri, _subjectUri, _kmersPerSequence);
 
-    if (!inFile)
-    {
-        throw "Error reading bitset file";
+    size_t generatedMaskSize = maskGenerator.getBitsetSize();
+
+    if (generatedMaskSize != _maskSize * sizeof(word_t)) {
+        std::cerr << "Expected mask size was "
+            << _maskSize * sizeof(word_t)
+            << " but was "
+            << generatedMaskSize
+            << std::endl;
+        throw "Internal error. FakeDatabaseNucleotideIndex::build";
     }
 
-    // get length of file:
-    fseek (inFile, 0, SEEK_END);
-    size_t length = ftell(inFile);
-    rewind(inFile);
+    memcpy(_maskOut, maskGenerator.getBitset(), generatedMaskSize);
 
-    if (length != _maskSize * sizeof(word_t))
-    {
-        throw "File size incorrect";
-    }
-
-    size_t bytesRead = fread((char*)_maskOut, sizeof(char), length, inFile);
-
-    if (bytesRead != length)
-    {
-        // Incorrect size read => Error
-        throw "Bitset file read error";
-    }
+    std::cout << "Index ready. Set " << maskGenerator.getKmersUsedCount() << std::endl;
 }
 
 /*********************************************************************

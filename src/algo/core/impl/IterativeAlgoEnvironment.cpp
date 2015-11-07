@@ -63,19 +63,6 @@ void IterativeAlgoEnvironment::run ()
         std::cout << "End step " << kmersToSelect << " " << found->size() << "\n";
     }
 
-    //tmpIsRunning = _isRunning;
-    //SingleIterationAlgoEnvironment secondStep(_properties, tmpIsRunning, foundQueryIndexes, visitorFactory);
-    //_currentStepEnvironment = &secondStep;
-
-    //_currentStepEnvironment->configure ();
-    //_currentStepEnvironment->run ();
-
-    //visitorFactory->getInstance(_properties, NULL)->finalize();
-
-    //_currentStepEnvironment = NULL;
-    //found = visitorFactory->getFoundQueryIndexes();
-    //foundQueryIndexes.insert(found->begin(), found->end());
-
     std::cout << "Size " << foundQueryIndexes.size() << std::endl;
 
     _isRunning = false;
