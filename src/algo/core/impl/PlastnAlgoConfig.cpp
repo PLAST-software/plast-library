@@ -150,7 +150,7 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
     params->reward               =  2;
     params->penalty              = -3;
     params->strand               = 0;
-    params->kmersBitsetPath      = "";
+    params->kmersPerSequence      = 0;
 
     IProperty* strandProp = _properties->getProperty (STR_OPTION_STRAND);
     if (strandProp != 0)

@@ -47,7 +47,9 @@ public:
 	 * */
     FakeDatabaseNucleotideIndex (database::ISequenceDatabase* database,
         seed::ISeedModel* model,
-        std::string kmersBitsetPath);
+        std::string subjectUri,
+        std::string queryUri,
+        long kmersPerSequence);
 
 	virtual ~FakeDatabaseNucleotideIndex ();
 
@@ -90,7 +92,10 @@ protected:
 
 	word_t* _maskOut;
 	size_t  _maskSize;
-    std::string kmersBitsetPath;
+
+    std::string _subjectUri;
+    std::string _queryUri;
+    long _kmersPerSequence;
 
 }; // end of FakeDatabaseNucleotideIndex class
 

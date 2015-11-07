@@ -42,17 +42,7 @@ void IterativePlastnConfig::updateKmersBitsetPath(IParameters* params)
     }
 
     long kmersToSelectCount = kmersToSelect->getInt();
-    if (kmersToSelectCount == 0) {
-        params->kmersBitsetPath = "";
-
-        return;
-    }
-
-    const size_t bufferMaxSize = 128;
-    char buffer[bufferMaxSize];
-    snprintf(buffer, bufferMaxSize, "/tmp/seed_bacteria_test_d_%ld.bin", kmersToSelect->getInt());
-
-    params->kmersBitsetPath = buffer;
+    params->kmersPerSequence = kmersToSelectCount;
 }
 
 } // namespace impl

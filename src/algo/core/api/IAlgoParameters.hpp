@@ -159,8 +159,7 @@ public:
 
     std::set<u_int64_t>* querySequencesBlacklist;
 
-    /** Path to the bitset file for the present kmers */
-    std::string kmersBitsetPath;
+    long kmersPerSequence;
 
     /** Clone the instance.
      * \return the cloned instance. */
@@ -217,7 +216,7 @@ public:
         result->add (1, STR_PARAM_outputfile, outputfile);
 
         result->add (1, STR_PARAM_strands, "%d", strands.size());
-        result->add (1, STR_PARAM_kmersBitsetPath, kmersBitsetPath);
+        //result->add (1, STR_PARAM_kmersBitsetPath, "%ld", kmersPerSequence);
 
         return result;
     }

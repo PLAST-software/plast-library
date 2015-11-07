@@ -207,7 +207,6 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
         params->outputfile           = "stdout";
-        params->kmersBitsetPath      = "";
     }
 
     else if (algoName.compare ("tplastn")==0)
@@ -239,7 +238,6 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
         params->outputfile           = "stdout";
-        params->kmersBitsetPath      = "";
     }
 
     else if (algoName.compare ("plastx")==0)
@@ -271,7 +269,6 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
         params->outputfile           = "stdout";
-        params->kmersBitsetPath      = "";
     }
 
     else if (algoName.compare ("tplastx")==0)
@@ -303,9 +300,9 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->XdroppofGap          = 0;
         params->finalXdroppofGap     = 0;
         params->outputfile           = "stdout";
-        params->kmersBitsetPath      = "";
     }
 
+    params->kmersPerSequence = 0;
     params->querySequencesBlacklist = NULL;
 
     IProperty* prop = 0;
