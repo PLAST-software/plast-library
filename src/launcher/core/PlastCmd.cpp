@@ -148,7 +148,10 @@ void PlastCmd::configureObservers (
         IProperty* p = properties->getProperty(STR_OPTION_INFO_BARGRAPH_SIZE);
         if (p != 0)  { bargraphSize = misc::atoi (p->value.c_str()); }
 
-        observers.push_back (new BargraphObserver ("seeds", stdout, bargraphSize));
+        string head = "algo";
+        p = properties->getProperty(STR_OPTION_ALGO_TYPE);
+        if (p != 0)  { head = p->value; }
+        observers.push_back (new BargraphObserver (head, "seeds", stdout, bargraphSize));
     }
 
     /** We may want to have dynamic information during algorithm execution. */
