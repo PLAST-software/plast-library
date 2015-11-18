@@ -42,8 +42,8 @@ namespace observers {
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
-BargraphObserver::BargraphObserver (const char* prefix, FILE* file, size_t nbChar)
-    : _file(file), _output(0), _prefix (prefix ? prefix : ""), _nbChar (nbChar), _actualSize(0)
+BargraphObserver::BargraphObserver (const std::string& head, const char* prefix, FILE* file, size_t nbChar)
+    : _head(head), _file(file), _output(0), _prefix (prefix ? prefix : ""), _nbChar (nbChar), _actualSize(0)
 {
     if (_nbChar == 0)  {  _nbChar = 20; }
 
@@ -114,7 +114,7 @@ void BargraphObserver::dump (void)
 
         snprintf (buf, sizeof(buf),
             "\r%s [%d/%d] %.1f%%  align=%d  time [%s - %s - %s]  mem=%.1fMo (max=%.1fMo tot=%.1fGo)  %s [%4d:%4d] %s %3d%% ",
-            "algo",  (int)_currentAlgo + 1,  (int)_totalAlgo,
+            _head.c_str(),  (int)_currentAlgo + 1,  (int)_totalAlgo,
             (100 * _globalPercentage),
             (int)_nbAlignments,
             ellapsed,  remaining, fulltime,

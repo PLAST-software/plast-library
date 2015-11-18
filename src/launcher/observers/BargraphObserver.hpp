@@ -54,7 +54,7 @@ public:
      * \param[in] file   : file where to display the bargraph; stdout by default
      * \param[in] nbChar : number of characters displayed for the bargraph
      */
-    BargraphObserver (const char* prefix="", FILE* file=stdout, size_t nbChar=0);
+    BargraphObserver (const std::string& head, const char* prefix="", FILE* file=stdout, size_t nbChar=0);
 
     /** Destructor. */
     virtual ~BargraphObserver ();
@@ -66,6 +66,8 @@ protected:
 
     /** \copydoc AbstractProgressionObserver::dump */
     void dump (void);
+
+    std::string _head;
 
     FILE* _file;
     char* _output;
