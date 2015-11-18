@@ -118,6 +118,7 @@ public:
     static const char* m_MSG_OPTIONS_MSG5 () { static misc::impl::ObsfucatedString s (1343393015, 2334956330927257051, 44880134823, 0)  /* => "Warning : %s*/; return s.toString().c_str(); }
     static const char* m_MSG_OPTIONS_MSG6 () { static misc::impl::ObsfucatedString s (1343393015, 2675259603455960259, 7070779454210474734, 8583971276667862815, 2334393405426981722, 7358993290428398967, 7453010395029122390, 8317708060512856646, 494547802895, 0)  /* => "Option %s must be used with one of the following options : %s" */; return s.toString().c_str(); }
     static const char* m_MSG_OPTIONS_MSG7 () { static misc::impl::ObsfucatedString s (1343393015, 2675259603455960259, 7953758403054830318, 133532411297310, 0)  /* => "Option %s is mandatory" */; return s.toString().c_str(); }
+    static const char* m_MSG_OPTIONS_MSG8 () { static misc::impl::ObsfucatedString s (ObsfucatedString (1446558454, 7598822093876989962, 8027139017641721883, 7503116192278151703, 7977799, 0)  /* => "use option -h for full help" */; return s.toString().c_str(); }
     static const char* m_STR_HELP_ALGO_TYPE () { static misc::impl::ObsfucatedString s (1343394373, 2336630925660878162, 7813845548187402837, 8103137004780393217, 8079506584413298189, 8245845144455516674, 8679689244116465975, 2511089, 0)  /* => "Program Name [plastp, tplastn, plastx or tplastx]" */; return s.toString().c_str(); }
     static const char* m_STR_HELP_SUBJECT_URI () { static misc::impl::ObsfucatedString s (1343394373, 2338603393737060945, 7310293695321031295, 435609863744, 0)  /* => "Subject database file" */; return s.toString().c_str(); }
     static const char* m_STR_HELP_QUERY_URI () { static misc::impl::ObsfucatedString s (1343394373, 7017769825329967699, 7358993337354109551, 5442569, 0)  /* => "Query database file" */; return s.toString().c_str(); }
@@ -302,6 +303,7 @@ public:
     static const char* m_MSG_OPTIONS_MSG5 () { return "Warning : %s\n"; }
     static const char* m_MSG_OPTIONS_MSG6 () { return "Option %s must be used with one of the following options : %s"; }
     static const char* m_MSG_OPTIONS_MSG7 () { return "Option %s is mandatory"; }
+    static const char* m_MSG_OPTIONS_MSG8 () { return "use option -h for full help"; }
     static const char* m_STR_HELP_ALGO_TYPE () { return "Program Name [plastp, tplastn, plastx, tplastx or plastn]"; }
     static const char* m_STR_HELP_SUBJECT_URI () { return "Subject database file"; }
     static const char* m_STR_HELP_QUERY_URI () { return "Query database file"; }

@@ -114,37 +114,39 @@ int main (int argc, char* argv[])
         parser.parse (argc, argv);
         props->add (0, parser.getProperties());
 
-        /** We may want to display some help. */
+        /** We may want to display some help*/
         if (parser.saw(STR_OPTION_HELP))
         {
-        	fprintf (stdout, "PLAST %s, build at %s on %s with %s, %ld cores available\n",
+            fprintf (stdout, "PLAST %s, build at %s on %s with %s\nHost configuration: %ld cores available\n",
 				PLAST_VERSION,
                 PLAST_BUILD_DATE,
                 PLAST_BUILD_OS,
                 PLAST_COMPILER,
 				os::impl::DefaultFactory::thread().getNbCores()
 			);
-        	parser.displayHelp   (stdout);
+            parser.displayHelp   (stdout);
+        }/** otherwise we start PLAST */
+        else{
+
+            /** We try to see if we have a provided rc file. */
+            const Option* fileOpt = parser.getSeenOption (STR_OPTION_INFO_CONFIG_FILE);
+            string plastrc = getenv (MSG_MAIN_HOME) ? string (getenv(MSG_MAIN_HOME)) + string(MSG_MAIN_RC_FILE) : "";
+
+            IProperties* initProps = new Properties (fileOpt ? fileOpt->getParam().c_str() : plastrc.c_str());
+            LOCAL (initProps);
+
+            /** We read properties from the init file (if any). */
+            props->add (0, initProps);
+
+            /** We launch plast with the aggregated properties. */
+            PlastCmd cmd (props);
+            cmd.execute();
         }
-
-        /** We try to see if we have a provided rc file. */
-        const Option* fileOpt = parser.getSeenOption (STR_OPTION_INFO_CONFIG_FILE);
-        string plastrc = getenv (MSG_MAIN_HOME) ? string (getenv(MSG_MAIN_HOME)) + string(MSG_MAIN_RC_FILE) : "";
-
-        IProperties* initProps = new Properties (fileOpt ? fileOpt->getParam().c_str() : plastrc.c_str());
-        LOCAL (initProps);
-
-        /** We read properties from the init file (if any). */
-        props->add (0, initProps);
-
-        /** We launch plast with the aggregated properties. */
-        PlastCmd cmd (props);
-        cmd.execute();
     }
     catch (OptionFailure& e)
     {
         if (parser.saw(STR_OPTION_HELP))    {   parser.displayHelp   (stdout);   }
-        else                                {   parser.displayErrors (stdout);   }
+        else                                {   parser.displayErrors (stdout);   parser.displayHelpShort();}
     }
     catch (statistics::GlobalParametersFailure& e)
     {

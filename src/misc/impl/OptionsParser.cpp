@@ -354,13 +354,30 @@ void OptionsParser::displayWarnings (FILE* fp)
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
+void OptionsParser::displayHelpShort (FILE* fp)
+{
+    fprintf (fp, "%s\n", MSG_OPTIONS_MSG8);
+}
+
+/*********************************************************************
+ ** METHOD  :
+ ** PURPOSE :
+ ** INPUT   :
+ ** OUTPUT  :
+ ** RETURN  :
+ ** REMARKS :
+ *********************************************************************/
 void OptionsParser::displayHelp (FILE* fp)
 {
+    fprintf (fp,"[*] denotes mandatory argument.\n");
     for (list<Option*>::iterator it = _options.begin();  it != _options.end();  it++)
     {
         if (!(*it)->getLabel().empty())
         {
-            fprintf (fp, "\t%s :\t %s\n",  (*it)->getLabel().c_str(),  (*it)->getHelp().c_str());
+            fprintf (fp, "\t%s %s:\t %s\n",
+                     (*it)->getLabel().c_str(),
+                     (*it)->isMandatory()?"[*]":"",
+                     (*it)->getHelp().c_str());
         }
     }
 }

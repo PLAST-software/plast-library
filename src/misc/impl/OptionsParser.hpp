@@ -105,6 +105,11 @@ public:
      */
     void displayWarnings (FILE* fp = stdout);
 
+    /** Display the help basic use.
+     * \param[in] fp : the file descriptor where to dump the help
+     */
+    void displayHelpShort (FILE* fp = stdout);
+
     /** Display the help of each options recorded.
      * \param[in] fp : the file descriptor where to dump the help
      */

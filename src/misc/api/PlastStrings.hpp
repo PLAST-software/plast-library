@@ -396,6 +396,7 @@ namespace misc {
 #define MSG_OPTIONS_MSG5  misc::StringRepository::m_MSG_OPTIONS_MSG5 ()   // Warning : %s
 #define MSG_OPTIONS_MSG6  misc::StringRepository::m_MSG_OPTIONS_MSG6 ()   // Option %s must be used with one of the following options : %s
 #define MSG_OPTIONS_MSG7  misc::StringRepository::m_MSG_OPTIONS_MSG7 ()   // Option %s is mandatory
+#define MSG_OPTIONS_MSG8  misc::StringRepository::m_MSG_OPTIONS_MSG8 ()   // use option -h for full help
 
 #define STR_HELP_ALGO_TYPE                  misc::StringRepository::m_STR_HELP_ALGO_TYPE ()   // Program Name [plastp, tplastn, plastx or tplastx]
 #define STR_HELP_SUBJECT_URI                misc::StringRepository::m_STR_HELP_SUBJECT_URI ()   // Subject database file
