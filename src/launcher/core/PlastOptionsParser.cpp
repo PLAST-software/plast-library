@@ -51,9 +51,9 @@ PlastOptionsParser::PlastOptionsParser ()
  *********************************************************************/
 void PlastOptionsParser::build ()
 {
-    this->add (new OptionOneParam (STR_OPTION_ALGO_TYPE,                STR_HELP_ALGO_TYPE));
-    this->add (new OptionOneParam (STR_OPTION_SUBJECT_URI,              STR_HELP_SUBJECT_URI));
-    this->add (new OptionOneParam (STR_OPTION_QUERY_URI,                STR_HELP_QUERY_URI));
+    this->add (new OptionOneParam (STR_OPTION_ALGO_TYPE,                STR_HELP_ALGO_TYPE, true));
+    this->add (new OptionOneParam (STR_OPTION_SUBJECT_URI,              STR_HELP_SUBJECT_URI, true));
+    this->add (new OptionOneParam (STR_OPTION_QUERY_URI,                STR_HELP_QUERY_URI, true));
     this->add (new OptionOneParam (STR_OPTION_OUTPUT_FILE,              STR_HELP_OUTPUT_FILE));
     this->add (new OptionOneParam (STR_OPTION_EVALUE,                   STR_HELP_EVALUE));
     this->add (new OptionOneParam (STR_OPTION_UNGAP_NEIGHBOUR_LENGTH,   STR_HELP_UNGAP_NEIGHBOUR_LENGTH));
