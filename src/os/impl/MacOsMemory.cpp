@@ -21,6 +21,9 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <mach/task.h>
+#include <mach/mach_init.h>
+
 /********************************************************************************/
 namespace os {
 /** \brief Implementation of Operating System abstraction layer */
@@ -37,7 +40,14 @@ namespace impl {
 *********************************************************************/
 u_int32_t MacOsMemoryFactory::getMemUsage ()
 {
-    return 0;
+    /** From: http://nadeausoftware.com/articles/2012/07/c_c_tip_how_get_process_resident_set_size_physical_memory_use */
+    struct mach_task_basic_info info;
+    mach_msg_type_number_t infoCount = MACH_TASK_BASIC_INFO_COUNT;
+    if ( task_info( mach_task_self( ), MACH_TASK_BASIC_INFO,
+       (task_info_t)&info, &infoCount ) != KERN_SUCCESS ){
+            return (u_int32_t)0;		/* Can't access? */
+    }
+    return (u_int32_t)(info.resident_size/1024);
 }
 
 /********************************************************************************/
