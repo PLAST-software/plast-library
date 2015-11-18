@@ -23,11 +23,9 @@
  * The PlastLibrary is a library containing all the needed software components
  * required for comparing two genomic databases with the PLAST algorithm.
  *
- * As a library, it doesn't contain any 'main' function. You will find rather
- * specific binaries using this library, for instance:
- *  - PlastCmd : binary for end user that wants to compare genomic databases
- *  - PlastLibraryTest : unit tests for components of the PLAST library
- *  - GatTool : binary for comparing different tools (PLAST vs BLAST for instance)
+ * As a library, it should not contain any 'main' function. However, to simplify the use
+ * of the library as a command-line tool, there is a main function provided in:
+ *  - tools::PlastCmd: binary for end user that wants to compare genomic databases
  *
  * You will find here the code documentation for namespaces, classes, methods of the different
  * components that makes the PlastLibrary design.
@@ -102,6 +100,9 @@
  * Note that launcher::core::PlastCmd is an implementation of the dp::ICommand interface. Therefore, one can use some
  * command dispatcher instead of using directly the 'execute' method for launching the algorithm.
  *
+ * Finally, tools::PlastCmd provides directly a main function to enable the use of the PlastLibrary as
+ * a command-line tool.
+ *
  ****************************************************************************************************
  *
  * \section namespaces Namespaces architecture
@@ -158,14 +159,23 @@
  * \section compile_plast  How to compile the PLAST library ?
  *
  * The PLAST library can be compiled in a terminal with the cmake tool.
- * Once the source archive has been retrieved and unzipped, one just has to do 'cmake .' followed by 'make'.
- * As a result, one should get a dynamic library (in 'lib' directory) and a binary (in 'bin' directory).
+ * Once the source archive has been retrieved and unzipped, one just has to do:
+ *      - mkdir build
+ *      - cd build
+ *      - cmake ..
+ *      - make
+ *
+ * As a result, one should get a dynamic library (in 'build/lib' directory) and a binary (in 'build/bin' directory).
  *
  * This procedure works both on Linux and MacOs.
  *
  * For Windows, the Mingw64 environment has first to be deployed since the GCC compiler is needed for compiling PLAST
  * (due to GCC intrinsics use).
- * Then, one has to do 'cmake -G "MSYS Makefiles" .' followed by 'make'.
+ * Then, one has to do:
+ *      - mkdir build
+ *      - cd build
+ *      - cmake -G "MSYS Makefiles" ..
+ *      - make
  *
  * Note that the target architecture must support SSE instructions set (at least SSE2).
  * For instance, most of Intel recent processors support SSE2.
