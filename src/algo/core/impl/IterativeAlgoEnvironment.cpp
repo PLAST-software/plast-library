@@ -1,7 +1,7 @@
 #include <algo/core/impl/IterativeAlgoEnvironment.hpp>
 #include <algo/core/impl/SingleIterationAlgoEnvironment.hpp>
 
-#include <algo/core/impl/SingleResultVisitorFactory.hpp>
+#include <algo/core/impl/IterativeAlgorithmResultVisitorFactory.hpp>
 
 #include <designpattern/impl/TokenizerIterator.hpp>
 
@@ -33,7 +33,8 @@ void IterativeAlgoEnvironment::configure ()
 
 void IterativeAlgoEnvironment::run ()
 {
-    algo::core::impl::SingleResultVisitorFactory* visitorFactory = new algo::core::impl::SingleResultVisitorFactory();
+    algo::core::impl::IterativeAlgorithmResultVisitorFactory* visitorFactory =
+        new algo::core::impl::IterativeAlgorithmResultVisitorFactory();
     LOCAL(visitorFactory);
 
     dp::IProperty* iterationSteps = _properties->getProperty(STR_OPTION_ITERATIONS_STEPS);
@@ -102,7 +103,6 @@ IConfiguration* IterativeAlgoEnvironment::createConfiguration (dp::IProperties* 
     throw "Unimplemented method IterativeAlgoEnvironment::createConfiguration";
 }
 
-/** */
 std::list<IAlgorithm*> IterativeAlgoEnvironment::createAlgorithm (
     IConfiguration*                                 config,
     database::IDatabaseQuickReader*                 reader,

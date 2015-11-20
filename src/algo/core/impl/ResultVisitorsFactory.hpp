@@ -18,6 +18,9 @@ namespace core {
 namespace impl {
 /********************************************************************************/
 
+/**
+ * Factory for IAlignmentContainerVisitor.
+ */
 class ResultVisitorsFactory : public IResultVisitorsFactory {
 public:
     /** Get an alignment visitor (likely for the gap alignments and likely a

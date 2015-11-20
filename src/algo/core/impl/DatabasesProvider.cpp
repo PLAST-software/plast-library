@@ -25,6 +25,7 @@
 #include <database/impl/CompositeSequenceDatabase.hpp>
 #include <database/impl/BufferedCachedSequenceDatabase.hpp>
 #include <database/impl/CachedSubDatabase.hpp>
+#include <database/impl/FastaSequenceConditionalPureIteratorFactory.hpp>
 
 
 #include <iostream>
@@ -380,14 +381,14 @@ ISequenceIterator* DatabasesProvider::getSequenceIterator(
     LOCAL (tempFactory);
 
     /** We create the sequence iterator. */
-    ISequenceIterator* seqIterator =  sequenceIteratorFactory ?
+    ISequenceIterator* seqIterator = sequenceIteratorFactory ?
         sequenceIteratorFactory->createSequenceIterator (uri, range) :
         tempFactory->createSequenceIterator (uri, range);
 
     return seqIterator;
 }
 
-ISequenceDatabase*  DatabasesProvider::createDatabase (
+ISequenceDatabase* DatabasesProvider::createDatabase (
     const std::string& uri,
     const misc::Range64& range,
     int filtering,
@@ -397,7 +398,7 @@ ISequenceDatabase*  DatabasesProvider::createDatabase (
 {
     ISequenceIterator* seqIterator = getSequenceIterator(uri, range, sequenceIteratorFactory);
 
-    if (true && blacklist != NULL) {
+    if (blacklist != NULL) {
         return new CachedSubDatabase(seqIterator, blacklist);
     }
 
@@ -409,35 +410,31 @@ database::ISequenceIteratorFactory* DatabasesProvider::createSequenceIteratorFac
        DatabaseLookupType::QuickReaderType_e databaseType = DatabaseLookupType::ENUM_TYPE_UNKNOWN;
 
        databaseType = DatabaseLookupType::quickReaderType(uri);
-       if ((databaseType==DatabaseLookupType::ENUM_BLAST_PIN)||(databaseType==DatabaseLookupType::ENUM_BLAST_NIN)
-               ||(databaseType==DatabaseLookupType::ENUM_BLAST_PAL)||(databaseType==DatabaseLookupType::ENUM_BLAST_NAL))
+       if ((databaseType == DatabaseLookupType::ENUM_BLAST_PIN)
+               || (databaseType == DatabaseLookupType::ENUM_BLAST_NIN)
+               || (databaseType == DatabaseLookupType::ENUM_BLAST_PAL)
+               || (databaseType == DatabaseLookupType::ENUM_BLAST_NAL))
        {
-               return new BlastdbSequenceIteratorFactory ();
+           return new BlastdbSequenceIteratorFactory ();
        }
-       else
-               return new FastaSequenceIteratorFactory();
+
+       return new FastaSequenceIteratorFactory();
 }
 
 void DatabasesProviderReverse::createDatabases (
         algo::core::IParameters* params,
-        const std::vector<misc::ReadingFrame_e>&    sbjFrames,
-        const std::vector<misc::ReadingFrame_e>&    qryFrames,
-        database::ISequenceIteratorFactory*         sbjFactory,
-        database::ISequenceIteratorFactory*         qryFactory)
+        const std::vector<misc::ReadingFrame_e>& sbjFrames,
+        const std::vector<misc::ReadingFrame_e>& qryFrames,
+        database::ISequenceIteratorFactory* sbjFactory,
+        database::ISequenceIteratorFactory* qryFactory)
 {
-    bool isQryFactoryCreatedLocally = false;
-
     if (qryFactory == NULL && params->querySequencesBlacklist != NULL) {
         qryFactory = new FastaSequenceConditionalPureIteratorFactory(params);
-        qryFactory->use();
-        isQryFactoryCreatedLocally = true;
     }
+
+    LOCAL(qryFactory);
 
     DatabasesProvider::createDatabases(params, sbjFrames, qryFrames, sbjFactory, qryFactory);
-
-    if (isQryFactoryCreatedLocally) {
-        qryFactory->forget();
-    }
 }
 
 /********************************************************************************/

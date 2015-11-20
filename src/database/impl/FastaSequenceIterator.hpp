@@ -28,7 +28,6 @@
 #include <database/impl/AbstractSequenceIterator.hpp>
 #include <designpattern/impl/FileLineIterator.hpp>
 #include <algo/core/api/IAlgoParameters.hpp>
-#include <database/impl/FastaSequencePureIterator.hpp>
 #include <misc/api/types.hpp>
 
 /********************************************************************************/
@@ -120,25 +119,6 @@ class FastaSequenceIteratorFactory  : public ISequenceIteratorFactory
 public:
     /** \copydoc ISequenceIteratorFactory::createSequenceIterator */
     virtual ISequenceIterator* createSequenceIterator (const std::string& uri, const misc::Range64& range);
-};
-
-class FastaSequenceConditionalPureIteratorFactory : public ISequenceIteratorFactory
-{
-public:
-    FastaSequenceConditionalPureIteratorFactory(algo::core::IParameters* params)
-    : _uri(params->queryUri) {}
-
-    /** \copydoc ISequenceIteratorFactory::createSequenceIterator */
-    virtual ISequenceIterator* createSequenceIterator (const std::string& uri, const misc::Range64& range) {
-        if (true && uri.compare(_uri) == 0) {
-            return new FastaSequencePureIterator (uri.c_str(), SEQUENCE_MAX_COMMENT_SIZE, range.begin, range.end);
-        }
-
-        return new FastaSequenceIterator(uri.c_str(), SEQUENCE_MAX_COMMENT_SIZE, range.begin, range.end);
-    }
-
-private:
-    const std::string& _uri;
 };
 
 /********************************************************************************/

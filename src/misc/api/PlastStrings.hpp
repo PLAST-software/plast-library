@@ -361,14 +361,6 @@ namespace misc {
  */
 #define STR_OPTION_COMPLETE_SUBJECT_DB_SEQUENCE_NUMBER  misc::StringRepository::m_STR_OPTION_COMPLETE_SUBJECT_DB_SEQUENCE_NUMBER ()
 
-
-/** option very useful for ARN16S comparison.
- * This option will tell plastn to use only some of the available kmers in the
- * query and the database. The kmers that will be used are those marked in the
- * bitset file.
- */
-#define STR_OPTION_KMERS_BITSET_PATH misc::StringRepository::m_STR_OPTION_KMERS_BITSET_PATH ()
-
 #define STR_OPTION_ITERATIONS_STEPS misc::StringRepository::m_STR_OPTION_ITERATIONS_STEPS ()
 
 #define STR_OPTION_KMERS_TO_SELECT misc::StringRepository::m_STR_OPTION_KMERS_TO_SELECT ()
@@ -467,7 +459,6 @@ namespace misc {
 #define STR_HELP_INFO_CONFIG_FILE           misc::StringRepository::m_STR_HELP_INFO_CONFIG_FILE ()   // Pathname of the plast config file.
 #define STR_HELP_WORD_SIZE                  misc::StringRepository::m_STR_HELP_WORD_SIZE ()   // Pathname of the plast config file.
 #define STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE   		misc::StringRepository::m_STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE ()   // File path to the stats of the complete subject db
-#define STR_HELP_KMERS_BITSET_PATH                      misc::StringRepository::m_STR_HELP_KMERS_BITSET_PATH () // Option to read a bitset to filter kmers.
 #define STR_HELP_ITERATIONS_STEPS                      misc::StringRepository::m_STR_HELP_ITERATIONS_STEPS () // Option to run multiple iterations
 
 #define STR_CONFIG_CLASS_KarlinStats			        misc::StringRepository::m_STR_CONFIG_CLASS_KarlinStats ()   // KarlinStats
@@ -515,7 +506,6 @@ namespace misc {
 #define STR_PARAM_outputfile            misc::StringRepository::m_STR_PARAM_outputfile ()   // outputfile
 #define STR_PARAM_strands               misc::StringRepository::m_STR_PARAM_strands ()   // strands
 #define STR_PARAM_wordSize              misc::StringRepository::m_STR_PARAM_wordSize ()   // word size
-#define STR_PARAM_kmersBitsetPath  misc::StringRepository::m_STR_PARAM_kmersBitsetPath () // bitset for kmers to be used
 
 /********************************************************************************/
 } /* end of namespaces. */

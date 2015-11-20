@@ -625,11 +625,6 @@ vector<IParameters*> DefaultEnvironment::createParametersList (
                 params->completeSubjectDatabaseStats.readFromFile(prop->value.c_str());
             }
 
-            //if ( (prop = properties->getProperty (STR_OPTION_KMERS_BITSET_PATH)) != 0)
-            //{
-                //params->kmersBitsetPath = prop->value;
-            //}
-
             /** We set databases ranges. */
             params->subjectRange = uri[i].first;
             params->queryRange   = uri[i].second;
@@ -695,7 +690,7 @@ IConfiguration* DefaultEnvironment::getConfig()
 
 void DefaultEnvironment::flushResults()
 {
-    _resultVisitor->finalize ();
+    _resultVisitor->finalize();
 }
 
 IResultVisitorsFactory* DefaultEnvironment::getResultsVisitorFactory()

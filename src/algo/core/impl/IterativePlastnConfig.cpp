@@ -26,14 +26,14 @@ IParameters* IterativePlastnConfig::createDefaultParameters (const std::string& 
 {
     IParameters* params = PlastnConfiguration::createDefaultParameters(algoName);
 
-    updateKmersBitsetPath(params);
+    updateKmersPerSequence(params);
 
     params->querySequencesBlacklist = &_blacklist;
 
     return params;
 }
 
-void IterativePlastnConfig::updateKmersBitsetPath(IParameters* params)
+void IterativePlastnConfig::updateKmersPerSequence(IParameters* params)
 {
     dp::IProperty* kmersToSelect= _properties->getProperty(STR_OPTION_KMERS_TO_SELECT);
 
