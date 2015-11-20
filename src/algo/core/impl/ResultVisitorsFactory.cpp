@@ -21,7 +21,6 @@ namespace core {
 namespace impl {
 /********************************************************************************/
 
-
 alignment::core::IAlignmentContainerVisitor* ResultVisitorsFactory::getInstance(dp::IProperties* properties, algo::core::IDatabasesProvider* databaseProvider)
 {
     return createResultVisitor(properties, databaseProvider);
@@ -35,47 +34,50 @@ alignment::core::IAlignmentContainerVisitor* ResultVisitorsFactory::getInstance(
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-alignment::core::IAlignmentContainerVisitor* ResultVisitorsFactory::createResultVisitor (dp::IProperties* properties, algo::core::IDatabasesProvider* databaseProvider)
+alignment::core::IAlignmentContainerVisitor* ResultVisitorsFactory::createResultVisitor(dp::IProperties* properties, algo::core::IDatabasesProvider* databaseProvider)
 {
     alignment::core::IAlignmentContainerVisitor* result = 0;
     dp::IProperty* prop = 0;
 
     /** We need an uri. We take the one provided by the properties. */
     std::string uri ("stdout");
-    if ( (prop = properties->getProperty (STR_OPTION_OUTPUT_FILE)) != 0)   { uri = prop->value;  }
+    if ( (prop = properties->getProperty(STR_OPTION_OUTPUT_FILE)) != 0) {
+        uri = prop->value;
+    }
 
     /** We need an output format. */
     int outfmt = 1;
-    if ( (prop = properties->getProperty (STR_OPTION_OUTPUT_FORMAT)) != 0)  { outfmt = prop->getInt(); }
+    if ( (prop = properties->getProperty(STR_OPTION_OUTPUT_FORMAT)) != 0) {
+        outfmt = prop->getInt();
+    }
 
     DEBUG (std::cout << "DefaultConfiguration::createResultVisitor  outfmt=" << outfmt << "  uri=" << uri << std::endl);
 
     /** We may have to modify the query order. So we may encapsulate the "normal" result by another visitor
      *  that will reorder the alignments. */
-    dp::IProperty* forceQryOrdering = properties->getProperty (STR_OPTION_FORCE_QUERY_ORDERING);
-    if (forceQryOrdering != 0)
-    {
+    dp::IProperty* forceQryOrdering = properties->getProperty(STR_OPTION_FORCE_QUERY_ORDERING);
+    if (forceQryOrdering != 0) {
         u_int32_t nbAlignPerNotif = forceQryOrdering->getInt();
-        if (nbAlignPerNotif == 0)  { nbAlignPerNotif = 10*1000; }
+        if (nbAlignPerNotif == 0) { nbAlignPerNotif = 10*1000; }
 
-        size_t nbHitPerQuery = (prop = properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 500;
-        size_t nbAlignPerHit = (prop = properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT))   != 0 ?  prop->getInt() : 0;
+        size_t nbHitPerQuery =
+            (prop = properties->getProperty(STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ? prop->getInt() : 500;
+        size_t nbAlignPerHit =
+            (prop = properties->getProperty(STR_OPTION_MAX_HSP_PER_HIT))   != 0 ? prop->getInt() : 0;
 
         dp::IProperty* queryProp = properties->getProperty (STR_OPTION_QUERY_URI);
-        database::IDatabaseQuickReader* queryQuickReader = new database::impl::FastaDatabaseQuickReader (queryProp->value, true);
+        database::IDatabaseQuickReader* queryQuickReader =
+            new database::impl::FastaDatabaseQuickReader(queryProp->value, true);
 
         result = new alignment::visitors::impl::QueryReorderVisitor(
             databaseProvider,
             uri,
-            createAlgorithmResultVisitor(properties, uri + ".tmp", 3),         // visitor wanted by user with a forced outfmt
+            createAlgorithmResultVisitor(properties, uri + ".tmp", 3), // visitor wanted by user with a forced outfmt
             createSimpleResultVisitor(uri, outfmt),    // visitor for final dump with the user outfmt
             queryQuickReader,
             nbAlignPerNotif,
-            nbHitPerQuery, nbAlignPerHit
-        );
-    }
-    else
-    {
+            nbHitPerQuery, nbAlignPerHit);
+    } else {
         /** We create the result. */
         result = createAlgorithmResultVisitor (properties, uri, outfmt);
     }
@@ -96,12 +98,11 @@ alignment::core::IAlignmentContainerVisitor* ResultVisitorsFactory::createSimple
 {
     alignment::core::IAlignmentContainerVisitor* result = 0;
 
-    switch (outfmt)
-    {
-        case 1:     result = new  alignment::visitors::impl::TabulatedOutputVisitor         (uri);     break;
+    switch (outfmt) {
         case 2:     result = new  alignment::visitors::impl::TabulatedOutputExtendedVisitor (uri);     break;
         case 3:     result = new  alignment::visitors::impl::RawOutputVisitor               (uri);     break;
         case 4:     result = new  alignment::visitors::impl::XmlOutputVisitor               (uri);     break;
+        case 1:
         default:    result = new  alignment::visitors::impl::TabulatedOutputVisitor         (uri);     break;
     }
 
@@ -123,27 +124,19 @@ alignment::core::IAlignmentContainerVisitor* ResultVisitorsFactory::createAlgori
     /** Now, we have to take into account the kind of the algorithm (plastp, plastx...)
      *  since we may have to convert back to nucleotid alphabet. */
     dp::IProperty* prop = properties->getProperty (STR_OPTION_ALGO_TYPE);
-    if (prop != 0)
-    {
+    if (prop != 0) {
         std::string algoName = prop->getValue();
 
-        if (algoName.compare ("plastp")==0)
-        {
-        }
-        else if (algoName.compare ("tplastn")==0)
-        {
+        if (algoName.compare("tplastn")==0) {
             result = new alignment::visitors::impl::NucleotidConversionVisitor (result, alignment::core::Alignment::SUBJECT);
         }
-        else if (algoName.compare ("plastx")==0)
-        {
+        else if (algoName.compare("plastx")==0) {
             result = new alignment::visitors::impl::NucleotidConversionVisitor (result, alignment::core::Alignment::QUERY);
         }
-        else if (algoName.compare ("tplastx")==0)
-        {
-            result = new alignment::visitors::impl::NucleotidConversionVisitor (
+        else if (algoName.compare("tplastx")==0) {
+            result = new alignment::visitors::impl::NucleotidConversionVisitor(
                 new alignment::visitors::impl::NucleotidConversionVisitor (result, alignment::core::Alignment::SUBJECT),
-                alignment::core::Alignment::QUERY
-            );
+                alignment::core::Alignment::QUERY);
         }
     }
 

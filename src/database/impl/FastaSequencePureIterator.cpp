@@ -25,13 +25,11 @@ FastaSequencePureIterator::FastaSequencePureIterator (const char* filename,
     AbstractSequenceIterator::setBuilder(new BasicSequenceBuilder(SUBSEED));
 }
 
-/** Destructor. */
 FastaSequencePureIterator::~FastaSequencePureIterator ()
 {
     delete[] _rawData;
 }
 
-/** \copydoc AbstractSequenceIterator::first */
 void FastaSequencePureIterator::first()
 {
     _rawDataEnd = 0;
@@ -43,7 +41,6 @@ void FastaSequencePureIterator::first()
     next();
 }
 
-/** \copydoc AbstractSequenceIterator::next */
 dp::IteratorStatus FastaSequencePureIterator::next()
 {
     size_t commentStart = _rawDataEnd;
@@ -57,12 +54,11 @@ dp::IteratorStatus FastaSequencePureIterator::next()
     ISequenceBuilder* builder = getBuilder();
 
     /** We look for a comment. */
-    for ( ; !_fileIterator.isDone(); _fileIterator.next())
-    {
+    for ( ; !_fileIterator.isDone(); _fileIterator.next()) {
         /** We retrieve the current file line. */
         buffer = _fileIterator.currentItem();
 
-        if  (buffer && buffer[0]=='>')  {
+        if  (buffer && buffer[0]=='>') {
             // from the current position we subtract the length of the read
             // text + 1 for the newline at the end, which is also read, but
             // not counted by strlen.
@@ -72,26 +68,24 @@ dp::IteratorStatus FastaSequencePureIterator::next()
     }
 
     /** We may have found a comment. */
-    if (buffer == 0 || !builder)
-    {
+    if (buffer == 0 || !builder) {
         return dp::ITER_UNKNOWN;
     }
 
     /** We may have to skip space characters between the '>' and the actual comment. */
-    while (*(++buffer) == ' ')   {}
+    while (*(++buffer) == ' ') {}
 
-    size_t len = strlen (buffer);
+    size_t len = strlen(buffer);
 
-    builder->setComment (buffer, MIN (len, _commentMaxSize) );
+    builder->setComment(buffer, MIN (len, _commentMaxSize) );
 
     /** We reset the data size. */
-    builder->resetData ();
+    builder->resetData();
 
     /** We read the next line (the current one still points to the comment line). */
     _fileIterator.next();
 
-    for ( ; !_fileIterator.isDone(); _fileIterator.next())
-    {
+    for ( ; !_fileIterator.isDone(); _fileIterator.next()) {
         /** We retrieve the current file line. */
         buffer = _fileIterator.currentItem();
 
@@ -135,25 +129,21 @@ void FastaSequencePureIterator::updateSequence(size_t commentStart, size_t dataS
     tmpSequence.offsetInDb = dbOffset;
 }
 
-/** \copydoc AbstractSequenceIterator::isDone */
 bool FastaSequencePureIterator::isDone()
 {
     return _isDone;
 }
 
-/** \copydoc AbstractSequenceIterator::currentItem */
 ISequence* FastaSequencePureIterator::currentItem()
 {
     return &tmpSequence;
 }
 
-/** \copydoc AbstractSequenceIterator::clone */
 ISequenceIterator* FastaSequencePureIterator::clone ()
 {
     return 0;
 }
 
-/** \copydoc ISequenceIterator::setBuilder */
 void FastaSequencePureIterator::setBuilder (ISequenceBuilder* builder)
 {
     throw "Unsupported operation FastaSequencePureIterator::setBuilder";

@@ -157,8 +157,14 @@ public:
     /** Stats of the complete subject database */
     misc::CompleteSubjectDatabaseStats completeSubjectDatabaseStats;
 
+    /** A set of db offsets of the sequences from the query that should not be used
+     *  NOTE ipetrov: Generally used with kmersPerSequence. */
     std::set<u_int64_t>* querySequencesBlacklist;
 
+    /** For each query sequence at least this number of kemrs/seeds will be left
+     *  in the seed mask (that is used for indexing the database and query). All
+     *  the selected seeds have to be present also in the database.
+     *  NOTE ipetrov: Generally used with querySequencesBlacklist. */
     long kmersPerSequence;
 
     /** Clone the instance.
@@ -216,7 +222,6 @@ public:
         result->add (1, STR_PARAM_outputfile, outputfile);
 
         result->add (1, STR_PARAM_strands, "%d", strands.size());
-        //result->add (1, STR_PARAM_kmersBitsetPath, "%ld", kmersPerSequence);
 
         return result;
     }

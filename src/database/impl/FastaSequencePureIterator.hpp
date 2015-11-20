@@ -20,6 +20,10 @@ namespace database {
 namespace impl {
 /********************************************************************************/
 /**
+ * An iterator over the sequences in a fasta file that could not be used with
+ * expectations for side effects on the builder (which is the case with some
+ * other implementations).
+ *
  * NOTE ipetrov: If you change the sequences that you retrieve, this is at your
  *   own risk.
  */
@@ -57,13 +61,13 @@ public:
     /** \copydoc AbstractSequenceIterator::clone */
     ISequenceIterator* clone ();
 
-    /** \copydoc ISequenceIterator::setBuilder */
+    /** Unsupported operation */
     void setBuilder (ISequenceBuilder* builder);
 
     /** Set the encoding scheme.
      * \param[in] encoding : the encoding scheme
      */
-    void     setEncoding (Encoding encoding);
+    void setEncoding (Encoding encoding);
 
     /** Get the encoding scheme.
      * \return the encoding scheme

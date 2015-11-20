@@ -50,7 +50,7 @@ public:
     /** Destructor. */
     virtual ~DatabasesProvider ();
 
-    /** */
+    /** \copydoc IDatabasesProvider::createDatabases */
     virtual void createDatabases (
         algo::core::IParameters* params,
         const std::vector<misc::ReadingFrame_e>&    sbjFrames,
@@ -59,17 +59,19 @@ public:
         database::ISequenceIteratorFactory*         qryFactory
     );
 
-    /** */
+    /** \copydoc IDatabasesProvider::getSubjectDbIterator */
     dp::Iterator<database::ISequenceDatabase*>* getSubjectDbIterator ()
     {
         return new dp::impl::ListIterator<database::ISequenceDatabase*> (_sbjDbList);
     }
 
+    /** \copydoc IDatabasesProvider::getQueryDbIterator */
     dp::Iterator<database::ISequenceDatabase*>* getQueryDbIterator ()
     {
         return new dp::impl::ListIterator<database::ISequenceDatabase*> (_qryDbList);
     }
 
+    /** \copydoc IDatabasesProvider::createDatabase */
     virtual database::ISequenceDatabase* createDatabase (
             const std::string& uri,
             const misc::Range64& range,
@@ -138,8 +140,8 @@ protected:
 
 private:
     /** Create a factory that builds ISequenceIterator objects.
-     * \param[in] uri : uri path to select the sequence iterator factory depending of the file type
-     * \return the factory instance.
+     *  \param[in] uri : uri path to select the sequence iterator factory depending of the file type
+     *  \return the factory instance.
      */
     database::ISequenceIteratorFactory* createSequenceIteratorFactory (const std::string& uri);
 
@@ -222,7 +224,7 @@ public:
     /** Destructor. */
     virtual ~DatabasesProviderReverse ()  { }
 
-    /** */
+    /** \copydoc DatabasesProvider::createDatabases */
     virtual void createDatabases (
         algo::core::IParameters* params,
         const std::vector<misc::ReadingFrame_e>&    sbjFrames,

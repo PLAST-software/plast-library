@@ -146,19 +146,14 @@ void CachedSubDatabase::setId (const std::string& id)
 
 void CachedSubDatabase::retrieveSequencesIdentifiers (std::set<std::string>& ids)
 {
-    throw "Unsupported operation CachedSubDatabase::retrieveSequencesIdentifiers";
-
     for (std::vector<ISequence>::iterator it = _sequences.begin(); it != _sequences.end(); ++it) {
         std::string const & comment = it->getComment();
 
         char* locate = ISequence::searchIdSeparator (comment.c_str());
 
-        if (locate != 0)
-        {
+        if (locate != 0) {
             ids.insert (comment.substr (0, locate - comment.c_str()));
-        }
-        else
-        {
+        } else {
             ids.insert (comment);
         }
     }
@@ -169,9 +164,8 @@ ISequenceDatabase::StrandId_e CachedSubDatabase::getDirection ()
     return _direction;
 }
 
-void CachedSubDatabase::reverseSequence(ISequence& sequence) {
-    throw "Unsupported operation CachedSubDatabase::reverseSequences";
-
+void CachedSubDatabase::reverseSequence(ISequence& sequence)
+{
     IWord& data = sequence.data;
     LETTER* sequenceLetters = data.letters.data;
     size_t length = sequence.getLength();
@@ -182,10 +176,9 @@ void CachedSubDatabase::reverseSequence(ISequence& sequence) {
 
     for (size_t i = 0; i < length; i++) {
         /** Residues above value 4 (like N) are not reversed. */
-        if (sequenceLetters[i]<4)
-        {
+        if (sequenceLetters[i]<4) {
             /** Note here the way we get the complement of a nucleotide: comp(c) -> (c+2)%4
-             * It is possible since we have A=0, C=1, G=3, T=2.
+             *  It is possible since we have A=0, C=1, G=3, T=2.
              */
             sequenceLetters[i] = (sequenceLetters[i] + 2) & 3;
         }

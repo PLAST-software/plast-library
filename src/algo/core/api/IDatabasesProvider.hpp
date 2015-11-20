@@ -30,7 +30,6 @@
 #include <designpattern/impl/ListIterator.hpp>
 
 #include <database/api/ISequenceIterator.hpp>
-#include <database/api/ISequenceDatabase.hpp>
 
 /********************************************************************************/
 namespace algo {

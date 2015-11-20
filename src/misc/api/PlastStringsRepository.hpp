@@ -277,7 +277,6 @@ public:
     static const char* m_STR_OPTION_COMPLETE_SUBJECT_DB_SIZE () { return "-complete-subject-database-size"; }
     static const char* m_STR_OPTION_COMPLETE_SUBJECT_DB_SEQUENCE_NUMBER () { return "-complete-subject-database-sequences-number"; }
     static const char* m_STR_OPTION_COMPLETE_SUBJECT_DB_STATS_FILE () { return "-complete-subject-database-stats-file"; }
-    static const char* m_STR_OPTION_KMERS_BITSET_PATH () { return "-C"; }
     static const char* m_STR_OPTION_ITERATIONS_STEPS () { return "-iterations-steps"; }
     static const char* m_STR_OPTION_KMERS_TO_SELECT () { return "-K"; }
     static const char* m_MSG_MAIN_RC_FILE () { return "/.plastrc"; }
@@ -364,7 +363,6 @@ public:
     static const char* m_STR_HELP_INFO_CONFIG_FILE () { return "Pathname of the plast config file."; }
     static const char* m_STR_HELP_WORD_SIZE  () { return "size of the seeds"; }
     static const char* m_STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE  () { return "File path to the stats of the complete subject database"; }
-    static const char* m_STR_HELP_KMERS_BITSET_PATH () { return "File path to bitset file for kmers to be used/filtered"; }
     static const char* m_STR_HELP_ITERATIONS_STEPS () { return "Run the algorithm in iterative mode, filtering some of the seeds. Ex: '3,0' selects only a few kmers for the first pass and takes all the kmers for the second pass"; }
     static const char* m_STR_CONFIG_CLASS_KarlinStats () { return "KarlinStats"; }
     static const char* m_STR_CONFIG_CLASS_SpougeStats () { return "SpougeStats"; }
@@ -410,7 +408,6 @@ public:
     static const char* m_STR_PARAM_outputfile () { return "outputfile"; }
     static const char* m_STR_PARAM_strands () { return "strands"; }
     static const char* m_STR_PARAM_wordSize () { return "wordSize"; }
-    static const char* m_STR_PARAM_kmersBitsetPath () {return "kmersBitsetPath";}
 };
 
 #endif

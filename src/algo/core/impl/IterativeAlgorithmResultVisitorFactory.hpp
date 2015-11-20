@@ -1,5 +1,5 @@
-#ifndef _SINGLE_RESULT_VISITORS_FACTORY_HPP_
-#define _SINGLE_RESULT_VISITORS_FACTORY_HPP_
+#ifndef _ITERATIVE_ALGORITHM_RESULT_VISITORS_FACTORY_HPP_
+#define _ITERATIVE_ALGORITHM_RESULT_VISITORS_FACTORY_HPP_
 
 /********************************************************************************/
 
@@ -21,16 +21,18 @@ namespace core {
 namespace impl {
 /********************************************************************************/
 
-// TODO ipetrov: rename to something like IterativeAlgorithmResultVisitorFactory
-// Otherwise the addition of FoundQuerySequencesGeneratingVisitor is inappropraite.
-class SingleResultVisitorFactory : public IResultVisitorsFactory {
+/**
+ * ResultVisitorsFactory that always returns the same instance of
+ * FoundQuerySequencesGeneratingVisitor.
+ */
+class IterativeAlgorithmResultVisitorFactory : public IResultVisitorsFactory {
 public:
-    SingleResultVisitorFactory()
+    IterativeAlgorithmResultVisitorFactory()
         : _singleton(0)
     {
     }
 
-    ~SingleResultVisitorFactory()
+    ~IterativeAlgorithmResultVisitorFactory()
     {
         setSingleton(0);
     }
@@ -52,12 +54,15 @@ public:
         return _singleton;
     }
 
+    // Get a set of unique identifiers of each query sequence that has been
+    // found so far.
     std::set<u_int64_t>* getFoundQueryIndexes() {
         return &_foundQueryIndexes;
     }
 
 private:
-    // TODO ipetrov: Check where consts are good idea
+    // The set of unique identifiers of each query sequence that has been found
+    // so far.
     std::set<u_int64_t> _foundQueryIndexes;
 
     alignment::core::IAlignmentContainerVisitor* _singleton;
@@ -70,4 +75,4 @@ private:
 } // namespace core
 } // namespace algo
 
-#endif // _SINGLE_RESULT_VISITORS_FACTORY_HPP_
+#endif // _ITERATIVE_ALGORITHM_RESULT_VISITORS_FACTORY_HPP_

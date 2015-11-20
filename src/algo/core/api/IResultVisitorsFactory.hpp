@@ -15,8 +15,16 @@ namespace core {
 namespace impl {
 /********************************************************************************/
 
+/**
+ * Interface for factories for IAlignmentContainerVisitor.
+ */
 class IResultVisitorsFactory : public dp::SmartPointer {
 public:
+    /**
+     * Obtain an instance of IAlignmentContainerVisitor.
+     *
+     * Note that it might be an old one or a new one.
+     */
     virtual alignment::core::IAlignmentContainerVisitor* getInstance(dp::IProperties* properties,
             algo::core::IDatabasesProvider* databaseProvider) = 0;
 };

@@ -16,7 +16,9 @@ namespace impl      {
 /********************************************************************************/
 
 /********************************************************************************/
-/** \brief Extract the indexes of the queries, for which alignments are found
+/** \brief Extract unique identifiers of the queries, for which alignments are found
+ *
+ * Currently the database offsets are extracted.
  *
  * Except the extraction, this visitor wraps another visitor that normally
  * produces the output.

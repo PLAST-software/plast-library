@@ -29,9 +29,7 @@ IConfiguration* SingleIterationAlgoEnvironment::createConfiguration (dp::IProper
     return new IterativePlastnConfig (this, properties, _blacklist);
 }
 
-void SingleIterationAlgoEnvironment::flushResults()
-{
-}
+void SingleIterationAlgoEnvironment::flushResults() { }
 
 IResultVisitorsFactory* SingleIterationAlgoEnvironment::getResultsVisitorFactory()
 {

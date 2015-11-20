@@ -54,7 +54,7 @@ public:
      *  \param[in] sequence : the filled sequence if successful
      *  \param[out] offsetInSequence : offset of the given offset in the sequence
      *  \param[out] offsetInDatabase : offset of the given offset in the database
-     * \return true if the sequence has been retrieved, false otherwise.
+     *  \return true if the sequence has been retrieved, false otherwise.
      */
     bool getSequenceByOffset (
         u_int64_t offset,
@@ -66,7 +66,7 @@ public:
     /** Returns a sequence given a part of its string identifier (in the database).
      *  \param[in] id : part of the identifier
      *  \param[in] sequence : the filled sequence if successful
-     * \return true if the sequence has been retrieved, false otherwise.
+     *  \return true if the sequence has been retrieved, false otherwise.
      */
     bool getSequenceByName (
         const std::string& id,
@@ -117,7 +117,7 @@ public:
 
     /** see ISequenceIterator#transformComment for details
      *
-     * The place for this is rather in the ISequence file, or somewhere else.
+     *  The place for this is rather in the ISequence file, or somewhere else.
      */
     std::string transformComment (const ISequence& sequence);
 
@@ -158,6 +158,9 @@ private:
     void reverseSequence(ISequence& sequence);
 };
 
+/**
+ * Iterator for the sequences in CachedSubDatabase
+ */
 class CachedSubDatabaseIterator : public AbstractSequenceIterator
 {
 public:
