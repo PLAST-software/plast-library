@@ -1,0 +1,57 @@
+PLAST - c++ project
+===================
+
+This project contains:
+----------------------
+
+1. C++/11 source code ('src' directory);
+
+2. sample Fasta files to test software ('db' directory);
+   
+3. cmake file to compile the project. 
+
+
+Requirements
+------------
+
+1. cmake 2.6 or above;
+2. gcc 4.4+ (Linux), gcc/Mingw64 (Windows) or clang (MacOSX) compiler.
+
+
+Compiling PLAST
+---------------
+
+The PLAST library can be compiled in a terminal with the cmake tool. Once the source 
+archive has been retrieved and unzipped, one just has to do:
+
+    mkdir build
+    cd build
+    cmake ..
+    make
+
+As a result, one should get a dynamic library (in 'build/lib' directory) and a binary 
+(in 'build/bin' directory).
+
+This procedure works both on Linux and MacOs.
+
+For Windows, the Mingw64 environment has first to be deployed since the GCC compiler is 
+needed for compiling PLAST (due to GCC intrinsics use). Then, one has to do:
+
+    mkdir build
+    cd build
+    cmake -G "MSYS Makefiles" ..
+    make
+
+
+Developer documentation
+-----------------------
+
+See https://project.inria.fr/plast/developer-guide/
+
+
+License
+-------
+
+PLAST is free software; you can redistribute it and/or modify it under the Affero GPL v3 
+license. See http://www.gnu.org/licenses/agpl-3.0.en.html
+
