@@ -21,6 +21,8 @@ namespace impl {
 /********************************************************************************/
 
 /**
+ * Algorithm environment (see IEnvironment) for a single step of an
+ * IterativeAlgoEnvironment
  */
 class SingleIterationAlgoEnvironment : public DefaultEnvironment
 {
@@ -32,11 +34,15 @@ public:
 
     virtual ~SingleIterationAlgoEnvironment ();
 
+    /** \copydoc IEnvironment::createConfiguration */
     virtual IConfiguration* createConfiguration (dp::IProperties* properties);
 
 protected:
+    /** Equivalent to no operation. Relies that somebody else will flush the
+     *    result visitor */
     virtual void flushResults();
 
+    /** \copydoc DefaultEnvironment::getResultsVisitorFactory */
     virtual IResultVisitorsFactory* getResultsVisitorFactory();
 
 private:

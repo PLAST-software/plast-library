@@ -398,12 +398,8 @@ ISequenceDatabase*  DatabasesProvider::createDatabase (
     ISequenceIterator* seqIterator = getSequenceIterator(uri, range, sequenceIteratorFactory);
 
     if (true && blacklist != NULL) {
-        std::cout << "Cached db\n";
-
         return new CachedSubDatabase(seqIterator, blacklist);
     }
-
-    std::cout << "Creating database\n";
 
     return new BufferedCachedSequenceDatabase (seqIterator, filtering);
 }

@@ -5,6 +5,9 @@
 
 #include <database/impl/FastaSequencePureIterator.hpp>
 
+namespace indexation {
+namespace impl {
+
 const uint64_t INF = (1 << 30);
 
 inline void setInBitset(uint8_t* const bitset, uint64_t index, int value) {
@@ -268,6 +271,7 @@ void SeedMaskGenerator::findBestKmers(database::ISequence* data,
         delete[] bestScores[i];
         delete[] prevs[i];
     }
+    delete[] prevs;
 
     delete[] bestScores;
     delete[] kmersHistogram;
@@ -358,3 +362,6 @@ uint64_t SeedMaskGenerator::getFileSize(std::string& filename)
 
     return length;
 }
+
+} // impl
+} // indexation

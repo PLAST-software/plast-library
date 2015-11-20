@@ -5,6 +5,8 @@
 
 #include <designpattern/impl/TokenizerIterator.hpp>
 
+#define DEBUG(a)  //a
+
 /********************************************************************************/
 namespace algo {
 namespace core {
@@ -29,7 +31,6 @@ void IterativeAlgoEnvironment::configure ()
     // unnecessary for this implementation and is therefore left empty.
 }
 
-/** */
 void IterativeAlgoEnvironment::run ()
 {
     algo::core::impl::SingleResultVisitorFactory* visitorFactory = new algo::core::impl::SingleResultVisitorFactory();
@@ -52,23 +53,25 @@ void IterativeAlgoEnvironment::run ()
 
         currentStepProps->add(1, STR_OPTION_KMERS_TO_SELECT, kmersToSelect);
         bool tmpIsRunning = _isRunning;
-        SingleIterationAlgoEnvironment firstStep(currentStepProps, tmpIsRunning, foundQueryIndexes, visitorFactory);
-        _currentStepEnvironment = &firstStep;
+        SingleIterationAlgoEnvironment stepEnvironment(currentStepProps, tmpIsRunning, foundQueryIndexes, visitorFactory);
+        stepEnvironment.addObserver(this);
 
-        _currentStepEnvironment->configure ();
-        _currentStepEnvironment->run ();
+        stepEnvironment.configure ();
+        stepEnvironment.run ();
+
+        stepEnvironment.removeObserver(this);
+
         std::set<u_int64_t>* found = visitorFactory->getFoundQueryIndexes();
         foundQueryIndexes.insert(found->begin(), found->end());
 
-        std::cout << "End step " << kmersToSelect << " " << found->size() << "\n";
+        DEBUG(std::cout << "End step " << kmersToSelect << " " << found->size() << "\n");
     }
 
-    std::cout << "Size " << foundQueryIndexes.size() << std::endl;
+    DEBUG(std::cout << "Size " << foundQueryIndexes.size() << std::endl);
 
     _isRunning = false;
 }
 
-/** */
 database::IDatabaseQuickReader* IterativeAlgoEnvironment::getQuickSubjectDbReader ()
 {
     // NOTE ipetrov: For me this method should not be in the interface. It is put
@@ -87,7 +90,8 @@ database::IDatabaseQuickReader* IterativeAlgoEnvironment::getQuickQueryDbReader 
 
 void IterativeAlgoEnvironment::update (dp::EventInfo* evt, dp::ISubject* subject)
 {
-    //_currentStepEnvironment->update(evt, subject);
+    /** We just forward the event. */
+    if (this != subject) {  this->notify (evt);  }
 }
 
 IConfiguration* IterativeAlgoEnvironment::createConfiguration (dp::IProperties* properties)
