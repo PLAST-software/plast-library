@@ -18,6 +18,13 @@ typedef u_int64_t uint64_t;
 typedef std::pair<uint64_t, uint64_t> KmerIndexes;
 typedef std::pair<uint64_t, KmerIndexes> KmerWithCount;
 
+/********************************************************************************/
+/** \brief Genomic database indexation concepts. */
+namespace indexation {
+/********************************************************************************/
+namespace impl {
+/********************************************************************************/
+
 /**
  * Comparator for instances of KmerWithCount that compares only their count field.
  */
@@ -30,6 +37,10 @@ class KmerComparator {
 
 typedef std::priority_queue<KmerWithCount, std::vector<KmerWithCount>, KmerComparator> KmerWithCountPriorityQueue;
 
+/**
+ * Generator of seed mask for a pair of query and database file, where only
+ * certain number of kmers/seeds should be kept for each query sequence.
+ */
 class SeedMaskGenerator : public dp::SmartPointer, public ISeedMaskGenerator {
 public:
     SeedMaskGenerator(size_t kmerSize, std::string& queryPath, std::string& databasePath, size_t countToKeep);
@@ -114,5 +125,8 @@ private:
      */
     uint64_t getFileSize(std::string& filename);
 };
+
+} // impl
+} // indexation
 
 #endif /* SEED_MASK_GENERATOR_HPP */

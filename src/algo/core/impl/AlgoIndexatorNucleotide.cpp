@@ -143,21 +143,20 @@ void IndexatorNucleotide::build (dp::ICommandDispatcher* dispatcher)
 
         if (_params->kmersPerSequence != 0)
         {
-        	/** create a new fake indexator to create a mask */
-            FakeDatabaseNucleotideIndex* indexforMask =
-                new FakeDatabaseNucleotideIndex (_subjectDatabase,
-                        _model,
-                        _params->subjectUri,
-                        _params->queryUri,
-                        _params->kmersPerSequence);
-        	indexforMask->build();
-            buildIndex (_queryIndex ,  _queryDatabase,   _model, dispatcher, indexforMask);
-            buildIndex (_subjectIndex, _subjectDatabase, _model, dispatcher, indexforMask);
+            /** create a new fake indexator to create a mask */
+            FakeDatabaseNucleotideIndex indexforMask(_subjectDatabase,
+                    _model,
+                    _params->subjectUri,
+                    _params->queryUri,
+                    _params->kmersPerSequence);
+            indexforMask.build();
+            buildIndex (_queryIndex ,  _queryDatabase,   _model, dispatcher, &indexforMask);
+            buildIndex (_subjectIndex, _subjectDatabase, _model, dispatcher, &indexforMask);
         }
         else
         {
-        	buildIndex (_queryIndex ,  _queryDatabase,   _model, dispatcher, 0);
-        	buildIndex (_subjectIndex, _subjectDatabase, _model, dispatcher, _queryIndex);
+            buildIndex (_queryIndex ,  _queryDatabase,   _model, dispatcher, 0);
+            buildIndex (_subjectIndex, _subjectDatabase, _model, dispatcher, _queryIndex);
         }
     }
 }

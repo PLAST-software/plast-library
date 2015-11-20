@@ -55,7 +55,7 @@ public:
     /** \copydoc AbstractAlignmentResultVisitor::visitAlignment */
     void visitAlignment (core::Alignment* align, const misc::ProgressInfo& progress)
     {
-        processQueryId(align->getSequence(core::Alignment::QUERY)->index);
+        processQueryId(align->getSequence(core::Alignment::QUERY)->offsetInDb);
 
         _resultVisitor->visitAlignment(align, progress);
     }

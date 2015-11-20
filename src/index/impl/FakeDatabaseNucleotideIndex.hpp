@@ -14,19 +14,56 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
-/** \file 	FakeDatabaseNucleotideIndex.hpp
+/** \file     FakeDatabaseNucleotideIndex.hpp
  *  \specific implementation of interfaces for close homologs nucleic database indexation.
- *  \date 	05/05/2015
+ *  \date     05/05/2015
  *  \author lantin
  */
 
 #include <index/impl/AbstractDatabaseIndex.hpp>
+#include <index/api/ISeedMaskGenerator.hpp>
+
+#include <os/api/IThread.hpp>
+
+#include <map>
 
 /********************************************************************************/
 namespace indexation {
 /** \specific implementation of interfaces for close homologs nucleic database indexation. */
 namespace impl {
 /********************************************************************************/
+
+/**
+ * \brief A mapping between a number and SeedMaskGenerator
+ *
+ * The number represents the number of kmers that each sequence from the query
+ * should have in the seed mask.
+ *
+ * NOTE ipetrov: Intended for internal use in FakeDatabaseNucleotideIndex only!
+ *   If needed outside, it should be extracted in a separate file.
+ */
+class KmersCountToSeedMaskGenerator {
+public:
+    virtual ~KmersCountToSeedMaskGenerator()
+    {
+        std::map<u_int64_t, ISeedMaskGenerator*>::iterator iter = _seedMaskGenerators.begin();
+        for (; iter != _seedMaskGenerators.end(); iter++) {
+            (*iter).second->forget();
+        }
+    }
+
+    /** Returns if the number kmersPerSequence is presented in the data structure */
+    bool contains(u_int64_t kmersPerSequence)
+    {
+        return _seedMaskGenerators.find(kmersPerSequence) != _seedMaskGenerators.end();
+    }
+
+    /** Retrieves an ISeedMaskGenerator* for a given */
+    ISeedMaskGenerator* & operator[](std::size_t idx) { return _seedMaskGenerators[idx]; }
+
+private:
+    std::map<u_int64_t, ISeedMaskGenerator*> _seedMaskGenerators;
+};
 
 /** \specific implementation of interfaces for close homologs nucleic database indexation.
  *
@@ -41,61 +78,69 @@ class FakeDatabaseNucleotideIndex : public AbstractDatabaseIndex
 {
 public:
 
-	/** Constructor.
-	 * \param[in] database : the database to be indexed
-	 * \param[in] model : the seed model whose seeds are index keys
-	 * */
+    /** Constructor.
+     * \param[in] database : the database to be indexed
+     * \param[in] model : the seed model whose seeds are index keys
+     * */
     FakeDatabaseNucleotideIndex (database::ISequenceDatabase* database,
         seed::ISeedModel* model,
         std::string subjectUri,
         std::string queryUri,
         long kmersPerSequence);
 
-	virtual ~FakeDatabaseNucleotideIndex ();
+    virtual ~FakeDatabaseNucleotideIndex ();
 
-	/** \copydoc AbstractDatabaseIndex::build */
-	void build ();
+    /** \copydoc AbstractDatabaseIndex::build */
+    void build ();
 
-	/** the only data created by this fake index */
-	u_int8_t* getMask ()  { return (u_int8_t*) _maskOut; }
+    /** the only data created by this fake index */
+    u_int8_t* getMask ()  { return (u_int8_t*) _maskOut; }
 
-	/** */
-	typedef u_int64_t word_t;
+    /** */
+    typedef u_int64_t word_t;
 
 
-	/*****************************************************************/
-	/** 				NOT IMPLEMENTED METHODS 					**/
-	/*****************************************************************/
-	/** \copydoc AbstractDatabaseIndex::createOccurrenceIterator */
-	IOccurrenceIterator* createOccurrenceIterator (const seed::ISeed* seed, size_t neighbourhoodSize=0) { return 0; }
+    /*****************************************************************/
+    /**                 NOT IMPLEMENTED METHODS                     **/
+    /*****************************************************************/
+    /** \copydoc AbstractDatabaseIndex::createOccurrenceIterator */
+    IOccurrenceIterator* createOccurrenceIterator (const seed::ISeed* seed, size_t neighbourhoodSize=0) { return 0; }
 
-	/** \copydoc AbstractDatabaseIndex::createOccurrenceBlockIterator */
-	IOccurrenceBlockIterator* createOccurrenceBlockIterator (
-	 const seed::ISeed* seed,
-	 size_t neighbourhoodSize,
-	 size_t blockSize
-	)  { return 0; }
+    /** \copydoc AbstractDatabaseIndex::createOccurrenceBlockIterator */
+    IOccurrenceBlockIterator* createOccurrenceBlockIterator (
+     const seed::ISeed* seed,
+     size_t neighbourhoodSize,
+     size_t blockSize
+    )  { return 0; }
 
-	/** \copydoc AbstractDatabaseIndex::getEntry */
-	IndexEntry& getEntry (const seed::ISeed* seed);
+    /** \copydoc AbstractDatabaseIndex::getEntry */
+    IndexEntry& getEntry (const seed::ISeed* seed);
 
-	/** \copydoc AbstractDatabaseIndex::getOccurrenceNumber */
-	size_t getOccurrenceNumber (const seed::ISeed* seed);
+    /** \copydoc AbstractDatabaseIndex::getOccurrenceNumber */
+    size_t getOccurrenceNumber (const seed::ISeed* seed);
 
-	/** \copydoc AbstractDatabaseIndex::getTotalOccurrenceNumber */
-	u_int64_t getTotalOccurrenceNumber ();
+    /** \copydoc AbstractDatabaseIndex::getTotalOccurrenceNumber */
+    u_int64_t getTotalOccurrenceNumber ();
 
-	/** \copydoc AbstractDatabaseIndex::merge */
-	void merge (void) {}
+    /** \copydoc AbstractDatabaseIndex::merge */
+    void merge (void) {}
 
 protected:
 
-	word_t* _maskOut;
-	size_t  _maskSize;
+    word_t* _maskOut;
+    size_t  _maskSize;
 
     std::string _subjectUri;
     std::string _queryUri;
-    long _kmersPerSequence;
+    u_int64_t _kmersPerSequence;
+
+private:
+
+    static KmersCountToSeedMaskGenerator _seedMaskGenerators;
+
+    ISeedMaskGenerator* getSeedMaskGenerator(u_int64_t kmersPerSequence);
+
+    os::ISynchronizer* _synchro;
 
 }; // end of FakeDatabaseNucleotideIndex class
 

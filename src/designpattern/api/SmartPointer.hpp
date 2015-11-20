@@ -30,6 +30,31 @@
 namespace dp {
 /********************************************************************************/
 
+/**
+ * \brief Interface for wrappers around a reference that help managing its
+ * life cycle
+ *
+ * The goal is to help managing dynamic memory.
+ *
+ * Supports two main operations: use and forget. The first marks the reference
+ * as used by a client and thus one that should not be freed. The second marks
+ * the reference as no longer needed by a client. When no client needs a given
+ * reference, it is freed.
+ */
+class ISmartPointer
+{
+public:
+    /** Mark the object as needed by a client */
+    virtual void use() = 0;
+
+    /**
+     * Mark the object as not needed by a client
+     *
+     * When there are no client that need an object - destroy it.
+     */
+    virtual void forget() = 0;
+};
+
 /** \brief Tool for managing instances life cycle
  *
  *  The goal of this class is to share easily objects between clients.
@@ -69,7 +94,7 @@ namespace dp {
  *  \see SP_SETATTR
  *  \see LOCAL
  */
-class SmartPointer
+class SmartPointer : virtual public ISmartPointer
 {
 public:
     /** Use an instance by taking a token on it */
@@ -140,18 +165,18 @@ public:
     /** Constructor.
      * \param[in] ptr : the instance we want locally manage.
      */
-    LocalObject (SmartPointer* ptr) : _ptr(ptr)  { if (_ptr)  {  _ptr->use();  } }
+    LocalObject (ISmartPointer* ptr) : _ptr(ptr)  { if (_ptr)  {  _ptr->use();  } }
 
     /** Destructor. */
     ~LocalObject () { if (_ptr)  {  _ptr->forget ();  } }
 
     /** Getter on the referenced instance.
      * \return the referenced SmartPointer instance. */
-    SmartPointer* getPtr ()  { return _ptr; }
+    ISmartPointer* getPtr ()  { return _ptr; }
 
 private:
     /** The SmartPointer instance we want local life cycle management. */
-    SmartPointer* _ptr;
+    ISmartPointer* _ptr;
 };
 
 /********************************************************************************/

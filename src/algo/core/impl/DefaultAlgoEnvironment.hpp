@@ -153,8 +153,10 @@ protected:
 
     virtual IConfiguration* getConfig();
 
+    /** Finish writing the results to disk (perform result visitor flush) */
     virtual void flushResults();
 
+    /** Obtain an instance of a factory for result visitor creation */
     virtual IResultVisitorsFactory* getResultsVisitorFactory();
 };
 

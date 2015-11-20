@@ -14,6 +14,7 @@
  *   CECILL version 2 License for more details.                              *
  *****************************************************************************/
 
+#include <index/api/ISeedMaskGenerator.hpp>
 
 #include <index/impl/FakeDatabaseNucleotideIndex.hpp>
 #include <index/impl/SeedMaskGenerator.hpp>
@@ -33,6 +34,7 @@ namespace indexation { namespace impl {
 
 enum { WORD_SIZE = sizeof(FakeDatabaseNucleotideIndex::word_t) * 8 };
 
+KmersCountToSeedMaskGenerator FakeDatabaseNucleotideIndex::_seedMaskGenerators;
 
 /*********************************************************************
 ** METHOD  :
@@ -52,15 +54,18 @@ FakeDatabaseNucleotideIndex::FakeDatabaseNucleotideIndex (ISequenceDatabase* dat
     _maskSize(0),
     _subjectUri(subjectUri),
     _queryUri(queryUri),
-    _kmersPerSequence(kmersPerSequence)
+    _kmersPerSequence(kmersPerSequence),
+    _synchro(0)
 {
-	// compute the mask size
-	size_t alphabetSize = getModel()->getAlphabet()->size;
-	size_t maxSeedsNumber = pow((double)alphabetSize,(double)getModel()->getSpan());
-	_maskSize = maxSeedsNumber / WORD_SIZE;
-	_maskOut = new word_t [_maskSize];
-	// init the mask with 0 for all entries
-	memset (_maskOut, 0, sizeof(word_t)*_maskSize);
+    // compute the mask size
+    size_t alphabetSize = getModel()->getAlphabet()->size;
+    size_t maxSeedsNumber = pow((double)alphabetSize,(double)getModel()->getSpan());
+    _maskSize = maxSeedsNumber / WORD_SIZE;
+    _maskOut = new word_t [_maskSize];
+    // init the mask with 0 for all entries
+    memset (_maskOut, 0, sizeof(word_t)*_maskSize);
+
+    _synchro = os::impl::DefaultFactory::thread().newSynchronizer();
 }
 
 
@@ -75,6 +80,7 @@ FakeDatabaseNucleotideIndex::FakeDatabaseNucleotideIndex (ISequenceDatabase* dat
 FakeDatabaseNucleotideIndex::~FakeDatabaseNucleotideIndex ()
 {
     delete[] _maskOut;
+    delete _synchro;
 }
 
 /*********************************************************************
@@ -87,9 +93,10 @@ FakeDatabaseNucleotideIndex::~FakeDatabaseNucleotideIndex ()
 *********************************************************************/
 void FakeDatabaseNucleotideIndex::build ()
 {
-    SeedMaskGenerator maskGenerator(getModel()->getSpan(), _queryUri, _subjectUri, _kmersPerSequence);
+    ISeedMaskGenerator* maskGenerator = getSeedMaskGenerator(_kmersPerSequence);
+    LOCAL(maskGenerator);
 
-    size_t generatedMaskSize = maskGenerator.getBitsetSize();
+    size_t generatedMaskSize = maskGenerator->getBitsetSize();
 
     if (generatedMaskSize != _maskSize * sizeof(word_t)) {
         std::cerr << "Expected mask size was "
@@ -100,9 +107,7 @@ void FakeDatabaseNucleotideIndex::build ()
         throw "Internal error. FakeDatabaseNucleotideIndex::build";
     }
 
-    memcpy(_maskOut, maskGenerator.getBitset(), generatedMaskSize);
-
-    std::cout << "Index ready. Set " << maskGenerator.getKmersUsedCount() << std::endl;
+    memcpy(_maskOut, maskGenerator->getBitset(), generatedMaskSize);
 }
 
 /*********************************************************************
@@ -115,7 +120,7 @@ void FakeDatabaseNucleotideIndex::build ()
 *********************************************************************/
 IDatabaseIndex::IndexEntry& FakeDatabaseNucleotideIndex::getEntry (const seed::ISeed* seed)
 {
-//	return NULL;
+    //return NULL;
 }
 
 /*********************************************************************
@@ -142,6 +147,21 @@ size_t FakeDatabaseNucleotideIndex::getOccurrenceNumber (const seed::ISeed* seed
 u_int64_t FakeDatabaseNucleotideIndex::getTotalOccurrenceNumber ()
 {
     return 0;
+}
+
+ISeedMaskGenerator* FakeDatabaseNucleotideIndex::getSeedMaskGenerator(u_int64_t kmersPerSequence)
+{
+    if (!_seedMaskGenerators.contains(kmersPerSequence)) {
+        os::LocalSynchronizer lock(_synchro);
+        ISeedMaskGenerator* seedMaskGenerator = new SeedMaskGenerator(getModel()->getSpan(), _queryUri, _subjectUri, kmersPerSequence);
+        // This object should live at least as much as the algorithm environment.
+        // To ensure this, currently it lives for the duration of the program.
+        // It is freed when _seedMaskGenerators is destroyed.
+        seedMaskGenerator->use();
+        _seedMaskGenerators[kmersPerSequence] = seedMaskGenerator;
+    }
+
+    return _seedMaskGenerators[kmersPerSequence];
 }
 
 /********************************************************************************/
