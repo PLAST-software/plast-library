@@ -11,8 +11,8 @@ find_package (JNI REQUIRED)
 # The version number.
 ################################################################################
 set (plast_VERSION_MAJOR 2)
-set (plast_VERSION_MINOR 2)
-set (plast_VERSION_PATCH 0b)
+set (plast_VERSION_MINOR 3)
+set (plast_VERSION_PATCH 0)
 set (plast-version ${plast_VERSION_MAJOR}.${plast_VERSION_MINOR}.${plast_VERSION_PATCH})
 set (plast-date "xxxx-xx-xx")
 

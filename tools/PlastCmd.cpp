@@ -104,7 +104,6 @@ using namespace launcher::core;
 int main (int argc, char* argv[])
 {
     PlastOptionsParser parser;
-
     try {
         /** We create a Properties instance for collecting both init properties file and user command line options. */
         IProperties* props = new Properties ();
@@ -114,16 +113,17 @@ int main (int argc, char* argv[])
         parser.parse (argc, argv);
         props->add (0, parser.getProperties());
 
-        /** We may want to display some help*/
         if (parser.saw(STR_OPTION_HELP))
         {
-            fprintf (stdout, "PLAST %s, build at %s on %s with %s\nHost configuration: %ld cores available\n",
-				PLAST_VERSION,
+			/** We display program name, version, compiler, etc.*/
+            fprintf (stdout, "%s %s\n  - Build date: %s\n  - OS: %s\n  - Compiler: %s\n  - Host CPU: %ld cores available\n\n",
+                PLAST_NAME,
+                PLAST_VERSION,
                 PLAST_BUILD_DATE,
                 PLAST_BUILD_OS,
                 PLAST_COMPILER,
-				os::impl::DefaultFactory::thread().getNbCores()
-			);
+                os::impl::DefaultFactory::thread().getNbCores()
+            );
             parser.displayHelp   (stdout);
         }/** otherwise we start PLAST */
         else{

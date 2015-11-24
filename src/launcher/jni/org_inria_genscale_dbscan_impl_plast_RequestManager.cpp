@@ -40,7 +40,7 @@ using namespace launcher::core;
 
 extern "C" void iLE (char* isAllowed);
 
-#define CONTROL_CHECKS 1
+#define CONTROL_CHECKS 0
 
 static bool isVersionNumberValid = false;
 static bool isVersionAcademic    = false;
@@ -65,7 +65,7 @@ static bool CheckCode (const char* code)
 
     /** Here, the idea is to parse the provided code and for each found digit,
      *  change the character by decrementing the value.
-     *  For instance, "V3.2.1b" should become "V2.1.0b"  */
+     *  For instance, "3.2.1b" should become "2.1.0b"  */
     for (size_t i=0; i<min(len,lenVersion); i++)
     {
         char c = dup[i];
@@ -162,7 +162,8 @@ JNIEXPORT void JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager_
 
     DEBUG (for (size_t i=0; i<MethodLast_e; i++)  {  printf ("METHOD[%d] = %p\n", i, MethodTable[i]);  })
 
-#ifdef CONTROL_CHECKS
+#if CONTROL_CHECKS
+
     const char* codeBuffer = env->GetStringUTFChars (code, NULL);
     if (codeBuffer)
     {
@@ -201,7 +202,7 @@ JNIEXPORT jlong JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager
     jobject javaProps
 )
 {
-#ifdef CONTROL_CHECKS
+#if CONTROL_CHECKS
 
     /** We check whether the version number is good or not. */
     if (isVersionNumberValid == false)
@@ -229,7 +230,8 @@ JNIEXPORT jlong JNICALL Java_org_inria_genscale_dbscan_impl_plast_RequestManager
     /** We convert the JAVA properties as C++ properties. */
     IProperties* props = Wrapper(env).convertProperties (javaProps);
 
-#ifdef CONTROL_CHECKS
+#if CONTROL_CHECKS
+
     /** We have extra check in case of academic usage. */
     if (isVersionAcademic==true)
     {

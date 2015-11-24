@@ -169,11 +169,13 @@ int OptionsParser::parse (int argc, char* argv[])
         }
     }
 
-    /** We check mandatory options. */
-    checkMandatoryOptions ();
+    if(saw(STR_OPTION_HELP)==false){
+        /** We check mandatory options. */
+        checkMandatoryOptions ();
 
-    /* Now, we check that the accepted options are used with with include options. */
-    checkIncludingOptions ();
+        /* Now, we check that the accepted options are used with with include options. */
+        checkIncludingOptions ();
+    }
 
     /** We may launch an exception if needed. */
     if (!_errors.empty())   {  throw OptionFailure (*this);  }
