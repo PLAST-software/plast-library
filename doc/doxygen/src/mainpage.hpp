@@ -159,23 +159,50 @@
  * \section compile_plast  How to compile the PLAST library ?
  *
  * The PLAST library can be compiled in a terminal with the cmake tool.
+ * 
+ * As a result of source code compilation, one should get a dynamic library (in 'build/lib'
+ * directory) and a commend-line tool (in 'build/bin' directory).
+ * 
+ * Requirements:
+ * 
+ *    * Linux:
+ *             kernel 2.6+
+ *             gcc 4.4+ 
+ *             cmake 2.8+
+ * 
+ *    * MacOS: 
+ *             OS 10.7+  
+ *             cmake 2.8+  
+ *             XCode 4+ and its command-line development tools
+ * 
+ *    * Windows: 
+ *             Seven+
+ *             cmake 2.8+
+ *             Mingw64 environment (since gcc is required to compile PLAST)
+ * 
+ * Be aware that the more recent OS version you use, the more faster PLAST will be.
+ * 
  * Once the source archive has been retrieved and unzipped, one just has to do:
- *      - mkdir build
- *      - cd build
- *      - cmake ..
- *      - make
- *
- * As a result, one should get a dynamic library (in 'build/lib' directory) and a binary (in 'build/bin' directory).
- *
- * This procedure works both on Linux and MacOs.
- *
- * For Windows, the Mingw64 environment has first to be deployed since the GCC compiler is needed for compiling PLAST
- * (due to GCC intrinsics use).
- * Then, one has to do:
- *      - mkdir build
- *      - cd build
- *      - cmake -G "MSYS Makefiles" ..
- *      - make
+ * 
+ * Linux:
+ *     mkdir build
+ *     cd build
+ *     cmake ..
+ *     make
+ * 
+ * MacOS: 
+ *     set CC=gcc
+ *     set CXX=g++
+ *     mkdir build
+ *     cd build
+ *     cmake ..
+ *     make
+ * 
+ * Windows:
+ *     mkdir build
+ *     cd build
+ *     cmake -G "MSYS Makefiles" ..
+ *     make
  *
  * Note that the target architecture must support SSE instructions set (at least SSE2).
  * For instance, most of Intel recent processors support SSE2.

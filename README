@@ -21,22 +21,48 @@ Requirements
 Compiling PLAST
 ---------------
 
-The PLAST library can be compiled in a terminal with the cmake tool. Once the source 
-archive has been retrieved and unzipped, one just has to do:
+The PLAST library can be compiled in a terminal with the cmake tool. 
 
+As a result of source code compilation, one should get a dynamic library (in 'build/lib' 
+directory) and a commend-line tool (in 'build/bin' directory). You can test resulting
+binary using the 'test-plast.sh' script provided in 'scripts' directory.
+
+Requirements: 
+
+   * Linux: 
+            kernel 2.6+ 
+            gcc 4.4+ 
+            cmake 2.8+
+
+   * MacOS: 
+            OS 10.7+ 
+            cmake 2.8+ 
+            XCode 4+ and its command-line development tools 
+
+   * Windows: 
+            Seven+
+            cmake 2.8+
+            Mingw64 environment (since gcc is required to compile PLAST)
+
+Be aware that the more recent OS version you use, the more faster PLAST will be.
+
+Once the source archive has been retrieved and unzipped, one just has to do:
+
+Linux:
     mkdir build
     cd build
     cmake ..
     make
 
-As a result, one should get a dynamic library (in 'build/lib' directory) and a binary 
-(in 'build/bin' directory).
+MacOS: 
+    set CC=gcc
+    set CXX=g++
+    mkdir build
+    cd build
+    cmake ..
+    make
 
-This procedure works both on Linux and MacOs.
-
-For Windows, the Mingw64 environment has first to be deployed since the GCC compiler is 
-needed for compiling PLAST (due to GCC intrinsics use). Then, one has to do:
-
+Windows:
     mkdir build
     cd build
     cmake -G "MSYS Makefiles" ..
