@@ -178,7 +178,7 @@
  *    * Windows: 
  *             Seven+
  *             cmake 2.8+
- *             Mingw64 environment (since gcc is required to compile PLAST)
+ *             MinGW-64 environment (since gcc is required to compile PLAST)
  * 
  * Be aware that the more recent OS version you use, the more faster PLAST will be.
  * 
@@ -198,7 +198,7 @@
  *     cmake ..
  *     make
  * 
- * Windows:
+ * Windows: (use MinGW-MSYS to run a real Unix shell)
  *     mkdir build
  *     cd build
  *     cmake -G "MSYS Makefiles" ..
