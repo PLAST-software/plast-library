@@ -302,6 +302,9 @@ IParameters* DefaultConfiguration::createDefaultParameters (const std::string& a
         params->outputfile           = "stdout";
     }
 
+    params->kmersPerSequence = 0;
+    params->querySequencesBlacklist = NULL;
+
     IProperty* prop = 0;
 
     /** We may want to restrict the number of dumped alingments. */
@@ -379,56 +382,6 @@ dp::ICommandDispatcher* DefaultConfiguration::createIndexationDispatcher ()
 os::impl::TimeInfo* DefaultConfiguration::createTimeInfo ()
 {
     return new TimeInfo ();
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-database::ISequenceIteratorFactory* DefaultConfiguration::createSequenceIteratorFactory (const string& uri)
-{
-	DatabaseLookupType::QuickReaderType_e databaseType = DatabaseLookupType::ENUM_TYPE_UNKNOWN;
-
-	databaseType = DatabaseLookupType::quickReaderType(uri);
-	if ((databaseType==DatabaseLookupType::ENUM_BLAST_PIN)||(databaseType==DatabaseLookupType::ENUM_BLAST_NIN)
-		||(databaseType==DatabaseLookupType::ENUM_BLAST_PAL)||(databaseType==DatabaseLookupType::ENUM_BLAST_NAL))
-	{
-		return new BlastdbSequenceIteratorFactory ();
-	}
-	else
-		return new FastaSequenceIteratorFactory();
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-ISequenceDatabase*  DefaultConfiguration::createDatabase (
-    const string& uri,
-    const Range64& range,
-    int filtering,
-    ISequenceIteratorFactory* sequenceIteratorFactory
-)
-{
-    LOCAL (sequenceIteratorFactory);
-    ISequenceIteratorFactory* tempFactory = createSequenceIteratorFactory(uri);
-    LOCAL (tempFactory);
-
-    /** We create the sequence iterator. */
-    ISequenceIterator* seqIterator =  sequenceIteratorFactory ?
-        sequenceIteratorFactory->createSequenceIterator (uri, range) :
-        tempFactory->createSequenceIterator (uri, range);
-
-    /** We create the database. */
-    return new BufferedSequenceDatabase (seqIterator, filtering);
 }
 
 /*********************************************************************
@@ -970,60 +923,6 @@ IAlignmentContainer* DefaultConfiguration::createUnapAlignmentResult (size_t que
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IAlignmentContainerVisitor* DefaultConfiguration::createResultVisitor ()
-{
-    IAlignmentContainerVisitor* result = 0;
-    IProperty* prop = 0;
-
-    /** We need an uri. We take the one provided by the properties. */
-    string uri ("stdout");
-    if ( (prop = _properties->getProperty (STR_OPTION_OUTPUT_FILE)) != 0)   { uri = prop->value;  }
-
-    /** We need an output format. */
-    int outfmt = 1;
-    if ( (prop = _properties->getProperty (STR_OPTION_OUTPUT_FORMAT)) != 0)  { outfmt = prop->getInt(); }
-
-    DEBUG (cout << "DefaultConfiguration::createResultVisitor  outfmt=" << outfmt << "  uri=" << uri << endl);
-
-    /** We may have to modify the query order. So we may encapsulate the "normal" result by another visitor
-     *  that will reorder the alignments. */
-    IProperty* forceQryOrdering = _properties->getProperty (STR_OPTION_FORCE_QUERY_ORDERING);
-    if (forceQryOrdering != 0)
-    {
-        u_int32_t nbAlignPerNotif = forceQryOrdering->getInt();
-        if (nbAlignPerNotif == 0)  { nbAlignPerNotif = 10*1000; }
-
-        size_t nbHitPerQuery = (prop = _properties->getProperty (STR_OPTION_MAX_HIT_PER_QUERY)) != 0 ?  prop->getInt() : 500;
-        size_t nbAlignPerHit = (prop = _properties->getProperty (STR_OPTION_MAX_HSP_PER_HIT))   != 0 ?  prop->getInt() : 0;
-
-        result = new QueryReorderVisitor (
-            this,
-            uri,
-            createAlgorithmResultVisitor (uri + ".tmp", 3),         // visitor wanted by user with a forced outfmt
-            createSimpleResultVisitor    (uri,          outfmt),    // visitor for final dump with the user outfmt
-            _environment->getQuickQueryDbReader(),
-            nbAlignPerNotif,
-            nbHitPerQuery, nbAlignPerHit
-        );
-    }
-    else
-    {
-        /** We create the result. */
-        result = createAlgorithmResultVisitor (uri, outfmt);
-    }
-
-    /** We return the result. */
-    return result;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
 alignment::tools::IAlignmentSplitter* DefaultConfiguration::createAlignmentSplitter (
     algo::core::IScoreMatrix* scoreMatrix,
     int openGapCost,
@@ -1063,73 +962,6 @@ alignment::tools::ISemiGapAlign* DefaultConfiguration::createSemiGapAlign (
 {
     return new SemiGapAlign (scoreMatrix, openGapCost, extendGapCost, Xdropoff);
     //return new SemiGapAlignTraceback (scoreMatrix, openGapCost, extendGapCost, Xdropoff);
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-IAlignmentContainerVisitor* DefaultConfiguration::createSimpleResultVisitor (const std::string& uri, int outfmt)
-{
-    IAlignmentContainerVisitor* result = 0;
-
-    switch (outfmt)
-    {
-        case 1:     result = new  TabulatedOutputVisitor         (uri);     break;
-        case 2:     result = new  TabulatedOutputExtendedVisitor (uri);     break;
-        case 3:     result = new  RawOutputVisitor               (uri);     break;
-        case 4:     result = new  XmlOutputVisitor               (uri);     break;
-        default:    result = new  TabulatedOutputVisitor         (uri);     break;
-    }
-
-    return result;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-IAlignmentContainerVisitor* DefaultConfiguration::createAlgorithmResultVisitor (const std::string& uri, int outfmt)
-{
-    IAlignmentContainerVisitor* result = createSimpleResultVisitor (uri, outfmt);
-
-    /** Now, we have to take into account the kind of the algorithm (plastp, plastx...)
-     *  since we may have to convert back to nucleotid alphabet. */
-    IProperty* prop = _properties->getProperty (STR_OPTION_ALGO_TYPE);
-    if (prop != 0)
-    {
-        string algoName = prop->getValue();
-
-        if (algoName.compare ("plastp")==0)
-        {
-        }
-        else if (algoName.compare ("tplastn")==0)
-        {
-            result = new NucleotidConversionVisitor (result, Alignment::SUBJECT);
-        }
-        else if (algoName.compare ("plastx")==0)
-        {
-            result = new NucleotidConversionVisitor (result, Alignment::QUERY);
-        }
-        else if (algoName.compare ("tplastx")==0)
-        {
-            result = new NucleotidConversionVisitor (
-                new NucleotidConversionVisitor (result, Alignment::SUBJECT),
-                Alignment::QUERY
-            );
-        }
-    }
-
-    /** We return the result. */
-    return result;
 }
 
 /********************************************************************************/

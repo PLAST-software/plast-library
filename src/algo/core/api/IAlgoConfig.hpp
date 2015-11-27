@@ -113,28 +113,6 @@ public:
      */
     virtual os::impl::TimeInfo* createTimeInfo () = 0;
 
-    /** Create a factory that builds ISequenceIterator objects.
-     * \param[in] uri : uri path to select the sequence iterator factory depending of the file type
-     * \return the factory instance.
-     */
-    virtual database::ISequenceIteratorFactory* createSequenceIteratorFactory (const std::string& uri) = 0;
-
-    /** Create a database object (with means for retrieving sequence within the database) from an uri (likely
-     *  a local file, but it should be a location on a remote computer). A Range can be provided for using only
-     *  a part of the database.
-     *  \param[in] uri : uri of the database file to be read
-     *  \param[in] range : a range to be read in the file (ie. a starting and ending offsets)
-     *  \param[in] filtering : tells whether low informative regions have to be filtered out from the database
-     *  \param[in] sequenceIteratorFactory : a factory can be provided. If null, should use createSequenceIteratorFactory
-     *  \return a new ISequenceDatabase instance
-     */
-    virtual database::ISequenceDatabase*  createDatabase (
-        const std::string& uri,
-        const misc::Range64& range,
-        int filtering,
-        database::ISequenceIteratorFactory* sequenceIteratorFactory
-    ) = 0;
-
     /** */
     virtual algo::core::IDatabasesProvider* createDatabaseProvider () = 0;
 
@@ -277,11 +255,6 @@ public:
      * \return a new IAlignmentResult instance
      */
     virtual alignment::core::IAlignmentContainer* createGapAlignmentResult  () = 0;
-
-    /** Create a visitor for the gap alignments (likely a visitor that dump the alignments into a file).
-     * \return a new AlignmentResultVisitor instance
-     */
-    virtual alignment::core::IAlignmentContainerVisitor* createResultVisitor () = 0;
 
     /** Create a splitter object.
      * \return a new IAlignmentSplitter instance

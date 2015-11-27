@@ -89,8 +89,10 @@ void TabulatedOutputVisitor::dumpLine (core::Alignment* align)
 
     DEBUG (("TabulatedOutputVisitor::dumpLine  align=%p\n", align));
 
-    char queryName[128];
-    snprintf (queryName,   sizeof(queryName),   "%s", _currentQuery->comment);
+    const size_t queryNameMaxSize = 128;
+    char queryName[queryNameMaxSize];
+
+    snprintf (queryName, queryNameMaxSize, "%s", _currentQuery->comment);
     if ( (locate = database::ISequence::searchIdSeparator (queryName)) != 0)  { *locate = 0; }
 
     char subjectName[128] = "";

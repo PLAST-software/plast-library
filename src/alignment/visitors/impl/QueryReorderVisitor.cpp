@@ -379,7 +379,7 @@ private:
 ** REMARKS :
 *********************************************************************/
 QueryReorderVisitor::QueryReorderVisitor (
-    algo::core::IConfiguration*         config,
+    algo::core::IDatabasesProvider*     databaseProvider,
     const std::string&                  outputUri,
     core::IAlignmentContainerVisitor*   realVisitor,
     core::IAlignmentContainerVisitor*   finalVisitor,
@@ -389,7 +389,7 @@ QueryReorderVisitor::QueryReorderVisitor (
     size_t                              nbAlignPerHit
 )
     :  AlignmentsProxyVisitor(realVisitor),
-       _config (config),
+       _databaseProvider(0),
        _outputUri(outputUri),
        _finalVisitor(0),
        _qryReader(0),
@@ -403,6 +403,8 @@ QueryReorderVisitor::QueryReorderVisitor (
 
     /** We keep a reference on the query reader. */
     setQryReader (qryReader);
+
+    setDatabasesProvider(databaseProvider);
 
     /** We create the queries indexes file. */
     _indexesFile.open (getIndexesFileUri().c_str(), ios::out | ios::in | ios::trunc);
@@ -421,6 +423,8 @@ QueryReorderVisitor::~QueryReorderVisitor ()
     /** We clean up resources. */
     setFinalVisitor (0);
     setQryReader    (0);
+
+    setDatabasesProvider(0);
 
     /** Important ! Normally, the reference should be released by the destructor of
      * the parent class (which should occur just after this destructor call).
@@ -516,10 +520,11 @@ void QueryReorderVisitor::finalize (void)
         /** We get the current range to be read in the full query database. */
         Range64 range (qryOffsets[j], qryOffsets[j+1]-1);
 
+
         /** We create the query database for the given range. Note we are interested mainly by sequences
          *  identifiers.
          */
-        ISequenceDatabase* db = _config->createDatabase (_qryReader->getUri(), range, false, 0);
+        ISequenceDatabase* db = _databaseProvider->createDatabase (_qryReader->getUri(), range, false, 0);
         LOCAL (db);
 
         DEBUG (cout << "-----------------------------------------------------------------------------" << endl);

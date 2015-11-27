@@ -23,6 +23,10 @@
 
 #include <database/impl/ReadingFrameSequenceDatabase.hpp>
 #include <database/impl/CompositeSequenceDatabase.hpp>
+#include <database/impl/BufferedCachedSequenceDatabase.hpp>
+#include <database/impl/CachedSubDatabase.hpp>
+#include <database/impl/FastaSequenceConditionalPureIteratorFactory.hpp>
+
 
 #include <iostream>
 #define DEBUG(a)  //a
@@ -125,7 +129,8 @@ void DatabasesProvider::createDatabases (
             params->filterQuery,
             qryFrames,
             _qryDbList,
-            qryFactory
+            qryFactory,
+            params->querySequencesBlacklist
         );
     }
 
@@ -153,13 +158,14 @@ void DatabasesProvider::createDatabaseList (
     int                 filtering,
     const std::vector<ReadingFrame_e>& frames,
     std::list<database::ISequenceDatabase*>& dbList,
-    database::ISequenceIteratorFactory* seqIterFactory
+    database::ISequenceIteratorFactory* seqIterFactory,
+    std::set<u_int64_t>* blacklist
 )
 {
     int shouldFilter = !frames.empty() ? 0 : filtering;
 
     /** We create the source database. */
-    ISequenceDatabase* db = _config->createDatabase (uri, range, shouldFilter, seqIterFactory);
+    ISequenceDatabase* db = createDatabase (uri, range, shouldFilter, seqIterFactory, blacklist);
 
     if (frames.empty() == false)
     {
@@ -332,7 +338,8 @@ void DatabasesProviderReverse::createDatabaseList (
     int                 filtering,
     const std::vector<misc::ReadingFrame_e>& frames,
     std::list<database::ISequenceDatabase*>& dbList,
-    database::ISequenceIteratorFactory* seqIterFactory
+    database::ISequenceIteratorFactory* seqIterFactory,
+    std::set<u_int64_t>* blacklist
 )
 {
     int shouldFilter = !frames.empty() ? 0 : filtering;
@@ -340,7 +347,7 @@ void DatabasesProviderReverse::createDatabaseList (
     dbList.clear ();
 
     /** We create the source database. */
-    ISequenceDatabase* db = _config->createDatabase (uri, range, shouldFilter, seqIterFactory);
+    ISequenceDatabase* db = createDatabase (uri, range, shouldFilter, seqIterFactory, blacklist);
 
     /** We set at least one strand. */
     dbList.push_back (db);
@@ -362,6 +369,72 @@ void DatabasesProviderReverse::createDatabaseList (
         << " list.size=" << dbList.size()
         << endl
     );
+}
+
+ISequenceIterator* DatabasesProvider::getSequenceIterator(
+    const string& uri,
+    const misc::Range64& range,
+    database::ISequenceIteratorFactory* sequenceIteratorFactory)
+{
+    LOCAL (sequenceIteratorFactory);
+    ISequenceIteratorFactory* tempFactory = createSequenceIteratorFactory(uri);
+    LOCAL (tempFactory);
+
+    /** We create the sequence iterator. */
+    ISequenceIterator* seqIterator = sequenceIteratorFactory ?
+        sequenceIteratorFactory->createSequenceIterator (uri, range) :
+        tempFactory->createSequenceIterator (uri, range);
+
+    return seqIterator;
+}
+
+ISequenceDatabase* DatabasesProvider::createDatabase (
+    const std::string& uri,
+    const misc::Range64& range,
+    int filtering,
+    database::ISequenceIteratorFactory* sequenceIteratorFactory,
+    std::set<u_int64_t>* blacklist
+)
+{
+    ISequenceIterator* seqIterator = getSequenceIterator(uri, range, sequenceIteratorFactory);
+
+    if (blacklist != NULL) {
+        return new CachedSubDatabase(seqIterator, blacklist);
+    }
+
+    return new BufferedCachedSequenceDatabase (seqIterator, filtering);
+}
+
+database::ISequenceIteratorFactory* DatabasesProvider::createSequenceIteratorFactory (const std::string& uri)
+{
+       DatabaseLookupType::QuickReaderType_e databaseType = DatabaseLookupType::ENUM_TYPE_UNKNOWN;
+
+       databaseType = DatabaseLookupType::quickReaderType(uri);
+       if ((databaseType == DatabaseLookupType::ENUM_BLAST_PIN)
+               || (databaseType == DatabaseLookupType::ENUM_BLAST_NIN)
+               || (databaseType == DatabaseLookupType::ENUM_BLAST_PAL)
+               || (databaseType == DatabaseLookupType::ENUM_BLAST_NAL))
+       {
+           return new BlastdbSequenceIteratorFactory ();
+       }
+
+       return new FastaSequenceIteratorFactory();
+}
+
+void DatabasesProviderReverse::createDatabases (
+        algo::core::IParameters* params,
+        const std::vector<misc::ReadingFrame_e>& sbjFrames,
+        const std::vector<misc::ReadingFrame_e>& qryFrames,
+        database::ISequenceIteratorFactory* sbjFactory,
+        database::ISequenceIteratorFactory* qryFactory)
+{
+    if (qryFactory == NULL && params->querySequencesBlacklist != NULL) {
+        qryFactory = new FastaSequenceConditionalPureIteratorFactory(params);
+    }
+
+    LOCAL(qryFactory);
+
+    DatabasesProvider::createDatabases(params, sbjFrames, qryFrames, sbjFactory, qryFactory);
 }
 
 /********************************************************************************/

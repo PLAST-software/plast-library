@@ -23,6 +23,7 @@
 #define _DATABASE_VISITOR_HPP_
 
 #include <database/impl/BufferedSequenceDatabase.hpp>
+#include <database/impl/CachedSubDatabase.hpp>
 
 /********************************************************************************/
 /** \brief Definition of concepts related to genomic databases. */
@@ -32,18 +33,23 @@ namespace impl {
 class DatabaseVisitorComment : public DatabaseVisitor
 {
 public:
-	DatabaseVisitorComment(const ISequence& seq, std::string &str) :_result(str),_sequence(seq)
-	{
-	}
+    DatabaseVisitorComment(const ISequence& seq, std::string &str) :_result(str),_sequence(seq)
+    {
+    }
 
-	void visitBufferedSequenceDatabase  (BufferedSequenceDatabase& db) {
-		_result = db._refIterator->transformComment(_sequence.comment);
-	}
-	void visitCompositeSequenceDatabase (CompositeSequenceDatabase& db) {
-		_result="CompositeSequenceDatabase";}
+    void visitBufferedSequenceDatabase  (BufferedSequenceDatabase& db) {
+        _result = db._refIterator->transformComment(_sequence.comment);
+    }
+    void visitCompositeSequenceDatabase (CompositeSequenceDatabase& db) {
+        _result="CompositeSequenceDatabase";}
+
+    void visitCachedSubDatabase (CachedSubDatabase& db) {
+        _result = db.transformComment(_sequence);
+    }
+
 protected:
-	std::string &_result;
-	const ISequence& _sequence;
+    std::string &_result;
+    const ISequence& _sequence;
 
 };
 }

@@ -360,6 +360,11 @@ namespace misc {
  *  int.
  */
 #define STR_OPTION_COMPLETE_SUBJECT_DB_SEQUENCE_NUMBER  misc::StringRepository::m_STR_OPTION_COMPLETE_SUBJECT_DB_SEQUENCE_NUMBER ()
+
+#define STR_OPTION_ITERATIONS_STEPS misc::StringRepository::m_STR_OPTION_ITERATIONS_STEPS ()
+
+#define STR_OPTION_KMERS_TO_SELECT misc::StringRepository::m_STR_OPTION_KMERS_TO_SELECT ()
+
 /********************************************************************************/
 
 /** Strings occurring in messages, exceptions... */
@@ -454,7 +459,8 @@ namespace misc {
 #define STR_HELP_INFO_RESOURCES_PROGRESS    misc::StringRepository::m_STR_HELP_INFO_RESOURCES_PROGRESS ()   // Dump in a file information about resources during algorithm.
 #define STR_HELP_INFO_CONFIG_FILE           misc::StringRepository::m_STR_HELP_INFO_CONFIG_FILE ()   // Pathname of the plast config file.
 #define STR_HELP_WORD_SIZE                  misc::StringRepository::m_STR_HELP_WORD_SIZE ()   // Pathname of the plast config file.
-#define STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE   misc::StringRepository::m_STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE ()   // File path to the stats of the complete subject db
+#define STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE   		misc::StringRepository::m_STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE ()   // File path to the stats of the complete subject db
+#define STR_HELP_ITERATIONS_STEPS                      misc::StringRepository::m_STR_HELP_ITERATIONS_STEPS () // Option to run multiple iterations
 
 #define STR_CONFIG_CLASS_KarlinStats			        misc::StringRepository::m_STR_CONFIG_CLASS_KarlinStats ()   // KarlinStats
 #define STR_CONFIG_CLASS_SpougeStats				    misc::StringRepository::m_STR_CONFIG_CLASS_SpougeStats ()   // SpougeStats
@@ -500,7 +506,7 @@ namespace misc {
 #define STR_PARAM_finalXdroppofGap      misc::StringRepository::m_STR_PARAM_finalXdroppofGap ()   // finalXdroppofGap
 #define STR_PARAM_outputfile            misc::StringRepository::m_STR_PARAM_outputfile ()   // outputfile
 #define STR_PARAM_strands               misc::StringRepository::m_STR_PARAM_strands ()   // strands
-#define STR_PARAM_wordSize              misc::StringRepository::m_STR_PARAM_strands ()   // strands
+#define STR_PARAM_wordSize              misc::StringRepository::m_STR_PARAM_wordSize ()   // word size
 
 /********************************************************************************/
 } /* end of namespaces. */

@@ -30,6 +30,7 @@
 
 #include <algo/core/api/IAlgoEvents.hpp>
 #include <algo/core/impl/DefaultAlgoEnvironment.hpp>
+#include <algo/core/impl/EnvironmentFactory.hpp>
 
 using namespace std;
 
@@ -64,7 +65,7 @@ PlastCmd::PlastCmd (IProperties* properties)
     : _env(0), _properties(0), _isRunning(false), _isFinished(false)
 {
     setProperties (properties);
-    setEnv        (new DefaultEnvironment (properties, _isRunning));
+    setEnv        (EnviromentFactory::createEnvironment(properties, _isRunning));
 
     /** We subscribe ourself as listener. */
     _env->addObserver (this);

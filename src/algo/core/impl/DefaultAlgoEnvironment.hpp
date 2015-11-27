@@ -26,6 +26,7 @@
 /********************************************************************************/
 
 #include <algo/core/api/IAlgoEnvironment.hpp>
+#include <algo/core/api/IResultVisitorsFactory.hpp>
 
 #include <os/impl/TimeTools.hpp>
 
@@ -59,13 +60,13 @@ public:
     virtual ~DefaultEnvironment ();
 
     /** \copydoc IEnvironment::createConfiguration */
-    IConfiguration* createConfiguration (dp::IProperties* properties);
+    virtual IConfiguration* createConfiguration (dp::IProperties* properties);
 
     /** \copydoc IEnvironment::configure */
     void configure ();
 
     /** \copydoc IEnvironment::run */
-    void run ();
+    virtual void run ();
 
     /** */
     database::IDatabaseQuickReader* getQuickSubjectDbReader ()  { return _quickSubjectDbReader; }
@@ -84,7 +85,7 @@ protected:
     std::vector<IParameters*> _parametersList;
 
     IConfiguration* _config;
-    void setConfig (IConfiguration* config)  { SP_SETATTR(config); }
+    virtual void setConfig (IConfiguration* config)  { SP_SETATTR(config); }
 
     alignment::filter::IAlignmentFilter* _filter;
     void setFilter (alignment::filter::IAlignmentFilter* filter)  { SP_SETATTR(filter); }
@@ -149,6 +150,14 @@ protected:
 
     /** */
     void setSubjectBank (dp::IProperties* properties, u_int64_t  maxblocksize);
+
+    virtual IConfiguration* getConfig();
+
+    /** Finish writing the results to disk (perform result visitor flush) */
+    virtual void flushResults();
+
+    /** Obtain an instance of a factory for result visitor creation */
+    virtual IResultVisitorsFactory* getResultsVisitorFactory();
 };
 
 /********************************************************************************/

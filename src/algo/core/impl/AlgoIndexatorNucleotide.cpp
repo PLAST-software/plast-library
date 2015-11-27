@@ -20,6 +20,7 @@
 #include <designpattern/impl/CommandDispatcher.hpp>
 
 #include <index/impl/DatabaseIndex.hpp>
+#include <index/impl/FakeDatabaseNucleotideIndex.hpp>
 
 #include <algo/hits/seed/SeedHitIteratorCached.hpp>
 
@@ -140,8 +141,23 @@ void IndexatorNucleotide::build (dp::ICommandDispatcher* dispatcher)
 
         if (_qryHasChanged)  {  setQueryIndex(0);  setSubjectIndex(0);    _qryHasChanged=false; }
 
-        buildIndex (_queryIndex ,  _queryDatabase,   _model, dispatcher, 0);
-        buildIndex (_subjectIndex, _subjectDatabase, _model, dispatcher, _queryIndex);
+        if (_params->kmersPerSequence != 0)
+        {
+            /** create a new fake indexator to create a mask */
+            FakeDatabaseNucleotideIndex indexforMask(_subjectDatabase,
+                    _model,
+                    _params->subjectUri,
+                    _params->queryUri,
+                    _params->kmersPerSequence);
+            indexforMask.build();
+            buildIndex (_queryIndex ,  _queryDatabase,   _model, dispatcher, &indexforMask);
+            buildIndex (_subjectIndex, _subjectDatabase, _model, dispatcher, &indexforMask);
+        }
+        else
+        {
+            buildIndex (_queryIndex ,  _queryDatabase,   _model, dispatcher, 0);
+            buildIndex (_subjectIndex, _subjectDatabase, _model, dispatcher, _queryIndex);
+        }
     }
 }
 

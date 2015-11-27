@@ -43,6 +43,7 @@ namespace database {
 namespace impl {
 class CompositeSequenceDatabase;
 class BufferedSequenceDatabase;
+class CachedSubDatabase;
 }
 
 /********************************************************************************/
@@ -56,6 +57,7 @@ public:
 	virtual ~DatabaseVisitor(){}
 	virtual void visitBufferedSequenceDatabase  (impl::BufferedSequenceDatabase& db) {}
 	virtual void visitCompositeSequenceDatabase (impl::CompositeSequenceDatabase& db) {}
+	virtual void visitCachedSubDatabase (impl::CachedSubDatabase& db) {}
 protected:
 
 };

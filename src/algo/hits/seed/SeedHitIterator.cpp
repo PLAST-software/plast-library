@@ -56,7 +56,8 @@ SeedHitIterator::SeedHitIterator (
       _seedIterator (0),
       _isLocalDone(true), _isGlobalDone(true),
       _nbOccurMaxDb(0), _nbOccurMaxQuery(0),
-      _itOccurDb1 (0),  _itOccurDb2 (0)
+      _itOccurDb1 (0),
+      _itOccurDb2 (0)
 {
     /** We use the two provided indexes. */
     if (_indexDb1)  { _indexDb1->use ();  }

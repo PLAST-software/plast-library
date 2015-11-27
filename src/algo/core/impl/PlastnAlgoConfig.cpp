@@ -150,6 +150,7 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
     params->reward               =  2;
     params->penalty              = -3;
     params->strand               = 0;
+    params->kmersPerSequence      = 0;
 
     IProperty* strandProp = _properties->getProperty (STR_OPTION_STRAND);
     if (strandProp != 0)
@@ -212,7 +213,7 @@ IParameters* PlastnConfiguration::createDefaultParameters (const std::string& al
 			params->index_neighbor_threshold = 50;
 		}*/
     }
-    
+
     return params;
 }
 
@@ -231,38 +232,6 @@ dp::ICommandDispatcher* PlastnConfiguration::createIndexationDispatcher ()
     return createDispatcher();
     /** We use a serial dispatcher. */
     //return new SerialCommandDispatcher ();
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-ISequenceDatabase*  PlastnConfiguration::createDatabase (
-    const string& uri,
-    const Range64& range,
-    int filtering,
-    database::ISequenceIteratorFactory* sequenceIteratorFactory
-)
-{
-    DEBUG ((cout << "PlastnConfiguration::createDatabase : "
-        << "  uri='" << uri << "'  range=" << range
-        << "  filtering=" << filtering << "  sequenceIteratorFactory=" << sequenceIteratorFactory << endl
-    ));
-
-    LOCAL (sequenceIteratorFactory);
-    ISequenceIteratorFactory* tempFactory = createSequenceIteratorFactory(uri);
-    LOCAL (tempFactory);
-
-    /** We create the sequence iterator. */
-    ISequenceIterator* seqIterator =  sequenceIteratorFactory ?
-        sequenceIteratorFactory->createSequenceIterator (uri, range) :
-        tempFactory->createSequenceIterator (uri, range);
-
-    return new BufferedCachedSequenceDatabase (seqIterator, filtering);
 }
 
 /*********************************************************************
