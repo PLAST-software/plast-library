@@ -172,7 +172,7 @@ void SeedMaskGenerator::findBestKmers(database::ISequence* data,
     int groupSize = kmersHistogramIndex / (countToKeep + 1);
     if (groupSize == 0) groupSize = 1;
 
-    int bestSubsetSize = std::max(1UL, std::min(countToKeep, kmersHistogramIndex / (2 * kmerSize)));
+    int bestSubsetSize = std::max<uint64_t>(1UL, std::min<uint64_t>(countToKeep, kmersHistogramIndex / (2 * kmerSize)));
     uint64_t ** const bestScores = new uint64_t*[bestSubsetSize];
     int ** const prevs = new int*[bestSubsetSize];
     for (int i = 0; i < bestSubsetSize; i++) {
