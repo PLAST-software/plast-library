@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <sstream>
 
 /********************************************************************************/
 namespace os {
@@ -76,8 +77,16 @@ public:
         {
             result = strlen (tmp);
 
-            /** we skip all characters until we reach the next '\n'. */
-            if (result > 0)  {  for (char c = tmp[result-1];  c !='\n' &&  c!=EOF;  c = fgetc (_handle))  {}  }
+            if (result > 0 && tmp[result - 1] != '\n') {
+                std::ostringstream messageStream;
+                messageStream << "Max line size exceeded while reading "
+                    << _path << ". If this is a fasta file, please reformat "
+                    << "it so that each line do not exceep 120 characters! "
+                    << "Check this https://en.wikipedia.org/wiki/FASTA_format "
+                    << "for more details.";
+
+                throw messageStream.str().c_str();
+            }
         }
 
         /** We return the result. */
