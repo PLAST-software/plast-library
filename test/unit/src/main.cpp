@@ -33,7 +33,6 @@ extern "C" Test* TestAlignment_suite();
 extern "C" Test* TestFilter_suite();
 extern "C" Test* TestPlastStrings_suite();
 extern "C" Test* TestSequenceMask_suite();
-extern "C" Test* TestMisc_suite();
 extern "C" Test* TestBugs_suite();
 
 /********************************************************************************/
@@ -55,7 +54,6 @@ int main (int argc, char **argv)
     CppUnit::TextUi::TestRunner runner;
 
     runner.addTest (TestOs_suite());
-    //runner.addTest (TestMisc_suite());
     runner.addTest (TestDesignPattern_suite());
 
     runner.addTest (TestSequenceIterator_suite());

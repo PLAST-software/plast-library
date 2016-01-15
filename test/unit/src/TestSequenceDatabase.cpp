@@ -416,7 +416,7 @@ public:
     /********************************************************************************/
     void testFastaQuickReader2 ()
     {
-        const char* fileTable[] = { "tursiops.fa", "panda.fa", "Fee5ab_All_non_rRNA.fasta", "swissprot.fa", "refseq_protein.00.fa"};
+        const char* fileTable[] = { "tursiops.fa", "panda.fa", "Fee5ab_All_non_rRNA.fasta", "uniprot_sprot.fa"};
         size_t      sizeTable[] = { 1000, 10*1000, 100*1000, 1000*1000, 10*1000*1000, 100*1000*1000};
 
         for (size_t i=0; i<sizeof(fileTable)/sizeof(fileTable[0]); i++)

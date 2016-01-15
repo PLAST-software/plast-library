@@ -112,7 +112,7 @@ public:
          result->addTest (new TestCaller<TestDesignPattern> ("testIteratorGet1",         &TestDesignPattern::testIteratorGet2) );
          result->addTest (new TestCaller<TestDesignPattern> ("testFileLineIterator3",   &TestDesignPattern::testFileLineIterator3) );
          result->addTest (new TestCaller<TestDesignPattern> ("testDirectoryIterator",   &TestDesignPattern::testDirectoryIterator) );
-         // result->addTest (new TestCaller<TestDesignPattern> ("testDirectoryIteratorRec",&TestDesignPattern::testDirectoryIteratorRecursive) );
+         result->addTest (new TestCaller<TestDesignPattern> ("testDirectoryIteratorRec",&TestDesignPattern::testDirectoryIteratorRecursive) );
 
          return result;
     }
@@ -435,7 +435,7 @@ public:
     /** */
     void testSystemCommand ()
     {
-        IFile* file = DefaultFactory::file().newFile ("/tmp/titi", "w");
+        IFile* file = DefaultFactory::file().newFile ("/tmp/plast_testSystemCommand", "w");
 
         list<ICommand*> commands;
 
@@ -467,7 +467,7 @@ public:
 
         props.add (1, "level_1_3", "%ld", 7);
 
-        XmlDumpPropertiesVisitor v ("/tmp/progress.xml");
+        XmlDumpPropertiesVisitor v ("/tmp/plast_testProperties_progress.xml");
         props.accept (&v);
     }
 
@@ -616,8 +616,11 @@ public:
     /** */
     void testXmlFilterReader ()
     {
-         ifstream is;
-         is.open ("/udd/edrezen/samples/CPP/filter.xml", ios::binary);
+        ifstream is(getPath("filter1.xml"), ios::binary);
+        if ( ! is.good() ) {
+            is.close ();
+            throw std::logic_error( "Filter file not found" );
+        }
 
         /** We create a reader. */
         XmlReader reader (is);
@@ -690,6 +693,8 @@ public:
     /** */
     void testFileLineIterator1 ()
     {
+#if 0
+        //tests files (panda*.fa) have been lost...
         testFileLineIterator1_aux (0,0);
         testFileLineIterator1_aux (1000,5000);
         testFileLineIterator1_aux (1000,10000);
@@ -700,13 +705,14 @@ public:
         testFileLineIterator1_aux (0,        20000363);
         testFileLineIterator1_aux (20000364, 25499088);
         testFileLineIterator1_aux (20000000, 25499088);
+#endif
     }
 
     /********************************************************************************/
     /********************************************************************************/
     void testFileLineIterator2 ()
     {
-        const char* filename = "uniprot.fa";
+        const char* filename = "uniprot_sprot.fa";
         const char* tag      = "line";
 
         u_int64_t nbLines   = 0;
@@ -743,9 +749,9 @@ public:
     void testIteratorGet1 ()
     {
         list<const char*> l1;
-        l1.push_back ("titi");
-        l1.push_back ("toto");
-        l1.push_back ("tutu");
+        l1.push_back ("testIteratorGet1_a");
+        l1.push_back ("testIteratorGet1_b");
+        l1.push_back ("testIteratorGet1_c");
 
         const char* current = 0;
         size_t nbGot;
@@ -773,7 +779,7 @@ public:
     {
         /** We build some list containing items. */
         list<string> l1;
-        for (size_t i=1; i<=40; i++)  {  char buf[32];  snprintf (buf, sizeof(buf), "titi%ld", i);  l1.push_back (buf);  }
+        for (size_t i=1; i<=40; i++)  {  char buf[32];  snprintf (buf, sizeof(buf), "str%ld", i);  l1.push_back (buf);  }
 
         /** We build an iterator on that list. */
         IteratorGet<string>* it = new IteratorGet<string> (new ListIterator<string> (l1));
@@ -831,9 +837,9 @@ public:
         }
         info2.cumulatedLength = it.tell();
 
-        //printf ("CONCAT %s\n", concatFile.c_str());
-        //cout << "info1 " << info1 << endl;
-        //cout << "info2 " << info2 << endl;
+        printf ("CONCAT %s\n", concatFile.c_str());
+        cout << "info1 " << info1 << endl;
+        cout << "info2 " << info2 << endl;
 
         CPPUNIT_ASSERT (info1 == info2);
     }
@@ -848,11 +854,10 @@ public:
         files.push_back ("panda.fa");               testFileLineIterator_aux (files);
         files.push_back ("sapiens_1Mo.fa");         testFileLineIterator_aux (files);
         files.push_back ("yeast.fa");               testFileLineIterator_aux (files);
-        files.push_back ("swissprot.fa");           testFileLineIterator_aux (files);
+        files.push_back ("uniprot_sprot.fa");       testFileLineIterator_aux (files);
         files.push_back ("chr10.fa");               testFileLineIterator_aux (files);
         files.push_back ("CionaIntestinalis.fa");   testFileLineIterator_aux (files);
         files.push_back ("panda.fa");               testFileLineIterator_aux (files);
-        files.push_back ("refseq_protein.00.fa");   testFileLineIterator_aux (files);
     }
 
     /********************************************************************************/
@@ -873,8 +878,8 @@ public:
     /********************************************************************************/
     void testDirectoryIteratorRecursive ()
     {
-        //DirectoryIterator it ("/local/users/edrezen/tmp/test", "", false, true);
-        DirectoryIterator it ("/media/USB_Disk/users/edrezen/irisa/symbiose/gat/results/other/blast", "gat");
+        DirectoryIterator it (getPath(".."), "", false, true);
+        //DirectoryIterator it ("/media/USB_Disk/users/edrezen/irisa/symbiose/gat/results/other/blast", "gat");
 
         size_t nbFiles = 0;
 

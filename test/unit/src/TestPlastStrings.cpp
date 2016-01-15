@@ -380,6 +380,8 @@ public:
         OBSFUCATE (STR_PARAM_finalXdroppofGap,        "finalXdroppofGap");
         OBSFUCATE (STR_PARAM_outputfile,              "outputfile");
         OBSFUCATE (STR_PARAM_strands,                 "strands");
+        OBSFUCATE (STR_PARAM_wordSize,                "wordSize");
+        OBSFUCATE (STR_PLAST_REFERENCE,               "Nguyen VH, Lavenier D. (2009) PLAST: parallel local alignment search tool for database comparison. BMC Bioinformatics, vol 10, no 329.");
 
         cout << "};"  << endl;
 

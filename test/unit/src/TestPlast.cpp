@@ -49,6 +49,9 @@ using namespace algo::core;
 using namespace algo::core::impl;
 using namespace alignment::core;
 using namespace launcher::core;
+
+extern const char* getPath (const char* file);
+
 /********************************************************************************/
 
 class TestPlast : public TestFixture
@@ -160,8 +163,8 @@ public:
     {
         // we create a IProperties instance holding the subject and query databases URIs
         IProperties* props = new Properties ();
-        props->add (0, "-d",     "/local/users/edrezen/databases/HalobacteriumSalinarum.fa");
-        props->add (0, "-i",     "/local/users/edrezen/databases/query_x16.fa");
+        props->add (0, "-d",     getPath("HalobacteriumSalinarum.fa"));
+        props->add (0, "-i",     getPath("query.fa"));
         props->add (0, "-o",     "/tmp/plast.out");
         props->add (0, "-a",     "1");
 

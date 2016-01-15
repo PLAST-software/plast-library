@@ -94,7 +94,7 @@ public:
     /********************************************************************************/
     void test_maskdb ()
     {
-        const char* file = "aphid/aphid_10000.fa";
+        const char* file = "aphid_10000.fa" ;
 
         ISequenceIterator* seqIter = new FastaSequenceIterator (getPath (file), 100);
         CPPUNIT_ASSERT (seqIter != 0);
