@@ -96,6 +96,7 @@ ADD_SUBDIRECTORY(src)
 #  UNIT TESTS GENERATION 
 ################################################################################
 ADD_SUBDIRECTORY(test)
+file(COPY test/runTest.sh DESTINATION test)
 
 ################################################################################
 #  DOCUMENTATION GENERATION 
