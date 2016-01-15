@@ -105,6 +105,25 @@ struct ISequence
         return result;
     }
 
+    /** Return the definition of the sequence, extracted from the full comment.
+     * Note: this is not an optimal implementation because we have to find each time
+     * where is the first separator. One could imagine some caching procedure for
+     * keeping this information after the database creation.
+     * \return the definition or empty string if no definiton found.
+     */
+    std::string getDefinition () const
+    {
+        /** Not optimal... */
+        std::string result;
+        char buffer[256];
+        if (retrieveDefinition (buffer, sizeof(buffer)) > 0)  {
+            return result.assign (buffer);
+        }
+        else{
+            return "";
+        }
+    }
+
     /** Get id and definition of the sequence.
      * \param[out] bufId  : the string holding the identifier
      * \param[out] lenId  : the length of the identifier
@@ -171,6 +190,43 @@ struct ISequence
         return lenId;
     }
 
+    /** Get definition of the sequence, if any.
+     * \param[out] bufDef : the string holding the definition
+     * \param[out] lenDef : the length of the definition
+     * \return actual length of the retrieved buffer
+     */
+    size_t retrieveDefinition (
+        char* bufDef, size_t lenDef
+    ) const
+    {
+        /** A little check. */
+        if (!bufDef)  { return 0; }
+
+        if (comment != 0)
+        {
+            const char* lookup = searchIdSeparator (comment);
+            if (lookup != 0 && strlen(lookup)>1)
+            {
+                size_t l = (size_t) strlen(lookup)-1;
+                lenDef = lenDef > l ? l : lenDef;
+
+                strncpy (bufDef, lookup+1, lenDef);
+                bufDef [lenDef-1] = 0;
+            }
+            else
+            {
+                /** We have only id, no def. */
+                *bufDef = 0;
+                lenDef  = 0;
+            }
+        }
+        else
+        {
+            lenDef = 0;     *bufDef = 0;
+        }
+        return lenDef;
+    }
+
     /** Tool for dumping a sequence content. Useful for debug purpose.
      * \return the string representing the sequence.
      */
@@ -229,17 +285,17 @@ struct ISequence
      */
     static char* searchIdSeparator (const char* comment)
     {
-		/** A basic implementation would be to return strchr (comment, ' ');
-		 *  BUT! Some silly databases have \t as separators (instead of ' ')
-		 *  See also bug 14459.
-		 */
-    	char c = 0;
+        /** A basic implementation would be to return strchr (comment, ' ');
+         *  BUT! Some silly databases have \t as separators (instead of ' ')
+         *  See also bug 14459.
+         */
+        char c = 0;
 
-    	for (const char* loop = comment; (c = *loop); loop++)
-    	{
-    		if (c <= ' ')  {  return (char*)loop; }
-    	}
-    	return 0;
+        for (const char* loop = comment; (c = *loop); loop++)
+        {
+            if (c <= ' ')  {  return (char*)loop; }
+        }
+        return 0;
     }
 
     std::string getComment() const;

@@ -25,6 +25,8 @@
 
 /********************************************************************************/
 
+#include <designpattern/api/IProperty.hpp>
+
 #include <alignment/visitors/impl/OstreamVisitor.hpp>
 
 /********************************************************************************/
@@ -45,7 +47,7 @@ public:
     XmlOutputVisitor (std::ostream* ostream);
 
     /** */
-    XmlOutputVisitor (const std::string& uri);
+    XmlOutputVisitor (const std::string& uri, dp::IProperties* props);
 
     /** Destructor. */
     virtual ~XmlOutputVisitor ();
@@ -61,9 +63,11 @@ public:
 
 private:
     void printline (size_t depth, const char* format, ...);
+    void printParameter (const char* key, const char* field);
 
     const database::ISequence* _currentQuery;
     const database::ISequence* _currentSubject;
+    dp::IProperties*     _properties;
 
     u_int32_t _nbQuery;
     u_int32_t _nbSubject;

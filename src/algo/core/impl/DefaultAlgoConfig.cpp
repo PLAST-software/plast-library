@@ -1082,7 +1082,7 @@ IAlignmentContainerVisitor* DefaultConfiguration::createSimpleResultVisitor (con
         case 1:     result = new  TabulatedOutputVisitor         (uri);     break;
         case 2:     result = new  TabulatedOutputExtendedVisitor (uri);     break;
         case 3:     result = new  RawOutputVisitor               (uri);     break;
-        case 4:     result = new  XmlOutputVisitor               (uri);     break;
+        case 4:     result = new  XmlOutputVisitor               (uri, _properties);     break;
         default:    result = new  TabulatedOutputVisitor         (uri);     break;
     }
 

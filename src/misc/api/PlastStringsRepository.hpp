@@ -409,6 +409,8 @@ public:
 
 #endif
 
+static const char* m_STR_PLAST_REFERENCE () { return "Nguyen VH, Lavenier D. (2009) PLAST: parallel local alignment search tool for database comparison. BMC Bioinformatics, vol 10, no 329."; }
+
 /********************************************************************************/
 } /* end of namespaces. */
 /********************************************************************************/
