@@ -21,7 +21,7 @@
  */
 
 #ifndef _MACOS_MEMORYFILE_HPP_
-#define _LINUX_MEMORYFILE_HPP_
+#define _MACOS_MEMORYFILE_HPP_
 
 /********************************************************************************/
 
