@@ -118,7 +118,7 @@ void XmlOutputVisitor::visitQuerySequence (
                       PLAST_VERSION,
                       PLAST_BUILD_DATE);
         printline (1, "<BlastOutput_reference>%s</BlastOutput_reference>",
-                   misc::m_STR_PLAST_REFERENCE());
+                   STR_PLAST_REFERENCE);
         printline (1, "<BlastOutput_db>%s</BlastOutput_db>",
                    _properties->getProperty (STR_OPTION_SUBJECT_URI)->getValue().c_str());
         printline (1, "<BlastOutput_query-ID>%s</BlastOutput_query-ID>", seq->getIdentifier().c_str());

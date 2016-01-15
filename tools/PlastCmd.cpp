@@ -125,6 +125,7 @@ int main (int argc, char* argv[])
                 os::impl::DefaultFactory::thread().getNbCores()
             );
             parser.displayHelp   (stdout);
+            fprintf (stdout, "Citing PLAST: %s\n", STR_PLAST_REFERENCE);
         }/** otherwise we start PLAST */
         else{
 

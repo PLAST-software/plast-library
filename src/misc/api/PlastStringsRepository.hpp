@@ -210,8 +210,8 @@ public:
     static const char* m_STR_PARAM_finalXdroppofGap () { static misc::impl::ObsfucatedString s (1343397334, 8242810440504477497, 8097832110268824251, 0)  /* => "finalXdroppofGap" */; return s.toString().c_str(); }
     static const char* m_STR_PARAM_outputfile () { static misc::impl::ObsfucatedString s (1343397334, 7594885869349935920, 2305976, 0)  /* => "outputfile" */; return s.toString().c_str(); }
     static const char* m_STR_PARAM_strands () { static misc::impl::ObsfucatedString s (1343397751, 32480047562085503, 0)  /* => "strands" */; return s.toString().c_str(); }
-    static const char* m_STR_PARAM_wordSize () { return "wordSize"; }
-};
+    static const char* m_STR_PARAM_wordSize () { static misc::impl::ObsfucatedString s (1452864236, 7312272751874825994, 0)  /* => "wordSize" */; return s.toString().c_str(); }
+    static const char* m_STR_PLAST_REFERENCE () { static misc::impl::ObsfucatedString s (1452864236, 6206081668621752115, 7954894477079660818, 2891361830907491962, 5498930506446729802, 8241992076785862744, 8028827885633051687, 7451606222865789548, 7310222304589394090, 8029764343163675668, 7017769795226918686, 7142820555234391359, 8030878500509179583, 4764882404868483967, 7886488383209031735, 8511852169827939494, 7935391128927242099, 50823193573378, 0)  /* => "Nguyen VH, Lavenier D. (2009) PLAST: parallel local alignment search tool for database comparison. BMC Bioinformatics, vol 10, no 329." */; return s.toString().c_str(); }};
 
 #else
 
@@ -405,11 +405,11 @@ public:
     static const char* m_STR_PARAM_outputfile () { return "outputfile"; }
     static const char* m_STR_PARAM_strands () { return "strands"; }
     static const char* m_STR_PARAM_wordSize () { return "wordSize"; }
+    static const char* m_STR_PLAST_REFERENCE () { return "Nguyen VH, Lavenier D. (2009) PLAST: parallel local alignment search tool for database comparison. BMC Bioinformatics, vol 10, no 329."; }
 };
 
 #endif
 
-static const char* m_STR_PLAST_REFERENCE () { return "Nguyen VH, Lavenier D. (2009) PLAST: parallel local alignment search tool for database comparison. BMC Bioinformatics, vol 10, no 329."; }
 
 /********************************************************************************/
 } /* end of namespaces. */

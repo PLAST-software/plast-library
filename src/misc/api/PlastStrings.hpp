@@ -500,7 +500,9 @@ namespace misc {
 #define STR_PARAM_finalXdroppofGap      misc::StringRepository::m_STR_PARAM_finalXdroppofGap ()   // finalXdroppofGap
 #define STR_PARAM_outputfile            misc::StringRepository::m_STR_PARAM_outputfile ()   // outputfile
 #define STR_PARAM_strands               misc::StringRepository::m_STR_PARAM_strands ()   // strands
-#define STR_PARAM_wordSize              misc::StringRepository::m_STR_PARAM_strands ()   // strands
+#define STR_PARAM_wordSize              misc::StringRepository::m_STR_PARAM_wordSize ()   // wordsize
+
+#define STR_PLAST_REFERENCE             misc::StringRepository::m_STR_PLAST_REFERENCE()//reference
 
 /********************************************************************************/
 } /* end of namespaces. */
