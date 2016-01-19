@@ -619,7 +619,7 @@ public:
         ifstream is(getPath("filter1.xml"), ios::binary);
         if ( ! is.good() ) {
             is.close ();
-            throw std::logic_error( "Filter file not found" );
+            throw std::string( "Filter file not found" );
         }
 
         /** We create a reader. */
