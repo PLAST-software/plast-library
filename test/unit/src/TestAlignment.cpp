@@ -85,10 +85,10 @@ public:
          result->addTest (new TestCaller<TestAlignment> ("test_ContainerOverlapNone",       &TestAlignment::test_ContainerOverlapNone) );
     	 //result->addTest (new TestCaller<TestAlignment> ("test_test_ContainerOverlapFile",  &TestAlignment::test_ContainerOverlapFile) );
          result->addTest (new TestCaller<TestAlignment> ("test_ContainerCompare",           &TestAlignment::test_ContainerCompare) );
-         result->addTest (new TestCaller<TestAlignment> ("test_ContainerCompare2",          &TestAlignment::test_ContainerCompare2) );
-         result->addTest (new TestCaller<TestAlignment> ("test_ContainerBigNbAlign",          &TestAlignment::test_ContainerBigNbAlign) );
+         //result->addTest (new TestCaller<TestAlignment> ("test_ContainerCompare2",          &TestAlignment::test_ContainerCompare2) );
+         //result->addTest (new TestCaller<TestAlignment> ("test_ContainerBigNbAlign",          &TestAlignment::test_ContainerBigNbAlign) );
          result->addTest (new TestCaller<TestAlignment> ("test_Model",          &TestAlignment::test_Model) );
-//    	 result->addTest (new TestCaller<TestAlignment> ("test_compare",          &TestAlignment::test_compare) );
+         //result->addTest (new TestCaller<TestAlignment> ("test_compare",          &TestAlignment::test_compare) );
          return result;
     }
 

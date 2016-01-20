@@ -73,8 +73,8 @@ public:
     static Test* suite()
     {
     	 TestSuite* result = new TestSuite ("PlastTest");
-         //result->addTest (new TestCaller<TestPlast> ("test_plast1", &TestPlast::test_plast1) );
-         result->addTest (new TestCaller<TestPlast> ("test_plast2", &TestPlast::test_plast2) );
+         result->addTest (new TestCaller<TestPlast> ("test_plast1", &TestPlast::test_plast1) );
+         //result->addTest (new TestCaller<TestPlast> ("test_plast2", &TestPlast::test_plast2) );
          return result;
     }
 
@@ -108,6 +108,7 @@ public:
         props->add (0, "-i",     "/tmp/query.fa");
         props->add (0, "-o",     "/tmp/plast.out");
         props->add (0, "-a",     "1");
+        props->add (0, "-p",     "plastp");
 
         // we create our entry point for the PLAST algorithm
         bool isRunning = true;
@@ -166,6 +167,7 @@ public:
         props->add (0, "-d",     getPath("HalobacteriumSalinarum.fa"));
         props->add (0, "-i",     getPath("query.fa"));
         props->add (0, "-o",     "/tmp/plast.out");
+        props->add (0, "-p",     "plastp");
         props->add (0, "-a",     "1");
 
         PlastCmd* plast = new PlastCmd (props);

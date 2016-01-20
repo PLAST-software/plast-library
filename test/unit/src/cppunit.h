@@ -17,10 +17,13 @@
 #ifndef CPPUNIT_H_
 #define CPPUNIT_H_
 
+#include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/TestAssert.h>
 #include <cppunit/TestFixture.h>
 #include <cppunit/TestSuite.h>
 #include <cppunit/TestCaller.h>
+#include <cppunit/TestResultCollector.h>
+#include <cppunit/TestResult.h>
 #include <cppunit/ui/text/TestRunner.h>
 
 using namespace CppUnit;

@@ -51,6 +51,14 @@ int main (int argc, char **argv)
 {
     if (argc >=2)  { dbDirectory = argv[1]; }
 
+    CppUnit::TestResult controller;
+
+    CppUnit::TestResultCollector result;
+    controller.addListener( &result );
+
+    CppUnit::BriefTestProgressListener progressListener;
+    controller.addListener( &progressListener );
+
     CppUnit::TextUi::TestRunner runner;
 
     runner.addTest (TestOs_suite());
@@ -84,7 +92,7 @@ int main (int argc, char **argv)
 
     runner.addTest (TestBugs_suite());
 
-    runner.run ();
+    runner.run (controller);
 
     return 0;
 }
