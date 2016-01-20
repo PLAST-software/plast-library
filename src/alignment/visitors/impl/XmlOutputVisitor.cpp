@@ -121,7 +121,7 @@ void XmlOutputVisitor::visitQuerySequence (
                    STR_PLAST_REFERENCE);
         printline (1, "<BlastOutput_db>%s</BlastOutput_db>",
                    _properties->getProperty (STR_OPTION_SUBJECT_URI)->getValue().c_str());
-        printline (1, "<BlastOutput_query-ID>%s</BlastOutput_query-ID>", seq->getIdentifier().c_str());
+        printline (1, "<BlastOutput_query-ID>Query_1</BlastOutput_query-ID>");
         printline (1, "<BlastOutput_query-def>%s</BlastOutput_query-def>", seq->getDefinition().c_str());
         printline (1, "<BlastOutput_query-len>%d</BlastOutput_query-len>", seq->getLength());
         printline (1, "<BlastOutput_query-seq>not specified</BlastOutput_query-seq>");
@@ -155,8 +155,8 @@ void XmlOutputVisitor::visitQuerySequence (
 
     printline (2, "<Iteration>");
     printline (3, "<Iteration_iter-num>%d</Iteration_iter-num>", _nbQuery);
-    printline (3, "<Iteration_query-ID>%s</Iteration_query-ID>", _currentQuery->getIdentifier().c_str());
-    printline (3, "<Iteration_query-def>%s</Iteration_query-def>", _currentQuery->getDefinition().c_str());
+    printline (3, "<Iteration_query-ID>Query_%d</Iteration_query-ID>", _nbQuery);
+    printline (3, "<Iteration_query-def>%s</Iteration_query-def>", _currentQuery->getComment().c_str());
     printline (3, "<Iteration_query-len>%d</Iteration_query-len>", _currentQuery->getLength());
     printline (3, "<Iteration_hits>");
 }
