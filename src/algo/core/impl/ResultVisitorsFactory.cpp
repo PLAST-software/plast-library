@@ -66,8 +66,16 @@ alignment::core::IAlignmentContainerVisitor* ResultVisitorsFactory::createResult
             (prop = properties->getProperty(STR_OPTION_MAX_HSP_PER_HIT))   != 0 ? prop->getInt() : 0;
 
         dp::IProperty* queryProp = properties->getProperty (STR_OPTION_QUERY_URI);
+
+        u_int64_t  maxblocksize = 20*1000*1000;
+        dp::IProperty* maxBlockProp = properties->getProperty(STR_OPTION_MAX_DATABASE_SIZE);
+        if (maxBlockProp != 0) {
+            maxblocksize = maxBlockProp->getInt();
+        }
+
         database::IDatabaseQuickReader* queryQuickReader =
             new database::impl::FastaDatabaseQuickReader(queryProp->value, true);
+        queryQuickReader->read (maxblocksize);
 
         result = new alignment::visitors::impl::QueryReorderVisitor(
             databaseProvider,
