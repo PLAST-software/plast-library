@@ -194,6 +194,13 @@ void DefaultEnvironment::configure ()
         }
     }
 
+    /** NOTE ipetrov 13/01/2016: Users will expect the order of the alignments to match
+     * the order of the queries any way. */
+    IProperty* forceQryOrdering = _properties->getProperty(STR_OPTION_FORCE_QUERY_ORDERING);
+    if (forceQryOrdering == 0) {
+        _properties->add (0, STR_OPTION_FORCE_QUERY_ORDERING, "0");
+    }
+
     /** We create a visitor for visiting the resulting alignments. Note that we use only one visitor even if
      *  we have to run several algorithm; in such a case, the results are 'concatenated' by the same visitor.
      *  IMPORTANT: we should create this instance after creating quick readers since these ones may depend

@@ -327,7 +327,7 @@ public:
     static const char* m_STR_HELP_STRAND () { return "strands for plastn: 'plus', 'minus' or 'both' (default)"; }
     static const char* m_STR_HELP_REWARD () { return "reward for a nucleotide match (plastn)"; }
     static const char* m_STR_HELP_PENALTY () { return "penalty for a nucleotide mismatch (plastn)"; }
-    static const char* m_STR_HELP_FORCE_QUERY_ORDERING () { return "Force queries ordering in output file."; }
+    static const char* m_STR_HELP_FORCE_QUERY_ORDERING () { return "Force queries ordering in output file. 0 by default, which is equivalent to a value of 10000. To turn off, put a negative value (-1 for example)"; }
     static const char* m_STR_HELP_MAX_DATABASE_SIZE () { return "Maximum allowed size (in bytes) for a database. If greater, database is segmented."; }
     static const char* m_STR_HELP_MAX_HIT_PER_QUERY () { return "Maximum hits per query. 0 value will dump all hits (default)"; }
     static const char* m_STR_HELP_MAX_HSP_PER_HIT () { return "Maximum alignments per hit. 0 value will dump all hits (default)"; }

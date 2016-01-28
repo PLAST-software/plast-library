@@ -56,8 +56,14 @@ alignment::core::IAlignmentContainerVisitor* ResultVisitorsFactory::createResult
     /** We may have to modify the query order. So we may encapsulate the "normal" result by another visitor
      *  that will reorder the alignments. */
     dp::IProperty* forceQryOrdering = properties->getProperty(STR_OPTION_FORCE_QUERY_ORDERING);
+
+    int64_t nbAlignPerNotif = -1;
+
     if (forceQryOrdering != 0) {
-        u_int32_t nbAlignPerNotif = forceQryOrdering->getInt();
+        nbAlignPerNotif = forceQryOrdering->getInt();
+    }
+
+    if (nbAlignPerNotif >= 0) {
         if (nbAlignPerNotif == 0) { nbAlignPerNotif = 10*1000; }
 
         size_t nbHitPerQuery =
@@ -83,7 +89,7 @@ alignment::core::IAlignmentContainerVisitor* ResultVisitorsFactory::createResult
             createAlgorithmResultVisitor(properties, uri + ".tmp", 3), // visitor wanted by user with a forced outfmt
             createSimpleResultVisitor(uri, outfmt),    // visitor for final dump with the user outfmt
             queryQuickReader,
-            nbAlignPerNotif,
+            (u_int32_t)nbAlignPerNotif,
             nbHitPerQuery, nbAlignPerHit);
     } else {
         /** We create the result. */
