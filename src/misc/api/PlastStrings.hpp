@@ -90,7 +90,7 @@ namespace misc {
  */
 #define STR_OPTION_SMALLGAP_THRESHOLD       misc::StringRepository::m_STR_OPTION_SMALLGAP_THRESHOLD ()
 
-/** "-b"    Command Line option giving the bandwith size used during the small gap algorithm.
+/** "-b"    Command Line option giving the bandwidth size used during the small gap algorithm.
  *  Integer value.
  */
 #define STR_OPTION_SMALLGAP_BAND_WITH       misc::StringRepository::m_STR_OPTION_SMALLGAP_BAND_WITH ()
@@ -406,7 +406,7 @@ namespace misc {
 #define STR_HELP_UNGAP_NEIGHBOUR_LENGTH     misc::StringRepository::m_STR_HELP_UNGAP_NEIGHBOUR_LENGTH ()   // Size of neighbourhood peforming ungapped extension
 #define STR_HELP_UNGAP_SCORE_THRESHOLD      misc::StringRepository::m_STR_HELP_UNGAP_SCORE_THRESHOLD ()   // Ungapped threshold trigger a small gapped extension
 #define STR_HELP_SMALLGAP_THRESHOLD         misc::StringRepository::m_STR_HELP_SMALLGAP_THRESHOLD ()   // threshold for small gapped extension
-#define STR_HELP_SMALLGAP_BAND_WITH         misc::StringRepository::m_STR_HELP_SMALLGAP_BAND_WITH ()   // bandwith for small gapped extension
+#define STR_HELP_SMALLGAP_BAND_WITH         misc::StringRepository::m_STR_HELP_SMALLGAP_BAND_WITH ()   // bandwidth for small gapped extension
 #define STR_HELP_NB_PROCESSORS              misc::StringRepository::m_STR_HELP_NB_PROCESSORS ()   // Number of processors to use
 #define STR_HELP_OPEN_GAP_COST              misc::StringRepository::m_STR_HELP_OPEN_GAP_COST ()   // Cost to open a gap
 #define STR_HELP_EXTEND_GAP_COST            misc::StringRepository::m_STR_HELP_EXTEND_GAP_COST ()   // Cost to extend a gap

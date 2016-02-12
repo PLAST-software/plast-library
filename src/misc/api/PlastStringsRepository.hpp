@@ -127,7 +127,7 @@ public:
     static const char* m_STR_HELP_UNGAP_NEIGHBOUR_LENGTH () { static misc::impl::ObsfucatedString s (1343394373, 2334675641764441681, 8462090425404900981, 7309377810959239186, 2334956330900738055, 7234312004409924891, 7598538378327304247, 2506435, 0)  /* => "Size of neighbourhood peforming ungapped extension" */; return s.toString().c_str(); }
     static const char* m_STR_HELP_UNGAP_SCORE_THRESHOLD () { static misc::impl::ObsfucatedString s (1343394373, 7234312004410632535, 8027793215337748283, 7451040048802563084, 7020393977047239940, 7309465758872215298, 8317697112708115827, 4734917, 0)  /* => "Ungapped threshold trigger a small gapped extension" */; return s.toString().c_str(); }
     static const char* m_STR_HELP_SMALLGAP_THRESHOLD () { static misc::impl::ObsfucatedString s (1343394373, 7813578723338776438, 7886683048323908479, 8102082825191820289, 7954892377262480132, 1849334301, 0)  /* => "threshold for small gapped extension" */; return s.toString().c_str(); }
-    static const char* m_STR_HELP_SMALLGAP_BAND_WITH () { static misc::impl::ObsfucatedString s (1343394373, 7526756838746121824, 7020393977337103675, 7309465758865951756, 8317697112711372549, 3906567, 0)  /* => "bandwith for small gapped extension" */; return s.toString().c_str(); }
+    static const char* m_STR_HELP_SMALLGAP_BAND_WITH () { static misc::impl::ObsfucatedString s (1343394373, 7526756838746121824, 7020393977337103675, 7309465758865951756, 8317697112711372549, 3906567, 0)  /* => "bandwidth for small gapped extension" */; return s.toString().c_str(); }
     static const char* m_STR_HELP_NB_PROCESSORS () { static misc::impl::ObsfucatedString s (1343394373, 8007525917229806156, 8315161617321362301, 2337214414350192403, 7621652, 0)  /* => "Number of processors to use" */; return s.toString().c_str(); }
     static const char* m_STR_HELP_OPEN_GAP_COST () { static misc::impl::ObsfucatedString s (1343394373, 2337214414365222977, 7431046177081152372, 3543041, 0)  /* => "Cost to open a gap" */; return s.toString().c_str(); }
     static const char* m_STR_HELP_EXTEND_GAP_COST () { static misc::impl::ObsfucatedString s (1343394373, 2337214414365222977, 6998704246243941246, 1884751680, 0)  /* => "Cost to extend a gap" */; return s.toString().c_str(); }
@@ -312,7 +312,7 @@ public:
     static const char* m_STR_HELP_UNGAP_NEIGHBOUR_LENGTH () { return "Size of neighbourhood peforming ungapped extension"; }
     static const char* m_STR_HELP_UNGAP_SCORE_THRESHOLD () { return "Ungapped threshold trigger a small gapped extension"; }
     static const char* m_STR_HELP_SMALLGAP_THRESHOLD () { return "threshold for small gapped extension"; }
-    static const char* m_STR_HELP_SMALLGAP_BAND_WITH () { return "bandwith for small gapped extension"; }
+    static const char* m_STR_HELP_SMALLGAP_BAND_WITH () { return "bandwidth for small gapped extension"; }
     static const char* m_STR_HELP_NB_PROCESSORS () { return "Number of processors to use"; }
     static const char* m_STR_HELP_OPEN_GAP_COST () { return "Cost to open a gap"; }
     static const char* m_STR_HELP_EXTEND_GAP_COST () { return "Cost to extend a gap"; }
