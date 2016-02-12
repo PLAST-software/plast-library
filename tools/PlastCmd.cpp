@@ -159,7 +159,7 @@ int main (int argc, char* argv[])
     }
     catch (...)
     {
-        fprintf (stderr, MSG_MAIN_MSG4);
+        fprintf (stderr, "%s", MSG_MAIN_MSG4);
     }
 
     return 0;
