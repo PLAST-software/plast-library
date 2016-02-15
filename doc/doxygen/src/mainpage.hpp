@@ -21,14 +21,69 @@
  * \section intro What is PlastLibrary ?
  *
  * The PlastLibrary is a library containing all the needed software components
- * required for comparing two genomic databases with the PLAST algorithm.
+ * required for comparing two sequence databases with the PLAST algorithm.
  *
  * As a library, it should not contain any 'main' function. However, to simplify the use
  * of the library as a command-line tool, there is a main function provided in:
- *  - tools::PlastCmd: binary for end user that wants to compare genomic databases
+ *  - tools::PlastCmd: binary for end user that wants to compare sequence databases
  *
  * You will find here the code documentation for namespaces, classes, methods of the different
  * components that makes the PlastLibrary design.
+ *
+ ****************************************************************************************************
+ *
+ * \section compile_plast  How to compile PLAST ?
+ *
+ * The PLAST library can be compiled in a terminal with the cmake tool.
+ * 
+ * As a result of source code compilation, one should get a dynamic library (in 'build/lib'
+ * directory) and a command-line tool (in 'build/bin' directory). That tool is 
+ * called PlastCmd: this is the one to use to run PLAST sequence comparison jobs on the
+ * command-line.
+ * 
+ * Requirements to compile PLAST:
+ * 
+ *    * Linux:
+ *             kernel 2.6+ ; 
+ *             gcc 4.4+ ; 
+ *             cmake 2.8+.
+ * 
+ *    * MacOS: 
+ *             OS 10.7+ ;  
+ *             cmake 2.8+ ;   
+ *             XCode 4+ and its command-line development tools.
+ * 
+ *    * Windows: 
+ *             Seven+ ; 
+ *             cmake 2.8+ ; 
+ *             MinGW-64 environment (since gcc is required to compile PLAST).
+ * 
+ * Be aware that the more recent OS version you use, the more faster PLAST will be.
+ * 
+ * Once the source archive has been retrieved and unzipped, one just has to do:
+ * 
+ * Linux:
+ *\code
+ *     mkdir build ; cd build ; cmake .. ; make
+ * \endcode
+ *
+ * MacOS: 
+ *\code
+ *     set CC=gcc
+ *     set CXX=g++
+ *     mkdir build ; cd build ; cmake .. ; make
+ * \endcode
+ *
+ * Windows: (use MinGW-MSYS to run a real Unix shell)
+ *\code
+ *     mkdir build
+ *     cd build
+ *     cmake -G "MSYS Makefiles" ..
+ *     make
+ * \endcode
+ *
+ * Note that the target architecture must support SSE instructions set (at least SSE2).
+ * For instance, most of Intel recent processors support SSE2.
  *
  ****************************************************************************************************
  *
@@ -153,59 +208,6 @@
  *        (likely to related to database management in the example above)
  *      - compilation command only have to provide the path of the global source directory, ie.
  *        something like -I/somepath/PlastLibrary/src
- *
- ****************************************************************************************************
- *
- * \section compile_plast  How to compile the PLAST library ?
- *
- * The PLAST library can be compiled in a terminal with the cmake tool.
- * 
- * As a result of source code compilation, one should get a dynamic library (in 'build/lib'
- * directory) and a commend-line tool (in 'build/bin' directory).
- * 
- * Requirements:
- * 
- *    * Linux:
- *             kernel 2.6+
- *             gcc 4.4+ 
- *             cmake 2.8+
- * 
- *    * MacOS: 
- *             OS 10.7+  
- *             cmake 2.8+  
- *             XCode 4+ and its command-line development tools
- * 
- *    * Windows: 
- *             Seven+
- *             cmake 2.8+
- *             MinGW-64 environment (since gcc is required to compile PLAST)
- * 
- * Be aware that the more recent OS version you use, the more faster PLAST will be.
- * 
- * Once the source archive has been retrieved and unzipped, one just has to do:
- * 
- * Linux:
- *     mkdir build
- *     cd build
- *     cmake ..
- *     make
- * 
- * MacOS: 
- *     set CC=gcc
- *     set CXX=g++
- *     mkdir build
- *     cd build
- *     cmake ..
- *     make
- * 
- * Windows: (use MinGW-MSYS to run a real Unix shell)
- *     mkdir build
- *     cd build
- *     cmake -G "MSYS Makefiles" ..
- *     make
- *
- * Note that the target architecture must support SSE instructions set (at least SSE2).
- * For instance, most of Intel recent processors support SSE2.
  *
  ****************************************************************************************************
  *

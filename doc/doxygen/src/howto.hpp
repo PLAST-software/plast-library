@@ -38,6 +38,59 @@
  * (memory leak for instance).
  *
  ***************************************************************************************************
+ * \section compile_plast_snippets  How to compile the PLAST example source codes (snippets) ?
+ *
+ * The PLAST library comes with several code snippets can be compiled in a terminal with the cmake tool.
+ * 
+ * As a result of source code compilation, you'll get a set of binaries in 'build/bin' directory.
+ * 
+ * Requirements to compile PLAST snippets:
+ * 
+ *    * Linux:
+ *             kernel 2.6+ ; 
+ *             gcc 4.4+ ; 
+ *             cmake 2.8+.
+ * 
+ *    * MacOS: 
+ *             OS 10.7+ ;  
+ *             cmake 2.8+ ;   
+ *             XCode 4+ and its command-line development tools.
+ * 
+ *    * Windows: 
+ *             Seven+ ; 
+ *             cmake 2.8+ ; 
+ *             MinGW-64 environment (since gcc is required to compile PLAST).
+ * 
+ * Be aware that the more recent OS version you use, the more faster PLAST will be.
+ * 
+ * Once the source archive has been retrieved and unzipped, one just has to do:
+ * 
+ * Linux:
+ *\code
+ *     mkdir build ; cd build ; cmake .. ; make examples
+ * \endcode
+ *
+ * MacOS: 
+ *\code
+ *     set CC=gcc
+ *     set CXX=g++
+ *     mkdir build
+ *     cd build
+ *     cmake ..
+ *     make examples
+ * \endcode
+ *
+ * Windows: (use MinGW-MSYS to run a real Unix shell)
+ *\code
+ *     mkdir build
+ *     cd build
+ *     cmake -G "MSYS Makefiles" ..
+ *     make examples
+ * \endcode
+ *
+ * Note that the target architecture must support SSE instructions set (at least SSE2).
+ * For instance, most of Intel recent processors support SSE2.
+ ***************************************************************************************************
  *
  * \section dp_command  How to run some work in a specific thread ?
  *
