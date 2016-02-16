@@ -4,12 +4,12 @@ cmake_minimum_required (VERSION 2.6)
 
 find_package (JNI REQUIRED)
 
-#set (LIBRARY_OUTPUT_PATH    lib/${CMAKE_BUILD_TYPE})
-#set (EXECUTABLE_OUTPUT_PATH bin/${CMAKE_BUILD_TYPE})
-
 ################################################################################
 # The version number.
 ################################################################################
+# 
+# DO NOT modify these numbers ; only used by Inria team to create official STABLE release
+#
 set (plast_VERSION_MAJOR 2)
 set (plast_VERSION_MINOR 3)
 set (plast_VERSION_PATCH 1)
@@ -101,6 +101,7 @@ file(COPY test/runTest.sh DESTINATION test)
 ################################################################################
 #  DOCUMENTATION GENERATION 
 ################################################################################
+# call 'make doc-api' to compile doc
 ADD_SUBDIRECTORY (doc EXCLUDE_FROM_ALL)
 
 ################################################################################
@@ -111,15 +112,6 @@ ADD_SUBDIRECTORY(examples EXCLUDE_FROM_ALL)
 ################################################################################
 #  TOOLS GENERATION 
 ################################################################################
+# call 'make examples' to compile examples using PLAST c++ API
 ADD_SUBDIRECTORY(tools)
 
-################################################################################
-#  INSTALLER 
-################################################################################
-#SET (CPACK_PACKAGE_DESCRIPTION_SUMMARY  "plast project")
-#SET (CPACK_PACKAGE_VENDOR               "INRIA/Korilog")
-#SET (CPACK_PACKAGE_VERSION_MAJOR        "${plast_VERSION_MAJOR}")
-#SET (CPACK_PACKAGE_VERSION_MINOR        "${plast_VERSION_MINOR}")
-#SET (CPACK_PACKAGE_VERSION_PATCH        "${plast_VERSION_PATCH}")
-#SET (CPACK_PACKAGE_VERSION              "${plast-version}")  
-#include (CPack)
