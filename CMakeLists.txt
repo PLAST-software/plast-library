@@ -4,15 +4,15 @@ cmake_minimum_required (VERSION 2.6)
 
 find_package (JNI REQUIRED)
 
-#set (LIBRARY_OUTPUT_PATH    lib/${CMAKE_BUILD_TYPE})
-#set (EXECUTABLE_OUTPUT_PATH bin/${CMAKE_BUILD_TYPE})
-
 ################################################################################
 # The version number.
 ################################################################################
+# 
+# DO NOT modify these numbers ; only used by Inria team to create official STABLE release
+#
 set (plast_VERSION_MAJOR 2)
 set (plast_VERSION_MINOR 3)
-set (plast_VERSION_PATCH 0)
+set (plast_VERSION_PATCH "master-unstable")
 set (plast-version ${plast_VERSION_MAJOR}.${plast_VERSION_MINOR}.${plast_VERSION_PATCH})
 set (plast-date "xxxx-xx-xx")
 
@@ -95,17 +95,11 @@ ADD_SUBDIRECTORY(src)
 ################################################################################
 #  UNIT TESTS GENERATION 
 ################################################################################
-ADD_SUBDIRECTORY(test)
-
-################################################################################
-#  DOCUMENTATION GENERATION 
-################################################################################
-ADD_SUBDIRECTORY (doc EXCLUDE_FROM_ALL)
-
-################################################################################
-#  EXAMPLES GENERATION 
-################################################################################
-ADD_SUBDIRECTORY(examples EXCLUDE_FROM_ALL)
+# tests are now done on Inria Jenkins Platform and required additional tests
+# data sets only available on that platform.
+if (tests)
+  ADD_SUBDIRECTORY(test)
+endif()
 
 ################################################################################
 #  TOOLS GENERATION 
@@ -113,12 +107,15 @@ ADD_SUBDIRECTORY(examples EXCLUDE_FROM_ALL)
 ADD_SUBDIRECTORY(tools)
 
 ################################################################################
-#  INSTALLER 
+#  DOCUMENTATION GENERATION 
 ################################################################################
-#SET (CPACK_PACKAGE_DESCRIPTION_SUMMARY  "plast project")
-#SET (CPACK_PACKAGE_VENDOR               "INRIA/Korilog")
-#SET (CPACK_PACKAGE_VERSION_MAJOR        "${plast_VERSION_MAJOR}")
-#SET (CPACK_PACKAGE_VERSION_MINOR        "${plast_VERSION_MINOR}")
-#SET (CPACK_PACKAGE_VERSION_PATCH        "${plast_VERSION_PATCH}")
-#SET (CPACK_PACKAGE_VERSION              "${plast-version}")  
-#include (CPack)
+# call 'make doc-api' to compile doc
+ADD_SUBDIRECTORY (doc EXCLUDE_FROM_ALL)
+
+################################################################################
+#  EXAMPLES GENERATION 
+################################################################################
+# call 'make examples' to compile examples using PLAST c++ API
+ADD_SUBDIRECTORY(examples EXCLUDE_FROM_ALL)
+
+
