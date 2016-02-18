@@ -29,6 +29,21 @@ As a library, it should not contain any 'main' function. However, to simplify th
 1. an API to setup new softwares relying on PLAST;
 2. a main class (tools::PlastCmd.cpp) to directly provide a ready-to-use PLAST command-line tool. 
 
+About Github mirror
+-------------------
+
+PLAST project resides at two locations:
+
+* [Inria Forge](https://gforge.inria.fr/): the official git repository
+* Github: this is a mirror of the Inria Forge repository
+
+The Github repository is auto-updated from Inria GForge. So all commits have to be done by authorized users/developers on the Inria Forge. Otherwise, consider using "Github/pull request" for any update to be done on PLAST.
+
+Use **stable** release: we always advise you to use the stable release of the software; we consider the master branch as a development branch, so it could be unstable. Recommended procedure:
+
+    git clone ...
+    git checkout stable
+
 This project contains:
 ----------------------
 
