@@ -4,7 +4,7 @@ PLAST Library
 **Linux:** [![Build Status](https://ci.inria.fr/plast/job/build-from-git-linux/badge/icon)](https://ci.inria.fr/plast/job/build-from-git-linux/) - **Mac OSX:** [![Build Status](https://ci.inria.fr/plast/job/build-from-git-macosx/badge/icon)](https://ci.inria.fr/plast/job/build-from-git-macosx/) - **Windows:** [![Build Status](https://ci.inria.fr/plast/job/build-from-git-win64/badge/icon)](https://ci.inria.fr/plast/job/build-from-git-win64/) - **Unit tests:** [![Build Status](https://ci.inria.fr/plast/job/test-from-git-linux/badge/icon)](https://ci.inria.fr/plast/job/test-from-git-linux/)
 
 
-[![License](http://img.shields.io/:license-affero-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![License](http://img.shields.io/:license-affero-blue.svg)](http://www.gnu.org/licenses/agpl-3.0.en.html)
 
 What is PLAST?
 --------------
