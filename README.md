@@ -1,6 +1,9 @@
 PLAST Library
 =============
 
+**Linux:** [![Build Status](https://ci.inria.fr/plast/job/build-from-git-linux/badge/icon)](https://ci.inria.fr/plast/job/build-from-git-linux/) - **Mac OSX:** [![Build Status](https://ci.inria.fr/plast/job/build-from-git-macosx/badge/icon)](https://ci.inria.fr/plast/job/build-from-git-macosx/) - **Windows:** [![Build Status](https://ci.inria.fr/plast/job/build-from-git-win64/badge/icon)](https://ci.inria.fr/plast/job/build-from-git-win64/) - **Unit tests:** [![Build Status](https://ci.inria.fr/plast/job/test-from-git-linux/badge/icon)](https://ci.inria.fr/plast/job/test-from-git-linux/)
+
+
 What is PLAST?
 --------------
 
