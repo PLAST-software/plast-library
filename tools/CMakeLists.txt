@@ -1,5 +1,5 @@
 ################################################################################
-#  TOOLS 
+#  TOOLS
 ################################################################################
 
 add_definitions     (${plast-flags})
@@ -9,10 +9,10 @@ list (APPEND PROGRAMS PlastCmd makeplastdb)
 
 FOREACH (program ${PROGRAMS})
   add_executable(${program} ${program}.cpp)
-  target_link_libraries(${program} ${plast-libraries})
+  target_link_libraries(${program} ${plast-libraries} ${LOG4CPP_LIBRARY_NAME})
 ENDFOREACH (program)
 
 ################################################################################
-#  INSTALLATION 
+#  INSTALLATION
 ################################################################################
 install (TARGETS PlastCmd makeplastdb DESTINATION bin)

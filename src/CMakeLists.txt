@@ -1,9 +1,10 @@
 ################################################################################
 #  HEADERS COPY
 ################################################################################
+
 file (COPY ${PROJECT_SOURCE_DIR}/src/
     DESTINATION ${PROJECT_BINARY_DIR}/include
-    FILES_MATCHING PATTERN "*.hpp"  PATTERN "*.h"  PATTERN "*.pri"
+    FILES_MATCHING PATTERN "*.hpp"  PATTERN "*.h" PATTERN "*.pri"
 )
 
 install (DIRECTORY ${PROJECT_SOURCE_DIR}/src/ DESTINATION include FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h" PATTERN "*.pri")
@@ -12,14 +13,14 @@ install (DIRECTORY ${PROJECT_SOURCE_DIR}/src/ DESTINATION include FILES_MATCHING
 #  CONFIGURATION FILE
 ################################################################################
 configure_file (
-    ${PROJECT_SOURCE_DIR}/src/misc/api/version.hpp.in 
+    ${PROJECT_SOURCE_DIR}/src/misc/api/version.hpp.in
     ${PROJECT_BINARY_DIR}/include/misc/api/version.hpp
 )
 
 install (FILES ${PROJECT_BINARY_DIR}/include/misc/api/version.hpp DESTINATION include/os/api/)
 
 ################################################################################
-#  LIBRARY GENERATION 
+#  LIBRARY GENERATION
 ################################################################################
 
 # We add the compilation options for the library
@@ -37,7 +38,7 @@ set_target_properties (PlastLibrary-static   PROPERTIES OUTPUT_NAME  PlastLibrar
 
 
 ################################################################################
-#  INSTALLATION 
+#  INSTALLATION
 ################################################################################
 
 # We install the libraries

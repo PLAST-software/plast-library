@@ -7,7 +7,7 @@ find_package (JNI REQUIRED)
 ################################################################################
 # The version number.
 ################################################################################
-# 
+#
 # DO NOT modify these numbers ; only used by Inria team to create official STABLE release
 #
 set (plast_VERSION_MAJOR 2)
@@ -56,14 +56,14 @@ ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set (LIBRARY_COMPILE_DEFINITIONS "${LIBRARY_COMPILE_DEFINITIONS} -D__WINDOWS__")
-    # IMPORTANT ! we have to add this flag for getting correct methods names in the library    
+    # IMPORTANT ! we have to add this flag for getting correct methods names in the library
     # otherwise the Java JVM won't find the native JNI methods.
     set_target_properties (PlastLibrary PROPERTIES LINK_FLAGS -Wl,--kill-at)
     set_target_properties (PlastLibrary PROPERTIES PREFIX "")
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 ################################################################################
-#  DIRECTORIES MANAGEMENT 
+#  DIRECTORIES MANAGEMENT
 ################################################################################
 
 set (LIBRARY_OUTPUT_PATH       ${PROJECT_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
@@ -88,12 +88,17 @@ set (plast-includes  ${plast-includes}  PARENT_SCOPE)
 set (plast-libraries ${plast-libraries} PARENT_SCOPE)
 
 ################################################################################
-#  LIBRARY GENERATION 
+#  ADDITIONAL LIBRARY
+################################################################################
+ADD_SUBDIRECTORY(thirdparty/log4cpp)
+
+################################################################################
+#  LIBRARY GENERATION
 ################################################################################
 ADD_SUBDIRECTORY(src)
 
 ################################################################################
-#  UNIT TESTS GENERATION 
+#  UNIT TESTS GENERATION
 ################################################################################
 # tests are now done on Inria Jenkins Platform and required additional tests
 # data sets only available on that platform.
@@ -102,20 +107,18 @@ if (tests)
 endif()
 
 ################################################################################
-#  TOOLS GENERATION 
+#  TOOLS GENERATION
 ################################################################################
 ADD_SUBDIRECTORY(tools)
 
 ################################################################################
-#  DOCUMENTATION GENERATION 
+#  DOCUMENTATION GENERATION
 ################################################################################
 # call 'make doc-api' to compile doc
 ADD_SUBDIRECTORY (doc EXCLUDE_FROM_ALL)
 
 ################################################################################
-#  EXAMPLES GENERATION 
+#  EXAMPLES GENERATION
 ################################################################################
 # call 'make examples' to compile examples using PLAST c++ API
 ADD_SUBDIRECTORY(examples EXCLUDE_FROM_ALL)
-
-
