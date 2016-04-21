@@ -11,16 +11,14 @@
 
 PROJECT ( LOG4CPP )
 
-#MESSAGE( STATUS " *** log4cpp project_source_dir:         " ${PROJECT_SOURCE_DIR} )
-#MESSAGE( STATUS " *** log4cpp project_binary_dir:         " ${PROJECT_BINARY_DIR} )
-#file (COPY ${PROJECT_SOURCE_DIR}/src/
-#    DESTINATION ${PROJECT_SOURCE_DIR}/../../build/include/log4cpp
-#    FILES_MATCHING PATTERN "*.hpp"  PATTERN "*.h" PATTERN "*.hh"
-#)
-#file (COPY ${PROJECT_SOURCE_DIR}/include/log4cpp
-#    DESTINATION ${PROJECT_SOURCE_DIR}/../../build/include/
-#    FILES_MATCHING PATTERN "*.hpp"  PATTERN "*.h" PATTERN "*.hh"
-#)
+file (COPY ${PROJECT_SOURCE_DIR}/src/
+    DESTINATION ${PROJECT_SOURCE_DIR}/../../build/include/log4cpp
+    FILES_MATCHING PATTERN "*.hpp"  PATTERN "*.h" PATTERN "*.hh"
+)
+file (COPY ${PROJECT_SOURCE_DIR}/include/log4cpp
+    DESTINATION ${PROJECT_SOURCE_DIR}/../../build/include/
+    FILES_MATCHING PATTERN "*.hpp"  PATTERN "*.h" PATTERN "*.hh"
+)
 
 INCLUDE_DIRECTORIES ( include )
 INCLUDE_DIRECTORIES ( . )
@@ -40,6 +38,8 @@ IF ( CMAKE_BUILD_TYPE MATCHES "Debug" )
 ELSE ( CMAKE_BUILD_TYPE MATCHES "Debug" )
   SET ( LOG4CPP_LIBRARY_NAME "log4cpp" )
 ENDIF ( CMAKE_BUILD_TYPE MATCHES "Debug" )
+
+MESSAGE( STATUS " *** log4cpp lib:         " ${LOG4CPP_LIBRARY_NAME} )
 
 ADD_LIBRARY ( ${LOG4CPP_LIBRARY_NAME}
   src/Appender.cpp

@@ -146,6 +146,9 @@ void testLog4cpp() {
 int main (int argc, char* argv[])
 {
     PlastOptionsParser parser;
+
+    //testLog4cpp();
+
     try {
         /** We create a Properties instance for collecting both init properties file and user command line options. */
         IProperties* props = new Properties ();
