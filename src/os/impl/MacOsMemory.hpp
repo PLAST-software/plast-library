@@ -47,4 +47,4 @@ public:
 } } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /* WINDOWS_MEMORY_HPP_ */
+#endif /* MACOS__MEMORY_HPP_ */

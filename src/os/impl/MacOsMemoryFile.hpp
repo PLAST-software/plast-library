@@ -14,14 +14,14 @@
  *   Affero GPL ver 3 License for more details.                              *
  *****************************************************************************/
 
-/** \file LinuxMemoryFile.hpp
+/** \file MacOsMemoryFile.hpp
  *  \date 28/03/2014
  *  \author sbrillet
  *  \brief Mac OS abstraction of Memory file management.
  */
 
 #ifndef _MACOS_MEMORYFILE_HPP_
-#define _LINUX_MEMORYFILE_HPP_
+#define _MACOS_MEMORYFILE_HPP_
 
 /********************************************************************************/
 

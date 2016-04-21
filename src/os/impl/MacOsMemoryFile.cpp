@@ -127,4 +127,4 @@ IMemoryFile* MacOsMemoryFileFactory::newFile (const char *path, bool map)
 } } /* end of namespaces. */
 /********************************************************************************/
 
-#endif /*  __LINUX__  */
+#endif /*  __MACOS__  */
