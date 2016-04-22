@@ -1,4 +1,6 @@
 
+#include <string.h>
+
 #include <misc/api/PLogger.hpp>
 
 #include <log4cpp/Category.hh>
