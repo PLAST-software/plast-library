@@ -139,8 +139,7 @@ int main (int argc, char* argv[])
             if(parser.saw(STR_OPTION_LOGGER)){
                 const Option* logLevel = parser.getSeenOption (STR_OPTION_LOGGER);
                 PLogger::initialize(log4cpp::Priority::getPriorityValue(logLevel->getParam().c_str()));
-                LOG_INFO(log4cpp::Category::getRoot(), "*** START Application *** ");
-                LOG_DEBUG_S("toto");
+                LOG_INFO(ROOT_LOGGER_NAME, "*** START Application *** ");
             }
             /** We try to see if we have a provided rc file. */
             const Option* fileOpt = parser.getSeenOption (STR_OPTION_INFO_CONFIG_FILE);
@@ -164,7 +163,7 @@ int main (int argc, char* argv[])
     }
     catch (std::invalid_argument& e)
     {
-        //among others, this is thown if argument of '-logger' is invalid
+        //among others, this is thrown if argument of '-logger' is invalid
         fprintf (stderr, MSG_MAIN_MSG3, e.what());
     }
     catch (statistics::GlobalParametersFailure& e)
@@ -181,7 +180,7 @@ int main (int argc, char* argv[])
     }
 
     if(parser.saw(STR_OPTION_LOGGER)){
-        LOG_INFO(log4cpp::Category::getRoot(), "*** END Application *** ");
+        LOG_INFO(ROOT_LOGGER_NAME, "*** END Application *** ");
     }
 
     return 0;

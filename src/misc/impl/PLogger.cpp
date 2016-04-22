@@ -1,16 +1,11 @@
 
 #include <misc/api/PLogger.hpp>
 
-#include <execinfo.h>
-#include <stdio.h>
-
 #include <log4cpp/Category.hh>
 #include <log4cpp/Appender.hh>
 #include <log4cpp/FileAppender.hh>
-#include <log4cpp/Layout.hh>
 #include <log4cpp/PatternLayout.hh>
 #include <log4cpp/Priority.hh>
-#include <log4cpp/NDC.hh>
 
 /********************************************************************************/
 namespace misc {
@@ -39,18 +34,14 @@ bool isInitialized(){
     return init;
 }
 
-/*void debug(log4cpp::Category& logger, const char* message){
-    if (!init)
-        return;
-    logger.debug(message);
-    void* callstack[2];
-    int i, frames = backtrace(callstack, 2);
-    char** strs = backtrace_symbols(callstack, frames);
-    for (i = 0; i < frames; ++i) {
-    printf("%s\n", strs[i]);
+log4cpp::Category& getLoggerByName(const char *loggerName){
+    if (strcmp(loggerName, ROOT_LOGGER_NAME) == 0){
+        return log4cpp::Category::getRoot();
     }
-    free(strs);
-}*/
+    else{
+        return log4cpp::Category::getInstance(loggerName);
+    }
+}
 
 /********************************************************************************/
 }}  /* end of namespaces. */

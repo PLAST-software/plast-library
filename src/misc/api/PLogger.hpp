@@ -50,30 +50,51 @@ namespace PLogger {
     */
   bool isInitialized();
 
+  /**
+    * Return a logger given its name.
+    */
+  log4cpp::Category& getLoggerByName(const char* loggerName);
+
 /********************************************************************************/
 }}  /* end of namespaces. */
 /********************************************************************************/
+#define ROOT_LOGGER_NAME "root"
 
-#define LOG_DEBUG_S(msg) { \
-    log4cpp::Category& rootLogger = log4cpp::Category::getRoot(); \
-    if (misc::PLogger::isInitialized() && rootLogger.getPriority()>=log4cpp::Priority::DEBUG){ \
-        std::string fileName = std::string(__FILE__); \
-        std::size_t start = fileName.find_last_of(FILE_SEPARATOR); \
-        rootLogger << log4cpp::Priority::DEBUG << fileName.substr(start+1) << ":" << __func__ << ":" << __LINE__ << ": " << msg ; \
-    } \
-  }
-
-#define LOG_DEBUG(logger, msg) { \
-    if (misc::PLogger::isInitialized() && logger.getPriority()>=log4cpp::Priority::DEBUG){ \
+#define LOG_DEBUG(loggerName, msg) { \
+    if (misc::PLogger::isInitialized()){ \
+      log4cpp::Category& logger = misc::PLogger::getLoggerByName(loggerName); \
+      if(logger.getPriority()>=log4cpp::Priority::DEBUG){ \
         std::string fileName = std::string(__FILE__); \
         std::size_t start = fileName.find_last_of(FILE_SEPARATOR); \
         logger << log4cpp::Priority::DEBUG << fileName.substr(start+1) << ":" << __func__ << ":" << __LINE__ << ": " << msg ; \
+      } \
     } \
   }
 
-#define LOG_INFO(logger, msg) { \
-    if (misc::PLogger::isInitialized() && logger.getPriority()>=log4cpp::Priority::INFO){ \
+#define LOG_INFO(loggerName, msg) { \
+    if (misc::PLogger::isInitialized()){ \
+      log4cpp::Category& logger = misc::PLogger::getLoggerByName(loggerName); \
+      if(logger.getPriority()>=log4cpp::Priority::INFO){ \
         logger.info(msg); \
+      } \
+    } \
+  }
+
+#define LOG_WARN(loggerName, msg) { \
+    if (misc::PLogger::isInitialized()){ \
+      log4cpp::Category& logger = misc::PLogger::getLoggerByName(loggerName); \
+      if(logger.getPriority()>=log4cpp::Priority::WARN){ \
+        logger.info(msg); \
+      } \
+    } \
+  }
+
+#define LOG_ERROR(loggerName, msg) { \
+    if (misc::PLogger::isInitialized()){ \
+      log4cpp::Category& logger = misc::PLogger::getLoggerByName(loggerName); \
+      if(logger.getPriority()>=log4cpp::Priority::ERROR){ \
+        logger.info(msg); \
+      } \
     } \
   }
 

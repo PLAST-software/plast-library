@@ -159,7 +159,7 @@ AbstractAlgorithm::AbstractAlgorithm (
 *********************************************************************/
 AbstractAlgorithm::~AbstractAlgorithm (void)
 {
-    LOG_DEBUG_S ("AbstractAlgorithm::~AbstractAlgorithm : releasing instances.\n");
+    LOG_DEBUG(ROOT_LOGGER_NAME,"AbstractAlgorithm::~AbstractAlgorithm : releasing instances.\n");
 
     /** We get rid of the used instances. */
     setConfig            (0);
