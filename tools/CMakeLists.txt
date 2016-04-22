@@ -9,7 +9,7 @@ list (APPEND PROGRAMS PlastCmd makeplastdb)
 
 FOREACH (program ${PROGRAMS})
   add_executable(${program} ${program}.cpp)
-  target_link_libraries(${program} ${plast-libraries} log4cpp)
+  target_link_libraries(${program} ${plast-libraries})
 ENDFOREACH (program)
 
 ################################################################################

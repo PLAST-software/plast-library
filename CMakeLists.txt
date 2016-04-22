@@ -79,8 +79,10 @@ set (plast-flags ${LIBRARY_COMPILE_DEFINITIONS})
 # We define the include directories used for linking binary based on the library
 set (plast-includes ${PROJECT_BINARY_DIR}/include)
 
+# we set the log4cpp libame
+set ( LOG4CPP_LIBRARY_NAME "log4cpp" )
 # We define the libraries used for linking binary based on the library
-set (plast-libraries  PlastLibrary-static  dl  pthread)
+set (plast-libraries  PlastLibrary-static  dl  pthread ${LOG4CPP_LIBRARY_NAME})
 
 # NOTE... we have to duplicate the variables for the other scopes (in particular for sub directories)
 set (plast-flags     ${plast-flags}     PARENT_SCOPE)
@@ -88,9 +90,20 @@ set (plast-includes  ${plast-includes}  PARENT_SCOPE)
 set (plast-libraries ${plast-libraries} PARENT_SCOPE)
 
 ################################################################################
-#  ADDITIONAL LIBRARY
+#  log4cpp LIBRARY
 ################################################################################
+# we compile the library
 ADD_SUBDIRECTORY(thirdparty/log4cpp)
+
+# we add library inlude files to main include directory
+file (COPY ${PROJECT_BINARY_DIR}/../thirdparty/log4cpp/src/
+    DESTINATION ${PROJECT_BINARY_DIR}/include/log4cpp
+    FILES_MATCHING PATTERN "*.hpp"  PATTERN "*.h" PATTERN "*.hh"
+)
+file (COPY ${PROJECT_BINARY_DIR}/../thirdparty/log4cpp/include/log4cpp
+    DESTINATION ${PROJECT_BINARY_DIR}/include/
+    FILES_MATCHING PATTERN "*.hpp"  PATTERN "*.h" PATTERN "*.hh"
+)
 
 ################################################################################
 #  LIBRARY GENERATION
