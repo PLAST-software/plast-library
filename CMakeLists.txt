@@ -96,11 +96,11 @@ set (plast-libraries ${plast-libraries} PARENT_SCOPE)
 ADD_SUBDIRECTORY(thirdparty/log4cpp)
 
 # we add library inlude files to main include directory
-file (COPY ${PROJECT_BINARY_DIR}/../thirdparty/log4cpp/src/
+file (COPY ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/log4cpp/src/
     DESTINATION ${PROJECT_BINARY_DIR}/include/log4cpp
     FILES_MATCHING PATTERN "*.hpp"  PATTERN "*.h" PATTERN "*.hh"
 )
-file (COPY ${PROJECT_BINARY_DIR}/../thirdparty/log4cpp/include/log4cpp
+file (COPY ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/log4cpp/include/log4cpp
     DESTINATION ${PROJECT_BINARY_DIR}/include/
     FILES_MATCHING PATTERN "*.hpp"  PATTERN "*.h" PATTERN "*.hh"
 )
