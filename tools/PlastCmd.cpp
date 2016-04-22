@@ -70,6 +70,7 @@
 
 #include <misc/api/PlastStrings.hpp>
 #include <misc/api/version.hpp>
+#include <misc/api/PLogger.hpp>
 #include <misc/impl/Option.hpp>
 #include <misc/impl/OptionsParser.hpp>
 
@@ -83,12 +84,16 @@
 
 #include <launcher/core/PlastCmd.hpp>
 
+#include <log4cpp/Priority.hh>
+
+
 #include <log4cpp/Category.hh>
 #include <log4cpp/Appender.hh>
 #include <log4cpp/FileAppender.hh>
 #include <log4cpp/OstreamAppender.hh>
 #include <log4cpp/Layout.hh>
 #include <log4cpp/BasicLayout.hh>
+#include <log4cpp/PatternLayout.hh>
 #include <log4cpp/Priority.hh>
 
 
@@ -107,7 +112,9 @@ void testLog4cpp() {
     appender1->setLayout(new log4cpp::BasicLayout());
 
     log4cpp::Appender *appender2 = new log4cpp::FileAppender("default", "program.log");
-    appender2->setLayout(new log4cpp::BasicLayout());
+    log4cpp::PatternLayout *pattern = new log4cpp::PatternLayout();
+    pattern->setConversionPattern("%d - %r [%t] %p %c [%x] - %m%n");
+    appender2->setLayout(pattern);
 
     log4cpp::Category& root = log4cpp::Category::getRoot();
     root.setPriority(log4cpp::Priority::WARN);
@@ -147,7 +154,12 @@ int main (int argc, char* argv[])
 {
     PlastOptionsParser parser;
 
-    //testLog4cpp();
+    testLog4cpp();
+
+    //PLogger::debug("toto");
+    //PLogger::initialize();
+    //PLogger::debug("titi");
+    //PLogger::debug("tata");
 
     try {
         /** We create a Properties instance for collecting both init properties file and user command line options. */
