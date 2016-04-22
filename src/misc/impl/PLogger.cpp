@@ -10,6 +10,7 @@
 #include <log4cpp/Layout.hh>
 #include <log4cpp/PatternLayout.hh>
 #include <log4cpp/Priority.hh>
+#include <log4cpp/NDC.hh>
 
 /********************************************************************************/
 namespace misc {
@@ -17,25 +18,31 @@ namespace misc {
 namespace PLogger {
 
 namespace{
-    log4cpp::Category& root = log4cpp::Category::getRoot();
     bool init = false;
 }
 
-void initialize(){
-    log4cpp::Appender *appender = new log4cpp::FileAppender("default", "plast.log");
+void initialize(log4cpp::Priority::Value priority){
+    log4cpp::Category&     root = log4cpp::Category::getRoot();
+    log4cpp::Appender      *appender = new log4cpp::FileAppender("default", "plast.log");
     log4cpp::PatternLayout *pattern = new log4cpp::PatternLayout();
-    pattern->setConversionPattern("%d [%p] - %m%n %x");
+
+    pattern->setConversionPattern("%d [%p]-%c- %m%n");
     appender->setLayout(pattern);
-    root.setPriority(log4cpp::Priority::DEBUG);
+
+    root.setPriority(priority);
     root.addAppender(appender);
 
     init = true;
 }
 
-void debug(const char* message){
+bool isInitialized(){
+    return init;
+}
+
+/*void debug(log4cpp::Category& logger, const char* message){
     if (!init)
         return;
-    root.debug(message);
+    logger.debug(message);
     void* callstack[2];
     int i, frames = backtrace(callstack, 2);
     char** strs = backtrace_symbols(callstack, frames);
@@ -43,7 +50,7 @@ void debug(const char* message){
     printf("%s\n", strs[i]);
     }
     free(strs);
-}
+}*/
 
 /********************************************************************************/
 }}  /* end of namespaces. */

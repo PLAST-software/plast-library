@@ -14,6 +14,8 @@
  *   Affero GPL ver 3 License for more details.                              *
  *****************************************************************************/
 
+#include <misc/api/PLogger.hpp>
+
 #include <os/impl/DefaultOsFactory.hpp>
 
 #include <designpattern/impl/ListIterator.hpp>
@@ -157,7 +159,7 @@ AbstractAlgorithm::AbstractAlgorithm (
 *********************************************************************/
 AbstractAlgorithm::~AbstractAlgorithm (void)
 {
-    DEBUG (("AbstractAlgorithm::~AbstractAlgorithm : releasing instances.\n"));
+    LOG_DEBUG_S ("AbstractAlgorithm::~AbstractAlgorithm : releasing instances.\n");
 
     /** We get rid of the used instances. */
     setConfig            (0);

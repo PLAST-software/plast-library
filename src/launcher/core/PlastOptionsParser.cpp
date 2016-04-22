@@ -116,6 +116,7 @@ void PlastOptionsParser::build ()
     this->add (new OptionNoParam  (STR_OPTION_INFO_STATS_AUTO,          STR_HELP_INFO_STATS_AUTO));
     this->add (new OptionOneParam (STR_OPTION_INFO_ALIGNMENT_PROGRESS,  STR_HELP_INFO_ALIGNMENT_PROGRESS));
     this->add (new OptionOneParam (STR_OPTION_INFO_RESOURCES_PROGRESS,  STR_HELP_INFO_RESOURCES_PROGRESS));
+    this->add (new OptionOneParam (STR_OPTION_LOGGER,                   STR_HELP_LOGGER));
 
     this->add (new OptionOneParam (STR_OPTION_INFO_CONFIG_FILE,         STR_HELP_INFO_CONFIG_FILE));
 

@@ -88,12 +88,6 @@
 
 
 #include <log4cpp/Category.hh>
-#include <log4cpp/Appender.hh>
-#include <log4cpp/FileAppender.hh>
-#include <log4cpp/OstreamAppender.hh>
-#include <log4cpp/Layout.hh>
-#include <log4cpp/BasicLayout.hh>
-#include <log4cpp/PatternLayout.hh>
 #include <log4cpp/Priority.hh>
 
 
@@ -107,41 +101,6 @@ using namespace misc::impl;
 
 using namespace launcher::core;
 
-void testLog4cpp() {
-    log4cpp::Appender *appender1 = new log4cpp::OstreamAppender("console", &std::cout);
-    appender1->setLayout(new log4cpp::BasicLayout());
-
-    log4cpp::Appender *appender2 = new log4cpp::FileAppender("default", "program.log");
-    log4cpp::PatternLayout *pattern = new log4cpp::PatternLayout();
-    pattern->setConversionPattern("%d - %r [%t] %p %c [%x] - %m%n");
-    appender2->setLayout(pattern);
-
-    log4cpp::Category& root = log4cpp::Category::getRoot();
-    root.setPriority(log4cpp::Priority::WARN);
-    root.addAppender(appender1);
-
-    log4cpp::Category& sub1 = log4cpp::Category::getInstance(std::string("sub1"));
-    sub1.addAppender(appender2);
-
-    // use of functions for logging messages
-    root.error("root error");
-    root.info("root info");
-    sub1.error("sub1 error");
-    sub1.warn("sub1 warn");
-
-    // printf-style for logging variables
-    root.warn("%d + %d == %s ?", 1, 1, "two");
-
-    // use of streams for logging messages
-    root << log4cpp::Priority::ERROR << "Streamed root error";
-    root << log4cpp::Priority::INFO << "Streamed root info";
-    sub1 << log4cpp::Priority::ERROR << "Streamed sub1 error";
-    sub1 << log4cpp::Priority::WARN << "Streamed sub1 warn";
-
-    // or this way:
-    root.errorStream() << "Another streamed error";
-}
-
 /*********************************************************************
  ** METHOD  :
  ** PURPOSE :
@@ -153,13 +112,6 @@ void testLog4cpp() {
 int main (int argc, char* argv[])
 {
     PlastOptionsParser parser;
-
-    testLog4cpp();
-
-    //PLogger::debug("toto");
-    //PLogger::initialize();
-    //PLogger::debug("titi");
-    //PLogger::debug("tata");
 
     try {
         /** We create a Properties instance for collecting both init properties file and user command line options. */
@@ -184,7 +136,12 @@ int main (int argc, char* argv[])
             parser.displayHelp   (stdout);
         }/** otherwise we start PLAST */
         else{
-
+            if(parser.saw(STR_OPTION_LOGGER)){
+                const Option* logLevel = parser.getSeenOption (STR_OPTION_LOGGER);
+                PLogger::initialize(log4cpp::Priority::getPriorityValue(logLevel->getParam().c_str()));
+                LOG_INFO(log4cpp::Category::getRoot(), "*** START Application *** ");
+                LOG_DEBUG_S("toto");
+            }
             /** We try to see if we have a provided rc file. */
             const Option* fileOpt = parser.getSeenOption (STR_OPTION_INFO_CONFIG_FILE);
             string plastrc = getenv (MSG_MAIN_HOME) ? string (getenv(MSG_MAIN_HOME)) + string(MSG_MAIN_RC_FILE) : "";
@@ -205,6 +162,11 @@ int main (int argc, char* argv[])
         if (parser.saw(STR_OPTION_HELP))    {   parser.displayHelp   (stdout);   }
         else                                {   parser.displayErrors (stdout);   parser.displayHelpShort();}
     }
+    catch (std::invalid_argument& e)
+    {
+        //among others, this is thown if argument of '-logger' is invalid
+        fprintf (stderr, MSG_MAIN_MSG3, e.what());
+    }
     catch (statistics::GlobalParametersFailure& e)
     {
         fprintf (stderr, MSG_MAIN_MSG2, e.getMessage());
@@ -216,6 +178,10 @@ int main (int argc, char* argv[])
     catch (...)
     {
         fprintf (stderr, MSG_MAIN_MSG4);
+    }
+
+    if(parser.saw(STR_OPTION_LOGGER)){
+        LOG_INFO(log4cpp::Category::getRoot(), "*** END Application *** ");
     }
 
     return 0;

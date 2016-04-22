@@ -28,6 +28,14 @@
 #include <os/api/IResource.hpp>
 #include <misc/api/types.hpp>
 
+#ifdef __WINDOWS__
+#define FILE_SEPARATOR "\\"
+#define FILE_PATH_SEPARATOR ";"
+#else
+#define FILE_SEPARATOR "/"
+#define FILE_PATH_SEPARATOR ":"
+#endif
+
 /********************************************************************************/
 /** \brief Operating System abstraction layer */
  namespace os {

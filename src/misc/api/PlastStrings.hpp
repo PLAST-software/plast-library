@@ -365,6 +365,8 @@ namespace misc {
 
 #define STR_OPTION_KMERS_TO_SELECT misc::StringRepository::m_STR_OPTION_KMERS_TO_SELECT ()
 
+#define STR_OPTION_LOGGER misc::StringRepository::m_STR_OPTION_LOGGER ()
+
 /********************************************************************************/
 
 /** Strings occurring in messages, exceptions... */
@@ -460,7 +462,8 @@ namespace misc {
 #define STR_HELP_INFO_CONFIG_FILE           misc::StringRepository::m_STR_HELP_INFO_CONFIG_FILE ()   // Pathname of the plast config file.
 #define STR_HELP_WORD_SIZE                  misc::StringRepository::m_STR_HELP_WORD_SIZE ()   // Pathname of the plast config file.
 #define STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE   		misc::StringRepository::m_STR_HELP_COMPLETE_SUBJECT_DB_STATS_FILE ()   // File path to the stats of the complete subject db
-#define STR_HELP_ITERATIONS_STEPS                      misc::StringRepository::m_STR_HELP_ITERATIONS_STEPS () // Option to run multiple iterations
+#define STR_HELP_ITERATIONS_STEPS           misc::StringRepository::m_STR_HELP_ITERATIONS_STEPS () // Option to run multiple iterations
+#define STR_HELP_LOGGER                     misc::StringRepository::m_STR_HELP_LOGGER ()
 
 #define STR_CONFIG_CLASS_KarlinStats			        misc::StringRepository::m_STR_CONFIG_CLASS_KarlinStats ()   // KarlinStats
 #define STR_CONFIG_CLASS_SpougeStats				    misc::StringRepository::m_STR_CONFIG_CLASS_SpougeStats ()   // SpougeStats
