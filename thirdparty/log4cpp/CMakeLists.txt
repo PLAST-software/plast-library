@@ -24,12 +24,14 @@ ELSE (WIN32)
   ENDIF (APPLE)
 ENDIF (WIN32)
 
+# BEGIN -- change for PLAST
 # The following commented out: log4cpp name is set in master Plast CMake file
 #IF ( CMAKE_BUILD_TYPE MATCHES "Debug" )
 #  SET ( LOG4CPP_LIBRARY_NAME "log4cppD" )
 #ELSE ( CMAKE_BUILD_TYPE MATCHES "Debug" )
 #  SET ( LOG4CPP_LIBRARY_NAME "log4cpp" )
 #ENDIF ( CMAKE_BUILD_TYPE MATCHES "Debug" )
+# END -- change for PLAST
 
 ADD_LIBRARY ( ${LOG4CPP_LIBRARY_NAME}
   src/Appender.cpp

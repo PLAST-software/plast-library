@@ -1,0 +1,7 @@
+This directory contains a subset of log4cpp release 1.1.1 suitable to be used with PLAST.
+
+Code is not modified except CMakeLists.txt; see that file for more information.
+
+This subset has been prepared out of log4cpp-1.1.1.tar.gz retrieved from official log4cpp 
+repository (http://log4cpp.sf.net/).
+ 
