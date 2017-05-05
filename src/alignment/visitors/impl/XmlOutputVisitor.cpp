@@ -25,6 +25,15 @@
 #include <stdio.h>
 #define DEBUG(a)  //printf a
 
+/* 2512 = 2*1024+256.
+ * Why? See FastaSequenceIterator.hpp::commentMaxSize, FileLineIterator.hpp
+ * where header size is limited to 2048 chars. Then add 256 char for formatting purpose. As a
+ * reminder, Plast does not store sequences: the limit of the buffer is ok, since the largest
+ * string comes from Hit_definition, aka Fasta header or Blast sequence header.
+ */
+#define	MAX_HEADER_SIZE	2048
+#define	BUFFER_SIZE	2512
+
 using namespace std;
 using namespace database;
 using namespace alignment;
@@ -119,8 +128,13 @@ void XmlOutputVisitor::visitQuerySequence (
                       PLAST_BUILD_DATE);
         printline (1, "<BlastOutput_reference>%s</BlastOutput_reference>",
                    STR_PLAST_REFERENCE);
-        printline (1, "<BlastOutput_db>%s</BlastOutput_db>",
-                   _properties->getProperty (STR_OPTION_SUBJECT_URI)->getValue().c_str());
+        /* DB like NCBI nr are made of so many volumes that we have a too long string.
+         */
+        std::string dbName = _properties->getProperty (STR_OPTION_SUBJECT_URI)->getValue();
+        if (dbName.size()>=MAX_HEADER_SIZE){
+            dbName = dbName.substr(0, MAX_HEADER_SIZE);
+        }
+        printline (1, "<BlastOutput_db>%s</BlastOutput_db>", dbName.c_str());
         printline (1, "<BlastOutput_query-ID>Query_1</BlastOutput_query-ID>");
         printline (1, "<BlastOutput_query-def>%s</BlastOutput_query-def>", seq->getDefinition().c_str());
         printline (1, "<BlastOutput_query-len>%d</BlastOutput_query-len>", seq->getLength());
@@ -243,13 +257,12 @@ void XmlOutputVisitor::printline (size_t depth, const char* format, ...)
     /** We dump the indentation. */
     for (size_t i=0; i<depth; i++)   { getStream() << "  ";  }
 
-    char buffer[1024];
+    char buffer[BUFFER_SIZE];
 
     va_list va;
     va_start (va, format);
     vsprintf (buffer, format, va);
     va_end (va);
-
     getStream() << buffer << endl;
 }
 
