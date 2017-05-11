@@ -133,6 +133,9 @@ void XmlOutputVisitor::visitQuerySequence (
         std::string dbName = _properties->getProperty (STR_OPTION_SUBJECT_URI)->getValue();
         if (dbName.size()>=MAX_HEADER_SIZE){
             dbName = dbName.substr(0, MAX_HEADER_SIZE);
+            dbName[MAX_HEADER_SIZE-1]='.';
+            dbName[MAX_HEADER_SIZE-2]='.';
+            dbName[MAX_HEADER_SIZE-3]='.';
         }
         printline (1, "<BlastOutput_db>%s</BlastOutput_db>", dbName.c_str());
         printline (1, "<BlastOutput_query-ID>Query_1</BlastOutput_query-ID>");
