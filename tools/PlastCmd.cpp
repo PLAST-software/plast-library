@@ -104,6 +104,7 @@ using namespace launcher::core;
 int main (int argc, char* argv[])
 {
     PlastOptionsParser parser;
+    int retcode = 0;
     try {
         /** We create a Properties instance for collecting both init properties file and user command line options. */
         IProperties* props = new Properties ();
@@ -146,20 +147,23 @@ int main (int argc, char* argv[])
     catch (OptionFailure& e)
     {
         if (parser.saw(STR_OPTION_HELP))    {   parser.displayHelp   (stdout);   }
-        else                                {   parser.displayErrors (stdout);   parser.displayHelpShort();}
+        else                                {   parser.displayErrors (stdout);   parser.displayHelpShort(); retcode = 2;}
     }
     catch (statistics::GlobalParametersFailure& e)
     {
         fprintf (stderr, MSG_MAIN_MSG2, e.getMessage());
+        retcode = 3;
     }
     catch (const char* e)
     {
         fprintf (stderr, MSG_MAIN_MSG3, e);
+        retcode = 4;
     }
     catch (...)
     {
-        fprintf (stderr, MSG_MAIN_MSG4);
+        fprintf (stderr, "%s", MSG_MAIN_MSG4);
+        retcode = 5;
     }
 
-    return 0;
+    return retcode;
 }
