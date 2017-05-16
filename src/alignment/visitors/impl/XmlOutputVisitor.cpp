@@ -144,8 +144,8 @@ void XmlOutputVisitor::visitQuerySequence (
         printline (1, "<BlastOutput_query-seq>not specified</BlastOutput_query-seq>");
         printline (1, "<BlastOutput_param>");
         printline (2, "<Parameters>");
-        printParameter(STR_OPTION_EVALUE, "expect");
         printParameter(STR_OPTION_SCORE_MATRIX, "matrix");
+        printParameter(STR_OPTION_EVALUE, "expect");
         printParameter(STR_OPTION_OPEN_GAP_COST, "gap-open");
         printParameter(STR_OPTION_EXTEND_GAP_COST, "gap-extend");
         printParameter(STR_OPTION_FILTER_QUERY, "filter");
