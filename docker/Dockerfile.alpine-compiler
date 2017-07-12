@@ -1,0 +1,64 @@
+#########################################################################################
+#
+# P R O D U C T I O N    R E A D Y
+#
+# Docker container based on Alpine Linux. It aims at compiling PLAST software using 
+# Alpine c/c++ compiler.
+#
+#########################################################################################
+#
+# == Docker build command:
+#
+#    docker build -f Dockerfile.alpine-compiler -t plast_alpine_compiler .
+#
+# == Docker run command:
+#
+#    see companion scripts "build.sh" to review how to use this Alpine c/c++ complier.
+#
+#########################################################################################
+
+# Base image to compile PLAST using an Alpine Linux OS.
+# JDK is required since PLAST contains JNI interface, natively.
+# JDK is required to compile PLAST source code... however, it is not to run PLAST binary.
+# Alpine/JDK8 Docker from: https://hub.docker.com/r/frolvlad/alpine-oraclejdk8/
+FROM frolvlad/alpine-oraclejdk8:full
+
+# who to blame?
+MAINTAINER Patrick Durand patrick.durand@inria.fr
+
+# ###
+#
+# Package installation and configuration:
+#
+#     1. We need libc and libc++ to compile PLAST
+#     2. We also need cmake, make and c/c++ compiler
+#     3. We need perl (used by cmake to get current build date)
+#     4. We need bash (compile script) and curl (to get tarballs from Github)
+#
+RUN apk update && \
+    apk add --no-cache \
+    bash \
+    curl \
+    perl \
+    cmake make g++
+    #make cmake gcc g++ libstdc++ libgcc 
+
+# Add the build script
+COPY build.sh /usr/bin
+
+# Fix: ensure script has exec permission
+RUN chmod +x /usr/bin/build.sh
+
+# Run this container as non-root
+#   testing machine: use pdurand account
+#   production machine: use Jenkins account
+RUN adduser -D -H -u 502 pdurand
+RUN adduser -D -H -u 1000 ci
+# Note: we do not use Docker 'USER' command here. Instead, use "--user xxx"
+# with "docker run" command.
+
+# ###
+#     Start to make a PLAST Tool. See "build.sh" header for more information.
+#
+ENTRYPOINT ["/usr/bin/build.sh"]
+
