@@ -77,7 +77,7 @@ MAINTAINER Patrick Durand patrick.durand@inria.fr
 # ###
 #    We always use the latest official PLAST release.
 #
-ENV PLAST_VERSION=2.3.1
+ENV PLAST_VERSION=2.3.2
     
 # ###
 #     Package installation and configuration
