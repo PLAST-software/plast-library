@@ -17,7 +17,7 @@ environment:
   DOXYGEN_ROOT: C:\projects\doxygen
   DOXYGEN_EXE: C:\projects\doxygen\Doxygen.1.8.9.2\tools\doxygen.exe
   CPPUNIT_ROOT: C:\projects\cppunit
-  CPPUNIT_INCLUDE_DIR: C:\projects\cppunit\cppunit-1.13.2\include
+  CPPUNIT_INCLUDE_DIR: /C/projects/cppunit/cppunit-1.13.2/include
   CPPUNIT_LIBRARY: /C/projects/cppunit/cppunit-1.13.2/lib/cppunit.lib
 
 init:
