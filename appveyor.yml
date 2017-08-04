@@ -29,7 +29,8 @@ install:
     #install cppunit
     - md %CPPUNIT_ROOT%
     - git clone git://anongit.freedesktop.org/git/libreoffice/cppunit/ %CPPUNIT_ROOT%
-    - cp  ${APPVEYOR_BUILD_FOLDER}/ci/appveyor/config-auto.h %CPPUNIT_ROOT%/include/cppunit
+    - echo %APPVEYOR_BUILD_FOLDER%
+    - cp  %APPVEYOR_BUILD_FOLDER%/ci/appveyor/config-auto.h %CPPUNIT_ROOT%/include/cppunit
     - cmd: '"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe" /upgrade %CPPUNIT_ROOT%\src\CppUnitLibraries2010.sln'
     - msbuild %CPPUNIT_ROOT%\src\CppUnitLibraries2010.sln /m /p:Configuration=Release /target:cppunit
     #- curl -o %CPPUNIT_ROOT%\cppunit.tar.gz http://dev-www.libreoffice.org/src/cppunit-1.13.2.tar.gz 
