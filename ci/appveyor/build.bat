@@ -16,7 +16,7 @@ echo CPPUNIT_LIBRARY: %CPPUNIT_LIBRARY%
 
 @echo on
 SET "PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
-cd %CPPUNIT_ROOT%
-bash -lc "./autogen.sh && ./configure && make && make install"
+bash -lc "cd /C/projects/cppunit && ls -l"
+bash -lc "cd /C/projects/cppunit && ./autogen.sh && ./configure && make && make install"
 rem bash -lc "cd ${APPVEYOR_BUILD_FOLDER} && export CC="gcc.exe" && export CXX="g++.exe" && exec 0</dev/null && mkdir build && cd build && CXX=g++ CC=gcc cmake -G 'MSYS Makefiles' -DDOXYGEN_EXECUTABLE="%DOXYGEN_EXE%" -DCPPUNIT_INCLUDE_DIR="%CPPUNIT_INCLUDE_DIR%" -DCPPUNIT_LIBRARY="%CPPUNIT_LIBRARY%" .. && make -j2"
 
