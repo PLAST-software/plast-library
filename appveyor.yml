@@ -1,0 +1,49 @@
+version: '{build}'
+
+branches:
+  only:
+    - stable
+    
+os: Visual Studio 2015
+
+environment:
+  COMPILER: msys2
+  PLATFORM: x64
+  MSYS2_ARCH: x86_64
+  MSYS2_DIR: msys64
+  MSYSTEM: MINGW64
+  BIT: 64
+  BUILDTOOL: cmake
+  DOXYGEN_ROOT: C:\projects\doxygen
+  DOXYGEN_EXE: C:\projects\doxygen\Doxygen.1.8.9.2\tools\doxygen.exe
+  CPPUNIT_ROOT: C:\projects\cppunit
+  CPPUNIT_INCLUDE_DIR: C:\projects\cppunit\cppunit-1.13.2\include
+  CPPUNIT_LIBRARY: /C/projects/cppunit/cppunit-1.13.2/lib/cppunit.lib
+
+init:
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+install:
+    #install cppunit
+    - md %CPPUNIT_ROOT%
+    - curl -o %CPPUNIT_ROOT%\cppunit.tar.gz http://dev-www.libreoffice.org/src/cppunit-1.13.2.tar.gz 
+    - 7z x %CPPUNIT_ROOT%\cppunit.tar.gz -so | 7z x -si -ttar -o%CPPUNIT_ROOT%
+    - cmd: '"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe" /upgrade %CPPUNIT_ROOT%\cppunit-1.13.2\src\CppUnitLibraries2010.sln'
+    - msbuild %CPPUNIT_ROOT%\cppunit-1.13.2\src\CppUnitLibraries2010.sln /m /p:Configuration=Release /target:cppunit
+
+    #install doxygen
+    - nuget install Doxygen -outputdirectory "%DOXYGEN_ROOT%"
+
+build_script:
+  - '%APPVEYOR_BUILD_FOLDER%\ci\appveyor\build.bat'
+  
+notifications:
+  - provider: Email
+    to:
+      - patrick.durand@inria.fr
+    on_build_failure: true
+    on_build_status_changed: true
+
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+

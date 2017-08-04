@@ -58,8 +58,8 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set (LIBRARY_COMPILE_DEFINITIONS "${LIBRARY_COMPILE_DEFINITIONS} -D__WINDOWS__")
     # IMPORTANT ! we have to add this flag for getting correct methods names in the library    
     # otherwise the Java JVM won't find the native JNI methods.
-    set_target_properties (PlastLibrary PROPERTIES LINK_FLAGS -Wl,--kill-at)
-    set_target_properties (PlastLibrary PROPERTIES PREFIX "")
+    #set_target_properties (PlastLibrary PROPERTIES LINK_FLAGS -Wl,--kill-at)
+    #set_target_properties (PlastLibrary PROPERTIES PREFIX "")
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 ################################################################################
@@ -80,7 +80,7 @@ set (plast-flags ${LIBRARY_COMPILE_DEFINITIONS})
 set (plast-includes ${PROJECT_BINARY_DIR}/include)
 
 # We define the libraries used for linking binary based on the library
-set (plast-libraries  PlastLibrary-static  dl  pthread)
+set (plast-libraries  PlastLibrary-static   pthread)
 
 # NOTE... we have to duplicate the variables for the other scopes (in particular for sub directories)
 set (plast-flags     ${plast-flags}     PARENT_SCOPE)

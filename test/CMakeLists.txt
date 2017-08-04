@@ -9,7 +9,7 @@ ADD_SUBDIRECTORY(unit)
 ADD_SUBDIRECTORY(benchmark EXCLUDE_FROM_ALL)
 
 # We add a custom target for delivery binaries
-add_custom_target (test 
+add_custom_target (run_test 
 
     COMMAND echo "================================================================"
     COMMAND echo ""
