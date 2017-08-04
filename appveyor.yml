@@ -17,8 +17,10 @@ environment:
   DOXYGEN_ROOT: C:\projects\doxygen
   DOXYGEN_EXE: C:\projects\doxygen\Doxygen.1.8.9.2\tools\doxygen.exe
   CPPUNIT_ROOT: C:\projects\cppunit
-  CPPUNIT_INCLUDE_DIR: /C/projects/cppunit/cppunit-1.13.2/include
-  CPPUNIT_LIBRARY: /C/projects/cppunit/cppunit-1.13.2/lib/cppunit.lib
+  CPPUNIT_INCLUDE_DIR: /C/projects/cppunit/include
+  CPPUNIT_LIBRARY: /C/projects/cppunit/lib/cppunit.lib
+  #CPPUNIT_INCLUDE_DIR: /C/projects/cppunit/cppunit-1.13.2/include
+  #CPPUNIT_LIBRARY: /C/projects/cppunit/cppunit-1.13.2/lib/cppunit.lib
 
 init:
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
@@ -27,6 +29,9 @@ install:
     #install cppunit
     - md %CPPUNIT_ROOT%
     - git clone git://anongit.freedesktop.org/git/libreoffice/cppunit/ %CPPUNIT_ROOT%
+    - cp  ${APPVEYOR_BUILD_FOLDER}/ci/appveyor/config-auto.h %CPPUNIT_ROOT%/include/cppunit
+    - cmd: '"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe" /upgrade %CPPUNIT_ROOT%\src\CppUnitLibraries2010.sln'
+    - msbuild %CPPUNIT_ROOT%\src\CppUnitLibraries2010.sln /m /p:Configuration=Release /target:cppunit
     #- curl -o %CPPUNIT_ROOT%\cppunit.tar.gz http://dev-www.libreoffice.org/src/cppunit-1.13.2.tar.gz 
     #- 7z x %CPPUNIT_ROOT%\cppunit.tar.gz -so | 7z x -si -ttar -o%CPPUNIT_ROOT%
     #- cmd: '"C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe" /upgrade %CPPUNIT_ROOT%\cppunit-1.13.2\src\CppUnitLibraries2010.sln'
