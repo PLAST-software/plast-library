@@ -19,15 +19,8 @@
 
 #include <algo/hits/gap/SmallGapHitIteratorSSE8.hpp>
 
-#if __SSE3__
-    #include <pmmintrin.h>
-#else
-    #if __SSE2__
-        #include <emmintrin.h>
-    #else
-        #warning error undefined __SSE3__ or __SSE2__
-    #endif
-#endif
+#define SIMDE_ENABLE_NATIVE_ALIASES
+#include <simde/x86/sse3.h>
 
 using namespace std;
 using namespace misc;

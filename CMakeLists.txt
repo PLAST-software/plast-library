@@ -37,7 +37,7 @@ if (debug)
     set (LIBRARY_COMPILE_DEFINITIONS  "${LIBRARY_COMPILE_DEFINITIONS} -g -p")
     message("-- COMPILATION IN DEBUG MODE")
 else()
-    set (LIBRARY_COMPILE_DEFINITIONS  "${LIBRARY_COMPILE_DEFINITIONS} -O3 -funroll-loops  -fomit-frame-pointer  -msse3 ")
+    set (LIBRARY_COMPILE_DEFINITIONS  "${LIBRARY_COMPILE_DEFINITIONS} -O3 -funroll-loops  -fomit-frame-pointer")
 #  -DOBSFUCATION  -DJNI_OBSFUCATION
 endif()
 
